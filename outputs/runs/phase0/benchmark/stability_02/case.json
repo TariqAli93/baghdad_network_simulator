@@ -1,0 +1,39 @@
+{
+  "case": {
+    "cell_m": 10.0,
+    "size_m": 1000.0,
+    "samples": 10000000,
+    "bands": [
+      "nr_3500"
+    ],
+    "max_depth": 2,
+    "diffraction": true,
+    "threads": null,
+    "cpus": null,
+    "repeats": 1,
+    "mem_cap_gb": 10.0,
+    "name": "stability_02"
+  },
+  "runtime": {
+    "variant": "llvm_ad_mono_polarized",
+    "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+    "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+    "threads": 16,
+    "cpu_affinity": null,
+    "mem_cap_gb": 10.0
+  },
+  "scene_load_s": 0.07,
+  "runs": [
+    {
+      "band": "nr_3500",
+      "first_call_s": 0.66,
+      "repeat_call_s": 0.66,
+      "outdoor_cells": 6224,
+      "zero_path_fraction": 0.07824550128534702,
+      "finite": true
+    }
+  ],
+  "peak_commit_gb": 0.846,
+  "peak_working_set_gb": 0.321,
+  "job_peak_commit_gb": 0.846
+}

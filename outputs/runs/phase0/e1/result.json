@@ -1,0 +1,113 @@
+{
+  "experiment": "E1 free space",
+  "passed": true,
+  "grid": [
+    20,
+    40
+  ],
+  "tx": [
+    30.0,
+    -20.0,
+    25.0
+  ],
+  "samples": 10000000,
+  "bands": [
+    {
+      "scenario": "lte_1800",
+      "frequency_hz": 1800000000.0,
+      "mean_db": -8.776034707379268e-05,
+      "rms_db": 0.01913444331169749,
+      "max_abs_db": 0.10490894514187771,
+      "seconds": 0.066
+    },
+    {
+      "scenario": "nr_3500",
+      "frequency_hz": 3500000000.0,
+      "mean_db": -8.873321414123496e-05,
+      "rms_db": 0.019134407554184354,
+      "max_abs_db": 0.10490780608317582,
+      "seconds": 0.049
+    },
+    {
+      "scenario": "c6g_8000",
+      "frequency_hz": 8000000000.0,
+      "mean_db": -8.819230380782843e-05,
+      "rms_db": 0.019134438751078047,
+      "max_abs_db": 0.10490814215481636,
+      "seconds": 0.047
+    },
+    {
+      "scenario": "c6g_15000",
+      "frequency_hz": 15000000000.0,
+      "mean_db": -8.837257353148946e-05,
+      "rms_db": 0.019134394418253577,
+      "max_abs_db": 0.10490876668787302,
+      "seconds": 0.057
+    },
+    {
+      "scenario": "nr_28000",
+      "frequency_hz": 28000000000.0,
+      "mean_db": -8.871279061799223e-05,
+      "rms_db": 0.01913441382334415,
+      "max_abs_db": 0.10490780608317582,
+      "seconds": 0.041
+    }
+  ],
+  "convergence_3p5ghz": [
+    {
+      "samples": 100000,
+      "mean_db": -0.05239580266925247,
+      "rms_db": 0.7328727033814034,
+      "max_abs_db": 4.709160290263884,
+      "seconds": 0.005
+    },
+    {
+      "samples": 1000000,
+      "mean_db": -0.0018100884256453693,
+      "rms_db": 0.12622784897781256,
+      "max_abs_db": 0.7855786721628427,
+      "seconds": 0.014
+    },
+    {
+      "samples": 10000000,
+      "mean_db": -8.872072584734123e-05,
+      "rms_db": 0.019134418158736476,
+      "max_abs_db": 0.10490780608317582,
+      "seconds": 0.045
+    },
+    {
+      "samples": 100000000,
+      "mean_db": 0.00011053470925606203,
+      "rms_db": 0.003513813955248924,
+      "max_abs_db": 0.021512698076647588,
+      "seconds": 0.338
+    }
+  ],
+  "seed_max_relative_difference": 1.8345944335469536e-07,
+  "orientation_ok": true,
+  "tolerances": {
+    "analytic_max_abs_db": 0.25,
+    "analytic_rms_db": 0.05,
+    "diffraction_db": 2.0
+  },
+  "runtime": {
+    "variant": "llvm_ad_mono_polarized",
+    "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+    "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+    "threads": 16,
+    "cpu_affinity": null,
+    "mem_cap_gb": null
+  },
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "wall_seconds": 4.1
+}

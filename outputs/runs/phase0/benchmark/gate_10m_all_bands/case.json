@@ -1,0 +1,75 @@
+{
+  "case": {
+    "cell_m": 10.0,
+    "size_m": 1000.0,
+    "samples": 100000000,
+    "bands": [
+      "lte_1800",
+      "nr_3500",
+      "c6g_8000",
+      "c6g_15000",
+      "nr_28000"
+    ],
+    "max_depth": 2,
+    "diffraction": true,
+    "threads": null,
+    "cpus": null,
+    "repeats": 2,
+    "mem_cap_gb": 10.0,
+    "name": "gate_10m_all_bands"
+  },
+  "runtime": {
+    "variant": "llvm_ad_mono_polarized",
+    "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+    "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+    "threads": 16,
+    "cpu_affinity": null,
+    "mem_cap_gb": 10.0
+  },
+  "scene_load_s": 0.07,
+  "runs": [
+    {
+      "band": "lte_1800",
+      "first_call_s": 6.777,
+      "repeat_call_s": 6.118,
+      "outdoor_cells": 6224,
+      "zero_path_fraction": 0.004016709511568073,
+      "finite": true
+    },
+    {
+      "band": "nr_3500",
+      "first_call_s": 7.001,
+      "repeat_call_s": 6.435,
+      "outdoor_cells": 6224,
+      "zero_path_fraction": 0.004016709511568073,
+      "finite": true
+    },
+    {
+      "band": "c6g_8000",
+      "first_call_s": 7.177,
+      "repeat_call_s": 6.548,
+      "outdoor_cells": 6224,
+      "zero_path_fraction": 0.004016709511568073,
+      "finite": true
+    },
+    {
+      "band": "c6g_15000",
+      "first_call_s": 7.385,
+      "repeat_call_s": 6.689,
+      "outdoor_cells": 6224,
+      "zero_path_fraction": 0.004016709511568073,
+      "finite": true
+    },
+    {
+      "band": "nr_28000",
+      "first_call_s": 7.29,
+      "repeat_call_s": 6.627,
+      "outdoor_cells": 6224,
+      "zero_path_fraction": 0.004016709511568073,
+      "finite": true
+    }
+  ],
+  "peak_commit_gb": 0.872,
+  "peak_working_set_gb": 0.351,
+  "job_peak_commit_gb": 0.872
+}

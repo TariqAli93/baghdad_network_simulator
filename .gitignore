@@ -1,0 +1,18 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Agent tool state (not part of the project)
+.claude-flow/
+.swarm/
+
+# Generated data: rebuilt from data/raw by scripts
+data/processed/
+data/scenes/
+data/cache/
+
+# Run outputs: large arrays stay local, JSON summaries are kept
+outputs/**/*.npz
+outputs/**/*.png

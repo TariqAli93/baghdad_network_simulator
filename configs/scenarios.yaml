@@ -1,0 +1,40 @@
+﻿# The five baseline radio scenarios (project description, Table 1).
+# Only frequency and bandwidth differ between scenarios; everything else is shared.
+# status: "deployed" | "assumed" | "candidate"
+#   assumed   = plausible for Iraq but not confirmed by a published allocation
+#   candidate = research assumption, NOT a finalized commercial 6G specification
+scenarios:
+  - id: lte_1800
+    label: 4G LTE
+    frequency_hz: 1.8e+9
+    bandwidth_hz: 20.0e+6
+    status: deployed
+    basis: Band 3, in use by Iraqi operators
+
+  - id: nr_3500
+    label: 5G NR mid-band
+    frequency_hz: 3.5e+9
+    bandwidth_hz: 100.0e+6
+    status: assumed
+    basis: Typical first 5G band (assumed for Iraq until operators publish allocations)
+
+  - id: nr_28000
+    label: 5G NR mmWave
+    frequency_hz: 28.0e+9
+    bandwidth_hz: 400.0e+6
+    status: assumed
+    basis: High-capacity 5G reference
+
+  - id: c6g_8000
+    label: Candidate 6G upper mid-band
+    frequency_hz: 8.0e+9
+    bandwidth_hz: 400.0e+6
+    status: candidate
+    basis: WRC-27 candidate band, ITU Region 1 (7.75-8.4 GHz)
+
+  - id: c6g_15000
+    label: Candidate 6G 15 GHz
+    frequency_hz: 15.0e+9
+    bandwidth_hz: 400.0e+6
+    status: candidate
+    basis: WRC-27 candidate band studied in all regions (14.8-15.35 GHz)

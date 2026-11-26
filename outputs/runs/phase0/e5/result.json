@@ -1,0 +1,118 @@
+{
+  "experiment": "E5 convergence",
+  "passed": true,
+  "note": "Informative: it sets the ray count per grid spacing. Rays start on a fixed lattice, so line-of-sight and reflected power do not change with the seed.",
+  "site": {
+    "position_m": [
+      -177.89820780639792,
+      -131.235,
+      58.0
+    ],
+    "host_height_m": 55.0,
+    "host_height_source": "tag:height",
+    "mast_height_m": 3.0
+  },
+  "settings": {
+    "max_depth": 2,
+    "diffraction": true
+  },
+  "reference_samples": 1000000000,
+  "reference_seconds": 49.7,
+  "rows": [
+    {
+      "samples": 1000000,
+      "seconds": 0.11,
+      "cells_5m": {
+        "missed_fraction": 0.25702106318956874,
+        "median_abs_db": 1.2760683131329154,
+        "p95_abs_db": 29.991681764016207,
+        "rms_db": 11.171446722145953,
+        "max_abs_db": 77.04008141380385
+      },
+      "cells_10m": {
+        "missed_fraction": 0.1404109589041096,
+        "median_abs_db": 0.8516966240720996,
+        "p95_abs_db": 27.859663574509216,
+        "rms_db": 10.82184604315843,
+        "max_abs_db": 77.9478002580662
+      }
+    },
+    {
+      "samples": 10000000,
+      "seconds": 0.52,
+      "cells_5m": {
+        "missed_fraction": 0.08575727181544633,
+        "median_abs_db": 0.6514749297240388,
+        "p95_abs_db": 24.643084114866703,
+        "rms_db": 9.655412448414667,
+        "max_abs_db": 83.8761387945564
+      },
+      "cells_10m": {
+        "missed_fraction": 0.02853881278538813,
+        "median_abs_db": 0.41200976840953507,
+        "p95_abs_db": 6.202878782308185,
+        "rms_db": 6.055239174872078,
+        "max_abs_db": 83.38332568828528
+      }
+    },
+    {
+      "samples": 100000000,
+      "seconds": 4.9,
+      "cells_5m": {
+        "missed_fraction": 0.015546639919759278,
+        "median_abs_db": 0.25563390890185234,
+        "p95_abs_db": 3.78924968245295,
+        "rms_db": 3.383818756199433,
+        "max_abs_db": 77.91520034145015
+      },
+      "cells_10m": {
+        "missed_fraction": 0.0045662100456621,
+        "median_abs_db": 0.12180650042029512,
+        "p95_abs_db": 1.7931819390990817,
+        "rms_db": 0.9012472208860655,
+        "max_abs_db": 7.559276956045932
+      }
+    }
+  ],
+  "seed_to_seed_at_reference": {
+    "cells_5m": {
+      "missed_fraction": 0.0012537612838515546,
+      "median_abs_db": 0.11295626574308062,
+      "p95_abs_db": 1.601640187939184,
+      "rms_db": 1.512725090514739,
+      "max_abs_db": 75.10180965170652
+    },
+    "cells_10m": {
+      "missed_fraction": 0.0,
+      "median_abs_db": 0.06340298799542096,
+      "p95_abs_db": 0.8867075474250184,
+      "rms_db": 0.39652326424304774,
+      "max_abs_db": 3.4070832057952622
+    }
+  },
+  "tolerances": {
+    "analytic_max_abs_db": 0.25,
+    "analytic_rms_db": 0.05,
+    "diffraction_db": 2.0
+  },
+  "runtime": {
+    "variant": "llvm_ad_mono_polarized",
+    "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+    "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+    "threads": 16,
+    "cpu_affinity": null,
+    "mem_cap_gb": null
+  },
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "wall_seconds": 106.6
+}

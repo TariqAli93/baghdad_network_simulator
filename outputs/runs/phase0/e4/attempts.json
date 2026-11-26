@@ -1,0 +1,12 @@
+[
+  {
+    "attempt": 1,
+    "exit_code": 3221226356,
+    "seconds": 186.59
+  },
+  {
+    "attempt": 2,
+    "exit_code": 0,
+    "seconds": 267.34
+  }
+]

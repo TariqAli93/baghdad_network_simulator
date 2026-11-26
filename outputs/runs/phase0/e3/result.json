@@ -1,0 +1,144 @@
+{
+  "experiment": "E3 diffraction",
+  "passed": true,
+  "checks": {
+    "shadow_boundary_within_tolerance": true,
+    "frequency_scaling_within_tolerance": true
+  },
+  "note": "Knife-edge theory ignores material and polarisation; it is exact only at the shadow boundary and an envelope deeper in the shadow.",
+  "site": [
+    -60.0,
+    0.0,
+    30.0
+  ],
+  "block_height_m": 20.0,
+  "shadow_boundary_x_m": 125.25,
+  "mesh": {
+    "vertices": 8,
+    "triangles": 10,
+    "degenerate_triangles": 0,
+    "rim_edges": 4,
+    "wedges": 8,
+    "flat_shared_edges": 5,
+    "non_manifold_edges": 0,
+    "roof_triangles_facing_down": 0
+  },
+  "samples_per_seed": 10000000,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "rows": [
+    {
+      "scenario": "lte_1800",
+      "frequency_hz": 1800000000.0,
+      "near_boundary_measured_db": 7.382526979937741,
+      "near_boundary_knife_edge_db": 7.6238893816021065,
+      "deep_shadow_measured_db": 27.976247061176764,
+      "deep_shadow_knife_edge_db": 28.192102951256544,
+      "lit_side_step_db": 0.6326173916065972,
+      "shadow_cells_without_energy": 0,
+      "median_relative_noise": 0.009624180750107144,
+      "seconds_per_seed": 0.311,
+      "near_boundary_difference_db": -0.2413624016643654,
+      "deep_shadow_difference_db": -0.21585589007978,
+      "scaling_expected_db": 0.0,
+      "scaling_measured_db": 0.0
+    },
+    {
+      "scenario": "nr_3500",
+      "frequency_hz": 3500000000.0,
+      "near_boundary_measured_db": 8.01725980000191,
+      "near_boundary_knife_edge_db": 8.240037621325163,
+      "deep_shadow_measured_db": 30.7674658708212,
+      "deep_shadow_knife_edge_db": 31.07704899164961,
+      "lit_side_step_db": 0.5515772398621064,
+      "shadow_cells_without_energy": 0,
+      "median_relative_noise": 0.00962323068459434,
+      "seconds_per_seed": 0.297,
+      "near_boundary_difference_db": -0.22277782132325363,
+      "deep_shadow_difference_db": -0.30958312082841033,
+      "scaling_expected_db": 2.8879553924696957,
+      "scaling_measured_db": 2.7912188096444375
+    },
+    {
+      "scenario": "c6g_8000",
+      "frequency_hz": 8000000000.0,
+      "near_boundary_measured_db": 9.116239847130311,
+      "near_boundary_knife_edge_db": 9.318588702371326,
+      "deep_shadow_measured_db": 34.363752628254225,
+      "deep_shadow_knife_edge_db": 34.66638125632438,
+      "lit_side_step_db": 0.433861360026168,
+      "shadow_cells_without_energy": 0,
+      "median_relative_noise": 0.009623364555049013,
+      "seconds_per_seed": 0.316,
+      "near_boundary_difference_db": -0.20234885524101465,
+      "deep_shadow_difference_db": -0.30262862807015267,
+      "scaling_expected_db": 6.478174818886375,
+      "scaling_measured_db": 6.387505567077461
+    },
+    {
+      "scenario": "c6g_15000",
+      "frequency_hz": 15000000000.0,
+      "near_boundary_measured_db": 10.233130506051998,
+      "near_boundary_knife_edge_db": 10.43154065839283,
+      "deep_shadow_measured_db": 37.09320238204414,
+      "deep_shadow_knife_edge_db": 37.39624313647069,
+      "lit_side_step_db": 0.33838144757115546,
+      "shadow_cells_without_energy": 0,
+      "median_relative_noise": 0.009623376619419421,
+      "seconds_per_seed": 0.31,
+      "near_boundary_difference_db": -0.19841015234083237,
+      "deep_shadow_difference_db": -0.3030407544265472,
+      "scaling_expected_db": 9.208187539523752,
+      "scaling_measured_db": 9.116955320867376
+    },
+    {
+      "scenario": "nr_28000",
+      "frequency_hz": 28000000000.0,
+      "near_boundary_measured_db": 11.62479161520876,
+      "near_boundary_knife_edge_db": 11.826963092875378,
+      "deep_shadow_measured_db": 39.80365536214508,
+      "deep_shadow_knife_edge_db": 40.106868075696,
+      "lit_side_step_db": 0.24804363432711202,
+      "shadow_cells_without_energy": 0,
+      "median_relative_noise": 0.009623377570255335,
+      "seconds_per_seed": 0.298,
+      "near_boundary_difference_db": -0.20217147766661725,
+      "deep_shadow_difference_db": -0.30321271355091994,
+      "scaling_expected_db": 11.918855262389132,
+      "scaling_measured_db": 11.827408300968315
+    }
+  ],
+  "tolerances": {
+    "analytic_max_abs_db": 0.25,
+    "analytic_rms_db": 0.05,
+    "diffraction_db": 2.0
+  },
+  "runtime": {
+    "variant": "llvm_ad_mono_polarized",
+    "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+    "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+    "threads": 16,
+    "cpu_affinity": null,
+    "mem_cap_gb": null
+  },
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "wall_seconds": 15.2
+}

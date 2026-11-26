@@ -1,0 +1,205 @@
+{
+  "experiment": "E4 Baghdad block",
+  "passed": true,
+  "checks": {
+    "diffraction_unaffected_by_scene_size": true
+  },
+  "warning": "Most building heights are placeholders (see height_sources). These numbers show that the engine and pipeline work; they are not findings about Baghdad.",
+  "scene": {
+    "buildings": 174,
+    "height_sources": {
+      "tag:height": 6,
+      "assumed": 167,
+      "tag:building:levels": 1
+    },
+    "mesh": {
+      "vertices": 3028,
+      "triangles": 4200,
+      "degenerate_triangles": 0,
+      "rim_edges": 1526,
+      "wedges": 3012,
+      "flat_shared_edges": 2525,
+      "non_manifold_edges": 0,
+      "roof_triangles_facing_down": 0
+    }
+  },
+  "site": {
+    "position_m": [
+      -177.89820780639792,
+      -131.235,
+      58.0
+    ],
+    "host_height_m": 55.0,
+    "host_height_source": "tag:height",
+    "mast_height_m": 3.0
+  },
+  "grid": {
+    "size_m": [
+      400.0,
+      400.0
+    ],
+    "cell_m": 5.0
+  },
+  "samples": 100000000,
+  "ladder_3p5ghz": [
+    {
+      "mechanisms": "line of sight only",
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.6472452462213554,
+      "path_gain_p5_db": -99.93119103580476,
+      "path_gain_median_db": -94.73615765980597,
+      "path_gain_p95_db": -89.38002965159744,
+      "seconds": 0.77
+    },
+    {
+      "mechanisms": "+ 1 reflection",
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.568259385665529,
+      "path_gain_p5_db": -107.28501582932492,
+      "path_gain_median_db": -94.48306067889938,
+      "path_gain_p95_db": -89.27924011764279,
+      "seconds": 1.07
+    },
+    {
+      "mechanisms": "+ 2 reflections",
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.5243783520234032,
+      "path_gain_p5_db": -113.3419923265084,
+      "path_gain_median_db": -94.68275709195511,
+      "path_gain_p95_db": -89.31747382252695,
+      "seconds": 1.12
+    },
+    {
+      "mechanisms": "+ 2 reflections + diffraction (baseline)",
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.04290589956118962,
+      "path_gain_p5_db": -128.3718707814446,
+      "path_gain_median_db": -103.25441378109645,
+      "path_gain_p95_db": -89.56174158944205,
+      "seconds": 5.0
+    },
+    {
+      "mechanisms": "3 reflections + diffraction",
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.04290589956118962,
+      "path_gain_p5_db": -127.6722486912876,
+      "path_gain_median_db": -103.3501947706167,
+      "path_gain_p95_db": -89.62793055097981,
+      "seconds": 4.91
+    },
+    {
+      "mechanisms": "5 reflections + diffraction",
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.04290589956118962,
+      "path_gain_p5_db": -127.40083598018172,
+      "path_gain_median_db": -103.31070831253649,
+      "path_gain_p95_db": -89.62792877975188,
+      "seconds": 5.01
+    }
+  ],
+  "reflection_seed_max_relative_difference": 2.3465662461463516e-07,
+  "bands_baseline": [
+    {
+      "scenario": "lte_1800",
+      "frequency_hz": 1800000000.0,
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.04290589956118962,
+      "path_gain_p5_db": -119.68577787392343,
+      "path_gain_median_db": -95.85331906969056,
+      "path_gain_p95_db": -83.61732390290078,
+      "seconds": 4.83
+    },
+    {
+      "scenario": "nr_3500",
+      "frequency_hz": 3500000000.0,
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.04290589956118962,
+      "path_gain_p5_db": -128.23629710820953,
+      "path_gain_median_db": -103.38169682322342,
+      "path_gain_p95_db": -89.6279280063993,
+      "seconds": 4.95
+    },
+    {
+      "scenario": "c6g_8000",
+      "frequency_hz": 8000000000.0,
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.04290589956118962,
+      "path_gain_p5_db": -139.1401496131462,
+      "path_gain_median_db": -112.49490296272644,
+      "path_gain_p95_db": -96.92610138539105,
+      "seconds": 4.97
+    },
+    {
+      "scenario": "c6g_15000",
+      "frequency_hz": 15000000000.0,
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.04290589956118962,
+      "path_gain_p5_db": -147.33066643163158,
+      "path_gain_median_db": -119.6508605080449,
+      "path_gain_p95_db": -102.4655986921329,
+      "seconds": 5.13
+    },
+    {
+      "scenario": "nr_28000",
+      "frequency_hz": 28000000000.0,
+      "outdoor_cells": 4102,
+      "zero_path_fraction": 0.04290589956118962,
+      "path_gain_p5_db": -155.46337642026256,
+      "path_gain_median_db": -126.62651265721325,
+      "path_gain_p95_db": -107.91795504941544,
+      "seconds": 5.46
+    }
+  ],
+  "scene_size_check": {
+    "wedges_in_crop_scene": 3012,
+    "wedges_in_full_scene": 7149,
+    "sionna_default_table": {
+      "wedge_table_slots": 10000,
+      "cells_compared": 3913,
+      "block_diffracted_power_crop": 1.3837180727082966e-07,
+      "block_diffracted_power_full": 1.1447436004730837e-07,
+      "total_power_ratio_db": -0.8251951496052445,
+      "median_ratio_db": -0.8948857368554947,
+      "fraction_losing_more_than_3_db": 0.31254791719908,
+      "median_relative_noise_8_seeds": 0.12609151514961825,
+      "seconds_per_seed": 10.56
+    },
+    "enlarged_table_used_by_project": {
+      "wedge_table_slots": 1048576,
+      "cells_compared": 3985,
+      "block_diffracted_power_crop": 1.554761270245062e-07,
+      "block_diffracted_power_full": 1.5456236228487467e-07,
+      "total_power_ratio_db": -0.026013591118090887,
+      "median_ratio_db": -0.005316996010838595,
+      "fraction_losing_more_than_3_db": 0.06800501882057716,
+      "median_relative_noise_8_seeds": 0.11689657330117634,
+      "seconds_per_seed": 4.23
+    },
+    "power_recovered_in_full_scene_db": 1.3039552240424235
+  },
+  "tolerances": {
+    "analytic_max_abs_db": 0.25,
+    "analytic_rms_db": 0.05,
+    "diffraction_db": 2.0
+  },
+  "runtime": {
+    "variant": "llvm_ad_mono_polarized",
+    "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+    "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+    "threads": 16,
+    "cpu_affinity": null,
+    "mem_cap_gb": null
+  },
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "wall_seconds": 266.5
+}
