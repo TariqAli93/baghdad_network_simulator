@@ -595,5 +595,20 @@ def test_the_configured_requirements_separate_measured_groups_from_the_storey_su
             {"building_id": "c", "priority": "S"}, {"building_id": "d", "priority": "P3"}]
     accepted = accepted_methods(rows, obs)
     assert set(accepted) == {"a", "b", "c"}                              # P3 not required
-    assert set(accepted["a"]) == set(accepted["b"]) == {"measured", "documented"}
+    assert set(accepted["a"]) == {"measured", "documented"}                # P0 (and P1)
+    assert set(accepted["b"]) == {"measured", "documented", "storey_count"}  # P2: storey-based fallback
     assert "storey_count" in accepted["c"] and "visual_estimate" not in accepted["c"]
+
+
+def test_a_p2_storey_count_fallback_completes_p2_but_stays_an_estimate():
+    from bns.geospatial import heights as ht
+    from bns.geospatial.pipeline import observation_status
+
+    accepted = {"p0": ("measured", "documented"), "p2": ("measured", "documented", "storey_count")}
+    rows = [{"building_id": "p0", "method_class": "storey_count", "storeys": "6"},       # not enough for P0
+            {"building_id": "p2", "method_class": "storey_count", "storeys": "6", "uncertainty_m": "3",
+             "source": "street survey", "notes": "no documents found"}]
+    status = observation_status(["p0", "p2"], rows, unmatched=[], accepted=accepted)
+    assert status["missing"] == ["p0"] and status["insufficient"] == ["p0"]
+    height, category, problems = ht.validate_observation(rows[1], storey_height_m=3.0, max_height_m=250.0)
+    assert (height, category, problems) == (18.0, ht.ESTIMATED, [])

@@ -177,27 +177,27 @@ Development values; part of decision A3 (`docs/supervisor-decisions.md`).
 | Scheduling and load sharing | none: Shannon bound for one user with the whole carrier | modelling choice; rates are upper bounds, more sites cannot raise them by sharing load |
 | Candidate sites (development run) | the four receiver-area roofs with observed height ≥ 10 m, ≥ 100 m apart, antenna at an interior roof point, 3 m mast | development; A4 open (roof-edge placement, see `docs/validation.md` §6) |
 
-## 9. Approved configuration (reported 2026-11-26 and 2026-11-27)
+## 9. Approved research baseline (reported 2026-11-26 and 2026-11-27, final)
 
 Values live in the configuration files (single source of truth); this table says where, and
 what is still open. Reconciled record: `docs/approval-record.md`.
 
 | Assumption | Approved | File | Note |
 |---|---|---|---|
-| Study district | Tahrir Sq / Bab Al-Sharqi, 33.3280 N 44.4085 E, 1000 × 1000 m, 150 m margin | `study_area.yaml` | conditional on observing its tall buildings |
+| Study district | Tahrir Sq / Bab Al-Sharqi, 33.3280 N 44.4085 E, 1000 × 1000 m, 150 m margin | `study_area.yaml` | research results need the field observations |
 | Footprints | OSM + missing footprints from 3D-GloBFP (footprints only) | `study_area.yaml` | footprint and height provenance recorded separately |
 | Heights | observation > OSM height > OSM storeys × 3.0 m > authorised dataset (none) > approved model > placeholder | `study_area.yaml` | 3D-GloBFP heights and GlobalBuildingAtlas not height sources |
-| Observations | initial stage P0-P2 measured or documented (38) + S storey counts (43); P3 via height sensitivity | `study_area.yaml` | 190 before 2026-11-27 (kept in `history`); storey counts stay *estimated* |
+| Observations | P0-P1 measured or documented (4); P2 measured or documented preferred, storey-based fallback (34); S storey counts (43); P3 via height sensitivity | `study_area.yaml` | 190 before 2026-11-27 (kept in `history`); storey counts stay *estimated* |
 | Radio system | 46 dBm conducted per sector carrier; TR 38.901 element traced (8 dBi peak, 65°), added gain 0; 3 sectors; 10° downtilt; no array gain; isotropic rx at 1.5 m; NF 9 dB; 290 K | `radio_system.yaml` | gain double counting refused on loading |
 | Coverage | SINR ≥ −10 dB on 95 % of outdoor cells | `radio_system.yaml` | |
 | Interference | reuse 1, load 1.0, co-located sectors interfere, strongest sector serves, no scheduler | `radio_system.yaml` | |
 | Atmosphere | clear sky (gas, no rain) | `atmosphere.yaml` | rain 18.6 mm/h only as a sensitivity case |
 | Rates | Shannon (all bands) + LTE TR 36.942 (4G), NR TR 38.921 (5G), NR-based approximation (candidate 6G) | `radio_system.yaml` | `docs/rate-mapping-verification.md` |
-| Site rule | 3 m mast; roof edge facing each sector, 1 m inset; 0/120/240°; candidates with observed or storey-based heights, 20-40; monuments never candidates; SINR greedy | `site_rule.yaml`, `radio_system.yaml` | minimum roof height, area, spacing **pending** |
-| Azimuth convention | yaw 0/120/240° counter-clockwise from east = compass 90/330/210° (unchanged) | `radio_system.yaml` | proposal: compass 0/120/240° (yaw 90/330/210°), awaiting confirmation (`approvals.yaml`) |
-| Profiles, backend | standard 10 m / 1e9 (research), preview 25 m / 1e8 (development), research 5 m disabled; CPU for research, GPU and auto development only | `simulation.yaml` | standard to be re-evaluated on the final scene |
-| Validation | TR 38.901 UMa/UMi kept; MATLAB external; median \|Δ\| in LOS cells ≤ 2.0 dB, RMSE and NLOS separately; 2-3 reflection-then-diffraction cases | `approvals.yaml` | MATLAB not executed |
+| Site rule | 3 m mast; roof edge facing each sector, 1 m inset; candidates with observed or storey-based heights, roof ≥ 12 m, ≥ 100 m², ≥ 50 m apart, 20-40; monuments never candidates; SINR greedy | `site_rule.yaml`, `radio_system.yaml` | thresholds may be refined after the survey (documented, geometric) |
+| Sector bearings | compass 0/120/240° (0 = north, clockwise) = ray-tracer yaw 90/330/210° | `radio_system.yaml` | runs before 2026-11-27 used yaw 0/120/240° (compass 90/330/210°), recorded in their manifests |
+| Profiles, backend | standard 10 m / 1e9 (research baseline), preview 25 m / 1e8, 5 m disabled; CPU for research-baseline runs, GPU and auto for development and custom experiments | `simulation.yaml` | standard to be re-evaluated on the final scene |
+| Validation | TR 38.901 UMa/UMi kept; MATLAB external; median \|Δ\| in LOS cells ≤ 2.0 dB, RMSE and NLOS separately; 2-3 reflection-then-diffraction cases | `approvals.yaml` | MATLAB not run yet |
 
-Any change to an approved value voids its approval until the supervisor reconfirms it
-(`configs/approval_lock.yaml`, `scripts/approval_lock.py`).
+These values are the research baseline (`configs/research_baseline.yaml`). A run with other values
+is a custom or sensitivity experiment and records the values it used; no approval is needed.
 

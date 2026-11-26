@@ -44,8 +44,7 @@ def build_argv(root: Path, request: dict) -> list[str]:
     if request.get("buildings"):
         argv += ["--buildings", *request["buildings"]]
     else:
-        argv += ["--sites", str(int(request["sites"])), "--min-height", str(float(request["min_height_m"])),
-                 "--min-spacing", str(float(request["min_spacing_m"]))]
+        argv += ["--sites", str(int(request["sites"]))]
     return argv
 
 
@@ -54,6 +53,9 @@ def start(root: Path, request: dict) -> Path:
     folder = root / "outputs" / "app_runs" / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     folder.mkdir(parents=True)
     argv = build_argv(root, request) + ["--cancel-file", str(folder / "cancel")]
+    if request.get("overrides"):                   # values that differ from the research baseline
+        (folder / "overrides.json").write_text(json.dumps(request["overrides"], indent=2), encoding="utf-8")
+        argv += ["--overrides", str(folder / "overrides.json")]
     log = open(folder / "log.txt", "w", encoding="utf-8")
     env = {**os.environ, "PYTHONUNBUFFERED": "1", "PYTHONIOENCODING": "utf-8"}
     flags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0

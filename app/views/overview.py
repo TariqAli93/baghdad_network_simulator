@@ -20,47 +20,39 @@ for col, sc in zip(cols, scen, strict=True):
                     f'<br>{sc["bandwidth_hz"] / 1e6:g} MHz · {sc["status"]}</div>', unsafe_allow_html=True)
 
 st.subheader("Research readiness")
-st.caption("Computed from the configuration files and saved evidence (bns.analysis.readiness). Research runs stay "
-           "locked until the five pre-experiment gates pass; nothing is marked met without its evidence.")
-gates = readiness.gates(ui.ROOT)
-MARK = {"met": "✅ met", "reported": "🟡 reported", "not met": "⛔ not met", "not executed": "⏸ not executed",
-        "executed, awaiting review": "🟡 executed, awaiting review"}
-st.dataframe([{"gate": g.title, "state": MARK.get(g.state, g.state), "needed before": g.needed_before,
-               "evidence / what is missing": g.detail} for g in gates], hide_index=True, use_container_width=True)
-locked = [g for g in gates if g.id in readiness.PRE_EXPERIMENT and g.state not in readiness.PASSING]
-if locked:
-    st.error(f"Research mode is locked: {len(locked)} of {len(readiness.PRE_EXPERIMENT)} pre-experiment conditions "
-             "are not met (" + ", ".join(g.title for g in locked) + ").")
-obs = next(g for g in gates if g.id == "observations").data
+st.caption("Scientific and technical status, computed from the data, configuration and saved evidence. Development, "
+           "preview, custom and sensitivity runs are always available; a research-baseline run needs the baseline "
+           "configuration, a dataset fit for research and the convergence on the final scene.")
+indicators = readiness.indicators(ui.ROOT)
+MARK = {readiness.READY: "✅ Ready", readiness.COMPLETED: "✅ Completed", readiness.INCOMPLETE: "🟠 Incomplete data",
+        readiness.PENDING: "⏳ Validation pending", readiness.BASELINE: "🔷 Research baseline",
+        readiness.CUSTOM: "🔶 Custom experiment"}
+st.dataframe([{"item": i.title, "status": MARK.get(i.state, i.state), "details": i.detail} for i in indicators],
+             hide_index=True, use_container_width=True)
+obs = next(i for i in indicators if i.id == "observations").data
 for grp in obs.get("groups") or []:
     if grp["required"]:
+        pref = (f"; {' or '.join(grp['preferred'])} preferred" if grp.get("preferred") else "")
         st.progress(grp["observed"] / grp["required"],
-                    text=f"{', '.join(grp['priorities'])} — {' or '.join(grp['accepted']).replace('_', ' ')}: "
-                         f"{grp['observed']} of {grp['required']} buildings ({obs.get('stage') or 'current'} stage)")
-
-with st.expander("Supervisor decisions and open conditions (configs/approvals.yaml)"):
-    st.caption(configuration.approval_source(ui.ROOT) + " An approved value that changes loses its approval "
-               "until reconfirmed (configs/approval_lock.yaml).")
-    st.dataframe(configuration.decisions(ui.ROOT), hide_index=True, use_container_width=True)
-    st.markdown("**Not specified by the supervisor** (left empty; the step that needs them refuses):")
-    for u in configuration.unspecified(ui.ROOT):
-        st.markdown(f"- {u['item']} — needed for {u['needed_for']}")
+                    text=f"{', '.join(grp['priorities'])} — {' or '.join(grp['accepted']).replace('_', ' ')}{pref}: "
+                         f"{grp['observed']} of {grp['required']} buildings")
+st.caption("The research baseline is the supervisor-approved configuration (provenance: docs/approval-record.md).")
 
 st.subheader("Software status")
 st.markdown("""
 | Phase | Software | Scientific status |
 |---|---|---|
-| 0 Feasibility (CPU ray tracing) | done | engine checks E1–E5 passed; laptop acceptance: see the gates above |
+| 0 Feasibility (CPU ray tracing) | done | engine checks E1–E5 passed; laptop acceptance: see above |
 | 1 Literature and standards | done | references verified (`docs/references.md`) |
-| 2–4 Geospatial pipeline, radio configuration | done | methodology approved as reported; dataset not yet fit (observations) |
+| 2–4 Geospatial pipeline, radio configuration | done | research baseline set; dataset incomplete (field observations) |
 | 5–6 Single-site and multi-site coverage | done | development results only |
-| 7 Validation | done (TR 38.901, CPU/GPU, analytical); MATLAB package prepared | MATLAB not executed; no field measurements |
-| 8 Site planning | done (SINR greedy) | candidate thresholds pending; development results only |
+| 7 Validation | done (TR 38.901, CPU/GPU, analytical); MATLAB package prepared | MATLAB not run; no field measurements |
+| 8 Site planning | done (SINR greedy) | candidate pool needs the survey; development results only |
 | 9–10 Comparison, 6G roadmap | done | conclusions are the student's, from research results |
 | Release | v1.0.0-rc.1: software release candidate | not a research result |
 """)
-st.caption("Software that works is not a scientific result: no phase is scientifically complete until research runs "
-           "on a dataset fit for research pass the gates above.")
+st.caption("Software that works is not a scientific result: results become research findings only from "
+           "research-baseline runs on a dataset fit for research.")
 
 c1, c2, c3, c4 = st.columns(4)
 runs = ui.run_list()
@@ -70,13 +62,13 @@ c2.metric("Cached path-gain maps", len(cache))
 profiles = yaml.safe_load((ui.ROOT / "configs" / "simulation.yaml").read_text(encoding="utf-8"))["profiles"]
 c3.metric("Usable profiles", sum(p.get("rays_per_site") is not None for p in profiles.values()))
 areas = ui.study_areas()
-c4.metric("Study areas", len(areas), help="Approved study district: "
+c4.metric("Study areas", len(areas), help="Study district: "
           + (", ".join(k for k, v in areas.items() if v.get("approved")) or "none"))
 
 st.subheader("Profiles and backends")
 st.dataframe(configuration.backend_profile_rows(ui.ROOT), hide_index=True, use_container_width=True)
-st.caption("Research runs: approved profile and the production backend (CPU) only; GPU and auto are for "
-           "development. The standard profile's acceptance must be re-measured on the final scene.")
+st.caption("Research-baseline runs use the standard profile on the CPU; preview, custom ray counts, GPU and auto "
+           "are available for development and custom experiments (GPU limits: docs/validation.md §7).")
 
 if runs:
     latest = ui.run(runs[0])

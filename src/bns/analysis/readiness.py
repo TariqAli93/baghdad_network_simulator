@@ -1,18 +1,21 @@
-"""Research readiness: eight gates, tracked separately and computed from the files.
+"""Research readiness: scientific and technical status indicators, computed from the files.
 
-    methodology         supervisor approvals recorded and unchanged since (approval lock)
-    dataset             a dataset of the approved study district is fit for research
-    observations        every required worklist building observed (configured priorities)
-    candidate_criteria  approved minimum roof height, area and spacing for candidate sites
-    convergence         ray-count convergence evaluated and accepted on the final scene
-    matlab              MATLAB cross-check executed and assessed with the B1 criterion
-    laptop              target-laptop acceptance measured and accepted
-    delivery            everything above, plus a written approval reference
+    dataset        a dataset of the study district is built for the current requirements
+    heights        building-height completeness (the dataset's quality report)
+    observations   progress of the required field observations, per method group
+    candidates     candidate rooftops available under the site rule (target 20-40)
+    configuration  the configuration files hold the research baseline, or a custom configuration
+    convergence    ray-count convergence on the final scene
+    validation     analytical and model-to-model (TR 38.901) validation
+    matlab         MATLAB cross-check
+    laptop         target-laptop acceptance
 
-The first five are pre-experiment conditions: research runs refuse until all are met
-(`require_research_ready`). MATLAB is required before conclusions, the last two before
-delivery. A gate is never "met" without the evidence behind it: a reported approval without
-a written reference is "reported", a step that has not run is "not executed".
+States: "Ready", "Completed", "Incomplete data", "Validation pending", "Research baseline",
+"Custom experiment". Nothing here asks for an approval, and none of it blocks development,
+preview, custom or sensitivity runs. A research-baseline run (mode "research") needs the
+baseline configuration, a dataset fit for research (heights and observations) and the
+convergence on the final scene (`require_research_ready`). MATLAB and the laptop are validation
+and delivery requirements. A state is never "Completed" without the evidence behind it.
 """
 
 from __future__ import annotations
@@ -25,23 +28,24 @@ from pathlib import Path
 
 import yaml
 
-from bns.analysis import approval_lock
+from bns.analysis import research_baseline
 
-PRE_EXPERIMENT = ("methodology", "dataset", "observations", "candidate_criteria", "convergence")
-PASSING = ("met", "reported")
+READY, COMPLETED, INCOMPLETE, PENDING = "Ready", "Completed", "Incomplete data", "Validation pending"
+BASELINE, CUSTOM = "Research baseline", "Custom experiment"
+RESEARCH_REQUIREMENTS = ("configuration", "dataset", "heights", "observations", "convergence")
+PASSING = (READY, COMPLETED, BASELINE)
 
 
 class NotReady(RuntimeError):
-    """A research run was requested before the pre-experiment conditions are met."""
+    """A research-baseline run was requested before its scientific requirements are met."""
 
 
 @dataclass
-class Gate:
+class Indicator:
     id: str
     title: str
-    state: str                      # met | reported | not met | not executed | executed, awaiting review
+    state: str
     detail: str
-    needed_before: str              # research runs | conclusions | delivery
     data: dict = field(default_factory=dict)
 
 
@@ -64,36 +68,9 @@ def _datasets(root: Path, area: str) -> list[tuple[Path, dict, dict]]:
     return sorted(out, key=lambda t: t[2].get("created_utc", ""), reverse=True)
 
 
-def _methodology(root: Path) -> Gate:
-    approvals = _yaml(root, "approvals.yaml")
-    decisions = approvals.get("decisions") or {}
-    open_ = [k for k, d in decisions.items() if d.get("status") not in ("approved", "approved_with_condition")]
-    bad = [i for i in approval_lock.check(root) if i.state != "locked"]
-    reference = str((approvals.get("record") or {}).get("approval_reference", "")).lower()
-    written = bool(reference) and not reference.startswith("none")
-    data = {"decisions": {k: d.get("status") for k, d in decisions.items()}, "written_reference": written,
-            "lock": {i.name: i.state for i in approval_lock.check(root)}}
-    if open_ or bad or not decisions:
-        why = ([f"decisions not approved: {', '.join(open_)}"] if open_ else []) + \
-              ([f"changed or unconfirmed since approval: {', '.join(f'{i.name} ({i.state})' for i in bad)}"] if bad else [])
-        return Gate("methodology", "Methodology approval", "not met", "; ".join(why) or "no decisions recorded",
-                    "research runs", data)
-    conditional = [k for k, d in decisions.items() if d.get("status") == "approved_with_condition"]
-    detail = (f"{len(decisions)} decisions approved ({len(conditional)} with an open condition, tracked by the gates "
-              f"below); all {len(data['lock'])} approved values unchanged since confirmation")
-    if written:
-        return Gate("methodology", "Methodology approval", "met", detail, "research runs", data)
-    return Gate("methodology", "Methodology approval", "reported",
-                detail + "; reported by the project owner, written reference pending", "research runs", data)
-
-
-def _requirement(area: dict) -> dict:
-    return area.get("observations") or {}
-
-
 def _current(root: Path, name: str, area: dict) -> list[tuple[Path, dict, dict]]:
-    """Datasets built for the area's current observation requirement."""
-    req = _requirement(area)
+    """Datasets built for the area's current observation requirements."""
+    req = area.get("observations") or {}
     required = list(req.get("required_priorities") or [])
     rules = req.get("method_requirements") or None
 
@@ -103,137 +80,194 @@ def _current(root: Path, name: str, area: dict) -> list[tuple[Path, dict, dict]]
     return [t for t in _datasets(root, name) if built_for(t)]
 
 
-def _dataset(root: Path, areas: dict) -> Gate:
+def _dataset(root: Path, areas: dict) -> Indicator:
     if not areas:
-        return Gate("dataset", "Dataset fitness", "not met", "no approved study district", "research runs")
+        return Indicator("dataset", "Dataset availability", INCOMPLETE, "no study district configured")
     name, area = next(iter(areas.items()))
-    built = _datasets(root, name)
     current = _current(root, name, area)
-    fit = [t for t in current if t[1].get("fit_for_research")]
-    if fit:
-        return Gate("dataset", "Dataset fitness", "met", f"{name}/{fit[0][0].name} is fit for research",
-                    "research runs", {"variant": fit[0][0].name})
-    if not built:
-        return Gate("dataset", "Dataset fitness", "not met", f"no dataset of {name} built", "research runs")
-    if not current:
-        return Gate("dataset", "Dataset fitness", "not met",
-                    f"no dataset of {name} built for the current observation requirement; rebuild it "
-                    "(scripts/build_dataset.py)", "research runs")
-    folder, q, _ = current[0]
-    return Gate("dataset", "Dataset fitness", "not met",
-                f"{name}/{folder.name}: " + "; ".join(q.get("not_fit_reasons") or ["not fit"]), "research runs",
-                {"variant": folder.name, "reasons": q.get("not_fit_reasons") or []})
+    if current:
+        fit = [t for t in current if t[1].get("fit_for_research")]
+        folder = (fit or current)[0][0]
+        return Indicator("dataset", "Dataset availability", READY, f"{name}/{folder.name}",
+                         {"area": name, "variant": folder.name})
+    if _datasets(root, name):
+        return Indicator("dataset", "Dataset availability", INCOMPLETE,
+                         f"the dataset of {name} records older observation requirements; rebuild it "
+                         "(scripts/build_dataset.py)", {"area": name})
+    return Indicator("dataset", "Dataset availability", INCOMPLETE, f"no dataset of {name} built", {"area": name})
 
 
-def _observations(root: Path, areas: dict) -> Gate:
+def _heights(root: Path, areas: dict) -> Indicator:
     if not areas:
-        return Gate("observations", "Mandatory observations", "not met", "no approved study district", "research runs")
+        return Indicator("heights", "Building-height completeness", INCOMPLETE, "no study district")
     name, area = next(iter(areas.items()))
-    req = _requirement(area)
+    current = _current(root, name, area)
+    if not current:
+        return Indicator("heights", "Building-height completeness", INCOMPLETE, "no current dataset")
+    fit = [t for t in current if t[1].get("fit_for_research")]
+    folder, q, _ = (fit or current)[0]
+    pct = (q.get("height_categories") or {}).get("by_count_percent") or {}
+    shares = ", ".join(f"{k} {v:.1f} %" for k, v in pct.items())
+    if fit:
+        return Indicator("heights", "Building-height completeness", READY,
+                         f"{folder.name}: {shares}; remaining placeholders covered by the height sensitivity analysis",
+                         {"percent": pct})
+    return Indicator("heights", "Building-height completeness", INCOMPLETE,
+                     f"{folder.name}: {shares}. " + "; ".join(q.get("not_fit_reasons") or []), {"percent": pct})
+
+
+def _observations(root: Path, areas: dict) -> Indicator:
+    title = "Observation progress"
+    if not areas:
+        return Indicator("observations", title, INCOMPLETE, "no study district")
+    name, area = next(iter(areas.items()))
+    req = area.get("observations") or {}
     required_p = list(req.get("required_priorities") or [])
     worklist = Path(root) / str(req.get("worklist", ""))
     if not req.get("worklist") or not worklist.exists():
-        return Gate("observations", "Mandatory observations", "not met", "no observation worklist configured or found",
-                    "research runs")
+        return Indicator("observations", title, INCOMPLETE, "no observation worklist configured or found")
     with open(worklist, newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     required = [r for r in rows if r["priority"] in required_p]
     sensitivity = Counter(r["priority"] for r in rows if r["priority"] in (req.get("covered_by_sensitivity") or []))
     current = _current(root, name, area)
-    missing = set(((current[0][2].get("observation_worklist") or {}).get("missing")) or []) if current else \
-        {r["building_id"] for r in required}
+    record = (current[0][2].get("observation_worklist") or {}) if current else {}
+    missing = set(record.get("missing") or []) if current else {r["building_id"] for r in required}
     by_priority = {p: {"required": sum(r["priority"] == p for r in required),
                        "observed": sum(r["priority"] == p and r["building_id"] not in missing for r in required)}
                    for p in required_p}
     observed = sum(v["observed"] for v in by_priority.values())
-    # priorities that accept the same method classes form one group (P0-P2 measured or documented
-    # heights; S storey-count survey), each with its own progress
+    # priorities accepting the same observation methods form one group with its own progress
     rules = req.get("method_requirements") or {}
     groups: dict[tuple, dict] = {}
     for p in required_p:
         key = tuple(rules.get(p) or ["any"])
-        g = groups.setdefault(key, {"priorities": [], "accepted": list(key), "required": 0, "observed": 0})
+        g = groups.setdefault(key, {"priorities": [], "accepted": list(key),
+                                    "preferred": list((req.get("preferred") or {}).get(p) or []),
+                                    "required": 0, "observed": 0})
         g["priorities"].append(p)
         g["required"] += by_priority[p]["required"]
         g["observed"] += by_priority[p]["observed"]
     data = {"required": len(required), "observed": observed, "by_priority": by_priority,
-            "groups": list(groups.values()),
-            "insufficient": len(((current[0][2].get("observation_worklist") or {}).get("insufficient")) or [])
-            if current else 0,
+            "groups": list(groups.values()), "insufficient": len(record.get("insufficient") or []),
             "covered_by_sensitivity": dict(sensitivity), "stage": req.get("stage"),
             "required_priorities": required_p}
-    detail = "; ".join(f"{', '.join(g['priorities'])} ({' or '.join(g['accepted']).replace('_', ' ')}): "
-                       f"{g['observed']} of {g['required']}" for g in groups.values())
-    detail += f" — {observed} of {len(required)} required buildings"
+    detail = "; ".join(f"{', '.join(g['priorities'])}: {g['observed']} of {g['required']}" for g in groups.values())
     if data["insufficient"]:
         detail += f"; {data['insufficient']} observed with a method their priority does not accept"
     if not current:
-        detail += "; the built dataset records an older requirement: rebuild it (scripts/build_dataset.py)"
-    state = "met" if current and observed == len(required) and required else "not met"
-    return Gate("observations", "Mandatory observations", state, detail, "research runs", data)
+        detail += "; rebuild the dataset for the current requirements (scripts/build_dataset.py)"
+    done = bool(current) and bool(required) and observed == len(required)
+    return Indicator("observations", title, COMPLETED if done else INCOMPLETE, detail, data)
 
 
-def _candidates(root: Path) -> Gate:
+def _candidates(root: Path, areas: dict) -> Indicator:
+    """Candidate rooftops under the site rule, counted on the current dataset (geometry only)."""
+    from bns.geospatial import pipeline, sites
+    from bns.geospatial.study_area import load_study_areas
+
+    title = "Candidate-site availability"
     rule = _yaml(root, "site_rule.yaml")
     t = rule.get("candidate_thresholds") or {}
+    target = list(rule.get("candidate_count_target") or [20, 40])
     values = {k: t.get(k) for k in ("min_roof_height_m", "min_roof_area_m2", "min_spacing_m")}
-    pending = [k for k, v in values.items() if v is None]
-    if rule.get("status") == "approved" and t.get("status") == "approved" and not pending:
-        return Gate("candidate_criteria", "Candidate-site criteria", "met",
-                    ", ".join(f"{k} {v:g}" for k, v in values.items()), "research runs", values)
-    detail = (f"pending: {', '.join(pending)} (chosen after the stage-1 observations, for "
-              f"{'-'.join(str(v) for v in rule.get('candidate_count_target') or [])} candidates)") if pending \
-        else f"thresholds are '{t.get('status')}', not approved"
-    return Gate("candidate_criteria", "Candidate-site criteria", "not met", detail, "research runs", values)
+    if any(v is None for v in values.values()):
+        return Indicator("candidates", title, INCOMPLETE, "candidate criteria not set (configs/site_rule.yaml)", values)
+    dataset = _dataset(root, areas)
+    if dataset.state != READY:
+        return Indicator("candidates", title, INCOMPLETE, "no current dataset", values)
+    scene = Path(root) / "data" / "scenes" / dataset.data["area"] / dataset.data["variant"]
+    if not (scene / "buildings.geojson").exists():
+        return Indicator("candidates", title, INCOMPLETE, f"scene {scene.name} not built on this computer", values)
+    area = load_study_areas(Path(root) / "configs" / "study_area.yaml")[dataset.data["area"]]
+    box = area.receiver_box()
+    inside = [b for b in pipeline.load_buildings(scene, area) if box.contains(b.polygon.representative_point())]
+    mast = float(((_yaml(root, "radio_system.yaml").get("parameters") or {}).get("antenna_height_above_roof_m")
+                  or {}).get("value") or 0.0)
+    found = sites.rooftop_candidates(inside, mast_height_m=mast, min_height_m=values["min_roof_height_m"],
+                                     min_area_m2=values["min_roof_area_m2"], min_spacing_m=values["min_spacing_m"],
+                                     categories=tuple(rule.get("candidate_height_categories") or ("observed", "estimated")))
+    data = {**values, "count": len(found), "target": target}
+    rule_text = (f"roof ≥ {values['min_roof_height_m']:g} m, ≥ {values['min_roof_area_m2']:g} m², "
+                 f"≥ {values['min_spacing_m']:g} m apart, observed or storey-based heights")
+    if len(found) < target[0]:
+        return Indicator("candidates", title, INCOMPLETE,
+                         f"{len(found)} candidates ({rule_text}); target {target[0]}-{target[1]}: needs the survey", data)
+    note = "" if len(found) <= target[1] else "; above the target: refine the thresholds (documented, geometric)"
+    return Indicator("candidates", title, READY, f"{len(found)} candidates ({rule_text}){note}", data)
 
 
-def _convergence(root: Path) -> Gate:
+def _configuration(root: Path) -> Indicator:
+    from bns.analysis.radio_system import RadioSystem
+    from bns.simulation.setup import SimulationConfig
+
+    title = "Configuration"
+    try:
+        RadioSystem.load(Path(root) / "configs" / "radio_system.yaml")
+        SimulationConfig.load(Path(root) / "configs" / "simulation.yaml")
+    except Exception as exc:                       # invalid values are reported, never run
+        return Indicator("configuration", title, INCOMPLETE, f"invalid configuration: {exc}")
+    changed = research_baseline.modified(root)
+    if changed:
+        return Indicator("configuration", title, CUSTOM,
+                         "the configuration files differ from the research baseline in: "
+                         + ", ".join(i.name for i in changed), {"modified": [i.name for i in changed]})
+    return Indicator("configuration", title, BASELINE, "the configuration files hold the approved research baseline")
+
+
+def _convergence(root: Path) -> Indicator:
+    title = "Simulation convergence"
     profiles = _yaml(root, "simulation.yaml").get("profiles") or {}
-    approved = {n: p for n, p in profiles.items() if (p or {}).get("status") == "approved"}
-    if not approved:
-        return Gate("convergence", "Final-scene convergence", "not met", "no profile approved", "research runs")
-    states = {n: str(p.get("final_scene_convergence", "not evaluated")) for n, p in approved.items()}
-    if all(s == "accepted" for s in states.values()):
-        return Gate("convergence", "Final-scene convergence", "met",
-                    ", ".join(f"{n}: accepted on the final scene" for n in states), "research runs", states)
-    return Gate("convergence", "Final-scene convergence", "not executed",
-                ", ".join(f"profile {n}: {s}" for n, s in states.items())
-                + " (scripts/run_convergence.py on the final scene, then the supervisor's acceptance)",
-                "research runs", states)
+    research = {n: p for n, p in profiles.items() if (p or {}).get("status") == "approved"}
+    states = {n: str(p.get("final_scene_convergence", "not evaluated")) for n, p in research.items()}
+    if research and all(s in ("accepted", "completed") for s in states.values()):
+        return Indicator("convergence", title, COMPLETED, ", ".join(f"{n}: checked on the final scene" for n in states))
+    return Indicator("convergence", title, PENDING,
+                     "measured on the provisional scene (docs/convergence.md); on the final scene: "
+                     + ", ".join(f"{n} {s}" for n, s in states.items())
+                     + " (scripts/run_convergence.py once the dataset is complete)", states)
 
 
-def _external(root: Path, gid: str, title: str, decision: str, evidence: list[Path], needed: str, what: str) -> Gate:
-    d = (_yaml(root, "approvals.yaml").get("decisions") or {}).get(decision) or {}
-    if d.get("status") == "approved" and not d.get("condition"):
-        return Gate(gid, title, "met", f"{what} accepted (configs/approvals.yaml)", needed)
-    if evidence:
-        return Gate(gid, title, "executed, awaiting review",
-                    f"{len(evidence)} result file(s), e.g. {evidence[0].as_posix()}; not yet assessed", needed)
-    return Gate(gid, title, "not executed", d.get("condition") or f"{what} not executed", needed)
+def _validation(root: Path) -> Indicator:
+    title = "Validation (analytical, TR 38.901)"
+    tr = sorted((Path(root) / "outputs" / "validation").glob("*/summary.json"))
+    if tr:
+        return Indicator("validation", title, COMPLETED,
+                         f"analytical engine checks (Phase 0, unit and engine tests) and {len(tr)} TR 38.901 "
+                         "model-to-model comparison(s), e.g. " + tr[0].parent.name + "; no field measurements")
+    return Indicator("validation", title, PENDING, "no TR 38.901 comparison saved (scripts/validate_tr38901.py)")
 
 
-def gates(root: Path) -> list[Gate]:
+def _matlab(root: Path) -> Indicator:
+    found = sorted(p.relative_to(root) for base in ("validation", "outputs/validation")
+                   for p in (Path(root) / base).glob("**/comparison.json"))
+    if found:
+        return Indicator("matlab", "MATLAB comparison", COMPLETED,
+                         f"{len(found)} comparison(s), e.g. {found[0].as_posix()}; assess with median |Δ| in LOS ≤ 2.0 dB")
+    return Indicator("matlab", "MATLAB comparison", PENDING,
+                     "package prepared (validation/matlab/); not run (needs MATLAB on the laptop)")
+
+
+def _laptop(root: Path) -> Indicator:
+    found = sorted((Path(root) / "outputs" / "acceptance").glob("*/summary.json"))
+    if found:
+        return Indicator("laptop", "Laptop acceptance", COMPLETED,
+                         f"{len(found)} benchmark run(s), latest {found[-1].parent.name}")
+    return Indicator("laptop", "Laptop acceptance", PENDING, "benchmark.ps1 not yet run on the target laptop")
+
+
+def indicators(root: Path) -> list[Indicator]:
     root = Path(root)
     areas = research_areas(root)
-    out = [_methodology(root), _dataset(root, areas), _observations(root, areas), _candidates(root),
-           _convergence(root)]
-    matlab = sorted(p.relative_to(root) for base in ("validation", "outputs/validation")
-                    for p in (root / base).glob("**/comparison.json"))
-    laptop = sorted(p.relative_to(root) for p in (root / "outputs" / "acceptance").glob("*/summary.json"))
-    out.append(_external(root, "matlab", "MATLAB validation", "matlab", matlab, "conclusions",
-                         "MATLAB cross-check (B1: median |Δ| in LOS cells ≤ 2.0 dB)"))
-    out.append(_external(root, "laptop", "Laptop acceptance", "laptop", laptop, "delivery", "laptop benchmark"))
-    others = [g for g in out]
-    written = out[0].data.get("written_reference", False)
-    blocking = [g.title for g in others if g.state != "met"] + ([] if written else ["written approval reference"])
-    out.append(Gate("delivery", "Final delivery readiness", "met" if not blocking else "not met",
-                    "all gates met" if not blocking else "waiting for: " + ", ".join(blocking), "delivery"))
-    return out
+    return [_dataset(root, areas), _heights(root, areas), _observations(root, areas), _candidates(root, areas),
+            _configuration(root), _convergence(root), _validation(root), _matlab(root), _laptop(root)]
 
 
 def require_research_ready(root: Path) -> None:
-    """Refuse a research run unless every pre-experiment gate passes."""
-    failing = [g for g in gates(root) if g.id in PRE_EXPERIMENT and g.state not in PASSING]
+    """A research-baseline run needs the baseline configuration, a dataset fit for research and the
+    convergence on the final scene. Other runs never call this."""
+    failing = [i for i in indicators(root) if i.id in RESEARCH_REQUIREMENTS and i.state not in PASSING]
     if failing:
-        raise NotReady("Research mode is locked until the pre-experiment conditions are met: "
-                       + "; ".join(f"{g.title}: {g.state} ({g.detail})" for g in failing) + ".")
+        raise NotReady("A research-baseline run needs: " + "; ".join(f"{i.title}: {i.state} ({i.detail})"
+                                                                   for i in failing)
+                       + ". Run it as a development or custom experiment meanwhile.")

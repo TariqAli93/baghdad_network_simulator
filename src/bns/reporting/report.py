@@ -16,8 +16,8 @@ from pathlib import Path
 LIMITATIONS = [
     "Development data: provisional study area with mostly placeholder building heights and about a third of "
     "the buildings missing from OpenStreetMap.",
-    "Approval status of every input at the time of the run is in the tables above; a run in development mode "
-    "is not a research result even where its inputs were later approved (docs/approval-record.md).",
+    "The inputs of the run and their status at run time are in the tables above; only research-baseline runs "
+    "on a dataset fit for research are research results (docs/approval-record.md).",
     "Shannon rates are theoretical upper bounds for one user with the whole carrier; not network capacity or "
     "user throughput. A 3GPP mapping, where present, is reported beside them (the run summary names it).",
     "Greedy site selection is a heuristic; it does not give a minimum site count.",
@@ -93,6 +93,9 @@ def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
     area = manifest.get("area", {})
     profile = manifest.get("profile", {})
     rows = [("Kind", manifest.get("kind", "single_site")), ("Mode", manifest.get("mode", "")),
+            ("Run class", manifest.get("run_class", "not recorded (before 2026-11-27)")
+             + (": " + ", ".join(f"{k} = {v}" for k, v in manifest["overrides"].items())
+                if manifest.get("overrides") else "")),
             ("Study area", f"{area.get('name')} / {area.get('variant')} ({area.get('role', '')}; approved: {area.get('approved')})"),
             ("OSM snapshot SHA-256", str(area.get("osm_snapshot_sha256", ""))[:16] + "..."),
             ("Scene fingerprint", str(area.get("scene_fingerprint", ""))[:16] + "..."),
@@ -107,7 +110,7 @@ def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
                  + "".join(f"<tr><th>{html.escape(k)}</th><td>{html.escape(str(v))}</td></tr>" for k, v in rows) + "</table>")
     params = manifest.get("radio_parameters") or {}
     if params:
-        parts.append("<h2>Approval status of radio parameters</h2><table><tr><th>Parameter</th><th>Value</th>"
+        parts.append("<h2>Radio parameters used (status at run time)</h2><table><tr><th>Parameter</th><th>Value</th>"
                      "<th>Status</th></tr>" + "".join(
                          f"<tr><td>{html.escape(k)}</td><td>{html.escape(str(v.get('value', v) if isinstance(v, dict) else v))}</td>"
                          f"<td>{html.escape(str(v.get('status', '')) if isinstance(v, dict) else '')}</td></tr>"

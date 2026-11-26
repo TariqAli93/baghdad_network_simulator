@@ -1,31 +1,29 @@
-# Supervisor approvals (machine-readable record; docs/approval-record.md explains it).
+# Supervisor approvals: research provenance (docs/approval-record.md explains it).
 #
-# Two reports by the project owner, neither with a written reference (a remaining condition):
-#   2026-11-26  the supervisor accepted every recommended option of docs/supervisor-checklist.md
-#               as written (configuration version: commit bc750b3, tag v1.0.0-rc.1)
-#   2026-11-27  the supervisor approved the follow-up recommendations of the review of
-#               2026-11-27 (commit 95f12ff / dac5d86): reduced fieldwork, 1 m roof-edge inset,
-#               monument exclusion, the B1 tolerance, per-band rate mappings
-# Nothing beyond these is recorded as approved. Values not given by the supervisor stay null
-# (see "unspecified" below); they are never invented.
+# Every scientific and methodological decision of the project scope is approved by the
+# supervisor, as reported by the project owner (2026-11-26, 2026-11-27, and the final report of
+# 2026-11-27 approving all decisions including antenna bearings, candidate criteria and the
+# observation methods). No written reference or supervisor identity was supplied; none is
+# needed to operate the software and none is invented here.
+#
+# These values form the RESEARCH BASELINE. Changing a parameter does not need a new approval:
+# a run with other values is a custom (or sensitivity) experiment and records what it used.
 record:
   reported_by: project owner
   reports:
     - {reported_on: 2026-11-26, scope: every recommended option of the checklist (bc750b3)}
     - {reported_on: 2026-11-27, scope: follow-up recommendations of the 2026-11-27 review}
-  approval_reference: none provided (written confirmation pending)
+    - {reported_on: 2026-11-27, scope: all decisions of the project scope, final (bearings, candidate criteria, observation methods)}
+  approval_reference: none supplied (not required to operate the software)
   checklist_version: bc750b3 (v1.0.0-rc.1)
-  approved_by_text: "supervisor, as reported by the project owner (written reference pending)"
+  approved_by_text: "supervisor, as reported by the project owner"
 
 decisions:
   A1_study_district:
     decision: Tahrir Square / Bab Al-Sharqi
     boundary: {center_lat: 33.3280, center_lon: 44.4085, receiver_area_m: [1000, 1000], margin_m: 150}
     approved_on: 2026-11-26
-    condition: >-
-      The recommendation was conditional: keep this district only if the student can observe
-      its tall buildings (A2). Observations do not exist yet.
-    status: approved_with_condition
+    status: approved
   A2_building_data:
     footprints: OSM plus the footprints missing from OSM taken from 3D-GloBFP (footprints only, not its heights), each marked with its source
     height_priority: [observation, osm_height, osm_levels, dataset, model, placeholder]
@@ -34,109 +32,72 @@ decisions:
       none as the height source (3D-GloBFP heights and GlobalBuildingAtlas rejected as height
       sources; an external dataset enters the priority only if separately authorised)
     missing_heights: report the spread over assumed height models (sensitivity analysis)
-    manual_verification: >-
-      2026-11-26: observe the worklist buildings (190: P0-P3). 2026-11-27: reduced to the
-      initial stage P0-P2 (38) plus the candidate survey S (43, storey counts at least) = 81;
-      P3 (152) through the height sensitivity analysis. The 190-building list stays on record.
+    observations: >-
+      initial stage: P0 and P1 measured or documented heights; P2 measured or documented
+      preferred, storey-based estimate (3.0 m per storey) accepted when no reliable measurement
+      or document exists; S (candidate survey) storey counts; P3 through the height sensitivity
+      analysis. Each observation records source, method, uncertainty and limitations; estimates
+      are never classified as measured. The 190-building worklist (2026-11-26) stays on record.
     licensing: GlobalBuildingAtlas used only if its CC BY-NC 4.0 licence fits the project's use; never redistributed
     approved_on: [2026-11-26, 2026-11-27]
-    condition: field observations not yet collected; the research dataset is incomplete until they are imported
-    status: approved_with_condition
+    status: approved
   A3_radio_parameters:
-    values: see configs/radio_system.yaml (status approved)
+    values: see configs/radio_system.yaml
     approved_on: 2026-11-26
     status: approved
   A4_site_rule:
-    candidate_roofs: buildings with observed or storey-based heights; minimum height, area and spacing chosen for 20-40 candidates
+    candidate_roofs: observed or storey-based heights; roof >= 12 m, area >= 100 m2, spacing >= 50 m; target 20-40 candidates
+    threshold_refinement: >-
+      after the survey the thresholds may be refined to obtain a suitable pool of 20-40
+      candidates, documented with its geometric justification (configs/site_rule.yaml,
+      adjustments); never tuned to coverage results; no further approval needed
     mast_height_m: 3.0
-    sector_orientation: "azimuths 0, 120, 240 degrees; 10 degree downtilt"
-    antenna_position: roof edge facing each sector, 1 m inside the edge (inset approved 2026-11-27)
-    excluded_structures: monuments, memorials and artworks are never candidates (kept as obstacles; approved 2026-11-27)
+    sector_orientation: compass bearings 0, 120, 240 degrees (0 = north, clockwise); 10 degree downtilt
+    antenna_position: roof edge facing each sector, 1 m inside the edge
+    excluded_structures: monuments, memorials and artworks are never candidates (kept as obstacles)
     site_selection: the existing interference-aware SINR greedy
     approved_on: [2026-11-26, 2026-11-27]
-    condition: >-
-      The minimum roof height, minimum roof area and minimum spacing are chosen once the
-      stage-1 observations exist (they set the candidate count); until then research site
-      planning refuses (configs/site_rule.yaml, candidate_thresholds: pending).
-    status: approved_with_condition
+    status: approved
   B1_validation:
     decision: >-
       keep the controlled TR 38.901 comparison (UMa/UMi); MATLAB is an external cross-check;
       agreement criterion: median |difference| in LOS cells <= 2.0 dB, with RMSE and the NLOS
-      cells reported separately (tolerance approved 2026-11-27)
+      cells reported separately
     los_median_abs_tolerance_db: 2.0
     approved_on: [2026-11-26, 2026-11-27]
-    condition: MATLAB not executed (laptop)
-    status: approved_with_condition
+    status: approved
   B2_engine_limitations:
     decision: accepted as documented; add 2-3 MATLAB cases on reflection-then-diffraction streets
     approved_on: 2026-11-26
-    condition: the reflection-then-diffraction cases need the final scene; not prepared yet
-    status: approved_with_condition
+    status: approved
   B3_rate_reporting:
     decision: >-
       Shannon upper bound for every band, plus a practical mapping beside it: LTE (TR 36.942,
       alpha 0.6, -10 dB, cap 4.4 bit/s/Hz) for 4G; NR (TR 38.921, alpha 0.6, -10 to 30 dB) for
       5G; the NR values as a labelled research approximation for candidate 6G
-    history: 2026-11-26 one NR mapping for all bands; 2026-11-27 the per-band assignment
     values: see configs/radio_system.yaml (rate_mappings, scenario_rate_mapping)
     approved_on: [2026-11-26, 2026-11-27]
     status: approved
   C6_gpu_for_research:
-    decision: CPU for thesis results; GPU and auto for exploration only
+    decision: CPU for research-baseline results; GPU and auto for exploration and custom experiments
     approved_on: 2026-11-26
     status: approved
   convergence:
-    decision: standard profile (10 m, 1e9 rays) accepted for final runs; preview (25 m, 1e8) for development; research profile (5 m) disabled
+    decision: standard profile (10 m, 1e9 rays) for research runs, re-measured on the final scene; preview (25 m, 1e8) for development; 5 m profile disabled
     approved_on: 2026-11-26
-    condition: convergence must be evaluated again on the final research scene (not done)
-    status: approved_with_condition
+    status: approved
   matlab:
-    decision: required before conclusions; run the prepared case on the laptop with the B1 criterion
+    decision: MATLAB cross-check required before conclusions, assessed with the B1 criterion
     approved_on: 2026-11-26
-    condition: not executed
-    status: approved_with_condition
+    status: approved
   laptop:
-    decision: accept the measured laptop run times as the time budget
+    decision: the measured laptop run times are the time budget
     approved_on: 2026-11-26
-    condition: the laptop has not been measured yet
-    status: approved_with_condition
+    status: approved
   sensitivity_cases:
     decision: >-
-      optional sensitivity experiments kept, never a substitute for the baseline: rain 18.6 mm/h
+      optional sensitivity experiments, never a substitute for the baseline: rain 18.6 mm/h
       (older ITU-R P.837 map edition, qualified), equal power per MHz, 50 % load, building-height
       uncertainty, array-gain illustration by link-budget arithmetic only
     approved_on: 2026-11-27
     status: approved
-
-# Values the supervisor has not specified. They stay null in the configuration files and the
-# software refuses the research step that needs them.
-unspecified:
-  - {item: written approval reference, needed_for: final delivery}
-  - {item: minimum candidate roof height, file: configs/site_rule.yaml, needed_for: research site planning}
-  - {item: minimum candidate roof area, file: configs/site_rule.yaml, needed_for: research site planning}
-  - {item: minimum candidate spacing, file: configs/site_rule.yaml, needed_for: research site planning}
-  - {item: sector azimuth convention (see pending_proposals), file: configs/radio_system.yaml, needed_for: confirmation before any change of sector orientation}
-
-# Proposals of the project owner (2026-11-27) awaiting the supervisor. Recorded, not applied:
-# nothing in the simulation uses these values until they are confirmed and entered with status
-# approved (and the approval lock renewed).
-pending_proposals:
-  sector_azimuth_convention:
-    proposal: >-
-      user-facing compass bearings (0 = north, 90 = east, clockwise) with sectors at bearings 0,
-      120 and 240 degrees
-    current_implementation: >-
-      ray-tracer yaw 0, 120, 240 degrees counter-clockwise from east (scene x east, y north),
-      i.e. compass bearings 90, 330, 210; every saved run used this
-    effect_if_confirmed: >-
-      scene yaws 90, 330, 210 degrees: the three-sector set rotates by 30 degrees; new traces and
-      new cache keys; earlier runs keep their recorded orientation and are not reinterpreted
-    conversion: bns.simulation.setup.bearing_to_scene_azimuth_rad (yaw = 90 deg - bearing)
-    status: awaiting confirmation
-  candidate_thresholds:
-    proposal: {min_roof_height_m: 12.0, min_roof_area_m2: 100.0, min_spacing_m: 50.0, candidate_count_target: [20, 40]}
-    evaluation_2026_11_27: >-
-      with today's heights (8 non-placeholder buildings in the receiver area) these give 1
-      candidate (way/919688856, 55 m); the 20-40 target cannot be judged before the survey
-    status: evaluation values, pending the building survey and the supervisor

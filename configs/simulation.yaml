@@ -17,7 +17,7 @@ profiles:
     cell_size_m: 10
     rays_per_site: 1.0e9
     status: approved
-    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)
     convergence: borderline (two independent 1e9-ray maps within 1.4-2.0 dB for 95 % of cells), accepted as sufficient
     # The acceptance rests on the provisional scene; it must be re-measured on the final research
     # scene (scripts/run_convergence.py) before research runs. Research mode refuses until then.

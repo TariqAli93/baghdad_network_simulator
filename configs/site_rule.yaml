@@ -1,10 +1,11 @@
-# Base-station site rule (decision A4, configs/approvals.yaml).
+# Base-station site rule (decision A4; research baseline, approved).
 #
 # Values that are radio-system parameters are NOT repeated here; they live in
 # configs/radio_system.yaml (single source of truth) and are only named below:
 #   mast height above the roof   antenna_height_above_roof_m   (3 m)
-#   sectors and azimuths         sectors_per_site              (3 -> 0, 120, 240 deg, scene frame:
-#                                                                counter-clockwise from east)
+#   sectors and bearings         sectors_per_site              (3 -> compass bearings 0, 120, 240 deg:
+#                                                                0 = north, clockwise; converted to the
+#                                                                ray tracer's yaw = 90 deg - bearing)
 #   downtilt                     mechanical_downtilt_deg       (10 deg)
 #
 # antenna_position: roof_edge  each sector stands at the roof edge in the direction it points,
@@ -12,28 +13,27 @@
 #                   interior   all sectors at one interior point of the roof (development runs
 #                              before the approval; kept for comparison and old manifests)
 antenna_position: roof_edge
-edge_inset_m: 1.0                 # approved 2026-11-27 (reported); was a software choice before
+edge_inset_m: 1.0
 radio_parameters: [antenna_height_above_roof_m, sectors_per_site, mechanical_downtilt_deg]
 
 # Candidate rooftops
 candidate_height_categories: [observed, estimated]   # observed or storey-based heights only
-candidate_count_target: [20, 40]                     # the thresholds below are chosen to give this
+candidate_count_target: [20, 40]
 # Structures that are never transmitter candidates (they stay in the scene as obstacles):
 # OSM historic=*, memorial=*, tourism=artwork, man_made=monument|obelisk
 # (bns.geospatial.sites.is_structure_not_building).
 excluded_structures: [monument, memorial, artwork]
 site_selection: interference-aware SINR greedy over physical sites (scripts/plan_sites.py)
 
-# PENDING: chosen once the stage-1 observations exist (they set the candidate count). Not
-# invented: null means "not decided", and research site planning refuses until all three are set
-# and approved. Development runs give them per run and record them as development values.
-# Provisional evaluation values (12 m, 100 m2, 50 m) are recorded in configs/approvals.yaml
-# (pending_proposals), not here: they are not research parameters.
+# Initial selection thresholds (approved 2026-11-27). After the survey they may be refined to
+# obtain a candidate pool of 20-40 roofs; every refinement is recorded in `adjustments` with its
+# geometric justification (candidate count, spacing, roof sizes) and never chosen from coverage
+# results. Experiments with other values run as custom experiments and record the values used.
 candidate_thresholds:
-  min_roof_height_m: null
-  min_roof_area_m2: null
-  min_spacing_m: null
-  status: pending
+  min_roof_height_m: 12.0
+  min_roof_area_m2: 100.0
+  min_spacing_m: 50.0
+  adjustments: []
 
-status: approved                  # the rule above; candidate_thresholds has its own status
-approved_by: supervisor, as reported by the project owner on 2026-11-26 and 2026-11-27 (written reference pending; configs/approvals.yaml)
+status: approved
+approved_by: supervisor, as reported by the project owner (2026-11-26, 2026-11-27; configs/approvals.yaml)

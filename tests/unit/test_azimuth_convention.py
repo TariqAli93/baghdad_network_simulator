@@ -33,15 +33,14 @@ def test_conversion_round_trips():
             pytest.approx(bearing % 360.0, abs=1e-9)
 
 
-def test_the_implemented_sectors_face_compass_bearings_90_330_210():
+def test_sectors_face_the_approved_compass_bearings_and_history_keeps_its_own():
     system = RadioSystem.load(ROOT / "configs" / "radio_system.yaml")
     antennas = setup.sector_antennas(system, mode="development", polarization="V")
     yaws = [a.orientation_rad[0] for a in antennas]
-    assert np.degrees(yaws) == pytest.approx([0.0, 120.0, 240.0])                 # unchanged scene yaws
-    assert [setup.scene_azimuth_to_bearing_deg(y) for y in yaws] == pytest.approx([90.0, 330.0, 210.0])
-    # the proposed compass bearings 0/120/240 would be scene yaws 90/330/210: a 30 deg rotation of the set
-    proposed = sorted(np.degrees(setup.bearing_to_scene_azimuth_rad(b)) % 360 for b in (0, 120, 240))
-    assert proposed == pytest.approx([90.0, 210.0, 330.0])
+    assert [setup.scene_azimuth_to_bearing_deg(y) for y in yaws] == pytest.approx([0.0, 120.0, 240.0])
+    assert np.degrees(yaws) % 360 == pytest.approx([90.0, 330.0, 210.0])         # yaw = 90 deg - bearing
+    # runs before 2026-11-27 recorded yaw 0/120/240; read back, those are compass 90/330/210 (not reinterpreted)
+    assert [setup.scene_azimuth_to_bearing_deg(np.radians(y)) for y in (0, 120, 240)] == pytest.approx([90, 330, 210])
 
 
 def test_roof_edge_placement_and_pattern_boresight_use_the_same_azimuth():

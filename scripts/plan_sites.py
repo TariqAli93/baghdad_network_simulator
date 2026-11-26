@@ -54,10 +54,11 @@ def main() -> int:
     parser.add_argument("--mode", choices=("development", "research"), required=True)
     parser.add_argument("--backend", choices=("cpu", "gpu", "auto"), default="cpu")
     parser.add_argument("--max-candidates", type=int, default=20)
-    parser.add_argument("--min-height", type=float, default=9.0)
-    parser.add_argument("--min-spacing", type=float, default=150.0)
-    parser.add_argument("--heights", default="observed,estimated,placeholder",
-                        help="height categories allowed for candidate roofs")
+    parser.add_argument("--min-height", type=float, help="minimum roof height [m] (default: configs/site_rule.yaml)")
+    parser.add_argument("--min-area", type=float, help="minimum roof area [m2] (default: site rule)")
+    parser.add_argument("--min-spacing", type=float, help="minimum spacing [m] (default: site rule)")
+    parser.add_argument("--heights", help="height categories allowed for candidate roofs (default: site rule, "
+                                          "observed,estimated; adding placeholder makes a custom experiment)")
     parser.add_argument("--threshold", type=float, help="coverage threshold override [dB] (development only)")
     parser.add_argument("--target", type=float, help="coverage target override (development only)")
     parser.add_argument("--load", type=float, help="interference activity override (development only)")
@@ -69,12 +70,21 @@ def main() -> int:
     try:
         if overrides and args.mode == "research":
             raise ex.ExperimentError("Research mode does not accept overrides of the radio configuration.")
-        exp = ex.load(ROOT, args.area, args.variant, args.profile, args.mode, backend=args.backend)
-        categories = tuple(c.strip() for c in args.heights.split(",") if c.strip())
+        criteria = {k: v for k, v in (("min_roof_height_m", args.min_height), ("min_roof_area_m2", args.min_area),
+                                      ("min_spacing_m", args.min_spacing)) if v is not None}
+        if args.heights and args.mode == "research":
+            raise ex.ExperimentError("Research-baseline site plans use the site rule's height categories.")
+        exp = ex.load(ROOT, args.area, args.variant, args.profile, args.mode, backend=args.backend,
+                      overrides=criteria)
+        rule = exp.candidate_rule
+        categories = (tuple(c.strip() for c in args.heights.split(",") if c.strip()) if args.heights
+                      else tuple(rule["categories"]))
+        args.min_height, args.min_spacing = rule["min_roof_height_m"], rule["min_spacing_m"]
         candidates = site_rules.rooftop_candidates(exp.receiver_buildings, mast_height_m=exp.mast_height_m,
-                                                   min_height_m=args.min_height, min_area_m2=0.0,
-                                                   min_spacing_m=args.min_spacing, max_candidates=args.max_candidates,
-                                                   categories=categories)
+                                                   min_height_m=rule["min_roof_height_m"],
+                                                   min_area_m2=rule["min_roof_area_m2"],
+                                                   min_spacing_m=rule["min_spacing_m"],
+                                                   max_candidates=args.max_candidates, categories=categories)
     except Exception as exc:
         print(f"ERROR {exc}", flush=True)
         return 1
@@ -223,6 +233,9 @@ def main() -> int:
 
     manifest = {
         "label": exp.label, "run_id": run_id, "kind": "site_plan", "mode": args.mode,
+        "run_class": ex.run_class({**exp.overrides, **overrides,
+                                   **({"heights": args.heights} if args.heights else {})}),
+        "overrides": {**exp.overrides, **overrides, **({"heights": args.heights} if args.heights else {})},
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,
                     "variant": all_jobs[0].engine["variant"],
@@ -233,6 +246,7 @@ def main() -> int:
                  "height_categories_percent": exp.quality["height_categories"]["by_count_percent"],
                  "fit_for_research": exp.quality["fit_for_research"], "receiver_area_km2": area_km2},
         "candidate_rule": {"min_height_m": args.min_height, "min_spacing_m": args.min_spacing,
+                           "min_area_m2": exp.candidate_rule["min_roof_area_m2"],
                            "max_candidates": args.max_candidates, "height_categories": list(categories),
                            "mast_height_m": exp.mast_height_m,
                            "antenna_position": exp.site_rule.get("antenna_position"),

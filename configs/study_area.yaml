@@ -27,8 +27,8 @@ areas:
   tahrir_bab_al_sharqi_study:
     role: study district
     approved: true
-    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
-    condition: approved on condition that the tall buildings can be observed (decision A1/A2)
+    approved_by: supervisor, as reported by the project owner on 2026-11-26
+    condition: research results need the required field observations (decision A1/A2)
     description: >-
       The approved study district (decision A1): Tahrir Square / Bab Al-Sharqi, same boundary
       as the development area. Uses the 2026-11-26 snapshot of tahrir_bab_al_sharqi_v2
@@ -52,17 +52,20 @@ areas:
     observations:
       worklist: outputs/datasets/tahrir_bab_al_sharqi_study/fieldwork/observation_priorities.csv
       required_priorities: [P0, P1, P2, S]
-      # Which observation satisfies a required building (method_class of the fieldwork file):
-      # P0-P2 a measured or documented height (recorded as observed); S a storey-count survey
-      # record with the storey count (recorded as estimated, storeys x storey height). A measured
-      # or documented height also satisfies S. Visual estimates satisfy no required building.
-      # Specified by the project owner on 2026-11-27 (P2 was "measured if possible, otherwise a
-      # storey count" in the earlier fieldwork guide).
+      # Which observation satisfies a required building (method_class of the fieldwork file),
+      # approved 2026-11-27: P0 and P1 a measured or documented height (recorded as observed);
+      # P2 a measured or documented height preferred, a storey count (storeys x 3.0 m, recorded as
+      # estimated) accepted when no reliable measurement or document exists; S a storey-count
+      # record with the storey count. A measured or documented height also satisfies P2 and S.
+      # Visual estimates satisfy no required building. Every row records its source, method,
+      # uncertainty and notes; an estimate is never classified as a measured height.
       method_requirements:
         P0: [measured, documented]
         P1: [measured, documented]
-        P2: [measured, documented]
+        P2: [measured, documented, storey_count]
         S: [storey_count, measured, documented]
+      preferred:
+        P2: [measured, documented]
       stage: initial
       covered_by_sensitivity: [P3]
       history:
@@ -88,7 +91,7 @@ height_policy:
   # Decision A2 approved: this priority, storey height 3.0 m, no external dataset as the height
   # source (3D-GloBFP heights and GlobalBuildingAtlas rejected; an external dataset enters only
   # if separately authorised), field observations for the required worklist buildings.
-  approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending)
+  approved_by: supervisor, as reported by the project owner on 2026-11-26
   external_height_dataset: none   # none authorised; "dataset" in the priority stays unused
   height_sensitivity: enabled     # missing heights reported as a spread (configs/height_models.yaml)
   storey_height_m: 3.0            # used when only building:levels is tagged

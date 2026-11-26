@@ -64,13 +64,19 @@ def scene_azimuth_to_bearing_deg(azimuth_rad: float) -> float:
 
 
 def sector_antennas(system: RadioSystem, *, mode: str, polarization: str) -> list[Antenna]:
-    """One traced antenna per sector, evenly spaced in azimuth, all with the same downtilt."""
+    """One traced antenna per sector, all with the same downtilt.
+
+    Sector k faces the compass bearing 360 k / n degrees (0 = north, clockwise; approved
+    2026-11-27: 0, 120, 240 for three sectors), converted to the ray tracer's yaw
+    (counter-clockwise from east). Runs before 2026-11-27 used yaw 360 k / n instead (compass
+    90, 330, 210); their manifests record the orientation they used.
+    """
     pattern = system.require("tx_antenna_pattern", mode=mode)
     if pattern == "iso":
         return [Antenna("iso", polarization, (0.0, 0.0, 0.0))]
     sectors = int(system.require("sectors_per_site", mode=mode))
     tilt = np.radians(system.require("mechanical_downtilt_deg", mode=mode))
-    return [Antenna(pattern, polarization, (float(2 * np.pi * k / sectors), float(tilt), 0.0))
+    return [Antenna(pattern, polarization, (bearing_to_scene_azimuth_rad(360.0 * k / sectors), float(tilt), 0.0))
             for k in range(sectors)]
 
 

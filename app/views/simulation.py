@@ -1,3 +1,5 @@
+import json
+
 import streamlit as st
 import ui
 import yaml
@@ -12,11 +14,31 @@ ui.page_header("Run simulation", "Single- or multi-site coverage for all five sc
 areas = ui.study_areas()
 profiles = yaml.safe_load((ui.ROOT / "configs" / "simulation.yaml").read_text(encoding="utf-8"))["profiles"]
 usable = [k for k, v in profiles.items() if v.get("rays_per_site") is not None]
+RUN_TYPES = {"development": "Development / custom experiment",
+             "research": "Research baseline (final research run)"}
+# parameter -> (label, step, number format); ranges come from bns.simulation.experiment.OVERRIDES
+PARAMS = {
+    "Radio": {"tx_power_dbm": ("Transmit power [dBm, conducted]", 1.0, "%.1f"),
+              "mechanical_downtilt_deg": ("Downtilt [deg]", 1.0, "%.1f"),
+              "sectors_per_site": ("Sectors per site", 1, "%d"),
+              "antenna_height_above_roof_m": ("Mast height above roof [m]", 0.5, "%.1f"),
+              "rx_height_m": ("Receiver height [m]", 0.5, "%.1f"),
+              "noise_figure_db": ("Noise figure [dB]", 0.5, "%.1f")},
+    "Coverage and load": {"coverage_threshold": ("Coverage threshold, SINR [dB]", 1.0, "%.1f"),
+                          "coverage_target": ("Coverage target [share of outdoor cells]", 0.01, "%.2f"),
+                          "interference_activity": ("Network load (interference activity)", 0.05, "%.2f")},
+    "Resolution and environment": {"cell_size_m": ("Cell size [m]", 1.0, "%.1f"),
+                                   "rays_per_site": ("Rays per sector", 10**8, "%d"),
+                                   "rain_rate_mm_h": ("Rain rate [mm/h] (0 = clear sky)", 1.0, "%.1f")},
+    "Candidate sites": {"min_roof_height_m": ("Minimum roof height [m]", 1.0, "%.1f"),
+                        "min_roof_area_m2": ("Minimum roof area [m²]", 10.0, "%.1f"),
+                        "min_spacing_m": ("Minimum spacing [m]", 10.0, "%.1f")},
+}
 
 
 @st.cache_resource(show_spinner="Preparing the dataset...")
-def experiment(area, variant, profile, mode, backend):
-    return ex.load(ui.ROOT, area, variant, profile, mode, backend=backend)
+def experiment(area, variant, profile, mode, backend, overrides_json):
+    return ex.load(ui.ROOT, area, variant, profile, mode, backend=backend, overrides=json.loads(overrides_json))
 
 
 @st.cache_resource(show_spinner="Checking for a GPU...")
@@ -28,52 +50,88 @@ def gpu_probe():
 gpu_ok, gpu_message = gpu_probe()
 backends = yaml.safe_load((ui.ROOT / "configs" / "simulation.yaml").read_text(encoding="utf-8")).get("backends", {})
 
+c1, c2, c3, c4 = st.columns(4)
+study = [k for k, v in areas.items() if v.get("approved")]
+area = c1.selectbox("Area", list(areas), index=list(areas).index(study[0]) if study else 0)
+variants = ui.variants(area) or ["osm"]
+variant = c2.selectbox("Dataset variant", variants)
+profile = c3.selectbox("Profile", usable, index=usable.index("standard") if "standard" in usable else 0,
+                       help="Sets the baseline cell size and ray count below; "
+                            + "; ".join(f"{k}: {v.get('status', '')}" for k, v in profiles.items()),
+                       format_func=lambda p: f"{p} — {profiles[p]['cell_size_m']} m, "
+                       f"{float(profiles[p]['rays_per_site']):.0e} rays")
+mode = c4.selectbox("Run type", list(RUN_TYPES), format_func=RUN_TYPES.get,
+                    help="A research-baseline run uses the approved configuration unchanged and needs a dataset fit "
+                         "for research and the final-scene convergence. Everything else runs as development or "
+                         "custom experiment and is labelled so.")
+baseline = ex.baseline_values(ui.ROOT, profile)
+
+if st.button("Reset to research baseline", help="Restore every parameter below to the approved baseline values."):
+    for k in [k for k in st.session_state if str(k).startswith("param-")]:
+        del st.session_state[k]
+    st.rerun()
 
 with st.form("run_form"):
-    c1, c2, c3, c4 = st.columns(4)
-    area = c1.selectbox("Area", list(areas), index=list(areas).index("tahrir_bab_al_sharqi_v2")
-                        if "tahrir_bab_al_sharqi_v2" in areas else 0)
-    variants = ui.variants(area) or ["osm"]
-    variant = c2.selectbox("Dataset variant", variants, index=variants.index("osm") if "osm" in variants else 0)
-    profile = c3.selectbox("Profile", usable, help="; ".join(f"{k}: {v.get('status', '')}" for k, v in profiles.items()),
-                           format_func=lambda p: f"{p} — {profiles[p]['cell_size_m']} m, "
-                           f"{float(profiles[p]['rays_per_site']):.0e} rays")
-    mode = c4.selectbox("Mode", ["development", "research"],
-                        help="Research mode refuses any unapproved parameter or dataset.")
     b1, b2 = st.columns([1, 3])
     backend = b1.selectbox("Ray-tracing backend", ["cpu", "auto", "gpu"] if gpu_ok else ["cpu", "auto"],
-                           format_func=lambda b: {"cpu": "CPU (production)", "auto": "Auto (GPU if available)",
-                                                  "gpu": "GPU"}[b],
-                           help="CPU is the production backend. GPU is "
-                                f"'{backends.get('gpu', {}).get('status', 'not configured')}': research runs refuse it. "
-                                "CPU and GPU maps are cached separately.")
+                           format_func=lambda b: {"cpu": "CPU", "auto": "Auto (GPU if available)", "gpu": "GPU"}[b],
+                           help="CPU is the research backend. GPU maps agree closely with CPU maps in most cells "
+                                "but differed by up to 26 dB in single cells on a harder case (docs/validation.md "
+                                "§7); they are cached separately.")
     b2.caption(gpu_message)
-    rule = st.radio("Sites", ["tallest buildings with an observed height", "chosen buildings"], horizontal=True)
-    d1, d2, d3 = st.columns(3)
+    rule = st.radio("Sites", ["candidate rooftops (site rule)", "chosen buildings"], horizontal=True)
+    d1, d2 = st.columns([1, 3])
     count = d1.number_input("Number of sites (1 = single site)", 1, 8, 4)
-    min_height = d2.number_input("Minimum roof height [m]", 0.0, 100.0, 10.0, 1.0)
-    spacing = d3.number_input("Minimum spacing [m]", 0.0, 500.0, 100.0, 10.0)
-    chosen = st.text_input("Building ids, in order (for 'chosen buildings')", placeholder="way/919688856 way/645196998")
+    chosen = d2.text_input("Building ids, in order (for 'chosen buildings')", placeholder="way/919688856 way/645196998")
+    values = {}
+    with st.expander("Experiment parameters (research-baseline values unless you change them)", expanded=False):
+        for group, params in PARAMS.items():
+            st.markdown(f"**{group}**")
+            cols = st.columns(3)
+            for n, (k, (label, step, fmt)) in enumerate(params.items()):
+                lo, hi = ex.OVERRIDES[k]
+                integer = k in ex.INTEGER_OVERRIDES
+                default = baseline.get(k)
+                key = f"param-{k}-{profile}" if k in ("cell_size_m", "rays_per_site") else f"param-{k}"
+                values[k] = cols[n % 3].number_input(
+                    label, min_value=int(lo) if integer else float(lo), max_value=int(hi) if integer else float(hi),
+                    value=(int(default) if integer else float(default)) if default is not None else None,
+                    step=step, format=fmt, key=key,
+                    help=f"Research baseline: {default:g}" if default is not None else "No baseline value")
     estimate = st.form_submit_button("Check sites and workload", type="secondary")
 
+overrides = ex.differences(values, baseline)
+if overrides:
+    st.info("**Custom experiment** — differs from the research baseline in: "
+            + ", ".join(f"{k} {v:g} (baseline {baseline[k]:g})" for k, v in overrides.items())
+            + ". The run records the values it used.")
+else:
+    st.success("**Research baseline** values.")
+if overrides and mode == "research":
+    st.error("A research-baseline run uses the baseline values: reset them, or choose "
+             "'Development / custom experiment'.")
+    st.stop()
+
 request = {"area": area, "variant": variant, "profile": profile, "mode": mode, "backend": backend,
-           "buildings": chosen.split() if rule == "chosen buildings" else [],
-           "sites": int(count), "min_height_m": float(min_height), "min_spacing_m": float(spacing)}
+           "buildings": chosen.split() if rule == "chosen buildings" else [], "sites": int(count),
+           "overrides": overrides}
 
 if estimate or st.session_state.get("checked_request") == request:
     st.session_state["checked_request"] = request
     try:
-        exp = experiment(area, variant, profile, mode, backend)
-        placed = (ex.place_sites(exp, request["buildings"]) if request["buildings"] else
-                  ex.observed_sites(exp, int(count), min_height_m=float(min_height), min_spacing_m=float(spacing)))
+        exp = experiment(area, variant, profile, mode, backend, json.dumps(overrides, sort_keys=True))
+        placed = ex.place_sites(exp, request["buildings"]) if request["buildings"] else ex.observed_sites(exp, int(count))
     except Exception as exc:
         st.error(f"This run cannot start: {exc}")
         st.stop()
     if not placed:
-        st.warning("No building satisfies these site rules.")
+        r = exp.candidate_rule
+        st.warning(f"No rooftop satisfies the candidate rule (roof ≥ {r['min_roof_height_m']:g} m, "
+                   f"≥ {r['min_roof_area_m2']:g} m², ≥ {r['min_spacing_m']:g} m apart, heights "
+                   f"{', '.join(r['categories'])}). Choose buildings, or change the candidate criteria.")
         st.stop()
     ui.development_banner(exp.label)
-    st.markdown(f"**Backend:** {exp.backend.upper()} — {exp.backend_note}")
+    st.markdown(f"**Run:** {exp.run_class} · **Backend:** {exp.backend.upper()} — {exp.backend_note}")
     st.dataframe([{"site": s.candidate_id, "building": s.building_id, "roof [m]": s.roof_height_m,
                    "roof height": s.height_category, "antenna [m]": s.z, "x [m]": round(s.x), "y [m]": round(s.y)}
                   for s in placed], hide_index=True, use_container_width=True)
@@ -111,7 +169,9 @@ def render(folder):
     s = control.state(folder)
     req = s.request
     title = (f"{req['area']}/{req['variant']} · {req['profile']} · {req.get('backend', 'cpu').upper()} · "
-             + (" ".join(req["buildings"]) if req["buildings"] else f"{req['sites']} site(s)"))
+             + (" ".join(req["buildings"]) if req["buildings"] else f"{req['sites']} site(s)")
+             + (" · custom: " + ", ".join(f"{k}={v:g}" for k, v in req["overrides"].items())
+                if req.get("overrides") else (" · research-baseline values" if "overrides" in req else "")))
     with st.container(border=True):
         st.markdown(f"**{title}** · started {req['started_utc'][:19].replace('T', ' ')} UTC")
         if s.running:

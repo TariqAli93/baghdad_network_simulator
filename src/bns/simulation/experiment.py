@@ -37,6 +37,84 @@ class ExperimentError(RuntimeError):
     """The experiment cannot run as configured (missing dataset, research refusal, ...)."""
 
 
+# Parameters a user may change for a custom or sensitivity experiment, with their valid range.
+# Anything not listed stays as configured. The approved configuration is the research baseline.
+RADIO_OVERRIDES = {"tx_power_dbm": (0.0, 60.0), "mechanical_downtilt_deg": (-10.0, 30.0),
+                   "sectors_per_site": (1, 6), "antenna_height_above_roof_m": (0.0, 30.0),
+                   "rx_height_m": (0.5, 10.0), "noise_figure_db": (0.0, 20.0),
+                   "coverage_threshold": (-20.0, 40.0), "coverage_target": (0.5, 1.0),
+                   "interference_activity": (0.0, 1.0)}
+OTHER_OVERRIDES = {"cell_size_m": (2.0, 50.0), "rays_per_site": (10**6, 10**10), "rain_rate_mm_h": (0.0, 200.0),
+                   "min_roof_height_m": (0.0, 300.0), "min_roof_area_m2": (0.0, 100000.0),
+                   "min_spacing_m": (0.0, 2000.0)}
+OVERRIDES = {**RADIO_OVERRIDES, **OTHER_OVERRIDES}
+INTEGER_OVERRIDES = ("sectors_per_site", "rays_per_site")
+BASELINE = "research baseline"
+CUSTOM = "custom experiment"
+
+
+def baseline_values(root: Path, profile_name: str) -> dict:
+    """The research-baseline value of every parameter a user may change (from the config files)."""
+    root = Path(root)
+    radio = (yaml.safe_load((root / "configs" / "radio_system.yaml").read_text(encoding="utf-8")) or {})["parameters"]
+    out = {k: radio[k]["value"] for k in RADIO_OVERRIDES}
+    profile = SimulationConfig.load(root / "configs" / "simulation.yaml").profile(profile_name)
+    out.update(cell_size_m=float(profile.cell_size_m), rays_per_site=int(profile.rays_per_site))
+    conditions, _ = atm.load_conditions(root / "configs" / "atmosphere.yaml")
+    out["rain_rate_mm_h"] = float(conditions.rain_rate_mm_h)
+    rule = yaml.safe_load((root / "configs" / "site_rule.yaml").read_text(encoding="utf-8")) or {}
+    out.update({k: (rule.get("candidate_thresholds") or {}).get(k)
+                for k in ("min_roof_height_m", "min_roof_area_m2", "min_spacing_m")})
+    return {k: ((int(v) if k in INTEGER_OVERRIDES else float(v)) if v is not None else None) for k, v in out.items()}
+
+
+def differences(values: dict, baseline: dict) -> dict:
+    """The entries of `values` that differ from the baseline (these are the run's overrides)."""
+    return {k: v for k, v in values.items() if k in OVERRIDES and v is not None and
+            (baseline.get(k) is None or not np.isclose(float(v), float(baseline[k]), rtol=0, atol=1e-9))}
+
+
+def run_class(overrides: dict | None) -> str:
+    return CUSTOM if overrides else BASELINE
+
+
+def validate_overrides(overrides: dict | None) -> dict:
+    """Refuse unknown parameters and values outside their technical range; return clean values."""
+    clean = {}
+    for k, v in (overrides or {}).items():
+        if k not in OVERRIDES:
+            raise ExperimentError(f"'{k}' cannot be changed for an experiment (changeable: {', '.join(OVERRIDES)}).")
+        try:
+            value = float(v)
+        except (TypeError, ValueError) as exc:
+            raise ExperimentError(f"{k} must be a number, not {v!r}.") from exc
+        lo, hi = OVERRIDES[k]
+        if not np.isfinite(value) or not lo <= value <= hi:
+            raise ExperimentError(f"{k} = {v} is outside its valid range {lo:g} to {hi:g}.")
+        if k in INTEGER_OVERRIDES:
+            if value != int(value):
+                raise ExperimentError(f"{k} must be a whole number, not {v}.")
+            value = int(value)
+        clean[k] = value
+    return clean
+
+
+def custom_radio_system(system: RadioSystem, overrides: dict) -> RadioSystem:
+    """The radio system with experiment values; changed values are marked as development values
+    (never as approved) and pass the same checks as the configuration file."""
+    entries = {k: dict(v) for k, v in system.entries.items()}
+    for k, v in overrides.items():
+        if k in RADIO_OVERRIDES:
+            e = entries[k]
+            e.update(value=v, status="development",
+                     justification="custom experiment value (differs from the research baseline)")
+            e.pop("approved_by", None)
+    try:
+        return RadioSystem.from_entries(entries)
+    except ValueError as exc:
+        raise ExperimentError(str(exc)) from exc
+
+
 @dataclass
 class Experiment:
     root: Path
@@ -60,6 +138,19 @@ class Experiment:
     backend_note: str = ""
     site_rule: dict = field(default_factory=lambda: {"antenna_position": "interior"})
     extra: dict = field(default_factory=dict)
+    overrides: dict = field(default_factory=dict)     # values that differ from the research baseline
+
+    @property
+    def run_class(self) -> str:
+        return run_class(self.overrides)
+
+    @property
+    def candidate_rule(self) -> dict:
+        """Candidate rooftop criteria in effect (site rule, with experiment overrides)."""
+        t = self.site_rule.get("candidate_thresholds") or {}
+        rule = {k: self.overrides.get(k, t.get(k)) for k in ("min_roof_height_m", "min_roof_area_m2", "min_spacing_m")}
+        rule["categories"] = list(self.site_rule.get("candidate_height_categories") or ["observed", "estimated"])
+        return rule
 
     @property
     def receiver_buildings(self) -> list[ht.Building]:
@@ -123,8 +214,13 @@ def require_research_dataset(quality: dict, mode: str) -> None:
 
 
 def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
-         backend: str = "cpu") -> Experiment:
+         backend: str = "cpu", overrides: dict | None = None) -> Experiment:
     root = Path(root)
+    overrides = validate_overrides(overrides)
+    if overrides and mode == "research":
+        raise ExperimentError("A research-baseline run uses the approved configuration unchanged; run changed "
+                              "parameters as a custom experiment (development mode): "
+                              + ", ".join(f"{k} = {v}" for k, v in overrides.items()) + ".")
     areas = load_study_areas(root / "configs" / "study_area.yaml")
     if area_name not in areas:
         raise ExperimentError(f"Unknown study area '{area_name}'.")
@@ -138,9 +234,19 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
         profile = config.profile(profile_name)
     except KeyError as exc:
         raise ExperimentError(str(exc)) from exc
+    if overrides:
+        overrides = differences(overrides, baseline_values(root, profile_name))
+    if overrides:
+        system = custom_radio_system(system, overrides)
+    if "cell_size_m" in overrides or "rays_per_site" in overrides:
+        profile = Profile(f"{profile.name}-custom", overrides.get("cell_size_m", profile.cell_size_m),
+                          overrides.get("rays_per_site", profile.rays_per_site),
+                          "custom (not convergence-checked)")
     require_research_profile(profile, mode)
     label = system.label(USED, mode=mode)             # refuses unapproved values in research mode
     baseline, _ = atm.load_conditions(root / "configs" / "atmosphere.yaml")
+    if "rain_rate_mm_h" in overrides:
+        baseline = atm.Conditions(rain_rate_mm_h=overrides["rain_rate_mm_h"], include_gas=baseline.include_gas)
     scene_dir = root / "data" / "scenes" / area.name / variant
     if not (scene_dir / "scene.xml").exists():
         raise ExperimentError(f"No dataset {scene_dir}; run scripts/build_dataset.py --area {area.name} first.")
@@ -159,7 +265,8 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
     if mode == "research" and site_rule.get("status") != "approved":
         raise ExperimentError("The site rule (configs/site_rule.yaml) is not approved.")
     return Experiment(root, area, variant, mode, profile, system, config, load_scenarios(root), baseline,
-                      label, scene_dir, quality, buildings, grid, outdoor, antennas, mast, chosen, note, site_rule)
+                      label, scene_dir, quality, buildings, grid, outdoor, antennas, mast, chosen, note, site_rule,
+                      overrides=overrides)
 
 
 def caveat(exp: Experiment) -> str:
@@ -169,6 +276,8 @@ def caveat(exp: Experiment) -> str:
     if exp.label == RESEARCH_LABEL and exp.quality.get("fit_for_research"):
         return "Approved research configuration on a dataset fit for research."
     reasons = list(exp.quality.get("not_fit_reasons") or [])
+    if exp.overrides:
+        reasons.append("custom experiment (" + ", ".join(f"{k} = {v}" for k, v in exp.overrides.items()) + ")")
     if exp.mode != "research":
         reasons.append("development mode")
     return "**Not a finding about Baghdad**: " + "; ".join(reasons) + "."
@@ -189,12 +298,18 @@ def place_sites(exp: Experiment, building_ids: list[str]) -> list[sites.Candidat
     return placed
 
 
-def observed_sites(exp: Experiment, count: int, *, min_height_m: float, min_spacing_m: float):
-    """Tallest receiver-area buildings whose height is OBSERVED (not estimated or placeholder)."""
+def observed_sites(exp: Experiment, count: int | None = None):
+    """Tallest receiver-area rooftops that satisfy the candidate rule (site rule with experiment
+    overrides): heights observed or storey-based, minimum roof height, area and spacing;
+    monuments, memorials and artworks never qualify."""
+    r = exp.candidate_rule
+    missing = [k for k in ("min_roof_height_m", "min_roof_area_m2", "min_spacing_m") if r.get(k) is None]
+    if missing:
+        raise ExperimentError(f"Candidate criteria not set: {', '.join(missing)} (configs/site_rule.yaml).")
     return sites.rooftop_candidates(exp.receiver_buildings, mast_height_m=exp.mast_height_m,
-                                    min_height_m=min_height_m, min_area_m2=0.0,
-                                    min_spacing_m=min_spacing_m, max_candidates=count,
-                                    categories=(ht.OBSERVED,))
+                                    min_height_m=r["min_roof_height_m"], min_area_m2=r["min_roof_area_m2"],
+                                    min_spacing_m=r["min_spacing_m"], max_candidates=count,
+                                    categories=tuple(r["categories"]))
 
 
 def sector_positions(exp: Experiment, site: sites.Candidate) -> list[tuple[float, float, float]]:

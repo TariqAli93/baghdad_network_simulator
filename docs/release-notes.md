@@ -10,8 +10,12 @@
 - Second reported approval applied (2026-11-27): per-band rate mappings (LTE TR 36.942 for 4G, NR
   TR 38.921 for 5G, NR-based approximation for candidate 6G), reduced fieldwork P0-P2 + S (81),
   1 m inset, monument exclusion, B1 tolerance 2.0 dB; candidate thresholds left pending.
-- Approval lock (`configs/approval_lock.yaml`, `scripts/approval_lock.py`): an approved value that
-  changes loses its approval until reconfirmed. Eight readiness gates (`bns.analysis.readiness`);
+- Final approval applied (2026-11-27): sectors at compass bearings 0/120/240°; candidate criteria
+  12 m / 100 m² / 50 m; P2 storey-based fallback. Approval management removed from the interface:
+  the approved values are the research baseline (`configs/research_baseline.yaml`); the Run
+  simulation page edits any valid parameter as a custom experiment, with reset to baseline;
+  readiness shows scientific status (data, observations, candidates, convergence, validation).
+- (Superseded the same day) approval lock and eight readiness gates (`bns.analysis.readiness`);
   research mode refuses until the five pre-experiment gates pass. Shown on the Overview, Radio and
   Study area pages.
 - Fix: `run_single_site.py --mode research` now applies the shared research guards.

@@ -8,7 +8,7 @@ from bns.app import evidence
 from bns.reporting.report import LIMITATIONS, build_html
 
 ui.page_header("Reports and exports", "Everything a saved run holds, with its label and provenance: configuration, "
-               "approval status, statistics, figures, data files, and a printable report.")
+               "parameter status, statistics, figures, data files, and a printable report.")
 run = ui.pick_run("report-run", kinds=("single_site", "multi_site", "site_plan"))
 if run is None:
     st.stop()

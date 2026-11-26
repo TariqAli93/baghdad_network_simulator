@@ -34,11 +34,11 @@ def test_page_runs_without_exception_and_shows_its_title(app, page):
 
 def test_research_mode_is_refused_with_its_reason(app):
     at = app.switch_page("views/simulation.py").run()
-    mode = next(s for s in at.selectbox if s.label == "Mode")
+    mode = next(s for s in at.selectbox if s.label == "Run type")
     mode.set_value("research")
     next(b for b in at.button if b.label == "Check sites and workload").click()
     at.run()
-    assert any("cannot start" in e.value and "Research mode" in e.value for e in at.error)
+    assert any("cannot start" in e.value and "research-baseline run needs" in e.value for e in at.error)
 
 
 def test_reports_offer_csv_json_zip_and_html_exports(app):
@@ -47,3 +47,25 @@ def test_reports_offer_csv_json_zip_and_html_exports(app):
     assert "manifest.json" in labels and "summary.json" in labels
     assert any(label.startswith("Whole run folder") for label in labels)
     assert any(label.startswith("Report (HTML") for label in labels)
+
+
+def test_a_changed_parameter_makes_a_custom_experiment_and_reset_restores_the_baseline(app):
+    at = app.switch_page("views/simulation.py").run()
+    assert any("Research baseline" in s.value for s in at.success)
+    power = next(n for n in at.number_input if n.label.startswith("Transmit power"))
+    assert power.value == 46.0                                    # the research-baseline value
+    power.set_value(43.0)
+    next(b for b in at.button if b.label == "Check sites and workload").click()
+    at.run()
+    assert any("Custom experiment" in i.value and "tx_power_dbm 43" in i.value for i in at.info)
+    assert not at.exception, [e.message for e in at.exception]
+    next(b for b in at.button if b.label == "Reset to research baseline").click()
+    at.run()
+    assert next(n for n in at.number_input if n.label.startswith("Transmit power")).value == 46.0
+    assert any("Research baseline" in s.value for s in at.success)
+
+
+def test_out_of_range_values_cannot_be_entered(app):
+    at = app.switch_page("views/simulation.py").run()
+    load = next(n for n in at.number_input if n.label.startswith("Network load"))
+    assert (load.proto.min, load.proto.max) == (0.0, 1.0)          # the widget enforces the valid range

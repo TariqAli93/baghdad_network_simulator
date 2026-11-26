@@ -65,7 +65,11 @@ class RadioSystem:
     @classmethod
     def load(cls, path: Path) -> "RadioSystem":
         data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
-        entries = data.get("parameters") or {}
+        return cls.from_entries(data.get("parameters") or {})
+
+    @classmethod
+    def from_entries(cls, entries: dict) -> "RadioSystem":
+        """Validate parameter entries (as in the file) and build the radio system."""
         for name, e in entries.items():
             if name not in PARAMETERS:
                 raise ValueError(f"Unknown radio-system parameter '{name}'.")

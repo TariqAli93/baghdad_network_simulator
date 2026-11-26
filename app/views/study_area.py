@@ -21,22 +21,23 @@ if not variants:
 variant = c2.selectbox("Dataset variant", variants, index=variants.index("osm") if "osm" in variants else 0,
                        help="osm: OpenStreetMap heights only (placeholder 9 m elsewhere); osm+<dataset>: "
                             "external heights as candidates under the height policy.")
-st.markdown(f"**Role:** {info['role']} · **approved:** {info.get('approved', False)}")
+st.markdown(f"**Role:** {info['role']}")
 if info["role"] != "study district":
     st.warning("Not the study district: use for development and testing only, never to report Baghdad results.")
 else:
-    gates = {g.id: g for g in readiness.gates(ui.ROOT)}
-    with st.expander("Approved study-area and building-data methodology", expanded=True):
+    gates = {g.id: g for g in readiness.indicators(ui.ROOT)}
+    with st.expander("Study-area and building-data methodology (research baseline)", expanded=True):
         rows = configuration.study_area_rows(ui.ROOT, area_name)
         st.dataframe(rows, hide_index=True, use_container_width=True, height=36 * len(rows) + 40)
     obs = gates["observations"]
-    st.markdown(f"**Mandatory observations:** {obs.detail}")
+    st.markdown(f"**Observation progress:** {obs.state} — {obs.detail}")
     data = obs.data
     for grp in data.get("groups") or []:
         accepted = " or ".join(grp["accepted"]).replace("_", " ")
+        pref = f" ({' or '.join(grp['preferred'])} preferred)" if grp.get("preferred") else ""
         st.progress(grp["observed"] / grp["required"] if grp["required"] else 0.0,
                     text=f"{', '.join(grp['priorities'])}: {grp['observed']} of {grp['required']} buildings with a "
-                         f"{accepted} record")
+                         f"{accepted} record{pref}")
     if data.get("by_priority"):
         cols = st.columns(len(data["by_priority"]) + 1)
         for col, (p, v) in zip(cols, data["by_priority"].items()):
@@ -45,14 +46,15 @@ else:
                         or "—")
     if data.get("insufficient"):
         st.warning(f"{data['insufficient']} required buildings have an observation whose method class their priority "
-                   "does not accept (e.g. a storey count for P0-P2): they still need a measured or documented height.")
+                   "does not accept (e.g. a storey count for P0 or P1): they still need a measured or documented "
+                   "height.")
     st.caption("Worklist, map and template: outputs/datasets/<area>/fieldwork/ (scripts/fieldwork_package.py). "
                "Import observations with scripts/build_dataset.py --observations FILE; the required list comes from "
                "configs/study_area.yaml, never from the submitted file.")
-    with st.expander("Site rule and candidate rooftops (decision A4)"):
+    with st.expander("Site rule and candidate rooftops"):
         rows = configuration.site_rule_rows(ui.ROOT)
         st.dataframe(rows, hide_index=True, use_container_width=True, height=36 * len(rows) + 40)
-        st.caption(gates["candidate_criteria"].title + ": " + gates["candidate_criteria"].detail)
+        st.caption(f"{gates['candidates'].title}: {gates['candidates'].state} — {gates['candidates'].detail}")
 
 quality = json.loads((ui.ROOT / "data" / "scenes" / area_name / variant / "quality_report.json").read_text(encoding="utf-8"))
 cats = quality["height_categories"]["by_count"]
@@ -103,7 +105,7 @@ st.dataframe([{"building": b.building_id, "height [m]": b.height.height_m, "cate
                "alternatives": "; ".join(f"{a.source} {a.height_m:g} m" for a in b.height.alternatives)}
               for b in tall[:25]], hide_index=True, use_container_width=True)
 
-st.subheader("External height datasets (evaluated, not approved)")
+st.subheader("External height datasets (evaluated; not used as height sources)")
 for name, title in (("gba", "GlobalBuildingAtlas"), ("3d_globfp", "3D-GloBFP")):
     path = ui.ROOT / "outputs" / "datasets" / area_name / f"{name}_evaluation.md"
     with st.expander(title, expanded=False):

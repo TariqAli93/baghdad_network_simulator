@@ -5,7 +5,11 @@ decisions needed before final experiments**, three before conclusions, and a sho
 optional refinements. The text below is the decision record as it was put to the
 supervisor (recommendations and evidence); it is kept unchanged as history.
 
-> **Outcome (2026-11-26 and 2026-11-27, as reported by the project owner; no written
+> **Final outcome (2026-11-27):** all decisions approved, including compass sector bearings
+> 0/120/240°, candidate criteria 12 m / 100 m² / 50 m and the P2 storey-based fallback; none is
+> pending (`docs/approval-record.md`).
+>
+> **Earlier outcome (2026-11-26 and 2026-11-27, as reported by the project owner; no written
 > reference).** All recommendations were approved, with the 2026-11-27 changes: reduced
 > fieldwork P0-P2 + S (81 buildings; 190 before), 1 m roof-edge inset, monuments never
 > candidates, B1 tolerance ≤ 2.0 dB (median \|Δ\|, LOS), B3 per band (LTE for 4G, NR for 5G,

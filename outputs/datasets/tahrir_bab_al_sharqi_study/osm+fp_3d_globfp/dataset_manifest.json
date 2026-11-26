@@ -1,7 +1,7 @@
 {
   "dataset": "tahrir_bab_al_sharqi_study/osm+fp_3d_globfp",
-  "created_utc": "2026-11-26T22:50:59+00:00",
-  "software_commit": "6499159",
+  "created_utc": "2026-11-26T23:14:15+00:00",
+  "software_commit": "f46b5e5",
   "inputs": {
     "osm_snapshot": "tahrir_bab_al_sharqi_v2",
     "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
@@ -26,7 +26,8 @@
         ],
         "P2": [
           "measured",
-          "documented"
+          "documented",
+          "storey_count"
         ],
         "S": [
           "storey_count",

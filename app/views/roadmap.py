@@ -47,7 +47,7 @@ def result_block(metric: str) -> None:
                        "sensitivity case": "yes" if p["overrides"] else "no"} for p in plans],
                      hide_index=True, use_container_width=True)
         st.caption("Greedy over the saved candidates; not a minimum. 'Sensitivity case' rows use explicit, "
-                   "unapproved threshold/load overrides.")
+                   "threshold/load values other than the research baseline.")
     elif metric == "validation":
         if validation is None:
             st.caption("No TR 38.901 comparison saved yet (scripts/validate_tr38901.py).")
@@ -96,9 +96,8 @@ for tab, stage in zip(tabs, roadmap["stages"], strict=True):
 
 st.divider()
 st.subheader("Assumptions and limitations")
-for line in ("The district, building-data method, radio parameters and site rule are approved as reported (A1-A4, "
-             "written reference pending), but the dataset is not yet fit for research (field observations) and the "
-             "candidate thresholds are pending: the evidence above is from development runs.",
+for line in ("The research baseline (district, building-data method, radio parameters, site rule) is set, but the "
+             "dataset is not yet fit for research (field observations): the evidence above is from development runs.",
              "Shannon rates are theoretical upper bounds for one user with the whole carrier; the 3GPP mapping "
              "beside them uses LTE (TR 36.942) for 4G, NR (TR 38.921) for 5G and the NR values as an approximation "
              "for candidate 6G.",

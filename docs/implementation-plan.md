@@ -911,3 +911,18 @@ Under the feature freeze, configuration and guards only; no simulation was run.
   heights; kept pending (`approvals.yaml`, `pending_proposals`). Mast 3 m and inset 1 m unchanged.
 - **Tests run:** see the commit message of this checkpoint.
 
+### Addendum: final approval and simplified research configuration (2026-11-27)
+
+- All supervisor decisions recorded as approved (final report, as reported by the project owner;
+  no written reference, none invented). No pending decision remains (`configs/approvals.yaml`).
+- Sectors now face compass bearings 0/120/240° (yaw 90/330/210°); historical manifests keep their
+  recorded yaw. Candidate criteria 12 m / 100 m² / 50 m in `site_rule.yaml`, used by default. P2
+  accepts storey-based estimates (recorded as estimated); dataset record rebuilt, scene unchanged.
+- The approval lock became the research-baseline fingerprint (`bns.analysis.research_baseline`,
+  `configs/research_baseline.yaml`, `scripts/research_baseline.py`); readiness gates became
+  scientific indicators (`bns.analysis.readiness`). Experiments accept validated overrides
+  (`experiment.load(overrides=...)`, `run_multi_site.py --overrides`), are classified research
+  baseline / custom experiment and record both in the manifest. Run simulation page: parameter
+  editor with ranges and reset to baseline; Overview, Radio, Study area without approval workflow.
+- Candidate pool with today's heights: 1 (target 20-40): the survey is needed.
+- Tests run: see the commit message.

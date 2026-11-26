@@ -18,7 +18,7 @@ the 9 m placeholder.
 |---|---|---|---|
 | P0 | 3 | tall buildings (≥ 20 m by some source): they dominate shadowing and can host sites | **measured** or **documented** height |
 | P1 | 1 | candidate transmitter rooftop (sets the antenna height) | **measured** or **documented** height |
-| P2 | 34 | at their current heights these cast 90 % of the shadow around the candidate sites | **measured** or **documented** height (required since 2026-11-27; a storey count does not complete P2) |
+| P2 | 34 | at their current heights these cast 90 % of the shadow around the candidate sites | **measured** or **documented** height preferred; a **storey count** is accepted when no reliable measurement or document exists (recorded as estimated) |
 | P3 | 152 | near a candidate but shadowed by other buildings first | storey count is enough |
 | S | 43 | candidate survey (**required** since 2026-11-27): large buildings of unknown height whose storeys may make them candidate roofs | `storey_count` row **with the storey count** (a measured or documented height also counts) |
 
@@ -30,21 +30,26 @@ Faeq Hassan mural) are obstacles only: they are not transmitter candidates.
 
 ### Two stages
 
-Acceptance is checked per group (configs/study_area.yaml, `method_requirements`): P0-P2 need a
-`measured` or `documented` row (38 buildings); S needs a `storey_count` row with `storeys`
-(43). A visual estimate completes neither; a storey count is recorded as *estimated*, never as
-a measured height. The Study area and Overview pages show the two groups' progress separately.
+Acceptance is checked per group (configs/study_area.yaml, `method_requirements`): P0 and P1 need
+a `measured` or `documented` row (4 buildings); P2 (34) prefers one but accepts a `storey_count`
+row with `storeys` when no reliable measurement or document exists; S needs a `storey_count` row
+with `storeys` (43). A visual estimate completes none of them; a storey count is recorded as
+*estimated* (storeys × 3.0 m), never as a measured height. Fill in `source`, `method`,
+`uncertainty_m` and `notes` (limitations) for every row. The Study area and Overview pages show
+each group's progress separately.
 
-1. **Stage 1:** P0, P1 and P2 (measured or documented), and the S buildings (storey counts).
+1. **Stage 1:** P0 and P1 (measured or documented), P2 (measured or documented, else storey
+   counts), and the S buildings (storey counts).
    Import them (below) and regenerate the worklist: new candidate roofs appear, and with them
    new P2/P3 buildings that may need observing (report them to the supervisor).
-   The command below uses the provisional **evaluation** thresholds (roof ≥ 12 m, 50 m spacing,
-   up to 40 sites; the 100 m² minimum area is not an option of this tool), not approved values.
+   The command below uses the approved initial thresholds (roof ≥ 12 m, 50 m spacing, up to 40
+   sites; the 100 m² minimum area is applied by the candidate generator, not by this tool).
    ```
    uv run python scripts/height_worklist.py --area tahrir_bab_al_sharqi_study --add-footprints 3d_globfp --observations <stage1.csv> --mast-height-m 3 --min-site-height-m 12 --site-spacing-m 50 --max-sites 40 --tall-m 20 --near-site-m 150 --blocking-share 0.5
    uv run python scripts/fieldwork_package.py --area tahrir_bab_al_sharqi_study --variant osm+fp_3d_globfp
    ```
-   The supervisor then sets the A4 minimum roof height, area and spacing (20-40 candidates).
+   If the pool is outside 20-40 candidates, refine the thresholds geometrically and record the
+   change and its justification in `configs/site_rule.yaml` (`adjustments`).
 2. **Stage 2:** the regenerated P2 and P3 list.
 
 ## How to observe (`method_class`)

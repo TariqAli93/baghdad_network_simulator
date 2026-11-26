@@ -132,9 +132,11 @@ def main() -> int:
     parser.add_argument("--profile", default="preview")
     parser.add_argument("--mode", choices=("development", "research"), required=True)
     parser.add_argument("--buildings", nargs="+", help="OSM ids of the host buildings, in order")
-    parser.add_argument("--sites", type=int, default=4, help="number of observed-height sites (default 4)")
-    parser.add_argument("--min-height", type=float, default=10.0, help="minimum observed roof height [m]")
-    parser.add_argument("--min-spacing", type=float, default=100.0, help="minimum distance between sites [m]")
+    parser.add_argument("--sites", type=int, default=4, help="number of candidate-rule sites (default 4)")
+    parser.add_argument("--min-height", type=float, help="minimum roof height [m] (default: configs/site_rule.yaml)")
+    parser.add_argument("--min-spacing", type=float, help="minimum distance between sites [m] (default: site rule)")
+    parser.add_argument("--overrides", type=Path,
+                        help="JSON file of parameters that differ from the research baseline (custom experiment)")
     parser.add_argument("--backend", choices=("cpu", "gpu", "auto"), default="cpu",
                         help="ray-tracing backend (default cpu; gpu needs an NVIDIA driver)")
     parser.add_argument("--cancel-file", type=Path, help="stop cleanly when this file appears")
@@ -142,9 +144,12 @@ def main() -> int:
     started = time.perf_counter()
 
     try:
-        exp = ex.load(ROOT, args.area, args.variant, args.profile, args.mode, backend=args.backend)
-        placed = (ex.place_sites(exp, args.buildings) if args.buildings else
-                  ex.observed_sites(exp, args.sites, min_height_m=args.min_height, min_spacing_m=args.min_spacing))
+        overrides = json.loads(args.overrides.read_text(encoding="utf-8")) if args.overrides else {}
+        overrides.update({k: v for k, v in (("min_roof_height_m", args.min_height),
+                                            ("min_spacing_m", args.min_spacing)) if v is not None})
+        exp = ex.load(ROOT, args.area, args.variant, args.profile, args.mode, backend=args.backend,
+                      overrides=overrides)
+        placed = (ex.place_sites(exp, args.buildings) if args.buildings else ex.observed_sites(exp, args.sites))
     except Exception as exc:                        # research refusals, missing data
         print(f"ERROR {exc}", flush=True)
         return 1
@@ -154,6 +159,8 @@ def main() -> int:
     print(f"SITES {len(placed)}: " + ", ".join(f"{s.candidate_id} on {s.building_id} ({s.roof_height_m:g} m "
                                                 f"{s.height_category})" for s in placed), flush=True)
     print(f"BACKEND {exp.backend}: {exp.backend_note}", flush=True)
+    print(f"CLASS {exp.run_class}" + (": " + ", ".join(f"{k}={v}" for k, v in exp.overrides.items())
+                                      if exp.overrides else ""), flush=True)
     target = exp.system.require("coverage_target", mode=args.mode)
     jobs = ex.jobs_for(exp, placed)
     all_jobs = [j for js in jobs.values() for _, j in js]
@@ -246,6 +253,7 @@ def main() -> int:
     memory = psutil.Process().memory_info()
     manifest = {
         "label": exp.label, "run_id": run_id, "kind": "multi_site", "mode": args.mode,
+        "run_class": exp.run_class, "overrides": exp.overrides,
         "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,
                     "variant": all_jobs[0].engine["variant"],
                     "status": (exp.config.backends or {}).get(exp.backend, {}).get("status"),
@@ -257,8 +265,7 @@ def main() -> int:
                  "height_categories_percent": exp.quality["height_categories"]["by_count_percent"],
                  "fit_for_research": exp.quality["fit_for_research"]},
         "site_rule": ({"buildings": args.buildings} if args.buildings else
-                      {"observed_height_only": True, "min_height_m": args.min_height,
-                       "min_spacing_m": args.min_spacing, "count": args.sites}),
+                      {**exp.candidate_rule, "count": args.sites}),
         "sites": [s.__dict__ for s in placed],
         "sectors_per_site": [a.__dict__ for a in exp.antennas],
         "sector_bearings_deg": [scene_azimuth_to_bearing_deg(a.orientation_rad[0]) for a in exp.antennas],

@@ -84,7 +84,7 @@ st.markdown(f"**Saved greedy result** (target {saved['target']:.0%}): sites {sav
             f"{saved['coverage_after'][-1]:.1%}; stopped because *{saved['stopped_because']}*.")
 
 st.subheader("Try a selection")
-st.caption("Sliders change assumptions for a sensitivity check only; they are not approved values.")
+st.caption("Sliders change assumptions for a sensitivity check only; the research baseline is unchanged.")
 labels = [f"{x['candidate_id']} · {x['building_id']} · roof {x['roof_height_m']:g} m ({x['height_category']})"
           for x in run.sites]
 chosen = st.multiselect("Sites transmitting", list(range(len(labels))), default=default_sel,

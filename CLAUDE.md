@@ -44,7 +44,7 @@ uv run python scripts/fieldwork_package.py --area NAME --variant V   # prioritis
 uv run python scripts/import_height_dataset.py / evaluate_height_dataset.py / height_worklist.py
 uv run python scripts/run_height_sensitivity.py ...  # compare height models (see its --help)
 uv run python scripts/atmosphere_table.py            # rain and gas loss per band
-uv run python scripts/approval_lock.py              # approved values unchanged? (--record only after reconfirmation)
+uv run python scripts/research_baseline.py         # config files vs research baseline (--record: documented baseline update)
 uv run python scripts/build_poc_scene.py        # Phase 0 scenes (kept for the Phase 0 experiments)
 uv run python scripts/poc_validate.py all       # experiments E1-E5 -> outputs/runs/phase0/
 uv run python scripts/poc_benchmark.py          # time and memory -> outputs/runs/phase0/benchmark/
@@ -124,17 +124,19 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   overrides are sensitivity cases (development only, recorded). Never claim a minimum site count.
 - Feature freeze since v1.0.0-rc.1: only defect fixes and approved research execution.
 - Observations: method_class measured/documented = observed, storey_count/visual_estimate =
-  estimated; P0-P2 need measured/documented, S a storey count (`method_requirements`); mandatory buildings come from the configured worklist (study_area.yaml), never from
+  estimated; P0-P1 need measured/documented, P2 prefers them (storey-count fallback), S a storey
+  count (`method_requirements`); mandatory buildings come from the configured worklist (study_area.yaml), never from
   the submitted file. Monuments, memorials and artworks are never transmitter candidates.
 - Research runs refuse unless area, radio parameters, profile (status `approved`) and backend
   (status `production`) are approved.
-- Research is also locked by the readiness gates (`bns.analysis.readiness`: methodology unchanged
-  since approval, dataset fit, mandatory observations, approved candidate thresholds, final-scene
-  convergence). Changing an approved value voids it until reconfirmed (`configs/approval_lock.yaml`);
-  never run `approval_lock.py --record` without the supervisor's reconfirmation.
-- Sector yaw is counter-clockwise from east (scene x east, y north); compass bearing = 90° − yaw
-  (`setup.bearing_to_scene_azimuth_rad`). The compass 0/120/240° proposal is pending: do not change
-  sector orientations without the supervisor's confirmation.
+- All supervisor decisions are approved (final 2026-11-27, `docs/approval-record.md`): do not ask
+  for further approvals. The approved values are the research baseline
+  (`configs/research_baseline.yaml`). Other values run as custom experiments (`--overrides`, Run
+  simulation page) and are recorded in the manifest; research-baseline runs need the baseline,
+  a dataset fit for research and the final-scene convergence (`bns.analysis.readiness`).
+- Sectors face compass bearings 0/120/240° (0 = north, clockwise); the ray tracer's yaw is
+  counter-clockwise from east, yaw = 90° − bearing (`setup.bearing_to_scene_azimuth_rad`). Runs
+  before 2026-11-27 used yaw 0/120/240°; never reinterpret their manifests.
 - Rate mappings per band (`rate_mappings` in `radio_system.yaml`): LTE for 4G, NR for 5G, NR-based
   approximation (labelled) for candidate 6G; always beside Shannon, never instead.
 - Distribute `scripts/make_distribution.py` archives, never the repository (GBA values in history).

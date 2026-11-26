@@ -27,6 +27,12 @@ Status key: ☐ open · ☑ approved (write the decision and date).
 > conditions are listed separately in `docs/approval-record.md`; the live gate status is on the
 > application's Overview page.
 
+> **Final (2026-11-27).** The project owner reported that the supervisor explicitly approved all
+> decisions of the project scope, including compass sector bearings 0/120/240°, the candidate
+> criteria (12 m, 100 m², 50 m, 20-40 candidates) and the observation methods (P2 storey-based
+> fallback). Nothing below is pending; the checklist is kept as the record of what was put to the
+> supervisor. The approved research baseline: `docs/approval-record.md`.
+
 ## A. Before the final experiments
 
 ### A1 — Study district

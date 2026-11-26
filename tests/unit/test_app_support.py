@@ -48,9 +48,8 @@ def test_cdf_drops_or_floors_cells_without_a_value():
 
 def test_argv_uses_either_the_named_buildings_or_the_site_rule(tmp_path):
     base = {"area": "a", "variant": "osm", "profile": "preview", "mode": "development"}
-    by_rule = control.build_argv(tmp_path, {**base, "buildings": [], "sites": 3, "min_height_m": 10,
-                                            "min_spacing_m": 100})
-    assert by_rule[-6:] == ["--sites", "3", "--min-height", "10.0", "--min-spacing", "100.0"]
+    by_rule = control.build_argv(tmp_path, {**base, "buildings": [], "sites": 3})
+    assert by_rule[-2:] == ["--sites", "3"]          # candidate criteria: site rule or the request's overrides
     named = control.build_argv(tmp_path, {**base, "buildings": ["way/1", "way/2"]})
     assert named[-3:] == ["--buildings", "way/1", "way/2"] and "--sites" not in named
 
@@ -101,3 +100,23 @@ def test_evidence_tables_leave_invalid_runs_out(tmp_path):
     (tmp_path / "configs").mkdir()
     (tmp_path / "configs" / "invalidated_runs.yaml").write_text("runs:\n  bad: monument sites\n", encoding="utf-8")
     assert evidence.valid_runs(tmp_path) == []
+
+
+def test_a_custom_experiment_passes_its_overrides_and_records_them(tmp_path, monkeypatch):
+    import subprocess
+
+    started = []
+
+    class Fake:
+        pid = 4242
+
+    monkeypatch.setattr(subprocess, "Popen", lambda argv, **kw: started.append(argv) or Fake())
+    request = {"area": "a", "variant": "osm", "profile": "preview", "mode": "development", "buildings": [],
+               "sites": 2, "overrides": {"tx_power_dbm": 43.0, "min_spacing_m": 80.0}}
+    folder = control.start(tmp_path, request)
+    argv = started[0]
+    assert argv[argv.index("--overrides") + 1] == str(folder / "overrides.json")
+    assert json.loads((folder / "overrides.json").read_text(encoding="utf-8")) == request["overrides"]
+    assert json.loads((folder / "request.json").read_text(encoding="utf-8"))["overrides"] == request["overrides"]
+    baseline = control.start(tmp_path, {**request, "overrides": {}})
+    assert not (baseline / "overrides.json").exists()
