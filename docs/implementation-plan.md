@@ -7,7 +7,7 @@ blockers, next phase.
 | Phase | Subject | Status |
 |---|---|---|
 | 0 | Feasibility and environment audit | **Done on the development PC; laptop rerun pending** |
-| 1 | Literature and standards review | Not started |
+| 1 | Literature and standards review | **Done (2026-11-26)**; student to read and confirm the sources |
 | 2 | Study area and 3D city model | Not started (pipeline prototype exists from Phase 0) |
 | 3 | Radio scenario configuration | Not started (`configs/scenarios.yaml` exists) |
 | 4 | Ray-tracing engine (losses, adapter hardening) | Not started |
@@ -112,3 +112,93 @@ engine limitations and the building-height gap.
 Phase 1 (literature and standards review) and, in parallel with the supervisor, the
 decisions listed in `docs/assumptions.md` section 6 — first of all the study district and
 the source of building heights, which blocks Phase 2.
+
+---
+
+## Phase 1 report (2026-11-26)
+
+Started at the user's request while the Phase 0 laptop rerun is still pending; Phase 1 is
+desk research and does not depend on it.
+
+### Completed
+
+- **Reference registry** (`docs/references.md`): 47 entries covering the ITU IMT-2020 and
+  IMT-2030 framework, WRC-27 agenda item 1.7 and regional positions, the 3GPP 6G timeline
+  and requirements, band definitions, 3GPP TR 38.901 (exact UMa and UMi formulas and their
+  validity limits), the ITU-R recommendations for materials, diffraction, gases and rain,
+  the ray-tracing method papers, and the Iraqi market and spectrum sources. Each entry says
+  how it was checked.
+- **Related studies** (`docs/related-studies.md`): ten studies compared, three alternates,
+  four studies on Iraq, and what they imply for this project.
+- **Project description checked** against primary sources: eight statements examined, one
+  not supported, four needing corrected wording (`docs/references.md`, section 9).
+- `configs/scenarios.yaml`: each scenario's basis rewritten from the verified sources and
+  linked to registry entries. Frequencies and bandwidths are unchanged.
+- `docs/assumptions.md`: section 5 now holds the verification results; six decisions added
+  to the list for the supervisor.
+
+### How it was verified
+
+1. Four research passes, each restricted to documents it actually opened, with a URL per
+   claim and explicit "not verified" marks.
+2. Bibliographic data of 36 papers confirmed against Crossref or arXiv records by script
+   (one accepted manuscript has no record yet).
+3. A second, independent reader re-read the 44 figures quoted from the 13 main studies:
+   all present in the sources, three needing caveats (recorded in the table).
+4. Pivotal facts re-checked by separate searches: the Release 21 timeline and the
+   Resolution 256 regional split were confirmed; for the Iraqi 5G claim, the cited article
+   and the Asiacell lab announcement were confirmed to exist and no corroboration of a Zain
+   launch was found; the regulator interview of 25 November could not be found a second time.
+
+### Files
+
+| File | Change |
+|---|---|
+| `docs/references.md` | New |
+| `docs/related-studies.md` | New |
+| `docs/assumptions.md` | Sections 5 and 6 updated |
+| `configs/scenarios.yaml` | Basis text and `sources` per scenario |
+| `tests/unit/test_references.py` | New: scenarios cite existing registry entries; candidate carriers fit inside the bands under study |
+| `src/bns/validation/analytic.py` | Docstring now names the ITU equations it implements |
+
+### Tests
+
+`uv run pytest`: 49 passed (5 new). No simulation code changed, so the engine tests and
+experiments were not rerun.
+
+### Findings that change the thesis
+
+- **No commercial 5G launch in Iraq could be confirmed as of November 2026**; the project
+  description's opening statement rests on one uncorroborated article.
+- Region 1's part of the 7-8 GHz band is 7.125-7.25 and 7.75-8.4 GHz. The 8 GHz and 15 GHz
+  scenario carriers fit inside the bands under study.
+- 400 MHz is the agreed maximum carrier for the 7 GHz range; for 15 GHz it is only an
+  evaluation assumption.
+- The 3GPP UMa and UMi formulas are defined for base stations at 25 m and 10 m: rooftop
+  sites at other heights are outside their stated range.
+- Gas loss is negligible at all five bands. Rain loss cannot be stated until a rain rate for
+  Baghdad is obtained.
+- Published ray-tracing comparisons with measurements show errors of 8-21 dB; site counts
+  must be presented as estimates.
+- No published study answers the project's research question, and none ray-traces Baghdad.
+
+### Limitations
+
+- The review was done by automated research passes. It maps the literature and verifies
+  facts; it does not replace the student reading the sources, which the thesis requires.
+- Several sources are 2026 preprints or accepted manuscripts and may change.
+- Some pages were read through a summarising tool; those entries are marked "Page".
+- The newest Iraqi 5G items are one day old and rest on single press sources.
+- Paywalled papers were read as preprints or author copies where available.
+
+### Open items
+
+- Rain rate for Baghdad (ITU-R P.837-8 digital maps, or from the supervisor).
+- The ITU report with 6G technical requirements is due for approval on 1 December 2026.
+- Iraq's own position on WRC-27 agenda item 1.7.
+- Phase 0 laptop benchmark (unchanged).
+
+### Next phase
+
+Phase 2 (study area and 3D city model) is blocked on the supervisor's choice of district and
+of the source of building heights (`docs/assumptions.md`, section 6, item 1).

@@ -73,8 +73,13 @@ src/bns/propagation/            sionna_engine.py (path-gain maps)
 src/bns/reporting/plotstyle.py  chart style
 scripts/                        build_poc_scene.py, poc_validate.py, poc_benchmark.py
 tests/unit, tests/scientific    pytest
-docs/                           implementation-plan, architecture, assumptions, benchmarks
+docs/                           implementation-plan, architecture, assumptions, benchmarks,
+                                references (source registry), related-studies
 ```
+
+Every scenario in `configs/scenarios.yaml` cites entries of `docs/references.md` by ID; a
+unit test fails if an ID is missing. Add a registry entry (with how it was checked) before
+citing a new source anywhere in the project.
 
 Keep `docs/implementation-plan.md` current at the end of every phase: completed work, files,
 tests actually run with their results, limitations, measurements, blockers, next phase.

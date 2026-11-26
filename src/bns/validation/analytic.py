@@ -3,6 +3,12 @@
 Nothing here depends on the ray-tracing engine. Each function states the
 physical model it implements so a mismatch with the engine can be traced to
 either the model or the engine.
+
+Sources (IDs in docs/references.md):
+    ITU-P2040  Rec. ITU-R P.2040-4: concrete, Table 3; Fresnel coefficients,
+               eqs (37a) TE and (37b) TM; single-layer slab, eqs (43a) and (44).
+    ITU-P526   Rec. ITU-R P.526-16: knife edge, exact eq (30) and
+               approximation J(nu) eq (31); nu defined in eq (26).
 """
 
 from __future__ import annotations

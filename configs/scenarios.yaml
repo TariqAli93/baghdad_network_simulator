@@ -1,40 +1,63 @@
 ﻿# The five baseline radio scenarios (project description, Table 1).
 # Only frequency and bandwidth differ between scenarios; everything else is shared.
+#
 # status: "deployed" | "assumed" | "candidate"
-#   assumed   = plausible for Iraq but not confirmed by a published allocation
+#   assumed   = plausible for Iraq but not confirmed by a published assignment
 #   candidate = research assumption, NOT a finalized commercial 6G specification
+# sources: IDs in docs/references.md (checked by tests/unit/test_references.py)
 scenarios:
   - id: lte_1800
     label: 4G LTE
     frequency_hz: 1.8e+9
     bandwidth_hz: 20.0e+6
     status: deployed
-    basis: Band 3, in use by Iraqi operators
+    basis: >-
+      LTE Band 3. All three Iraqi operators launched LTE on 1800 MHz in January 2021.
+      20 MHz is the largest Band 3 channel and a modelling assumption: no source gives the
+      carrier width used in Iraq. 1.8 GHz is nominal; the Band 3 downlink is 1805-1880 MHz.
+    sources: [3GPP-TS36101, IRQ-CMC-WP]
 
   - id: nr_3500
     label: 5G NR mid-band
     frequency_hz: 3.5e+9
     bandwidth_hz: 100.0e+6
     status: assumed
-    basis: Typical first 5G band (assumed for Iraq until operators publish allocations)
+    basis: >-
+      NR band n78 (3300-3800 MHz, up to 100 MHz). The Iraqi regulator's plan names
+      3.4-3.8 GHz as the main 5G capacity band with 100 MHz blocks per licence holder, but
+      no 5G spectrum had been assigned and no commercial 5G launched as of November 2026.
+    sources: [3GPP-TS38101-1, IRQ-CMC-WP, IRQ-NFAT]
 
   - id: nr_28000
     label: 5G NR mmWave
     frequency_hz: 28.0e+9
     bandwidth_hz: 400.0e+6
     status: assumed
-    basis: High-capacity 5G reference
+    basis: >-
+      High-capacity 5G reference: NR bands n257 and n261, largest channel 400 MHz. No plan
+      for this band in Iraq was found.
+    sources: [3GPP-TS38101-2]
 
   - id: c6g_8000
     label: Candidate 6G upper mid-band
     frequency_hz: 8.0e+9
     bandwidth_hz: 400.0e+6
     status: candidate
-    basis: WRC-27 candidate band, ITU Region 1 (7.75-8.4 GHz)
+    basis: >-
+      WRC-27 agenda item 1.7: in ITU Region 1 (which includes Iraq) 7.125-7.25 GHz and
+      7.75-8.4 GHz are under study for mobile use; the carrier occupies 7.8-8.2 GHz.
+      400 MHz is the maximum carrier bandwidth 3GPP agreed for the 7 GHz range in March 2026.
+      Not identified for mobile use yet.
+    sources: [ITU-RES256, 3GPP-RP260798, 3GPP-TR38914]
 
   - id: c6g_15000
     label: Candidate 6G 15 GHz
     frequency_hz: 15.0e+9
     bandwidth_hz: 400.0e+6
     status: candidate
-    basis: WRC-27 candidate band studied in all regions (14.8-15.35 GHz)
+    basis: >-
+      WRC-27 agenda item 1.7: 14.8-15.35 GHz is under study in all regions; the carrier
+      occupies 14.8-15.2 GHz. 400 MHz is the bandwidth 3GPP assumes at 15 GHz for 6G
+      evaluation; no carrier maximum has been agreed for this range. Used today in Iraq for
+      fixed links and defence systems. Not identified for mobile use yet.
+    sources: [ITU-RES256, 3GPP-TR38914, IRQ-NFAT]
