@@ -753,7 +753,13 @@ warning for runs derived from non-commercial data.
 | Cached execution, cancellation, concurrent isolation, comparability warnings | unit tests (runner, control, differences) and earlier UI checks; the user also cancelled a run from the app |
 | Site planning | four saved plans re-evaluated from cache in the app |
 | Exports | HTML report built for all 11 saved runs (label and limitations present); every CSV starts with the label; no run folder contains restricted data |
-| Distribution archive | see the commit report below |
+| Distribution archive | 10.0 MB, 347 files, 7 restricted or tool files excluded and verified absent; no git history |
+| Fresh install of the archive (development PC) | setup.ps1: 0 failures, 20 s (environment from the local uv cache); unit 274 passed + 1 skipped (git-only check); pages 12 passed; engine 6 passed in 82 s from an empty kernel cache |
+
+Acceptance found two delivery defects, both fixed: the git-attributes test failed outside a
+git checkout, and the archive held run manifests without their arrays, so no saved run could
+be opened; the development runs (arrays and figures, OSM-derived, about 9 MB) now ship as
+demonstration results.
 
 ### Remaining before final delivery
 

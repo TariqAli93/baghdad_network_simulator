@@ -38,6 +38,9 @@ DEVELOPMENT — NOT APPROVED FOR RESEARCH. Laptop compatibility is **not yet tes
   listed in `configs/distribution.yaml` and left out of the clean archive; Reports page warns
   for runs derived from non-commercial data.
 - Diagnostics and laptop acceptance tooling (`scripts/doctor.py`, `scripts/diagnose_trace_time.py`).
+- Release acceptance fixes: the git-attributes test skips outside a git checkout; the
+  development demonstration runs now ship with their arrays and figures (about 9 MB), so the
+  installed application opens them.
 - Documentation: user guide, supervisor checklist, research execution plan, laptop acceptance
   procedure, these notes.
 
