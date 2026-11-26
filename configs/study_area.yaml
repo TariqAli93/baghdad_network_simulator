@@ -52,6 +52,17 @@ areas:
     observations:
       worklist: outputs/datasets/tahrir_bab_al_sharqi_study/fieldwork/observation_priorities.csv
       required_priorities: [P0, P1, P2, S]
+      # Which observation satisfies a required building (method_class of the fieldwork file):
+      # P0-P2 a measured or documented height (recorded as observed); S a storey-count survey
+      # record with the storey count (recorded as estimated, storeys x storey height). A measured
+      # or documented height also satisfies S. Visual estimates satisfy no required building.
+      # Specified by the project owner on 2026-11-27 (P2 was "measured if possible, otherwise a
+      # storey count" in the earlier fieldwork guide).
+      method_requirements:
+        P0: [measured, documented]
+        P1: [measured, documented]
+        P2: [measured, documented]
+        S: [storey_count, measured, documented]
       stage: initial
       covered_by_sensitivity: [P3]
       history:

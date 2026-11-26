@@ -116,4 +116,27 @@ unspecified:
   - {item: minimum candidate roof height, file: configs/site_rule.yaml, needed_for: research site planning}
   - {item: minimum candidate roof area, file: configs/site_rule.yaml, needed_for: research site planning}
   - {item: minimum candidate spacing, file: configs/site_rule.yaml, needed_for: research site planning}
-  - {item: azimuth reference direction (implemented counter-clockwise from east; compass convention not stated), file: configs/radio_system.yaml, needed_for: confirmation only}
+  - {item: sector azimuth convention (see pending_proposals), file: configs/radio_system.yaml, needed_for: confirmation before any change of sector orientation}
+
+# Proposals of the project owner (2026-11-27) awaiting the supervisor. Recorded, not applied:
+# nothing in the simulation uses these values until they are confirmed and entered with status
+# approved (and the approval lock renewed).
+pending_proposals:
+  sector_azimuth_convention:
+    proposal: >-
+      user-facing compass bearings (0 = north, 90 = east, clockwise) with sectors at bearings 0,
+      120 and 240 degrees
+    current_implementation: >-
+      ray-tracer yaw 0, 120, 240 degrees counter-clockwise from east (scene x east, y north),
+      i.e. compass bearings 90, 330, 210; every saved run used this
+    effect_if_confirmed: >-
+      scene yaws 90, 330, 210 degrees: the three-sector set rotates by 30 degrees; new traces and
+      new cache keys; earlier runs keep their recorded orientation and are not reinterpreted
+    conversion: bns.simulation.setup.bearing_to_scene_azimuth_rad (yaw = 90 deg - bearing)
+    status: awaiting confirmation
+  candidate_thresholds:
+    proposal: {min_roof_height_m: 12.0, min_roof_area_m2: 100.0, min_spacing_m: 50.0, candidate_count_target: [20, 40]}
+    evaluation_2026_11_27: >-
+      with today's heights (8 non-placeholder buildings in the receiver area) these give 1
+      candidate (way/919688856, 55 m); the 20-40 target cannot be judged before the survey
+    status: evaluation values, pending the building survey and the supervisor

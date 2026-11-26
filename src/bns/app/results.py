@@ -101,6 +101,12 @@ class Run:
         sectors = self.manifest.get("sectors_per_site") or self.manifest.get("site", {}).get("sectors", [])
         return [float(s["orientation_rad"][0]) for s in sectors if s.get("pattern") != "iso"]
 
+    @property
+    def sector_bearings_deg(self) -> list[float]:
+        """Compass bearings of the recorded sector yaws (the recorded engine values, only converted)."""
+        from bns.simulation.setup import scene_azimuth_to_bearing_deg
+        return [scene_azimuth_to_bearing_deg(a) for a in self.sector_azimuths_rad]
+
     @cached_property
     def arrays(self):
         return np.load(self.path / ARRAYS[self.kind])

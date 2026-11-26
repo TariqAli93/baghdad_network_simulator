@@ -45,6 +45,8 @@ change or addition (report 2). Exact values are in the configuration files named
 | Monument exclusion | since dac5d86 (`sites.is_structure_not_building`); 8 runs invalidated | unit tests; `configs/invalidated_runs.yaml` |
 | Approval lock | an approved value that changes is no longer approved until reconfirmed (`bns.analysis.approval_lock`, `scripts/approval_lock.py`) | `tests/unit/test_approval_lock.py` |
 | Readiness gates | eight gates computed from files (`bns.analysis.readiness`); research refuses until the five pre-experiment gates pass | `tests/unit/test_readiness.py`; the app's Overview page |
+| Per-group observation acceptance (2026-11-27, project owner's specification) | **defect fixed**: any filled row used to complete a required building; now P0-P2 need a measured or documented height and S a storey-count record with the storey count (`study_area.yaml` `method_requirements`, `pipeline.observation_status`); a dataset judged under other rules does not count | `tests/unit/test_geospatial_pipeline.py`, `test_readiness.py` |
+| Azimuth convention made explicit | compass ↔ scene-yaw conversion (`setup.bearing_to_scene_azimuth_rad`); new manifests record `sector_bearings_deg`; the app shows both; orientations **unchanged** | `tests/unit/test_azimuth_convention.py`; engine test: yaw 90° points north |
 | Research guard in `run_single_site.py` | **defect fixed**: research mode skipped the profile, dataset and readiness checks; it now applies them and refers research single-site runs to `run_multi_site.py` (the approved roof-edge rule) | manual run: refused with the gate reasons |
 
 ## 3. Remaining conditions (approvals not yet unconditional)
@@ -53,7 +55,7 @@ change or addition (report 2). Exact values are in the configuration files named
 |---|---|---|
 | Methodology approval | reported (no written reference) | the written reference |
 | Dataset fitness | not met: 99.4 % placeholder heights | the stage-1 observations imported and the dataset rebuilt |
-| Mandatory observations | not met: 0 of 81 (P0 3, P1 1, P2 34, S 43) | field observations (`outputs/datasets/tahrir_bab_al_sharqi_study/fieldwork/`) |
+| Mandatory observations | not met: P0-P2 measured/documented 0 of 38; S storey counts 0 of 43 | field observations (`outputs/datasets/tahrir_bab_al_sharqi_study/fieldwork/`) |
 | Candidate-site criteria | not met: minimum roof height, area and spacing pending | supervisor's values after stage 1, entered in `site_rule.yaml` and locked |
 | Final-scene convergence | not executed | `run_convergence.py` on the final scene and the supervisor's acceptance |
 | MATLAB validation | not executed | the laptop run, assessed with B1 (≤ 2.0 dB) |
@@ -66,9 +68,13 @@ The first five are pre-experiment conditions: research mode refuses until all pa
 
 1. A written approval reference for both reports.
 2. Minimum candidate roof height, minimum roof area and minimum spacing (after stage 1).
-3. The reference direction of the sector azimuths: implemented in the ray tracer's scene frame,
-   counter-clockwise from east (0/120/240° = compass bearings 90/330/210°). Confirmation only;
-   nothing was changed.
+3. The sector azimuth convention. Implemented: yaw 0/120/240° counter-clockwise from east =
+   compass bearings 90/330/210°. Proposed by the project owner (2026-11-27): compass bearings
+   0/120/240° (= yaw 90/330/210°, a 30° rotation of the set). Recorded in
+   `configs/approvals.yaml` (`pending_proposals`), **not applied**; confirming it changes new traces
+   and cache keys only, saved runs keep their recorded orientation.
+4. Candidate thresholds: evaluation values 12 m, 100 m², 50 m (target 20-40) recorded as pending
+   proposals. With today's heights they give 1 candidate, so they cannot be judged before the survey.
 
 ## 5. Changing an approved value
 

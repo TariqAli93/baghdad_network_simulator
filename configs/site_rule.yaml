@@ -27,6 +27,8 @@ site_selection: interference-aware SINR greedy over physical sites (scripts/plan
 # PENDING: chosen once the stage-1 observations exist (they set the candidate count). Not
 # invented: null means "not decided", and research site planning refuses until all three are set
 # and approved. Development runs give them per run and record them as development values.
+# Provisional evaluation values (12 m, 100 m2, 50 m) are recorded in configs/approvals.yaml
+# (pending_proposals), not here: they are not research parameters.
 candidate_thresholds:
   min_roof_height_m: null
   min_roof_area_m2: null

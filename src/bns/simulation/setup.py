@@ -52,6 +52,17 @@ class SimulationConfig:
         return self.profiles[name]
 
 
+def bearing_to_scene_azimuth_rad(bearing_deg: float) -> float:
+    """Compass bearing (degrees clockwise from north) -> ray-tracer yaw (radians counter-clockwise
+    from east, the scene frame: x east, y north)."""
+    return float(np.radians((90.0 - float(bearing_deg)) % 360.0))
+
+
+def scene_azimuth_to_bearing_deg(azimuth_rad: float) -> float:
+    """Ray-tracer yaw (radians counter-clockwise from east) -> compass bearing in [0, 360) degrees."""
+    return float((90.0 - np.degrees(float(azimuth_rad))) % 360.0)
+
+
 def sector_antennas(system: RadioSystem, *, mode: str, polarization: str) -> list[Antenna]:
     """One traced antenna per sector, evenly spaced in azimuth, all with the same downtilt."""
     pattern = system.require("tx_antenna_pattern", mode=mode)

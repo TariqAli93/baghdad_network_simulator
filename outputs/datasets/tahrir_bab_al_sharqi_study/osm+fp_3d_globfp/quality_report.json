@@ -184,7 +184,8 @@
       "way/901843497",
       "way/903940609",
       "way/947082879"
-    ]
+    ],
+    "insufficient": []
   },
   "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312"
 }

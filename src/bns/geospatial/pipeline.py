@@ -140,18 +140,57 @@ def _geojson(area: StudyArea, buildings: list[ht.Building]) -> dict:
             "features": features}
 
 
-def observation_status(required_ids: list[str], manual_rows: list[dict] | None, unmatched: list[str]) -> dict:
-    """How many REQUIRED buildings (the approved worklist) have a fieldwork observation.
+def accepted_methods(worklist_rows: list[dict], observations: dict) -> dict[str, tuple[str, ...]]:
+    """building id -> the method classes that satisfy it, for every REQUIRED worklist building.
+
+    `observations` is the area's configuration (configs/study_area.yaml): `required_priorities`
+    and `method_requirements` (priority -> accepted method classes). A required priority without
+    an entry accepts any method class.
+    """
+    from bns.geospatial.heights import METHOD_CLASSES
+
+    required = set(observations.get("required_priorities") or [])
+    rules = observations.get("method_requirements") or {}
+    return {r["building_id"]: tuple(rules.get(r["priority"]) or METHOD_CLASSES)
+            for r in worklist_rows if r["priority"] in required}
+
+
+def _satisfies(row: dict, classes) -> bool:
+    cls = str(row.get("method_class") or "").strip()
+    if cls not in classes:
+        return False
+    if cls == "storey_count":                     # a storey-count record must hold the storey count
+        return bool(str(row.get("storeys") or "").strip())
+    return bool(str(row.get("height_m") or "").strip())
+
+
+def observation_status(required_ids: list[str], manual_rows: list[dict] | None, unmatched: list[str],
+                       accepted: dict[str, tuple[str, ...]] | None = None) -> dict:
+    """How many REQUIRED buildings (the approved worklist) have an observation of an accepted kind.
 
     Only rows with a method_class and a value count, so an older free-text file or a
-    shortened file cannot make the worklist look complete. Validity is checked on import.
+    shortened file cannot make the worklist look complete. With `accepted`, a building counts
+    only if one of its rows uses an accepted method class (e.g. P0-P2 measured or documented,
+    the candidate survey a storey count); rows of another class are listed as `insufficient`.
+    Validity of the values is checked on import.
     """
-    done = {r["building_id"] for r in (manual_rows or [])
-            if str(r.get("method_class") or "").strip()
-            and any(str(r.get(k) or "").strip() for k in ("height_m", "storeys"))}
+    from bns.geospatial.heights import METHOD_CLASSES
+
+    rows_by_id: dict[str, list[dict]] = {}
+    for r in manual_rows or []:
+        rows_by_id.setdefault(r["building_id"], []).append(r)
+    done, insufficient = set(), []
+    for i in required_ids:
+        classes = (accepted or {}).get(i, tuple(METHOD_CLASSES))
+        rows = rows_by_id.get(i, [])
+        if any(_satisfies(r, classes) for r in rows):
+            done.add(i)
+        elif any(str(r.get("method_class") or "").strip()
+                 and any(str(r.get(k) or "").strip() for k in ("height_m", "storeys")) for r in rows):
+            insufficient.append(i)                # observed, but not in a way its priority accepts
     missing = [i for i in required_ids if i not in done]
-    return {"listed": len(required_ids), "observed": len(required_ids) - len(missing),
-            "unmatched": len(unmatched), "missing": missing}
+    return {"listed": len(required_ids), "observed": len(done), "unmatched": len(unmatched),
+            "missing": missing, "insufficient": insufficient}
 
 
 def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: ht.HeightPolicy,
@@ -161,7 +200,8 @@ def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: h
                   height_datasets: list[tuple[str, Path, str]] | None = None,
                   height_method_approved: bool = False,
                   extra_footprints: list[tuple[str, Path, str]] | None = None,
-                  required_observations: list[str] | None = None) -> dict:
+                  required_observations: list[str] | None = None,
+                  accepted_observations: dict[str, tuple[str, ...]] | None = None) -> dict:
     """Write scene, building table and quality report into out_dir; return the report."""
     settings = scene_settings or osm_scene.SceneSettings()
     out_dir = Path(out_dir)
@@ -189,7 +229,8 @@ def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: h
                                     height_method_approved=height_method_approved,
                                     worklist=None if required_observations is None else observation_status(
                                         required_observations, manual_rows,
-                                        clean_report.get("manual_observations_without_building") or []))
+                                        clean_report.get("manual_observations_without_building") or [],
+                                        accepted_observations))
     report["osm_snapshot_sha256"] = snapshot_sha256
     (out_dir / "quality_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     (out_dir / "quality_report.md").write_text(quality.render_markdown(report), encoding="utf-8")

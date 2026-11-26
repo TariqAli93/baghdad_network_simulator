@@ -34,6 +34,7 @@ from bns.core.units import linear_to_db
 from bns.optimization.greedy import greedy_sinr_site_selection
 from bns.reporting import export
 from bns.simulation import experiment as ex
+from bns.simulation.setup import scene_azimuth_to_bearing_deg
 from bns.simulation import propagation as prop
 from bns.simulation.cache import PathGainCache, scene_fingerprint
 from bns.simulation.network import network, sites_alone
@@ -260,6 +261,9 @@ def main() -> int:
                        "min_spacing_m": args.min_spacing, "count": args.sites}),
         "sites": [s.__dict__ for s in placed],
         "sectors_per_site": [a.__dict__ for a in exp.antennas],
+        "sector_bearings_deg": [scene_azimuth_to_bearing_deg(a.orientation_rad[0]) for a in exp.antennas],
+        "azimuth_convention": "orientation_rad[0]: yaw counter-clockwise from east (scene x east, y north); "
+                              "sector_bearings_deg: compass, clockwise from north",
         "antenna_rule": exp.site_rule,
         "sector_positions_m": {placed[i].candidate_id: ex.sector_positions(exp, placed[i]) for i in range(len(placed))},
         "profile": exp.profile.__dict__, "grid": exp.grid.__dict__,

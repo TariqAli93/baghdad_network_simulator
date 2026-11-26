@@ -81,6 +81,24 @@ def test_traced_sector_pattern_matches_3gpp_tr38901_in_the_horizontal_plane(run)
     assert measured.max() == pytest.approx(8.0, abs=0.3) and measured.min() == pytest.approx(-22.0, abs=0.5)
 
 
+def test_sector_yaw_turns_counter_clockwise_from_east(run):
+    """Yaw 90 deg points the sector north (+y): the scene frame behind the azimuth convention
+    (compass bearing = 90 deg - yaw). Pattern, roof-edge placement and map use the same frame."""
+    trace, _ = run
+    tx = (0.0, 0.0, 2.5)
+    yaw = np.pi / 2
+    (iso, sector), _ = trace(tx, [Antenna("iso", "V", (0.0, 0.0, 0.0)), Antenna("tr38901", "V", (yaw, 0.0, 0.0))])
+    far, xs, ys = far_cells(tx, 60.0)
+    gain = linear_to_db(sector / iso)
+    expected = np.array([tr38901_element_gain_dbi((x, y, 1.5 - 2.5), (yaw, 0.0, 0.0))
+                         for x, y in zip(xs[far], ys[far], strict=True)])
+    assert np.median(np.abs(gain[far] - expected)) < 0.2
+    north = far & (ys > 0) & (np.abs(xs) < ys / 3)
+    south = far & (ys < 0) & (np.abs(xs) < -ys / 3)
+    east = far & (xs > 0) & (np.abs(ys) < xs / 3)
+    assert gain[north].mean() > gain[south].mean() + 20 and gain[north].mean() > gain[east].mean() + 5
+
+
 def test_positive_downtilt_points_the_sector_below_the_horizon(run):
     trace, _ = run
     tx = (0.0, 0.0, 31.5)                               # 30 m above the receivers

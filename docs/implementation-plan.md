@@ -896,3 +896,18 @@ Under the feature freeze, configuration and guards only; no simulation was run.
 - **Blockers unchanged:** observations, candidate thresholds, final-scene convergence, MATLAB,
   laptop, written reference.
 
+### Addendum: configuration checkpoint (2026-11-27)
+
+- **Observation acceptance (defect fixed):** a required building was completed by any filled
+  row, so a visual estimate could complete P0. Now per group (`method_requirements`): P0-P2
+  (38) need measured or documented heights, S (43) a storey-count record with the storey
+  count. Readiness ignores datasets judged under other rules; dataset record rebuilt (scene
+  fingerprint unchanged, 0 of 81). Overview and Study area show the two groups separately.
+- **Azimuth convention:** verified that engine yaw, TR 38.901 pattern reference, roof-edge
+  placement and map arrows share one frame (yaw counter-clockwise from east, x east, y north);
+  a different yaw is a different cache key. Implemented sectors = compass 90/330/210°. Proposal
+  compass 0/120/240° recorded as pending, **not applied**. New manifests record compass bearings.
+- **Candidate thresholds:** evaluation values 12 m / 100 m² / 50 m give 1 candidate with today's
+  heights; kept pending (`approvals.yaml`, `pending_proposals`). Mast 3 m and inset 1 m unchanged.
+- **Tests run:** see the commit message of this checkpoint.
+

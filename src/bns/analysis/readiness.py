@@ -93,10 +93,14 @@ def _requirement(area: dict) -> dict:
 
 def _current(root: Path, name: str, area: dict) -> list[tuple[Path, dict, dict]]:
     """Datasets built for the area's current observation requirement."""
-    required = list(_requirement(area).get("required_priorities") or [])
-    return [t for t in _datasets(root, name)
-            if list(((t[2].get("inputs") or {}).get("required_observations") or {}).get("required_priorities") or [])
-            == required]
+    req = _requirement(area)
+    required = list(req.get("required_priorities") or [])
+    rules = req.get("method_requirements") or None
+
+    def built_for(t):
+        rec = (t[2].get("inputs") or {}).get("required_observations") or {}
+        return list(rec.get("required_priorities") or []) == required and (rec.get("method_requirements") or None) == rules
+    return [t for t in _datasets(root, name) if built_for(t)]
 
 
 def _dataset(root: Path, areas: dict) -> Gate:
@@ -142,10 +146,27 @@ def _observations(root: Path, areas: dict) -> Gate:
                        "observed": sum(r["priority"] == p and r["building_id"] not in missing for r in required)}
                    for p in required_p}
     observed = sum(v["observed"] for v in by_priority.values())
+    # priorities that accept the same method classes form one group (P0-P2 measured or documented
+    # heights; S storey-count survey), each with its own progress
+    rules = req.get("method_requirements") or {}
+    groups: dict[tuple, dict] = {}
+    for p in required_p:
+        key = tuple(rules.get(p) or ["any"])
+        g = groups.setdefault(key, {"priorities": [], "accepted": list(key), "required": 0, "observed": 0})
+        g["priorities"].append(p)
+        g["required"] += by_priority[p]["required"]
+        g["observed"] += by_priority[p]["observed"]
     data = {"required": len(required), "observed": observed, "by_priority": by_priority,
+            "groups": list(groups.values()),
+            "insufficient": len(((current[0][2].get("observation_worklist") or {}).get("insufficient")) or [])
+            if current else 0,
             "covered_by_sensitivity": dict(sensitivity), "stage": req.get("stage"),
             "required_priorities": required_p}
-    detail = f"{observed} of {len(required)} required buildings observed ({', '.join(required_p)})"
+    detail = "; ".join(f"{', '.join(g['priorities'])} ({' or '.join(g['accepted']).replace('_', ' ')}): "
+                       f"{g['observed']} of {g['required']}" for g in groups.values())
+    detail += f" — {observed} of {len(required)} required buildings"
+    if data["insufficient"]:
+        detail += f"; {data['insufficient']} observed with a method their priority does not accept"
     if not current:
         detail += "; the built dataset records an older requirement: rebuild it (scripts/build_dataset.py)"
     state = "met" if current and observed == len(required) and required else "not met"

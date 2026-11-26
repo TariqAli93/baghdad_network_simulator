@@ -120,7 +120,7 @@ def main() -> int:
     method_approved = bool(area_config["height_policy"].get("approved_by"))
     # the mandatory observations of the approved method (A2): the configured worklist, filtered
     # by the required priorities; the submitted file never defines what is mandatory
-    required = None
+    required, accepted = None, None
     requirement = (area_config["areas"][area.name].get("observations") or {})
     if requirement:
         worklist_path = ROOT / requirement["worklist"]
@@ -129,14 +129,17 @@ def main() -> int:
             return 1
         with open(worklist_path, newline="", encoding="utf-8") as handle:
             listed = list(csv.DictReader(line for line in handle if not line.startswith("#")))
-        required = [r["building_id"] for r in listed if r["priority"] in requirement["required_priorities"]]
+        # which method classes satisfy each required building (P0-P2 measured or documented,
+        # the candidate survey S a storey count): configs/study_area.yaml, method_requirements
+        accepted = pipeline.accepted_methods(listed, requirement)
+        required = list(accepted)
 
     scene_dir = ROOT / "data" / "scenes" / area.name / variant
     report = pipeline.build_dataset(
         area, data, scene_dir, policy, meta["sha256"], height_model=model, seed=args.seed,
         manual_rows=rows, manual_name=args.observations.name if args.observations else "manual",
         height_datasets=datasets, extra_footprints=footprints, height_method_approved=method_approved,
-        required_observations=required)
+        required_observations=required, accepted_observations=accepted)
 
     report_dir = ROOT / "outputs" / "datasets" / area.name / variant
     report_dir.mkdir(parents=True, exist_ok=True)
@@ -156,7 +159,8 @@ def main() -> int:
                        "file": str(args.observations), "sha256": sha(args.observations)},
                    "required_observations": None if required is None else {
                        "worklist": requirement["worklist"], "sha256": sha(ROOT / requirement["worklist"]),
-                       "required_priorities": requirement["required_priorities"], "count": len(required)},
+                       "required_priorities": requirement["required_priorities"],
+                       "method_requirements": requirement.get("method_requirements"), "count": len(required)},
                    "footprint_datasets": [{"name": k, "extract": str(p.relative_to(ROOT)), "sha256": sha(p)}
                                           for k, p, _ in footprints],
                    "height_datasets": [{"name": k, "extract": str(Path(p).relative_to(ROOT)), "sha256": sha(p)}

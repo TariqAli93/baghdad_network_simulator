@@ -520,7 +520,7 @@ def test_completeness_is_judged_against_the_required_list_not_the_submitted_file
             {"building_id": "way/2", "method_class": "storey_count", "storeys": "4"},
             {"building_id": "way/9", "method_class": "measured", "height_m": "10"}]     # not required
     status = observation_status(required, rows, unmatched=[])
-    assert status == {"listed": 3, "observed": 2, "unmatched": 0, "missing": ["way/3"]}
+    assert status == {"listed": 3, "observed": 2, "unmatched": 0, "missing": ["way/3"], "insufficient": []}
     legacy = [{"building_id": i, "height_m": "10", "method": "x"} for i in required]   # no method class
     assert observation_status(required, legacy, unmatched=[])["observed"] == 0
     assert observation_status(required, None, unmatched=[])["observed"] == 0
@@ -552,3 +552,48 @@ def test_monuments_memorials_and_artworks_are_never_transmitter_candidates():
             ht.Building("way/4", box(300, 0, 330, 30), {"building": "commercial"}, rec)]
     got = rooftop_candidates(blds, mast_height_m=3.0, min_height_m=0.0, min_area_m2=0.0, min_spacing_m=0.0)
     assert [c.building_id for c in got] == ["way/4"]
+
+
+def test_each_required_building_needs_an_observation_of_its_accepted_method_class():
+    from bns.geospatial.pipeline import observation_status
+
+    # P0-P2 need a measured or documented height; group S needs a storey-count survey record
+    accepted = {"way/1": ("measured", "documented"), "way/2": ("measured", "documented"),
+                "way/3": ("storey_count", "measured", "documented"), "way/4": ("storey_count", "measured", "documented")}
+    rows = [{"building_id": "way/1", "method_class": "measured", "height_m": "20"},
+            {"building_id": "way/2", "method_class": "storey_count", "storeys": "5"},     # not enough for P0-P2
+            {"building_id": "way/3", "method_class": "storey_count", "storeys": "4"},
+            {"building_id": "way/4", "method_class": "storey_count", "height_m": "12"}]   # no storey count recorded
+    status = observation_status(list(accepted), rows, unmatched=[], accepted=accepted)
+    assert status["observed"] == 2
+    assert status["missing"] == ["way/2", "way/4"]
+    assert status["insufficient"] == ["way/2", "way/4"]
+    visual = [{"building_id": "way/1", "method_class": "visual_estimate", "height_m": "20"}]
+    assert observation_status(["way/1"], visual, unmatched=[], accepted=accepted)["observed"] == 0
+
+
+def test_a_storey_count_is_never_classified_as_a_measured_height():
+    from bns.geospatial import heights as ht
+
+    height, category, problems = ht.validate_observation({"method_class": "storey_count", "storeys": "4"},
+                                                         storey_height_m=3.0, max_height_m=250.0)
+    assert (height, category, problems) == (12.0, ht.ESTIMATED, [])
+    assert ht.validate_observation({"method_class": "measured", "height_m": "12"}, storey_height_m=3.0,
+                                   max_height_m=250.0)[1] == ht.OBSERVED
+
+
+def test_the_configured_requirements_separate_measured_groups_from_the_storey_survey():
+    import yaml
+    from pathlib import Path
+
+    from bns.geospatial.pipeline import accepted_methods
+
+    root = Path(__file__).resolve().parents[2]
+    obs = yaml.safe_load((root / "configs" / "study_area.yaml").read_text(encoding="utf-8"))[
+        "areas"]["tahrir_bab_al_sharqi_study"]["observations"]
+    rows = [{"building_id": "a", "priority": "P0"}, {"building_id": "b", "priority": "P2"},
+            {"building_id": "c", "priority": "S"}, {"building_id": "d", "priority": "P3"}]
+    accepted = accepted_methods(rows, obs)
+    assert set(accepted) == {"a", "b", "c"}                              # P3 not required
+    assert set(accepted["a"]) == set(accepted["b"]) == {"measured", "documented"}
+    assert "storey_count" in accepted["c"] and "visual_estimate" not in accepted["c"]

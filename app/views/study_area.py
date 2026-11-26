@@ -32,13 +32,20 @@ else:
     obs = gates["observations"]
     st.markdown(f"**Mandatory observations:** {obs.detail}")
     data = obs.data
+    for grp in data.get("groups") or []:
+        accepted = " or ".join(grp["accepted"]).replace("_", " ")
+        st.progress(grp["observed"] / grp["required"] if grp["required"] else 0.0,
+                    text=f"{', '.join(grp['priorities'])}: {grp['observed']} of {grp['required']} buildings with a "
+                         f"{accepted} record")
     if data.get("by_priority"):
         cols = st.columns(len(data["by_priority"]) + 1)
         for col, (p, v) in zip(cols, data["by_priority"].items()):
             col.metric("Candidate survey (S)" if p == "S" else f"{p} observed", f"{v['observed']} / {v['required']}")
-            col.progress(v["observed"] / v["required"] if v["required"] else 0.0)
         cols[-1].metric("Covered by sensitivity", ", ".join(f"{k}: {n}" for k, n in data["covered_by_sensitivity"].items())
                         or "—")
+    if data.get("insufficient"):
+        st.warning(f"{data['insufficient']} required buildings have an observation whose method class their priority "
+                   "does not accept (e.g. a storey count for P0-P2): they still need a measured or documented height.")
     st.caption("Worklist, map and template: outputs/datasets/<area>/fieldwork/ (scripts/fieldwork_package.py). "
                "Import observations with scripts/build_dataset.py --observations FILE; the required list comes from "
                "configs/study_area.yaml, never from the submitted file.")

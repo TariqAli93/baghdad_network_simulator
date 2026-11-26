@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import yaml
 
 from bns.analysis import approval_lock, rate_models
@@ -70,11 +71,17 @@ def site_rule_rows(root: Path) -> list[dict]:
     mast, mast_state = param("antenna_height_above_roof_m")
     sectors, sec_state = param("sectors_per_site")
     tilt, tilt_state = param("mechanical_downtilt_deg")
-    azimuths = ", ".join(f"{360 * k / int(sectors):g}" for k in range(int(sectors))) if sectors else "—"
+    from bns.simulation.setup import scene_azimuth_to_bearing_deg
+    yaws = [360 * k / int(sectors) for k in range(int(sectors))] if sectors else []
+    azimuths = ", ".join(f"{y:g}" for y in yaws) or "—"
+    bearings = ", ".join(f"{scene_azimuth_to_bearing_deg(np.radians(y)):g}" for y in yaws) or "—"
     t = rule.get("candidate_thresholds") or {}
+    pending = ((_yaml(root, "approvals.yaml").get("pending_proposals") or {}).get("candidate_thresholds") or {})
     rows = [("Mast height above the roof", f"{mast} m", mast_state, "radio_system.yaml"),
-            ("Sectors and azimuths", f"{sectors} sectors at {azimuths}° (scene frame, counter-clockwise from east)",
-             sec_state, "radio_system.yaml"),
+            ("Sectors and azimuths", f"{sectors} sectors, yaw {azimuths}° counter-clockwise from east = compass "
+             f"bearings {bearings}°", sec_state, "radio_system.yaml"),
+            ("Proposed: compass bearings 0, 120, 240°", "awaiting confirmation; not applied (30° rotation of the set)",
+             "pending", "approvals.yaml"),
             ("Downtilt", f"{tilt}°", tilt_state, "radio_system.yaml"),
             ("Antenna position", f"{rule.get('antenna_position')} (facing each sector)", rule_state, "site_rule.yaml"),
             ("Inset from the roof edge", f"{rule.get('edge_inset_m')} m", rule_state, "site_rule.yaml"),
@@ -87,7 +94,9 @@ def site_rule_rows(root: Path) -> list[dict]:
             ("Site selection", rule.get("site_selection", ""), rule_state, "site_rule.yaml")]
     for key, title in (("min_roof_height_m", "Minimum roof height"), ("min_roof_area_m2", "Minimum roof area"),
                        ("min_spacing_m", "Minimum spacing")):
-        rows.append((title, "PENDING (not specified)" if t.get(key) is None else t.get(key),
+        proposed = (pending.get("proposal") or {}).get(key)
+        rows.append((title, ("PENDING (not specified)" if t.get(key) is None else t.get(key))
+                     + (f"; evaluation value {proposed:g}, not approved" if proposed is not None else ""),
                      t.get("status", "pending"), "site_rule.yaml"))
     return [{"item": a, "value": str(b), "approval": c, "file": d} for a, b, c, d in rows]
 

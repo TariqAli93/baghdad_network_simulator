@@ -15,6 +15,10 @@
   research mode refuses until the five pre-experiment gates pass. Shown on the Overview, Radio and
   Study area pages.
 - Fix: `run_single_site.py --mode research` now applies the shared research guards.
+- Fix: observation acceptance per group (P0-P2 measured or documented; S storey counts); separate
+  progress on the Overview and Study area pages.
+- Azimuth convention made explicit (compass bearings in manifests and the app); orientations
+  unchanged; compass 0/120/240° and candidate thresholds 12 m / 100 m² / 50 m recorded as pending.
 - **v1.0.0 is not released**: field observations, laptop acceptance, MATLAB and the written approval
   reference are open (`docs/implementation-plan.md`, last section).
 

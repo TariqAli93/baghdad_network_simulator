@@ -124,7 +124,7 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   overrides are sensitivity cases (development only, recorded). Never claim a minimum site count.
 - Feature freeze since v1.0.0-rc.1: only defect fixes and approved research execution.
 - Observations: method_class measured/documented = observed, storey_count/visual_estimate =
-  estimated; mandatory buildings come from the configured worklist (study_area.yaml), never from
+  estimated; P0-P2 need measured/documented, S a storey count (`method_requirements`); mandatory buildings come from the configured worklist (study_area.yaml), never from
   the submitted file. Monuments, memorials and artworks are never transmitter candidates.
 - Research runs refuse unless area, radio parameters, profile (status `approved`) and backend
   (status `production`) are approved.
@@ -132,6 +132,9 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   since approval, dataset fit, mandatory observations, approved candidate thresholds, final-scene
   convergence). Changing an approved value voids it until reconfirmed (`configs/approval_lock.yaml`);
   never run `approval_lock.py --record` without the supervisor's reconfirmation.
+- Sector yaw is counter-clockwise from east (scene x east, y north); compass bearing = 90° − yaw
+  (`setup.bearing_to_scene_azimuth_rad`). The compass 0/120/240° proposal is pending: do not change
+  sector orientations without the supervisor's confirmation.
 - Rate mappings per band (`rate_mappings` in `radio_system.yaml`): LTE for 4G, NR for 5G, NR-based
   approximation (labelled) for candidate 6G; always beside Shannon, never instead.
 - Distribute `scripts/make_distribution.py` archives, never the repository (GBA values in history).

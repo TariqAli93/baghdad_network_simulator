@@ -30,7 +30,10 @@ def repo(tmp_path):
     return tmp_path
 
 
-def _dataset(repo, variant, *, fit, missing, priorities=("P0", "P1", "P2", "S")):
+def _dataset(repo, variant, *, fit, missing, priorities=("P0", "P1", "P2", "S"), rules="current"):
+    if rules == "current":
+        rules = yaml.safe_load((repo / "configs" / "study_area.yaml").read_text(encoding="utf-8"))[
+            "areas"][AREA]["observations"].get("method_requirements")
     folder = repo / "outputs" / "datasets" / AREA / variant
     folder.mkdir(parents=True)
     listed = 6
@@ -38,7 +41,8 @@ def _dataset(repo, variant, *, fit, missing, priorities=("P0", "P1", "P2", "S"))
         {"fit_for_research": fit, "not_fit_reasons": [] if fit else ["observation worklist incomplete"]}), encoding="utf-8")
     (folder / "dataset_manifest.json").write_text(json.dumps(
         {"created_utc": "2026-11-27T00:00:00+00:00",
-         "inputs": {"required_observations": {"required_priorities": list(priorities), "count": listed}},
+         "inputs": {"required_observations": {"required_priorities": list(priorities), "count": listed,
+                                              "method_requirements": rules}},
          "observation_worklist": {"listed": listed, "observed": listed - len(missing), "unmatched": 0,
                                   "missing": missing}}), encoding="utf-8")
 
@@ -118,3 +122,19 @@ def test_the_repository_state_is_locked_for_research():
     assert gates["convergence"].state == "not executed"
     with pytest.raises(rd.NotReady):
         rd.require_research_ready(ROOT)
+
+
+def test_observation_progress_is_split_into_measured_heights_and_the_storey_survey(repo):
+    _dataset(repo, "osm+fp", fit=False, missing=["way/1", "way/2", "way/3", "way/5"])
+    groups = {tuple(g["priorities"]): g for g in _gates(repo)["observations"].data["groups"]}
+    assert set(groups) == {("P0", "P1", "P2"), ("S",)}
+    assert (groups[("P0", "P1", "P2")]["observed"], groups[("P0", "P1", "P2")]["required"]) == (1, 4)
+    assert groups[("P0", "P1", "P2")]["accepted"] == ["measured", "documented"]
+    assert (groups[("S",)]["observed"], groups[("S",)]["required"]) == (1, 2)
+    assert "storey_count" in groups[("S",)]["accepted"]
+
+
+def test_a_dataset_judged_under_looser_method_rules_does_not_count(repo):
+    _dataset(repo, "old-rules", fit=True, missing=[], rules=None)        # built before method_requirements
+    g = _gates(repo)
+    assert g["dataset"].state == "not met" and g["observations"].state == "not met"

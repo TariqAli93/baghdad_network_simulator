@@ -67,7 +67,9 @@ def quality_report(buildings: list[Building], area: StudyArea, parse_report: dic
             if worklist is not None and not complete:
                 reasons.append(f"observation worklist incomplete: {worklist.get('observed', 0)} of "
                                f"{worklist.get('listed', 0)} buildings observed, "
-                               f"{worklist.get('unmatched', 0)} rows matching no building")
+                               f"{worklist.get('unmatched', 0)} rows matching no building"
+                               + (f", {len(worklist['insufficient'])} observed with a method class their "
+                                  "priority does not accept" if worklist.get("insufficient") else ""))
 
     return {
         "area": {"name": area.name, "role": area.role, "approved": area.approved},

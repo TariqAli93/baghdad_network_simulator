@@ -1,7 +1,7 @@
 {
   "dataset": "tahrir_bab_al_sharqi_study/osm+fp_3d_globfp",
-  "created_utc": "2026-11-26T22:24:08+00:00",
-  "software_commit": "dac5d86",
+  "created_utc": "2026-11-26T22:50:59+00:00",
+  "software_commit": "6499159",
   "inputs": {
     "osm_snapshot": "tahrir_bab_al_sharqi_v2",
     "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
@@ -15,6 +15,25 @@
         "P2",
         "S"
       ],
+      "method_requirements": {
+        "P0": [
+          "measured",
+          "documented"
+        ],
+        "P1": [
+          "measured",
+          "documented"
+        ],
+        "P2": [
+          "measured",
+          "documented"
+        ],
+        "S": [
+          "storey_count",
+          "measured",
+          "documented"
+        ]
+      },
       "count": 81
     },
     "footprint_datasets": [
@@ -29,7 +48,7 @@
   "outputs": {
     "scene_fingerprint": "7230170d9314929c06a789f90c0c35ada68d3f0c1656fb0c3be88044ac7a9263",
     "buildings_geojson_sha256": "0efc9838368793254308ffe3580914495f5c7714ddb37421e7e2084d675f5432",
-    "quality_report_sha256": "0fa31c0c9064e9c462e77f376d9d158b701b3333874d9f751e107609354a840a"
+    "quality_report_sha256": "42d53903b535906f543a8039f46a11d93e0ded83f65a050d9d23a0cd08bb6de8"
   },
   "height_categories": {
     "observed": 10,
@@ -122,7 +141,8 @@
       "way/901843497",
       "way/903940609",
       "way/947082879"
-    ]
+    ],
+    "insufficient": []
   },
   "fit_for_research": false,
   "not_fit_reasons": [

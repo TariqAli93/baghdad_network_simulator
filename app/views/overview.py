@@ -32,10 +32,11 @@ if locked:
     st.error(f"Research mode is locked: {len(locked)} of {len(readiness.PRE_EXPERIMENT)} pre-experiment conditions "
              "are not met (" + ", ".join(g.title for g in locked) + ").")
 obs = next(g for g in gates if g.id == "observations").data
-if obs.get("required"):
-    st.progress(obs["observed"] / obs["required"],
-                text=f"Mandatory observations: {obs['observed']} of {obs['required']} buildings "
-                     f"({', '.join(obs['required_priorities'])}, {obs.get('stage') or 'current'} stage)")
+for grp in obs.get("groups") or []:
+    if grp["required"]:
+        st.progress(grp["observed"] / grp["required"],
+                    text=f"{', '.join(grp['priorities'])} — {' or '.join(grp['accepted']).replace('_', ' ')}: "
+                         f"{grp['observed']} of {grp['required']} buildings ({obs.get('stage') or 'current'} stage)")
 
 with st.expander("Supervisor decisions and open conditions (configs/approvals.yaml)"):
     st.caption(configuration.approval_source(ui.ROOT) + " An approved value that changes loses its approval "
