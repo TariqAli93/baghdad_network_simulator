@@ -1,0 +1,123 @@
+{
+  "area": {
+    "name": "tahrir_bab_al_sharqi_v2",
+    "role": "provisional study area",
+    "approved": false
+  },
+  "buildings": 1193,
+  "missing_height_buildings": 548,
+  "conflicting_buildings": 6,
+  "buildings_with_alternative_sources": 13,
+  "height_categories": {
+    "by_count": {
+      "observed": 9,
+      "estimated": 636,
+      "placeholder": 548
+    },
+    "by_count_percent": {
+      "observed": 0.7544006705783739,
+      "estimated": 53.310980720871754,
+      "placeholder": 45.934618608549876
+    },
+    "by_area_percent": {
+      "observed": 1.788398125604025,
+      "estimated": 73.26185664688605,
+      "placeholder": 24.949745227509936
+    }
+  },
+  "height_sources": {
+    "by_count": {
+      "placeholder": 548,
+      "osm:height": 9,
+      "dataset:GlobalBuildingAtlas GBA.LoD1": 632,
+      "osm:building:levels": 4
+    },
+    "by_area_percent": {
+      "dataset:GlobalBuildingAtlas GBA.LoD1": 70.63441565783067,
+      "osm:building:levels": 2.627440989055373,
+      "osm:height": 1.788398125604025,
+      "placeholder": 24.949745227509936
+    }
+  },
+  "height_statistics": {
+    "observed": {
+      "min_m": 1.0,
+      "median_m": 10.0,
+      "max_m": 60.0
+    },
+    "estimated": {
+      "min_m": 1.44,
+      "median_m": 8.765,
+      "max_m": 28.26
+    },
+    "placeholder": {
+      "min_m": 9.0,
+      "median_m": 9.0,
+      "max_m": 9.0
+    }
+  },
+  "height_model": null,
+  "height_warnings": [
+    {
+      "building_id": "way/1085956708",
+      "warning": "sources disagree: osm:height 3 m vs dataset:GlobalBuildingAtlas GBA.LoD1 14.23 m"
+    },
+    {
+      "building_id": "way/1154123513",
+      "warning": "sources disagree: osm:height 15 m vs dataset:GlobalBuildingAtlas GBA.LoD1 1.71 m"
+    },
+    {
+      "building_id": "way/1176936667",
+      "warning": "sources disagree: osm:height 11.5 m vs dataset:GlobalBuildingAtlas GBA.LoD1 2.81 m"
+    },
+    {
+      "building_id": "way/82967076",
+      "warning": "sources disagree: osm:height 60 m vs dataset:GlobalBuildingAtlas GBA.LoD1 13.18 m"
+    },
+    {
+      "building_id": "way/919688856",
+      "warning": "sources disagree: osm:height 55 m vs dataset:GlobalBuildingAtlas GBA.LoD1 5.43 m"
+    },
+    {
+      "building_id": "way/939812415",
+      "warning": "sources disagree: osm:height 10 m vs dataset:GlobalBuildingAtlas GBA.LoD1 1.89 m"
+    }
+  ],
+  "footprint_area_m2": 318272.1773695322,
+  "built_share_of_receiver_area_percent": 23.237487947364297,
+  "parse": {
+    "buildings_read": 1228,
+    "relations_read": 8,
+    "relations_with_missing_members": 0,
+    "skipped": {},
+    "duplicate_pairs": 2
+  },
+  "cleaning": {
+    "dataset GlobalBuildingAtlas GBA.LoD1: matched buildings": 645,
+    "buildings_split_into_pieces": 1,
+    "dropped_small": 2,
+    "overlaps_resolved": 328,
+    "buildings_outside_area_or_too_small": 35,
+    "footprints_before_merge": 1193,
+    "solids_after_merge": 854,
+    "different_height_contacts": 415
+  },
+  "mesh": {
+    "vertices": 10046,
+    "triangles": 13380,
+    "degenerate_triangles": 0,
+    "rim_edges": 5044,
+    "wedges": 10035,
+    "flat_shared_edges": 7513,
+    "non_manifold_edges": 0,
+    "roof_triangles_facing_down": 0
+  },
+  "fit_for_research": false,
+  "not_fit_reasons": [
+    "the area is a provisional study area, not the study district",
+    "the area has not been approved by the supervisor",
+    "the building-height methodology has not been approved",
+    "45.9 % of buildings have placeholder heights"
+  ],
+  "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312"
+}

@@ -8,19 +8,23 @@ profiles:
   preview:
     cell_size_m: 25
     rays_per_site: 1.0e8
+    status: validated for development
     basis: >-
       All 8 cases: 95 % of outdoor cells within 2.9 dB of a 1-billion-ray map, no cell
       missed. 1e7 rays failed (up to 16 dB).
   standard:
     cell_size_m: 10
     rays_per_site: 1.0e9
+    status: borderline convergence
     basis: >-
       All 8 cases: two independent 1-billion-ray maps agree within 1.4-2.0 dB for 95 % of
       outdoor cells, no cell missed. 1e8 rays failed on the full area (3.9-5.2 dB), although
-      it passed on the 400 m block of Phase 0 (E5).
+      it passed on the 400 m block of Phase 0 (E5). Borderline, not fully converged: the
+      residual 1.4-2.0 dB is the Monte-Carlo floor of 1e9 rays at 10 m cells.
   research:
     cell_size_m: 5
     rays_per_site: null
+    status: not determined (disabled)
     basis: >-
       Not validated: two independent 1-billion-ray maps differ by about 3 dB for 5 % of
       cells. Needs more rays or seed averaging, to be measured before use.

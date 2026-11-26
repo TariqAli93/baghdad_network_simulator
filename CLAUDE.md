@@ -26,6 +26,10 @@ uv run pytest -m engine                         # scientific tests through the r
 uv run python scripts/build_dataset.py --area NAME   # OSM snapshot -> scene + quality report
 uv run python scripts/run_single_site.py --area NAME --mode development   # five-band single site
 uv run python scripts/run_convergence.py --area NAME # ray-count check behind the profiles
+uv run python scripts/run_multi_site.py --area NAME --mode development [--profile preview] [--sites N | --buildings ID...]
+uv run python scripts/evaluate_gba.py --area NAME       # GlobalBuildingAtlas heights vs OSM and 3D-GloBFP
+uv run python scripts/diagnose_near_site.py RUN_DIR     # pattern vs own-roof shadow near a site
+uv run streamlit run app/main.py                       # the application (reads saved runs)
 uv run python scripts/import_height_dataset.py / evaluate_height_dataset.py / height_worklist.py
 uv run python scripts/run_height_sensitivity.py ...  # compare height models (see its --help)
 uv run python scripts/atmosphere_table.py            # rain and gas loss per band
@@ -93,6 +97,11 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 - Raw data in `data/raw/` is immutable and hashed; `data/scenes/`, `data/cache/` and large
   run outputs are regenerated and git-ignored.
 - Charts use `bns.reporting.plotstyle` (one colour per scenario, everywhere).
+- `data/raw/**` is binary for git (`.gitattributes`): never let git convert hashed raw files.
+- The app (`app/`) holds UI code only; anything computed lives in `bns` (`bns.app` for run
+  discovery, run control and re-evaluation from the cache). The app never re-traces to show a run.
+- Multi-site: sectors are traced transmitters, sites group them; every non-serving sector
+  interferes (reuse 1, activity from the radio configuration); never assume an added site helps.
 
 ## Layout
 
@@ -109,7 +118,11 @@ src/bns/runtime.py              CPU bootstrap, memory cap, isolated workers
 src/bns/core/units.py           conversions, Friis, thermal noise
 src/bns/analysis/               link_budget (received power, SINR, Shannon), metrics (coverage,
                                 percentiles, CDF, RMSE), sensitivity, radio_system
-src/bns/optimization/greedy.py  greedy site selection
+src/bns/optimization/greedy.py  greedy site selection (coverage masks; and on network SINR)
+src/bns/simulation/network.py   multi-site network: serving sector/site, interference
+src/bns/simulation/experiment.py  shared experiment set-up (scripts and app)
+src/bns/app/                    saved runs, run control, re-evaluation (no UI code)
+app/                            Streamlit application (main.py, ui.py, views/)
 src/bns/validation/analytic.py  closed-form references (Friis, Fresnel slab, knife edge)
 src/bns/geospatial/             study_area, osm_source (snapshots, parsing), heights (provenance,
                                 height models), sites (rooftop candidates), grid (receivers,

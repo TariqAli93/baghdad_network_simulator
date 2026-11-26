@@ -23,6 +23,7 @@ class Profile:
     name: str
     cell_size_m: float
     rays_per_site: int
+    status: str = ""                # convergence status from configs/simulation.yaml
 
 
 @dataclass(frozen=True)
@@ -39,7 +40,8 @@ class SimulationConfig:
         for name, p in data["profiles"].items():
             if p.get("rays_per_site") is None:
                 continue                    # not yet determined
-            profiles[name] = Profile(name, float(p["cell_size_m"]), int(float(p["rays_per_site"])))
+            profiles[name] = Profile(name, float(p["cell_size_m"]), int(float(p["rays_per_site"])),
+                                     str(p.get("status", "")))
         return cls(profiles, Mechanisms(**data["mechanisms"]), tuple(data["seeds"]),
                    data["polarization"])
 

@@ -1,0 +1,9 @@
+{
+  "receiver_buildings": 899,
+  "receiver_with_gba": 479,
+  "receiver_area_share_with_gba": 0.7922333436521858,
+  "tagged_comparisons": 14,
+  "tagged_mean_diff_m": -8.117857142857142,
+  "tagged_rmse_m": 19.118674677617467,
+  "tower_gba_m": 5.43
+}

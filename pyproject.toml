@@ -14,6 +14,8 @@ dependencies = [
     "pyproj>=3.6",
     "mapbox-earcut>=1.0",
     "pyshp>=2.3",
+    "streamlit>=1.40",
+    "plotly>=5.24",
 ]
 
 [dependency-groups]

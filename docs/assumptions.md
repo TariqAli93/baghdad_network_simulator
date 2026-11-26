@@ -159,3 +159,17 @@ Added by the Phase 1 review (details in `docs/references.md` and `docs/related-s
 | `requirements.lock` | `uv.lock` is the lock; `requirements.lock` is exported from it | `uv` manages the environment |
 | Parquet for numerical results | `.npz` + JSON in Phase 0 | Storage layer comes later |
 | Project structure | See `docs/architecture.md`, section 7 | |
+
+## 8. Multi-site assumptions (Phase 6, provisional)
+
+Development values; part of decision A3 (`docs/supervisor-decisions.md`).
+
+| Assumption | Value used | Status |
+|---|---|---|
+| Carrier sharing | every sector of every site on one carrier (reuse 1) | candidate (`frequency_reuse`) |
+| Interference activity (load of non-serving sectors) | 1.0, full load | candidate (`interference_activity`) |
+| Co-located sectors | interfere like any other sector | modelling choice, stated in every summary |
+| Serving rule | strongest received sector after pattern and gas loss | modelling choice (no handover margin) |
+| Scheduling and load sharing | none: Shannon bound for one user with the whole carrier | modelling choice; rates are upper bounds, more sites cannot raise them by sharing load |
+| Candidate sites (development run) | the four receiver-area roofs with observed height ≥ 10 m, ≥ 100 m apart, antenna at an interior roof point, 3 m mast | development; A4 open (roof-edge placement, see `docs/validation.md` §6) |
+

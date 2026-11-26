@@ -131,8 +131,8 @@ None was made. Each is listed with what it would settle.
 | File | Size | Licence | What it settles |
 |---|---|---|---|
 | 3D-GloBFP tile `1590_43.75_32.5_45.0_33.75_IZ.zip` (figshare) | 205 MB | CC BY 4.0 | **Downloaded and evaluated 2026-11-26 (section 9)** |
-| GlobalBuildingAtlas heights `LoD1/africa/e040_n35_e045_n30.json` (Hugging Face) | 378 MB | CC BY-NC 4.0 | Confirms the partial read was complete; needed to use it for the study district |
-| GlobalBuildingAtlas footprints for the same tile | 2.09 GB | ODbL | Same; could be avoided by joining heights to OSM footprints |
+| GlobalBuildingAtlas heights `LoD1/africa/e040_n35_e045_n30.json` (Hugging Face) | 378 MB | CC BY-NC 4.0 | **Downloaded and evaluated 2026-11-26 (section 12)** |
+| GlobalBuildingAtlas footprints for the same tile (GBA.ODbLPolygon) | 2.09 GB | ODbL | **Still not downloaded.** The only GBA source of the Microsoft footprints that OSM lacks (section 12) |
 | UT-GLOBUS `Baghdad_2.gpkg` (Zenodo) | 68.5 MB within a 4.6 GB archive | CC BY 4.0 | A third per-building source |
 | ITU-R P.837-8 rain maps (see `docs/atmospheric-losses.md`) | 361 MB | ITU | Current-edition rain rate for Baghdad |
 
@@ -228,6 +228,60 @@ buildings near a candidate site that could block it. It writes a CSV with empty 
 every other source, while all earlier values stay attached as alternatives. Blank rows are
 ignored. With illustrative arguments the provisional area gives 249 buildings to check, most
 of them low buildings of unknown height near the four candidate sites.
+
+## 12. GlobalBuildingAtlas evaluated in the provisional area (Phase 5, 2026-11-26)
+
+Downloaded with approval: `LoD1/africa/e040_n35_e045_n30.json` from Hugging Face
+`zhu-xlab/GBA.LoD1`, revision `9da24b3a8dce`, 378,494,857 bytes, SHA-256 `1d1246f8...`
+verified against the repository's LFS record; cached in `data/cache/datasets/gba/`
+(git-ignored); entry `gba` in `configs/height_datasets.yaml`. Licence **CC BY-NC 4.0**
+(non-commercial); the dataset card warns that combining it with the ODbL polygon part may
+have licence implications. Full report: `outputs/datasets/tahrir_bab_al_sharqi_v2/gba_evaluation.md`
+(`scripts/evaluate_gba.py`).
+
+**What the file is.** One JSON object of 4.28 million records `key -> {height, var}`, no
+geometry. Keys name the footprint source: `osm<way id>IRQ` (137,000 Iraqi OSM ways),
+`msIraq_<quadkey>_<n>IRQ` (3.94 million Microsoft footprints), `ours...` (derived by the
+authors). `var` is not defined in the dataset card and is not used.
+
+**Join.** GBA heights were joined to the OSM buildings by way id (relations cannot be joined:
+GBA keys carry no element type). The study-area extract with a manifest is
+`data/raw/heights/gba/tahrir_bab_al_sharqi_v2.json`.
+
+| Quantity | Value |
+|---|---|
+| Receiver-area OSM buildings with a GBA height | 479 of 899 (53 % by count, 79 % by footprint area) |
+| GBA heights in the receiver area | median 9.3 m, 5-95 % 4.7-15.9 m, maximum 20.9 m |
+| 3D-GloBFP minus GBA, same 370 buildings | median +11.1 m, Spearman 0.32 |
+| 14 OSM-tagged buildings (height tag or storeys × 3 m) | mean −8.1 m, RMSE 19.1 m; 12 below 30 m: RMSE 6.2 m |
+| The tower way/919688856 (tag 55 m, 14 storeys) | GBA 5.4 m; 3D-GloBFP 80 m |
+| way/82967076 (tag 60 m, outside the receiver area) | GBA 13.2 m |
+
+**Assessment.**
+
+- *Heights.* Plausible for ordinary low-rise buildings and closer to the tags than
+  3D-GloBFP there, but **capped near 21 m**: every tall building is underestimated by tens of
+  metres. Usable at most as a low-rise source, never for tall buildings or candidate sites.
+- *Footprints.* The tile cannot recover the 577 footprints missing from OSM (section 9):
+  those come from Microsoft and their geometry is only in the 2.09 GB ODbL polygon part.
+  Whether they are genuinely missing buildings, newer construction or non-buildings stays
+  open until that file (or another footprint source) is approved and compared.
+- *Effect on propagation.* Dataset variant `osm+gba` (OSM tags keep priority over GBA;
+  placeholder heights replaced where GBA has one: 53 % of buildings estimated, 46 %
+  placeholder). Tower site, preview profile: median change 0.0 dB; 23 % of outdoor cells
+  change by more than 1 dB, 7-8 % by more than 3 dB, 1.1-1.4 % by more than 10 dB, at both
+  3.5 and 28 GHz (`outputs/datasets/propagation_*osm+gba*.md`). Height detail matters
+  locally, as in the Phase 2 sensitivity runs.
+- *A conflict it exposed.* The 31 m² structure way/645196998 (height tag 12 m) lies inside
+  a building that GBA puts at 15.9 m; with GBA heights the overlap rule (the taller footprint
+  wins) removes it, and with it a development site. One of the two values is wrong; it
+  belongs on the observation worklist.
+
+**Recommendation (for A2).** Do not adopt GBA as the height source. Keep it as a possible
+low-rise sensitivity variant if the supervisor accepts the non-commercial licence. Tall
+buildings and candidate rooftops need observations. Deciding about the missing footprints
+needs approval of a footprint download (GBA ODbL part, 2.09 GB, or Microsoft footprints
+directly).
 
 ## 7. Not verified
 

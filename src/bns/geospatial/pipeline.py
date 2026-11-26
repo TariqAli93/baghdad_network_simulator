@@ -48,10 +48,14 @@ def provenance_buildings(area: StudyArea, overpass_json: dict, policy: ht.Height
                  for b in raw]
     clean_report: dict = {}
     for name, extract, reference in height_datasets or []:
-        result = hd.match_footprints(buildings, hd.load_extract(extract, area), DATASET_MIN_COVERAGE)
-        extra = {m.building_id: [hd.height_record(m, name, reference)] for m in result.matches}
+        if Path(extract).suffix == ".json":            # joined by OSM id (GlobalBuildingAtlas)
+            from bns.geospatial import gba
+            extra = gba.height_records(buildings, gba.load_extract_records(extract), name, reference)
+        else:                                          # matched by footprint overlap
+            result = hd.match_footprints(buildings, hd.load_extract(extract, area), DATASET_MIN_COVERAGE)
+            extra = {m.building_id: [hd.height_record(m, name, reference)] for m in result.matches}
         buildings = ht.apply_candidates(buildings, extra, policy)
-        clean_report[f"dataset {name}: matched buildings"] = len(result.matches)
+        clean_report[f"dataset {name}: matched buildings"] = len(extra)
     if manual_rows:
         buildings, unmatched = ht.apply_manual_observations(buildings, manual_rows, manual_name)
         clean_report["manual_observations_without_building"] = unmatched

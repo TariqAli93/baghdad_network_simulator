@@ -81,13 +81,17 @@ def main() -> int:
         specs = yaml.safe_load((ROOT / "configs" / "height_datasets.yaml").read_text(
             encoding="utf-8"))["datasets"]
         for key in args.height_dataset:
-            extract = ROOT / "data" / "raw" / "heights" / key / f"{area.name}.geojson"
-            if not extract.exists():
-                print(f"No {key} extract for {area.name}: run scripts/import_height_dataset.py first.")
+            folder = ROOT / "data" / "raw" / "heights" / key
+            extract = next((p for p in (folder / f"{area.name}.geojson", folder / f"{area.name}.json")
+                            if p.exists()), None)
+            if extract is None:
+                print(f"No {key} extract for {area.name}: run scripts/import_height_dataset.py "
+                      "(footprint datasets) or scripts/evaluate_gba.py (GBA) first.")
                 return 1
             spec = specs[key]
+            where = f"DOI {spec['doi']}" if "doi" in spec else f"revision {spec['revision'][:12]}"
             datasets.append((f"{spec['name']} {spec['version'].split()[0]}", extract,
-                             f"{spec['name']} tile {spec.get('tile', '')}, DOI {spec['doi']}"))
+                             f"{spec['name']} {spec.get('tile') or spec.get('file', '')}, {where}"))
             variant += f"+{key}"
 
     scene_dir = ROOT / "data" / "scenes" / area.name / variant

@@ -417,6 +417,9 @@ highest median rates but the 28 GHz 5th percentile collapses where cells lie bel
 downtilted beam. These numbers depend on the unapproved parameters and on placeholder
 heights, and would change with real building data.
 
+*Corrected in Phase 5 (below):* the near-site gap is caused mainly by the host roof's own
+edge shadowing the ground (3 m mast on a roof about 29 m wide), not by the vertical pattern.
+
 **Timing and memory.** 15 traces: 13 took 57-66 s, two took 216 s and 248 s (cause not
 identified; a similar transient slowdown was seen in Phase 0); 31 minutes in total including
 first-time compilation and retries. Peak committed memory per worker 0.86 GB; the script
@@ -451,3 +454,145 @@ conclusions (`docs/supervisor-decisions.md`). Phase 0 laptop gate.
 **Phase 5 is technically ready and scientifically blocked.** Research runs will start as
 soon as A1-A4 are approved; until then development runs can be repeated for teaching and
 for testing multi-site and site-selection code (Phases 6 and 8).
+
+---
+
+## Phases 5-6 report: single site completed, multi-site network, application (2026-11-26)
+
+**Status.** Phase 3-4 committed as `c55252f` (message "feat: radio configuration states and
+production ray-tracing pipeline"; tags `v0.4.0` and `v0.4.0-radio-simulation` on the same
+commit; not pushed). Work on branch `phase-5-6-coverage-multisite`. Phase 5: software
+complete, **scientifically blocked** (A1-A4). Phase 6: first version complete, development
+results only. Phase 0 laptop gate: **open**. Nothing here is a research result; every run is
+labelled DEVELOPMENT — NOT APPROVED FOR RESEARCH.
+
+### Requirements checked before building (reuse first)
+
+| Requirement | Before | Now |
+|---|---|---|
+| Path gain, received power, SINR, Shannon rate, 5th percentile, CDF, outdoor filter | implemented and tested (Phase 4) | reused unchanged |
+| Several sectors per site, co-located interference | implemented (`multi_site`) | reused; documented in `bns.simulation.network` |
+| Several physical sites, site vs sector, serving-site map, interference map | missing | `bns.simulation.network` |
+| Single vs multi-site comparison, adding sites one at a time | missing | `scripts/run_multi_site.py` |
+| Reproducible exports | arrays and JSON only | CSV per band (cell, coordinates, values), sites as GeoJSON |
+| Greedy selection on SINR (not a union of masks) | union-of-masks greedy only | `greedy_sinr_site_selection` |
+| 28 GHz near-site gap | explained by the vertical pattern (untested) | diagnosed: own-roof shadow (below) |
+| Application | none | Streamlit app (`app/`) |
+| GlobalBuildingAtlas evaluation | metadata only | downloaded (approved, checksum verified) and evaluated |
+
+### Completed
+
+1. **GlobalBuildingAtlas** (`scripts/evaluate_gba.py`, `bns.geospatial.gba`,
+   `docs/building-height-data.md` §12). LoD1 tile (378,494,857 bytes, SHA-256 verified,
+   CC BY-NC 4.0). Heights joined to OSM ways by id: 479 of 899 receiver-area buildings
+   (79 % of footprint area). Plausible for low-rise (median 9.3 m) but capped near 21 m: the
+   55 m tower gets 5.4 m, a 60 m building 13.2 m; over 14 tagged buildings RMSE 19.1 m
+   (6.2 m on the 12 below 30 m). It cannot recover the missing footprints: they are
+   Microsoft footprints whose geometry is only in the ODbL polygon part, which was not
+   downloaded. A separate dataset variant `osm+gba` was built (OSM tags keep priority; 53 %
+   of heights estimated). Limited propagation comparison against `osm` (tower site,
+   preview): median change 0.0 dB; 23 % of cells change by more than 1 dB, 7-8 % by more
+   than 3 dB, 1.1-1.4 % by more than 10 dB, at 3.5 and 28 GHz. In `osm+gba` the tagged 12 m
+   structure way/645196998 (31 m²) disappears inside a building GBA puts at 15.9 m (the
+   taller footprint wins): a data conflict for field checking.
+2. **Raw-data integrity defect found and fixed.** `core.autocrlf=true` had rewritten the v2
+   OSM snapshot with CRLF line endings on checkout, breaking its SHA-256 (content intact).
+   `.gitattributes` now marks `data/raw/**` as not text; the files were restored byte-exact;
+   a unit test guards the setting.
+3. **Multi-site network** (`bns.simulation.network`): sector stack + sector-to-site map;
+   strongest sector serves; every other sector (co-located ones included) interferes, summed
+   in watts × interference activity; serving sector and site maps, interference map,
+   interference-limited share, served share per site and sector; each site alone.
+4. **Experiment set-up shared by scripts and the application** (`bns.simulation.experiment`):
+   dataset, grid, site placement (named buildings or the tallest observed-height roofs),
+   jobs, radio inputs, gas loss, workload from cache status and measured trace times.
+5. **SINR-based greedy** (`bns.optimization.greedy.greedy_sinr_site_selection`): evaluates
+   the whole network for every candidate addition, records additions that would lower
+   coverage, stops when none raises it. A heuristic, not a proven minimum.
+6. **28 GHz near-site diagnosis** (`scripts/diagnose_near_site.py`, `docs/validation.md` §6):
+   all 414 uncovered cells within 250 m lie behind the host roof's own edge; median excess
+   loss 37 dB over free space + pattern while their pattern gain is still +1.5 dBi; cells
+   whose line of sight clears the roof match free space + pattern within 0.3 dB. The
+   pattern-only explanation is withdrawn. Nothing was tuned; mast height and antenna
+   placement belong to the site rule (A4).
+7. **Application** (`app/`, `bns.app`): Streamlit; pages Overview, Study area, Radio
+   scenarios, Run simulation (form, site check, workload and cache status, start, progress,
+   cancel, log, history), Coverage analysis (maps of path gain, received power, SINR, rate,
+   coverage, serving site, interference; sites and sector azimuths; statistics; CDF),
+   Comparison (five scenarios, CDFs, rates, single site vs network), Site planning
+   (re-evaluation of any subset of sites and the SINR greedy from cached path gain;
+   interference activity as a sensitivity slider), Validation (Phase 0 checks, convergence).
+   Saved runs are shown without re-tracing.
+8. **Profile status** recorded in `configs/simulation.yaml`: preview "validated for
+   development", standard "borderline convergence", research "not determined (disabled)".
+9. **GPU feasibility** (optional; nothing installed): the installed Mitsuba wheel contains
+   `cuda_ad_mono_polarized`; on the RTX 3060 two cached jobs traced 13-15× faster with maps
+   matching the CPU (median |Δ| 0.07-0.10 dB). Not integrated: the target laptop has no
+   NVIDIA GPU, so the CPU stays the production path (`docs/benchmarks.md` §9).
+
+### Multi-site development experiment
+
+`outputs/runs/development/multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T113044Z/`
+— **DEVELOPMENT — NOT APPROVED FOR RESEARCH.** Four sites on the four receiver-area roofs
+with observed heights of at least 10 m (55, 15, 12, 10 m; 3 m masts), three sectors each,
+all twelve sectors on one carrier at full load, preview profile (25 m, 1e8 rays), 808
+outdoor cells.
+
+| Scenario | Coverage: network / best site alone | Median SINR: network / site 1 alone | 5th-pct rate: network / site 1 alone | Median rate: network / site 1 alone |
+|---|---|---|---|---|
+| 1.8 GHz | 100.0 / 100.0 % | 3.5 / 20.3 dB | 15 / 32 Mbit/s | 34 / 135 Mbit/s |
+| 3.5 GHz | 100.0 / 100.0 % | 3.9 / 20.0 dB | 75 / 154 Mbit/s | 180 / 666 Mbit/s |
+| 8 GHz | 100.0 / 100.0 % | 4.3 / 16.2 dB | 303 / 460 Mbit/s | 750 / 2,162 Mbit/s |
+| 15 GHz | 99.9 / 98.9 % | 4.5 / 14.0 dB | 298 / 184 Mbit/s | 771 / 1,883 Mbit/s |
+| 28 GHz | 99.6 / 92.9 % | 4.3 / 11.1 dB | 291 / 37 Mbit/s | 751 / 1,519 Mbit/s |
+
+What it shows about the method: with every sector interfering at full load the network is
+interference-limited almost everywhere (94-100 % of cells) and the median SINR falls to
+about 4 dB in every band. Coverage at the candidate threshold (SINR ≥ −10 dB) barely moves,
+so this threshold cannot separate configurations; the SINR greedy therefore stops at one
+site in four bands and at two at 28 GHz. Extra sites help only the cell edge at the high
+bands (28 GHz 5th percentile 37 → 291 Mbit/s) and lower the median everywhere, because the
+model has no load sharing: a Shannon rate per user with the whole carrier cannot show the
+capacity gain of more sites. No addition lowered coverage in this run (the mechanism is
+covered by unit tests). These are consequences of unapproved assumptions (A3: threshold,
+activity, reuse; B3: rate reporting), not findings.
+
+**Timing and memory.** 60 traces in 808 s wall (5.9-10.2 s each, median 8.0 s; worker
+start-up, scene loading and first-compilation retries add 70 %); peak worker commit
+0.86 GB, script 0.61 GB. The same run from the cache takes 3 s.
+
+### Tests and runs executed
+
+- `uv run pytest`: **254 passed**, 6 engine tests deselected (20 new: network 7, SINR greedy
+  3, exports 2, GBA 3, application support 4, repository 1).
+- `uvx ruff check --isolated --select F,E9 src scripts tests app`: all checks passed.
+- Engine tests were not rerun: no engine code changed.
+- Runs: GBA evaluation; `build_dataset --height-dataset gba`; two propagation comparisons;
+  the 4-site run; the near-site diagnosis at 28 and 3.5 GHz; the GPU benchmark (3 repeats);
+  the application with every page opened, one run started (served from the cache) and one
+  cancelled from the interface.
+
+### Limitations
+
+- Development data only: 98.8 % placeholder heights, a third of the buildings missing.
+- No load model, scheduler or user distribution; the Shannon rate is a per-user upper bound.
+- The −10 dB coverage threshold saturates; it needs a supervisor decision (A3).
+- Greedy over four candidates only; 20-40 candidates need the A4 site rule.
+- Interference activity, reuse and the multi-site results are not checked against a
+  system-level reference (3GPP calibration, MATLAB).
+- The application is local and single-user, one run at a time.
+
+### Remaining scientific blockers
+
+A1 district; A2 building data (missing footprints: approval to download the GBA ODbL polygon
+tile or another footprint source; heights: field observations; GBA at most as a low-rise
+sensitivity case, and only if its non-commercial licence is acceptable); A3 radio parameters
+including the coverage threshold and interference activity; A4 site rule including mast
+height and antenna placement at the roof edge; B1-B3. Phase 0 laptop gate.
+
+### Next
+
+1. Supervisor decisions A1-A4 (the near-site and multi-site findings sharpen A3 and A4).
+2. Phase 7: TR 38.901 and MATLAB cross-checks on the laptop; close the laptop gate.
+3. Site planning at scale (A4 candidates) with the preview profile, final runs at standard.
+4. Application: Reports and Roadmap pages once results exist.

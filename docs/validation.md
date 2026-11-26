@@ -78,6 +78,38 @@ Changes below about 2 dB are within the map-to-map noise of the profile; the cel
 area statistics; the missing third of the built area (`docs/study-area-evaluation.md`) is a
 far larger effect.
 
+## 6. Near-site coverage gap at 28 GHz (Phase 5)
+
+The single-site development run left 32 % of the outdoor cells within 250 m of the tower
+uncovered at 28 GHz. The Phase 4 report attributed this to the downtilted vertical pattern.
+`scripts/diagnose_near_site.py` tested that against a second explanation without tracing
+anything new: for every near cell it compares the traced best-sector path gain with free
+space + the TR 38.901 element gain of the best sector, and checks whether the straight line
+from the antenna passes below the host roof's edge (the host building shadows the ground).
+
+| 28 GHz, cells within 250 m | Cells | Uncovered | Behind own roof edge | Median pattern gain | Median excess loss |
+|---|---|---|---|---|---|
+| uncovered | 414 | 100 % | 100 % | +1.5 dBi | +36.8 dB |
+| covered | 863 | 0 % | 81 % | +5.7 dBi | +24.8 dB |
+| line of sight clears own roof | 167 | 0 % | 0 % | +4.5 dBi | −0.3 dB |
+
+- Every uncovered cell is behind the roof edge, and its excess loss (37 dB) dwarfs the
+  4 dB pattern difference to covered cells: the gap is the **host roof's own shadow** (a 3 m
+  mast at the representative point of a roof about 29 m across), not the pattern.
+- Where the line of sight clears the roof, the traced map agrees with free space + pattern
+  within 0.3 dB (median): an end-to-end check of the traced antenna pattern in a city scene.
+- The shadow loss grows with frequency as diffraction should: behind the roof edge the
+  median excess loss is 21.1 dB at 3.5 GHz and 30.0 dB at 28 GHz (10·log10(28/3.5) = 9 dB).
+- Nothing was tuned. Antenna position (roof edge vs centre) and mast height are a site-rule
+  decision (A4); a sector antenna on a real rooftop is normally mounted at the edge.
+
+## 7. GPU and CPU traces agree (optional check)
+
+The same two cached jobs traced with the CUDA variant on the RTX 3060 matched the CPU maps:
+median |Δ| 0.10 dB (preview) and 0.07 dB (standard), 95th percentile 2.2 and 1.7 dB (cells
+dominated by randomly sampled diffraction), a handful of cells reached by one backend only.
+CPU remains the production engine (`docs/benchmarks.md` §9).
+
 ## 5. Not yet verified
 
 - Agreement with 3GPP TR 38.901 UMa/UMi path loss (Phase 7).

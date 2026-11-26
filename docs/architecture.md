@@ -209,6 +209,48 @@ wedge table 2^20 slots; refraction and diffuse scattering off; radio-map diffrac
 first-order and never after a reflection; power sums without phase; isotropic receiver;
 no gas or rain inside the engine (added afterwards).
 
+## 7a. Multi-site network, experiments and application (Phases 5-6)
+
+```
+bns.simulation.experiment   dataset + grid + sites + jobs + radio inputs (shared by scripts and app)
+        │ jobs for every site × sector × band, served from the path-gain cache
+        ▼
+bns.simulation.network      sectors [k, y, x] + sector->site map
+        │  strongest sector serves; all other sectors interfere (linear sum × activity)
+        ▼
+NetworkResult               radio (power, SINR, rate, coverage), serving sector and site,
+                            interference map, interference-limited share, served shares
+        ├─ sites_alone          each site by itself (its own sectors still interfere)
+        ├─ grown in order       1, 1+2, 1+2+3, ... sites
+        └─ greedy (SINR)        bns.optimization.greedy.greedy_sinr_site_selection
+```
+
+- **Sites and sectors stay distinct.** Every sector is its own traced transmitter (cache key
+  includes its orientation); the site index of each sector is carried alongside, so results
+  report serving *site* and serving *sector* separately.
+- **Interference model** (`bns.simulation.network.INTERFERENCE_ASSUMPTION`, written into every
+  summary): one carrier for all sectors (reuse 1), co-located sectors interfere, power summed
+  in watts and scaled by the interference activity (load) of the non-serving sectors, no
+  scheduler: the Shannon rate is for one user using the whole carrier, so more sites never
+  share load. Adding a site is never assumed to help; the greedy evaluates the whole network
+  for each addition and lists additions that would lower coverage.
+- **Experiment scripts.** `scripts/run_multi_site.py` (1 site = single-site case; all five
+  bands; network, each site alone, growth in order, SINR greedy; CSV per band with local and
+  WGS84 coordinates, sites as GeoJSON, figures, manifest with every input and job key).
+  `scripts/run_single_site.py` is kept for its existing standard run.
+- **Application** (`app/`, Streamlit; `uv run streamlit run app/main.py`). UI code only in
+  `app/`; everything else in `bns.app`:
+  `results` (find and read saved runs; never re-traces to display), `control` (start the
+  experiment script as its own process with a log file and a cancel file under
+  `outputs/app_runs/<id>/`; state parsed from the log, so it survives page reloads),
+  `planning` (re-evaluate any subset of a saved run's sites, or rerun the SINR greedy, from
+  the cached path gain; refuses if a cache entry is missing or the grid changed, warns if
+  radio parameters changed). Cancelling stops the running worker; finished batches stay
+  cached and a rerun resumes.
+- **Raw data stays byte-exact.** `.gitattributes` marks `data/raw/**` as not text, so git
+  never converts line endings in hashed snapshots and extracts (`core.autocrlf` once broke
+  a snapshot's SHA-256).
+
 ## 8. Deviations from the structure in the master brief
 
 | Brief | Here | Reason |

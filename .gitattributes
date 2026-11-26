@@ -1,0 +1,2 @@
+# Raw data is hashed and must stay byte-exact: no line-ending conversion on checkout.
+data/raw/** -text

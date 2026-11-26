@@ -35,9 +35,9 @@ Both bands behave alike, as expected, because ray density does not depend on fre
 
 | Profile | Cells | Rays per sector | Status |
 |---|---|---|---|
-| Preview | 25 m | 1e8 | Meets its criterion in all 8 cases |
-| Standard | 10 m | 1e9 | Two independent maps agree within 1.4-2.0 dB; there is no finer reference to check against |
-| Research | 5 m | not set | Not validated: even 1e9 rays leave about 3 dB of map-to-map noise; seed averaging or more rays must be measured first |
+| Preview | 25 m | 1e8 | **Validated for development**: meets its criterion in all 8 cases |
+| Standard | 10 m | 1e9 | **Borderline convergence**, not fully converged: two independent maps agree within 1.4-2.0 dB; there is no finer reference to check against |
+| Research | 5 m | not set | **Not determined (disabled)**. Not validated: even 1e9 rays leave about 3 dB of map-to-map noise; seed averaging or more rays must be measured first |
 
 Cost on the development PC (Phase 0 benchmark): about 6 s per 1e8 rays and 60 s per 1e9 rays
 per sector, independent of the cell size. Memory stays under 1 GB.

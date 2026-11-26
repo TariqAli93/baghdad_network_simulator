@@ -35,6 +35,8 @@ def main() -> int:
     for name in ("--a", "--b", "--band", "--building", "--profile"):
         parser.add_argument(name, required=True)
     args = parser.parse_args()
+    basis = " ".join(yaml.safe_load((ROOT / "configs" / "simulation.yaml").read_text(
+        encoding="utf-8"))["profiles"][args.profile]["basis"].split())
     areas = load_study_areas(ROOT / "configs" / "study_area.yaml")
     system = RadioSystem.load(ROOT / "configs" / "radio_system.yaml")
     config = SimulationConfig.load(ROOT / "configs" / "simulation.yaml")
@@ -86,9 +88,8 @@ def main() -> int:
              f"| Cells changed by more than 1 dB | {100 * np.mean(np.abs(diff) > 1):.1f} % |",
              f"| Cells changed by more than 3 dB | {100 * np.mean(np.abs(diff) > 3):.1f} % |",
              f"| Cells changed by more than 10 dB | {100 * np.mean(np.abs(diff) > 10):.1f} % |",
-             "", "For scale: two independent maps of the same scene at this profile differ by more "
-             "than about 1.5-2 dB in 5 % of cells (docs/convergence.md), so changes below that are "
-             "within the simulation's own noise."]
+             "", "For scale, the convergence basis of this profile (configs/simulation.yaml, "
+             f"docs/convergence.md): {basis.rstrip(".")}. Changes of that size are within the simulation's own noise."]
     out = ROOT / "outputs" / "datasets" / (
         f"propagation_{args.a.replace('/', '-')}_vs_{args.b.replace('/', '-')}_{args.band}.md")
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")

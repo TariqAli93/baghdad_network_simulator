@@ -30,3 +30,28 @@ datasets:
     crs: EPSG:4326
     height_field: Height
     downloaded: 2026-11-26
+
+  gba:
+    name: GlobalBuildingAtlas
+    version: "GBA.LoD1 heights (JSON), Hugging Face zhu-xlab/GBA.LoD1"
+    revision: 9da24b3a8dce436a7420d5c3589de718d7ba14d6
+    revision_modified: 2026-03-31
+    licence: CC BY-NC 4.0
+    licence_url: https://creativecommons.org/licenses/by-nc/4.0/
+    licence_note: >-
+      Non-commercial use only; the dataset card warns that combining it with the ODbL
+      polygon part may have licence implications. Acceptable for a non-commercial thesis
+      only if the supervisor agrees (decision A2).
+    citation: >-
+      X. X. Zhu, S. Chen, F. Zhang, Y. Shi, Y. Wang, "GlobalBuildingAtlas: an open global
+      and complete dataset of building polygons, heights and LoD1 3D models", Earth System
+      Science Data (preprint essd-2025-327).
+    method: >-
+      Heights estimated per footprint by a model from satellite data; a model estimate, not a
+      measurement. The "var" field is not defined in the dataset card.
+    file: e040_n35_e045_n30.json
+    url: https://huggingface.co/datasets/zhu-xlab/GBA.LoD1/resolve/9da24b3a8dce436a7420d5c3589de718d7ba14d6/LoD1/africa/e040_n35_e045_n30.json
+    size_bytes: 378494857
+    sha256: 1d1246f809e03115276d2fc4a0806e197cd3dd22eb6f69a9b4d05fda3d0fd102
+    geometry: none (heights keyed by footprint id; footprints are in GBA.Polygon / GBA.ODbLPolygon)
+    downloaded: 2026-11-26

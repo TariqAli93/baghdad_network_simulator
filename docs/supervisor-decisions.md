@@ -72,7 +72,16 @@ per-building datasets disagree with each other by a factor of three and both get
 wrong.
 
 **Impact.** All of it is implemented; approval means changing `approved` flags and supplying
-the observation file. The GlobalBuildingAtlas reader is a small addition once approved.
+the observation file.
+
+**Update (Phase 5).** GlobalBuildingAtlas was downloaded and evaluated
+(`docs/building-height-data.md` §12): plausible for low-rise buildings, capped near 21 m (the
+55 m tower gets 5.4 m), licence non-commercial. It is now a reader and a dataset variant
+(`osm+gba`), **not** a recommended source. Two questions follow:
+- *GBA as a low-rise sensitivity case?* Needs a yes to its CC BY-NC 4.0 licence.
+- *Missing footprints.* Recovering the 577 footprints OSM lacks needs a footprint download:
+  the GBA ODbL polygon tile (2.09 GB) or Microsoft footprints directly. Approve one, or accept
+  the incompleteness and choose a district with complete OSM footprints (A1).
 
 ### A3. Radio-system parameters
 
@@ -99,6 +108,14 @@ the criterion physically equal across bandwidths.
 needed for power, noise, threshold, target or load; antenna pattern, sectors and downtilt
 are traced, so changing them re-traces.
 
+**New evidence (Phase 6).** In the four-site development run every band is
+interference-limited at full load (median SINR about 4 dB) yet coverage at SINR ≥ −10 dB stays
+at 99.6-100 %: the threshold does not separate one site from four, so the SINR greedy stops
+after one site in four of five bands. If the study is to find the site *count* per band,
+either a stricter coverage criterion (for example a rate or SINR at the cell edge) or a load
+below 1.0 must be chosen, and the choice must be the same for all bands. Both are
+re-evaluated from the cache without tracing (Site planning page).
+
 ### A4. Base-station sites
 
 **Question.** How high is the antenna above the roof, and which roofs are candidates?
@@ -112,6 +129,14 @@ standard gives a mast height above a roof; ITU-R M.2412 and 3GPP use 25 m total 
 flat layouts.
 
 **Impact.** Arguments of the candidate generator; changing them re-traces only new positions.
+
+**New evidence (Phase 5).** With the antenna 3 m above the centre of a 29 m-wide roof, the
+roof's own edge shadows most of the ground within 250 m; at 28 GHz that left 32 % of the
+cells within 250 m uncovered, 37 dB below free space + pattern (`docs/validation.md` §6).
+The rule therefore needs, besides the mast height, **where on the roof** the antennas stand:
+at the roof edge facing each sector (usual practice, and what the 3GPP layouts imply by
+having no host building) or at the centre. The candidate generator currently uses an
+interior point; an edge placement is a small change once decided.
 
 ---
 

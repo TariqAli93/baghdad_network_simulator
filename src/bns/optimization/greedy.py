@@ -53,3 +53,62 @@ def greedy_site_selection(covered, target_fraction: float,
     return GreedyResult(selected, coverage_after, gain,
                         bool(is_covered.mean() >= target_fraction),
                         np.flatnonzero(~is_covered))
+
+
+@dataclass(frozen=True)
+class SinrGreedyResult:
+    selected: list[int]             # candidate indices in the order they were chosen
+    coverage_after: list[float]     # SINR coverage of the whole selection after each choice
+    evaluations: list[dict]         # per step: coverage the selection would have with each candidate
+    degrading_additions: list[dict]  # evaluated additions that would have LOWERED coverage
+    target_reached: bool
+    stopped_because: str
+
+
+def greedy_sinr_site_selection(coverage_of, n_candidates: int, target_fraction: float,
+                               max_sites: int | None = None) -> SinrGreedyResult:
+    """Greedy selection on the coverage of the WHOLE network, interference included.
+
+    coverage_of(selection) must return the covered share of outdoor cells when
+    exactly the sites in `selection` (a tuple of candidate indices) transmit, with
+    every selected sector interfering (bns.simulation.network). Unlike
+    greedy_site_selection this is not a union of coverage masks: a candidate that
+    adds more interference than service lowers coverage, and such additions are
+    reported in `degrading_additions`. At each step the candidate giving the highest
+    network coverage is added; ties go to the lowest index. The search stops when
+    the target is met, the site limit is reached, or no candidate raises coverage.
+    The result is what the greedy heuristic found, not a proven minimum.
+    """
+    if n_candidates <= 0:
+        raise ValueError("There are no candidates.")
+    if not 0.0 <= target_fraction <= 1.0:
+        raise ValueError("target_fraction must be between 0 and 1.")
+    limit = n_candidates if max_sites is None else min(max_sites, n_candidates)
+    selected: list[int] = []
+    coverage_after: list[float] = []
+    evaluations: list[dict] = []
+    degrading: list[dict] = []
+    current = 0.0
+    stopped = "candidates exhausted"
+    while True:
+        if selected and current >= target_fraction:
+            stopped = "target reached"
+            break
+        if len(selected) >= limit:
+            stopped = "site limit reached" if len(selected) < n_candidates else "candidates exhausted"
+            break
+        trial = {c: float(coverage_of(tuple(selected + [c])))
+                 for c in range(n_candidates) if c not in selected}
+        evaluations.append({"step": len(selected) + 1, "before": current, "coverage_with": trial})
+        if selected:
+            degrading += [{"step": len(selected) + 1, "candidate": c, "change": v - current}
+                          for c, v in trial.items() if v < current]
+        best = min(trial, key=lambda c: (-trial[c], c))
+        if selected and trial[best] <= current:
+            stopped = "no candidate raises coverage"
+            break
+        selected.append(best)
+        current = trial[best]
+        coverage_after.append(current)
+    return SinrGreedyResult(selected, coverage_after, evaluations, degrading,
+                            bool(selected) and current >= target_fraction, stopped)

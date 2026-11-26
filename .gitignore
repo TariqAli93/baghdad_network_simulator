@@ -20,3 +20,8 @@ data/cache/
 # Run outputs: large arrays stay local, JSON summaries are kept
 outputs/**/*.npz
 outputs/**/*.png
+
+# Application run state (logs of runs started from the app) and large CSV exports
+outputs/app_runs/
+outputs/**/cells_*.csv
+outputs/**/near_site_*.json

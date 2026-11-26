@@ -300,3 +300,28 @@ quoted in sections 3.4 and 3.5.
 6. `uv run python scripts/poc_benchmark.py --mem-cap-gb 10` — expect retries on first use.
 7. Report `outputs/runs/phase0/benchmark/summary.json`. The numbers that decide the gate are
    the `gate` times per band, the `sustained` fastest / median / slowest, and peak memory.
+
+## 9. Optional GPU feasibility check (Phase 5, 2026-11-26)
+
+Not part of the gate: the target laptop has an Intel UHD GPU, so the CPU path stays
+mandatory. Nothing was installed: the installed Mitsuba 3.9.1 wheel already contains
+`cuda_ad_mono_polarized`, and the NVIDIA driver (610.88) supplies CUDA. A scratch script
+traced two cached jobs (3.5 GHz, tower site, one sector) on the RTX 3060 (12 GB), three
+times in fresh processes, by patching the CPU-variant guard; production code is unchanged.
+
+| Job | CPU (this PC, cached) | GPU first call | GPU repeat | Agreement with CPU |
+|---|---|---|---|---|
+| 25 m cells, 1e8 rays | 6.9 s | 0.5-1.2 s | 0.47 s | median |Δ| 0.10 dB, 95 % 2.2 dB |
+| 10 m cells, 1e9 rays | 59.5 s | 4.7-5.1 s | 4.74 s | median |Δ| 0.07 dB, 95 % 1.7 dB |
+
+No crash in three processes (the Windows LLVM first-compile crash is specific to the CPU
+backend). A GPU path would be a 13-15× speed-up on this PC for site planning, but it would
+change the engine fingerprint (separate cache) and would not exist on the laptop; adopting
+it is a scope decision for the supervisor, not taken here.
+
+### Preview-profile timing from the multi-site run
+
+60 traces (4 sites × 3 sectors × 5 bands), 25 m cells, 1e8 rays: 5.9-10.2 s per trace
+(median 8.0 s), 808 s wall in total; worker start-up, scene loading and first-compilation
+retries add 70 % on top of the trace times (44 % in the standard single-site run). Peak
+worker commit 0.86 GB.

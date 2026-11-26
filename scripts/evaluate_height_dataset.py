@@ -1,4 +1,4 @@
-﻿"""Compare an external building-height extract with the OpenStreetMap buildings of an area.
+"""Compare an external building-height extract with the OpenStreetMap buildings of an area.
 
     uv run python scripts/evaluate_height_dataset.py --dataset 3d_globfp --area tahrir_bab_al_sharqi_v2
 
@@ -143,10 +143,10 @@ def main() -> int:
         f"{100 * sum(b.polygon.area for b in buildings if b.building_id in by_id) / sum(b.polygon.area for b in buildings):.1f} %.",
         f"- Overlap quality of one-to-one matches (IoU): {stats([m.iou for m in one], '', 2)}.",
         f"- Coverage of matched buildings: {stats([m.coverage for m in result.matches], '', 2)}.",
-        f"- Footprint size, OSM: {stats([b.polygon.area for b in buildings], ' mÂ²', 0)}.",
-        f"- Footprint size, dataset: {stats([e.polygon.area for e in external], ' mÂ²', 0)}.",
+        f"- Footprint size, OSM: {stats([b.polygon.area for b in buildings], ' m²', 0)}.",
+        f"- Footprint size, dataset: {stats([e.polygon.area for e in external], ' m²', 0)}.",
         f"- Dataset footprints overlapping no OSM building at all: {len(lonely)} "
-        f"({sum(e.polygon.area for e in lonely):,.0f} mÂ²); these are buildings missing from OSM "
+        f"({sum(e.polygon.area for e in lonely):,.0f} m²); these are buildings missing from OSM "
         "or footprints of non-buildings.",
         "",
         "## Heights",
@@ -181,12 +181,12 @@ def main() -> int:
     if tower_building is None:
         lines.append("Not present in this dataset build.")
     else:
-        lines.append(f"OSM footprint {tower_building.polygon.area:.0f} mÂ². Dataset footprints overlapping it:")
+        lines.append(f"OSM footprint {tower_building.polygon.area:.0f} m². Dataset footprints overlapping it:")
         lines.append("")
         lines.append("| Dataset footprint | Height | Share of the tower footprint | Its own area |")
         lines.append("|---|---|---|---|")
         for fid, h, share, area_m2 in sorted(tower_overlaps, key=lambda t: -t[2]):
-            lines.append(f"| {fid} | {h:.1f} m | {100 * share:.0f} % | {area_m2:.0f} mÂ² |")
+            lines.append(f"| {fid} | {h:.1f} m | {100 * share:.0f} % | {area_m2:.0f} m² |")
         if tower:
             lines.append("")
             lines.append(f"Assigned by matching: {tower.height_m:.1f} m ({tower.kind}, coverage "

@@ -1,0 +1,13 @@
+{
+  "dataset": "gba",
+  "source_file": "e040_n35_e045_n30.json",
+  "source_url": "https://huggingface.co/datasets/zhu-xlab/GBA.LoD1/resolve/9da24b3a8dce436a7420d5c3589de718d7ba14d6/LoD1/africa/e040_n35_e045_n30.json",
+  "source_sha256": "1d1246f809e03115276d2fc4a0806e197cd3dd22eb6f69a9b4d05fda3d0fd102",
+  "revision": "9da24b3a8dce436a7420d5c3589de718d7ba14d6",
+  "licence": "CC BY-NC 4.0",
+  "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
+  "buildings": 646,
+  "created_utc": "2026-11-26T11:21:03+00:00",
+  "extract_sha256": "d53a0f8bb8cfc2bec051f91874a2c5b4d28abb2a7b65164e34ae6a964c3eb4c4",
+  "note": "GBA heights joined by OSM way id; GBA footprints were not used."
+}
