@@ -1,0 +1,22 @@
+{
+  "dataset": "3D-GloBFP",
+  "version": "figshare v4 (part V, grid IDs 1300-1699)",
+  "doi": "10.6084/m9.figshare.28890593.v4",
+  "licence": "CC BY 4.0",
+  "citation": "Y. Che, X. Li, X. Liu, Y. Wang, W. Liao, X. Zheng, X. Zhang, X. Xu, \"3D-GloBFP: the first global three-dimensional building footprint dataset\", Earth System Science Data, 16, 5357-5374, 2024. https://essd.copernicus.org/articles/16/5357/2024/",
+  "source_file": "1590_43.75_32.5_45.0_33.75_IZ.zip",
+  "source_md5": "243450f2c0c0ba1ae537e7bd0a8a9f1b",
+  "source_sha256": "6147758ea67d3a174cca63ad17e2ac347e3ac994aec3dc9f611752a5429b3dba",
+  "bbox_south_west_north_east": [
+    33.32195887135035,
+    44.401304389428475,
+    33.334040705904705,
+    44.41569660372397
+  ],
+  "area": "tahrir_bab_al_sharqi_v2",
+  "features": 2526,
+  "extracted_utc": "2026-11-26T09:14:52+00:00",
+  "note": "Extract of a model-estimated dataset; heights are estimates, not measurements.",
+  "extract_file": "tahrir_bab_al_sharqi_v2.geojson",
+  "extract_sha256": "52608146d89807f1e61b9018ea4aa55323277563228a0b7d28743dd18a4af0b4"
+}

@@ -13,6 +13,7 @@ dependencies = [
     "shapely>=2.0",
     "pyproj>=3.6",
     "mapbox-earcut>=1.0",
+    "pyshp>=2.3",
 ]
 
 [dependency-groups]
@@ -29,3 +30,5 @@ packages = ["src/bns"]
 testpaths = ["tests"]
 markers = ["engine: runs the real Sionna RT engine on the CPU (slow)"]
 addopts = "-m 'not engine'"
+# pyshp warns about the size field of files written by its own writer in the tests.
+filterwarnings = ["ignore::shapefile.PossiblyCorruptFileHeader"]

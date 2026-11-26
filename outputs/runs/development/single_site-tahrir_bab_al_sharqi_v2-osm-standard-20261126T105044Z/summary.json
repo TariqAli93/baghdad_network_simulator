@@ -1,0 +1,125 @@
+{
+  "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+  "results": {
+    "lte_1800": {
+      "transmitters": 3,
+      "outdoor_cells": 6153,
+      "unreached_fraction": 0.0004875670404680399,
+      "coverage_definition": "snr_db",
+      "coverage_threshold": -10.0,
+      "coverage_fraction": 0.9993499106127093,
+      "noise_dbm": -91.9648872375883,
+      "rx_power_dbm_median": -41.51086082507264,
+      "rx_power_dbm_p5": -60.347625540970654,
+      "sinr_db_median": 19.899323061252026,
+      "sinr_db_p5": 2.9336954155972137,
+      "rate_median_bps": 132424611.88346878,
+      "rate_p5_bps": 31360951.665085994,
+      "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+      "propagation_only": {
+        "outdoor_cells_reached_fraction": 0.999512432959532,
+        "path_gain_db_median": -87.5060907039842,
+        "path_gain_db_p5": -106.34349137498697
+      },
+      "peak_eirp_dbm": 54.0,
+      "tx_power_into_trace_dbm": 46.0,
+      "gas_attenuation_db_per_km": 0.0068
+    },
+    "nr_3500": {
+      "transmitters": 3,
+      "outdoor_cells": 6153,
+      "unreached_fraction": 0.0004875670404680399,
+      "coverage_definition": "snr_db",
+      "coverage_threshold": -10.0,
+      "coverage_fraction": 0.9983747765317731,
+      "noise_dbm": -84.97518719422811,
+      "rx_power_dbm_median": -47.444656651517775,
+      "rx_power_dbm_p5": -68.52790341361813,
+      "sinr_db_median": 19.201671679245845,
+      "sinr_db_p5": 2.430683217898331,
+      "rate_median_bps": 639430909.2997024,
+      "rate_p5_bps": 145949567.3328328,
+      "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+      "propagation_only": {
+        "outdoor_cells_reached_fraction": 0.999512432959532,
+        "path_gain_db_median": -93.44056635805713,
+        "path_gain_db_p5": -114.52471816132038
+      },
+      "peak_eirp_dbm": 54.0,
+      "tx_power_into_trace_dbm": 46.0,
+      "gas_attenuation_db_per_km": 0.0078
+    },
+    "c6g_8000": {
+      "transmitters": 3,
+      "outdoor_cells": 6153,
+      "unreached_fraction": 0.0004875670404680399,
+      "coverage_definition": "snr_db",
+      "coverage_threshold": -10.0,
+      "coverage_fraction": 0.9860230781732489,
+      "noise_dbm": -78.95458728094849,
+      "rx_power_dbm_median": -54.794292384434016,
+      "rx_power_dbm_p5": -78.86260710578914,
+      "sinr_db_median": 15.176884791226016,
+      "sinr_db_p5": -1.2008417746384126,
+      "rate_median_bps": 2033335145.4921236,
+      "rate_p5_bps": 325715387.7427022,
+      "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+      "propagation_only": {
+        "outdoor_cells_reached_fraction": 0.999512432959532,
+        "path_gain_db_median": -100.78895585969093,
+        "path_gain_db_p5": -124.85961321100024
+      },
+      "peak_eirp_dbm": 54.0,
+      "tx_power_into_trace_dbm": 46.0,
+      "gas_attenuation_db_per_km": 0.0114
+    },
+    "c6g_15000": {
+      "transmitters": 3,
+      "outdoor_cells": 6153,
+      "unreached_fraction": 0.0004875670404680399,
+      "coverage_definition": "snr_db",
+      "coverage_threshold": -10.0,
+      "coverage_fraction": 0.961482203803023,
+      "noise_dbm": -78.95458728094849,
+      "rx_power_dbm_median": -60.36150769771221,
+      "rx_power_dbm_p5": -86.84536793588843,
+      "sinr_db_median": 12.637988298626677,
+      "sinr_db_p5": -8.045393247875161,
+      "rate_median_bps": 1709211368.9697988,
+      "rate_p5_bps": 84076469.90617096,
+      "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+      "propagation_only": {
+        "outdoor_cells_reached_fraction": 0.999512432959532,
+        "path_gain_db_median": -106.3468000159132,
+        "path_gain_db_p5": -132.83512210618588
+      },
+      "peak_eirp_dbm": 54.0,
+      "tx_power_into_trace_dbm": 46.0,
+      "gas_attenuation_db_per_km": 0.0291
+    },
+    "nr_28000": {
+      "transmitters": 3,
+      "outdoor_cells": 6153,
+      "unreached_fraction": 0.0004875670404680399,
+      "coverage_definition": "snr_db",
+      "coverage_threshold": -10.0,
+      "coverage_fraction": 0.8909475052819763,
+      "noise_dbm": -78.95458728094849,
+      "rx_power_dbm_median": -65.89382902487785,
+      "rx_power_dbm_p5": -94.613759623415,
+      "sinr_db_median": 9.674540116332059,
+      "sinr_db_p5": -15.81029280312112,
+      "rate_median_bps": 1344153498.597524,
+      "rate_p5_bps": 14947515.130353594,
+      "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+      "propagation_only": {
+        "outdoor_cells_reached_fraction": 0.999512432959532,
+        "path_gain_db_median": -111.84138783319017,
+        "path_gain_db_p5": -140.60117893384555
+      },
+      "peak_eirp_dbm": 54.0,
+      "tx_power_into_trace_dbm": 46.0,
+      "gas_attenuation_db_per_km": 0.1018
+    }
+  }
+}

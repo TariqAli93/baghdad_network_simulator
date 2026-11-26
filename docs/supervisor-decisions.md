@@ -1,262 +1,176 @@
 # Decisions for the supervisor
 
-One place for every open scientific decision. Last updated 2026-11-26 (Phase 2).
+Updated 2026-11-26 (Phases 3-4). Related questions are merged so that there are **four
+decisions needed before final experiments**, three before conclusions, and a short list of
+optional refinements. Nothing here is assumed approved. The software runs in development
+mode on proposed values meanwhile; research runs refuse unapproved values.
 
-How to use this page: each decision has a question, the options, a recommendation with its
-reason, and what it affects. **"Blocks" says what cannot be finished without it.** None of
-them blocks further development: the software takes each of these as a configurable input.
-They block *final research results* only.
-
-Decisions are recorded, once made, in the file named under "Where it goes", with the date
-and who decided.
-
-| ID | Decision | Blocks |
-|---|---|---|
-| D1 | Study district | Final results (all phases) |
-| D2 | Source of building heights | Final results (all phases) |
-| D3 | Transmit power and antenna rule across bands | Received power, SINR, data rate, site counts |
-| D4 | Antenna height and rooftop candidate rule | Site planning |
-| D5 | Coverage threshold and coverage target | Coverage, site counts |
-| D6 | Receiver noise figure | SINR, data rate |
-| D7 | Interference (network load) assumption | SINR, data rate |
-| D8 | Rain | Only the rain sensitivity experiment |
-| D9 | Data-rate model | Reported data rates |
-| D10 | Scope of the validation against 3GPP TR 38.901 | Validation chapter |
-| D11 | Accepting the diffraction limitation | Methodology chapter; MATLAB cross-check scope |
+| ID | Decision | Needed before | Blocks development? |
+|---|---|---|---|
+| A1 | Study district | Final experiments | No |
+| A2 | Building data: missing footprints; heights (source, priority, storey height, observations) | Final experiments | No |
+| A3 | Radio-system parameters: approve the proposal | Final experiments | No |
+| A4 | Base-station sites: antenna height and candidate rule | Final experiments (site planning) | No |
+| B1 | Validation scope and what counts as agreement | Scientific conclusions | No |
+| B2 | Accepting the engine's limitations | Scientific conclusions | No |
+| B3 | Data-rate reporting | Scientific conclusions | No |
+| C1-C5 | Optional refinements | — | No |
 
 ---
 
-## D1. Study district
+## A. Required before final research experiments
+
+### A1. Study district
 
 **Question.** Which ~1 km² of Baghdad does the thesis study?
 
-**Options.** Measured in OpenStreetMap on 2026-11-25 (`docs/benchmarks.md`):
-Tahrir Square / Bab Al-Sharqi (920 buildings, heights 1-55 m present); Old Rusafa (1,380
-buildings, densest, mostly low-rise); Palestine Street (551 buildings, most tagged heights);
-or another district the student can survey.
+**Options.** Tahrir Square / Bab Al-Sharqi (currently the provisional development area),
+Old Rusafa, Palestine Street, or a district the student can survey.
 
-**Recommendation.** Choose the district **where heights can actually be obtained** (D2): if
-the student will count storeys on site, pick a district they can walk safely and
-completely. On map data alone Tahrir Square / Bab Al-Sharqi is the best compromise.
+**Recommendation.** Keep Tahrir Square / Bab Al-Sharqi **if the student can observe the tall
+buildings there** (A2); otherwise choose the district where that is possible.
 
-**Why.** Footprints are adequate in all three; heights are missing in all three. Access for
-observation is the binding constraint, not the map.
+**Evidence.** In the provisional area (`docs/study-area-evaluation.md`): 1.0 km² receiver
+area, 899 OSM buildings in it, known heights from 1 m to 55 m, and 4 buildings with known
+heights tall enough for sites. Weaknesses: 98.8 % of buildings have no height, and **about a
+third of the built area is missing from OSM** (577 footprints, mostly in the south-east,
+found in another dataset). No district surveyed in Phase 1 has better height data.
 
-**Impact on implementation.** One entry in `configs/study_area.yaml` and one command
-(`scripts/build_dataset.py --area NAME --fetch`). Nothing else changes.
+**Impact.** One entry in `configs/study_area.yaml`; no code changes.
 
-**Where it goes.** `configs/study_area.yaml` (`role: study district`, `approved: true`).
+### A2. Building data: missing footprints and heights
 
-## D2. Source of building heights
+**Question.** How are the missing buildings added, and where do the heights come from, in
+what priority, with what storey height?
 
-**Question.** Where do the heights of about a thousand buildings come from?
-
-**Why it matters.** In the test area 98.8 % of buildings have no height information. A test
-on that area with four different *assumed* height distributions, everything else identical,
-changed line-of-sight availability from 86 % to 67 % and the number of sites needed at a
-fixed threshold from 2 to "target not reached with the available sites"
-(`outputs/runs/height_sensitivity/`). The height method decides the thesis result.
-
-**Options.** Details and measurements in `docs/building-height-data.md`.
-
-| Option | What it gives | Cost | Weakness |
-|---|---|---|---|
-| A. Field observation | Storeys counted per building, entered as a CSV or in JOSM; category "observed" | Student time on site | Storey height still assumed; large area |
-| B. A modelled global dataset | A height per building, estimated from satellite data; category "estimated" | A download; licence terms | Errors of several metres per building; tall buildings underestimated |
-| C. Hybrid | B for all buildings, A for the tallest buildings and all candidate sites, plus the sensitivity analysis | Moderate | More to explain |
-| D. Assumed distribution only | Results as a range over height models | None | The thesis cannot state one site count per band |
-
-**What was measured (2026-11-26).** Two free datasets give a height for every building in
-the test area, but the available sources disagree by a factor of two (median 6.3 m in
-GlobalBuildingAtlas, 13.2 m in the European GHSL grid), none has been validated in Iraq, and
-the one tagged tower in the area (14 storeys, 55 m) appears as 5.4 m, 10.9 m and 15.0 m in
-the three sources measured. Google's dataset does not cover Iraq; Microsoft's and Overture's
-add no heights.
-
-**Recommendation.** **C**: a per-building dataset for ordinary buildings, **observed heights
-for every tall building and every candidate site**, the storey height (currently 3 m) agreed
-explicitly, and a second height source run through the sensitivity analysis so the thesis
-reports a range. The buildings that matter most are the tall ones (they host sites and cast
-the long shadows); no dataset gets them right, and they are few enough to observe.
-
-**Sub-decision.** Which dataset: GlobalBuildingAtlas (measured here; non-commercial licence,
-fine for a thesis) or 3D-GloBFP (more permissive licence; needs a 205 MB download before it
-can be measured).
-
-**Impact on implementation.** All four are already supported: observations through
-`--observations`, height models through `--height-model`; a dataset reader is a small
-addition once the dataset is chosen. Every building keeps a record of which option its
-height came from, and the quality report states the shares.
-
-**Where it goes.** `configs/study_area.yaml` (`height_policy`), `configs/height_models.yaml`
-(`approved: true` on the accepted models), `docs/building-height-data.md`.
-
-## D3. Transmit power and antenna rule across bands
-
-**Question.** What transmit power and antenna gain does each scenario use?
-
-**Why it matters.** The project description says "same site and power for all bands". With
-identical antennas, free-space loss alone puts 28 GHz about 24 dB behind 1.8 GHz, so the
-higher bands will need many more sites almost by construction. Real higher-band systems use
-larger arrays in the same physical size, recovering part of that.
+**Missing footprints.** About a third of the built area of the provisional area is not in
+OSM. Options: add the missing footprints from a second source with provenance (3D-GloBFP
+footprints, CC BY 4.0, already downloaded; or Overture's Microsoft-derived footprints, ODbL),
+map them in OSM with JOSM, or choose a district OSM covers completely.
+**Recommendation:** add them from 3D-GloBFP's footprints (footprints only, not its heights),
+marked with their source, if this district is kept.
 
 **Options.**
 
-| Option | Rule | Used by |
+| Option | Gives | Weakness |
 |---|---|---|
-| A. Equal power, equal antenna gain | As in the project description | The project description; a pure propagation comparison |
-| B. Equal power, equal antenna *size* | Gain grows with frequency squared (+6 dB per doubling) | Testolina 2024, Kang 2024, Aghaei 2026 (`docs/related-studies.md`, R2, R3, A2) |
-| C. Per-band values from a reference configuration | For example 44 dBm at 4 GHz and 40 dBm at 28 GHz (ITU evaluation settings as used by Salazar 2021, R1); 33 dBm (R3); 40 dBm (R9) | Individual studies |
+| a. Field observation of selected buildings | Observed heights where it matters most | Student time |
+| b. GlobalBuildingAtlas (needs a 378 MB download) | A height for every building (median 6.3 m here) | Turns the 55 m tower into 5.4 m; non-commercial licence |
+| c. 3D-GloBFP | Evaluated and **rejected** for this area | Heights 26 m too high on average where tags exist; block footprints (`docs/building-height-data.md`, §9) |
+| d. Assumed distributions only | A range of results | No single answer per band |
 
-**Recommendation.** Report **A as the baseline** (it is what the approved description says
-and isolates propagation) **and B as a second case** (it is what the literature does and
-what equipment would do). State one transmit power for all bands, taken from a cited
-reference configuration.
+**Recommendation.** **a + b + d together**: observe every building the worklist names
+(tall buildings, candidate rooftops, conflicts, buildings near sites; about 250 with
+illustrative settings, `scripts/height_worklist.py`), use GlobalBuildingAtlas for the
+remaining ordinary buildings if its download is approved, and report the spread over height
+models as the uncertainty. Priority as configured: observation > OSM height tag > OSM storeys
+> dataset > approved model > placeholder. Agree the storey height (3 m now).
 
-**Impact on implementation.** None on ray tracing: both cases reuse the same path-gain maps
-and differ only in the link budget. Values go in `configs/radio_system.yaml`.
+**Evidence.** On identical sites, changing only the assumed heights moved line-of-sight
+coverage from 86 % to 67 % and the sites needed from 2 to "not reached" (Phase 2). The two
+per-building datasets disagree with each other by a factor of three and both get the tower
+wrong.
 
-## D4. Antenna height and rooftop candidate rule
+**Impact.** All of it is implemented; approval means changing `approved` flags and supplying
+the observation file. The GlobalBuildingAtlas reader is a small addition once approved.
 
-**Question.** How high above the roof is the antenna, and which roofs are candidates?
+### A3. Radio-system parameters
 
-**Options.** Mast: a fixed height above each roof (the tests use 3 m as a placeholder), or a
-fixed total height. Candidates: all buildings above a minimum height, with a minimum spacing
-between candidates; whether buildings with placeholder heights may host a site.
+**Question.** Approve, change or reject the proposal in `docs/radio-parameters.md`.
 
-**Recommendation.** A fixed mast height above the roof; candidates only on buildings whose
-height is observed or estimated (not placeholder); minimum height and spacing chosen so that
-the district has roughly 20-40 candidates.
+**Proposal in one line.** For every band: 46 dBm conducted per sector carrier, 3GPP TR 38.901
+sector element (8 dBi, traced), 3 sectors, 10° downtilt, isotropic user antenna, 9 dB noise
+figure, noise at 290 K, coverage when SINR ≥ −10 dB on 95 % of outdoor cells, reuse 1,
+full load, clear sky. Each value has a primary source and table number.
 
-**Why.** A site on a building of unknown height has an unknown antenna height, which
-undermines the result more than any other single error.
+**Recommendation.** Approve as proposed, for the controlled experiment.
 
-**Impact.** Arguments of `bns.geospatial.sites.rooftop_candidates`; no default exists.
+**Evidence.** These are the common values of ITU-R M.2412, M.2292 and 3GPP TR 38.914,
+TR 36.942 and TR 38.921 (`docs/radio-parameters.md`). The noise-referenced threshold keeps
+the criterion physically equal across bandwidths.
 
-## D5. Coverage threshold and coverage target
+**Points that need an explicit yes or no.**
+- Same total power in every band (power per MHz falls with bandwidth), rather than the same
+  power per MHz.
+- No antenna-array gain in any band (the controlled experiment; arrays only in the
+  discussion, `docs/methodology.md`).
 
-**Question.** When is a receiver point "covered", and what share must be covered?
+**Impact.** Changing `status` to `approved` in `configs/radio_system.yaml`. No re-tracing is
+needed for power, noise, threshold, target or load; antenna pattern, sectors and downtilt
+are traced, so changing them re-traces.
 
-**Options for the threshold.**
+### A4. Base-station sites
 
-| Option | Definition | Consequence |
-|---|---|---|
-| A. Fixed received power | The same dBm value for every band | Bandwidth plays no role in coverage; simplest; matches the description's wording |
-| B. Fixed signal-to-noise ratio | Received power above noise by a margin (Testolina 2024 uses 0 dB) | Wider carriers need more power: 400 MHz needs 13 dB more than 20 MHz |
-| C. Minimum data rate | A rate every covered user must reach | Closest to "service", but mixes coverage and capacity |
+**Question.** How high is the antenna above the roof, and which roofs are candidates?
 
-**Options for the target.** 90 %, 95 %, 99 % (examples from the brief, not approved values).
+**Recommendation.** One mast height for all sites (3 m used in development, no source
+found), candidates only on buildings with observed or storey-based heights, a minimum height
+and spacing chosen so that the district has 20-40 candidates.
 
-**Recommendation.** **B** with a stated margin, and **95 %** as the target, reporting 90 %
-and 99 % as well.
+**Evidence.** A site on a building of unknown height has an unknown antenna height. No
+standard gives a mast height above a roof; ITU-R M.2412 and 3GPP use 25 m total heights on
+flat layouts.
 
-**Why.** A noise-referenced threshold is the same physical condition at every bandwidth, so
-the comparison between generations stays fair. If A is preferred for simplicity, say so in
-the thesis and note that it favours the wide carriers.
-
-**Impact.** One function argument each; the greedy selection reruns in seconds on cached maps.
-
-## D6. Receiver noise figure
-
-**Options.** 7 dB (used by Kang 2024, R3, and the default of MATLAB's `sinr`); another value
-from a cited specification.
-
-**Recommendation.** 7 dB for all bands, cited.
-
-**Impact.** `configs/radio_system.yaml`; shifts every SINR by the same amount.
-
-## D7. Interference assumption
-
-**Question.** How busy are the other sites when a user is served?
-
-**Options.** All other sites transmit at full power all the time, on the same carrier (the
-worst case; `interference_activity: 1.0`); or a load factor below 1.
-
-**Recommendation.** Full load, full frequency reuse, stated as a worst-case bound.
-
-**Why.** It needs no further assumption and is the common reference case (R3 describes its
-own interference case the same way).
-
-## D8. Rain
-
-**Question.** Is rain part of the results, and with which rain rate?
-
-**Options.**
-
-| Option | Rain rate | Status of the number |
-|---|---|---|
-| A. Clear sky only | none | Nothing to justify; current baseline |
-| B. Sensitivity case with the previous ITU maps | 18.6 mm/h exceeded 0.01 % of the year (ITU-R P.837-7 via ITU-Rpy) | Traceable, but a superseded edition |
-| C. Sensitivity case with the current ITU maps | Value to be read from ITU-R P.837-8 | Needs a 361 MB download from the ITU |
-| D. Local measurements | From Iraqi meteorological data | Needs a source |
-
-**Recommendation.** **A for all baseline results, plus B or C as a labelled sensitivity
-case.** Rain at these rates costs about 1.5 dB at 28 GHz over 500 m for under an hour a
-year and nothing measurable below 8 GHz (`docs/atmospheric-losses.md`).
-
-## D9. Data-rate model
-
-**Options.** Pure Shannon capacity (the project description); additionally an attenuated,
-capped variant (3GPP TR 36.942 Annex A: factor 0.6, cap 4.4 bit/s/Hz; similar forms in R3,
-R9, A1).
-
-**Recommendation.** Shannon as the baseline, the TR 36.942 variant reported beside it.
-
-**Why.** Shannon alone gives rates no network reaches; a cited practical variant makes the
-numbers comparable with other studies at no extra simulation cost.
-
-## D10. Scope of the validation against 3GPP TR 38.901
-
-**Question.** The 3GPP urban formulas are defined for base stations at 25 m (macro) and 10 m
-(micro). The project's rooftop sites have other heights. What is compared with what?
-
-**Options.** A: compare the actual rooftop sites and flag every comparison outside the
-stated range. B: add dedicated validation transmitters at exactly 25 m and 10 m and compare
-those. C: both.
-
-**Recommendation.** **C.** B gives a clean like-for-like check; A shows how far the real
-sites deviate.
-
-**Also needed.** An agreed expectation: published comparisons of ray tracing with
-measurements report errors of roughly 8-21 dB, so agreement within a few dB should not be
-set as a pass criterion.
-
-## D11. Accepting the diffraction limitation
-
-**Question.** In the chosen engine, diffraction in coverage maps is first-order and cannot
-follow a reflection. Is that acceptable as a documented limitation?
-
-**Options.** Accept and document; or accept and additionally target it in the MATLAB
-cross-check (MATLAB allows one diffraction after reflections in coverage maps).
-
-**Recommendation.** Accept, and include two or three such cases in the Phase 7 MATLAB
-cross-check to put a number on the effect.
+**Impact.** Arguments of the candidate generator; changing them re-traces only new positions.
 
 ---
 
-## Settled without the supervisor
+## B. Required before scientific conclusions
 
-These were decided from the project description or documented primary sources and are
-recorded here so they are not asked again. Any of them can be reopened.
+### B1. Validation scope and agreement
+
+**Question.** What is compared with 3GPP TR 38.901, and what difference is acceptable?
+
+**Recommendation.** Compare (i) dedicated validation sites at exactly 25 m (UMa) and 10 m
+(UMi) and (ii) the real rooftop sites, flagged as outside the formulas' height range; report
+RMSE and path-loss exponents beside published measured exponents (1.8-2.3 line of sight,
+2.6-2.7 without, near 7-17 GHz). Do not set "within a few dB" as a pass criterion.
+
+**Evidence.** Published comparisons of ray tracers with measurements show errors of 8-21 dB
+(`docs/related-studies.md`, R7, R8).
+
+### B2. Accepting the engine's limitations
+
+**Question.** Are these acceptable as documented limitations? Diffraction is first-order and
+never follows a reflection; multipath powers are summed without phase; buildings are opaque.
+
+**Recommendation.** Accept and document, and spend two or three MATLAB cross-check cases in
+Phase 7 on reflection-then-diffraction streets to quantify the first limitation.
+
+### B3. Data-rate reporting
+
+**Question.** Shannon capacity only, or also a practical mapping?
+
+**Recommendation.** Shannon as in the project description, plus the 3GPP truncated mapping
+(factor 0.6, SINR −10 to 30 dB; TR 38.921 Table 4.2.7-1) beside it, since most related
+studies use such a form.
+
+---
+
+## C. Optional methodological refinements
+
+| ID | Refinement | Recommendation | Cost |
+|---|---|---|---|
+| C1 | (moved to A2: missing footprints are required, not optional) | — | — |
+| C2 | Rain sensitivity case (18.6 mm/h, previous ITU map edition) | Report once, as sensitivity | None; implemented |
+| C3 | Same power per MHz instead of same total power | One sensitivity run | None; no re-tracing |
+| C4 | 50 % network load | One sensitivity run | None; no re-tracing |
+| C5 | Deployment illustration with array gain per band | Discussion only, by link-budget arithmetic | None |
+
+---
+
+## D. Technical decisions taken without the supervisor
+
+Recorded so they are not asked again; each can be reopened.
 
 | Item | Decision | Basis |
 |---|---|---|
-| The five scenarios | Unchanged from the project description | Table 1 of the PDF; consistency with the bands under study is unit-tested |
-| 4G frequency | Keep the nominal 1.8 GHz | The description; the Band 3 downlink centre (1842.5 MHz) differs by 0.2 dB |
-| Corrections to citations and wording | As listed in `docs/project-description-corrections.md` | Primary sources in `docs/references.md` |
-| Reflection depth | 2 | The description; a third to fifth reflection changed the 5th percentile by at most 1 dB in Phase 0 (to be re-checked on the study district) |
-| Through-wall transmission, diffuse scattering | Off | Matches the method in the description |
-| Building and ground material | Concrete, ITU-R P.2040-4 | The description; the Recommendation |
-| Gas attenuation | Included at all bands | ITU-R P.676-13; negligible but applicable |
-| Baseline weather | Clear sky | No approved rain rate (D8) |
-| Engine settings | Wedge table enlarged; 10^8 rays for 10 m cells, 10^9 for 5 m | Measured in Phase 0 (`docs/benchmarks.md`) |
-| Site-selection wording | "Site count found by the greedy algorithm", never "minimum" | The algorithm gives no proof of optimality |
-| Not modelled | Dust storms, vegetation, vehicles, indoor users | Outside the description; to be named as limitations |
-
-## Waiting on the student, not the supervisor
-
-- **Phase 0 laptop benchmark** (`docs/benchmarks.md`, section 8). The acceptance gate for
-  the target laptop is still open.
-- **Reading the sources** in `docs/references.md` and `docs/related-studies.md` before
-  citing them.
-- **Confirming the Iraqi 5G status** with the regulator before submission.
+| Engine | Sionna RT 2.2.0 on CPU; MATLAB only for cross-checks | Phase 0; supervisor approved the engine |
+| Wedge-table workaround | 1,048,576 slots instead of 10,000 | Phase 0, E4: default loses > 1 dB |
+| Worker isolation | Results accepted only from cleanly exiting workers; retries | Phase 0 instability measurements |
+| Cache | Path gain cached per job; key includes scene hash, frequency, position, antenna, grid, mechanisms, rays, seeds, engine versions and settings; radio parameters excluded | `docs/architecture.md` |
+| Profiles | Preview 25 m, standard 10 m at 1e8 rays, research 5 m at 1e9 rays | `docs/convergence.md` |
+| Five scenarios | Unchanged | Project description, Table 1 |
+| Corrections to the project description | Kept beside the PDF | `docs/project-description-corrections.md` |
+| Fixture vs provisional area | Phase 0 snapshot frozen; v2 snapshot adds 8 multipolygon buildings | `docs/study-area-evaluation.md` |
+| Site wording | "Site count found by the greedy algorithm", never "minimum" | No optimality proof |

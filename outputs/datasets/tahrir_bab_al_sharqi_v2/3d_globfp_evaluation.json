@@ -1,0 +1,23 @@
+{
+  "buildings": 1194,
+  "dataset_footprints": 2383,
+  "match_kinds": {
+    "merged": 568,
+    "one-to-one": 191,
+    "split": 101
+  },
+  "osm_unmatched": 334,
+  "external_unmatched": 1632,
+  "duplicates": 0,
+  "tower": {
+    "building_id": "way/919688856",
+    "kind": "merged",
+    "footprint_ids": [
+      "rec/696190"
+    ],
+    "height_m": 80.001976,
+    "max_height_m": 80.001976,
+    "coverage": 0.8934008862048173,
+    "iou": 0.2165193261922928
+  }
+}

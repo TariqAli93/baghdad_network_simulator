@@ -9,10 +9,10 @@ blockers, next phase.
 | 0 | Feasibility and environment audit | **Done on the development PC; laptop rerun pending** |
 | 1 | Literature and standards review | **Done (2026-11-26)**, tag `v0.2.0-literature-review`; student to read and confirm the sources |
 | 2 | Study area and 3D city model | **Technically ready (2026-11-26); not scientifically complete** until the district and the height methodology are approved |
-| 3 | Radio scenario configuration | Partly done: scenarios, study areas, height models, radio parameters and atmosphere are configurable; radio parameters undecided |
-| 4 | Ray-tracing engine (losses, adapter hardening) | Not started |
-| 5 | Single-site coverage | Not started |
-| 6 | Multi-site SINR and data rate | Calculation functions done and tested; not yet run on maps (needs radio parameters) |
+| 3 | Radio scenario configuration | **Technically done (2026-11-26)**; sourced proposal awaiting approval (A3) |
+| 4 | Production ray-tracing pipeline | **Technically done (2026-11-26)**; standard profile corrected after convergence check |
+| 5 | Single-site coverage | Development run done on all five bands; research runs wait for A1-A3 |
+| 6 | Multi-site SINR and data rate | Calculation done and tested; used for the three sectors of one site; multi-site runs not yet made |
 | 7 | Scientific validation (3GPP TR 38.901, MATLAB cross-check) | Not started |
 | 8 | Base-station site planning (greedy) | Greedy selection function done and tested; used in the height-sensitivity experiment |
 | 9 | Comparative analysis | Not started |
@@ -339,3 +339,115 @@ Non-blocked work that can continue: single-site coverage maps and their storage 
 code), the 3GPP TR 38.901 formulas with tests (Phase 7 code), and a reader for whichever
 height dataset is approved for download. None of it produces research results until D1-D7
 are decided.
+
+---
+
+## Phase 2 finalisation and Phases 3-4 report (2026-11-26)
+
+**Status.** Phase 2: committed (`fa9e351`, tag `v0.3.0-geospatial-pipeline`), technically
+ready, **scientifically pending** (district, building data and height method not approved).
+Phases 3 and 4: technically done; the radio proposal awaits approval. Phase 0 laptop gate:
+**open**. Nothing here is a research result.
+
+### Completed
+
+1. **Building-height datasets.** 3D-GloBFP downloaded with approval (source, licence CC BY 4.0,
+   coverage and checksum verified first), study box extracted with a manifest, matched to OSM
+   and evaluated: **unsuitable here** (heights 26 m too high on average where tags exist;
+   blocks spanning several buildings; the 55 m tower assigned 80 m). No other large dataset
+   was downloaded. `docs/building-height-data.md` §9.
+2. **Corrected, versioned dataset.** `tahrir_bab_al_sharqi_v2` from a new snapshot; all 8
+   multipolygon buildings recovered (7 with courtyards); the Phase 0 fixture unchanged;
+   snapshots can no longer be overwritten; repaired building pieces get unique ids.
+   `docs/study-area-evaluation.md`.
+3. **OSM completeness finding.** About a third of the built area of the receiver area
+   (577 footprints, 124,000 m², mostly south-east) is missing from OSM.
+4. **Hybrid height resolution.** Configurable priority (observation > OSM height > OSM
+   storeys > dataset > approved model > placeholder, with the evidence for putting storeys
+   above datasets); every candidate kept as an alternative; conflicts flagged; manual
+   overrides; an observation worklist generator.
+5. **Phase 3, radio configuration.** Three states per parameter (development, candidate,
+   approved) and two run modes; a sourced proposal for every parameter
+   (`docs/radio-parameters.md`); conducted power vs EIRP; three forms of gain double counting
+   refused; the controlled-experiment methodology written down (`docs/methodology.md`).
+6. **Phase 4, production pipeline.** `bns.simulation`: propagation jobs with complete cache
+   keys, an atomic path-gain cache, a batching runner with progress, cancellation and crash
+   recovery, an engine worker, traced sector antennas, radio results from cached path gain.
+   `docs/architecture.md` §7.
+7. **Convergence check** on the full area: the standard profile had to be raised from 1e8 to
+   1e9 rays; preview set to 25 m / 1e8; research (5 m) left unvalidated. `docs/convergence.md`.
+8. **Single-site development experiment** (below).
+9. **Supervisor decisions** regrouped into four needed before final experiments, three before
+   conclusions, optional refinements and settled technical choices.
+
+### Tests and runs executed
+
+| Check | Result |
+|---|---|
+| `uv run pytest` | 234 passed (77 new since Phase 2) |
+| `uv run pytest -m engine` | 6 passed (3 new: whole-pipeline received power vs Friis + link budget; traced TR 38.901 pattern vs formula; downtilt direction) |
+| `scripts/run_convergence.py` | 8 cases, 479 s for the part not already cached |
+| `scripts/run_single_site.py --profile standard --mode development` | Completed; 15 traces |
+| `scripts/compare_propagation.py` | Completed (fixture vs v2) |
+| `scripts/import_height_dataset.py`, `evaluate_height_dataset.py`, `height_worklist.py`, `compare_datasets.py` | Completed |
+| Research mode on the provisional area | Refused, as intended |
+
+Coverage of the tests is reviewed in `docs/validation.md` §3, including the tests that were
+written in the same step as their code.
+
+### Single-site development experiment
+
+`outputs/runs/development/single_site-tahrir_bab_al_sharqi_v2-osm-standard-20261126T105044Z/`
+— **DEVELOPMENT — NOT APPROVED FOR RESEARCH.** Site on the 55 m tower (antenna 58 m, three
+sectors, TR 38.901 element, 10° downtilt), 1 km² at 10 m cells, 1e9 rays per sector,
+candidate radio parameters, clear sky, provisional area with 98.8 % placeholder heights.
+
+| Scenario | Median received power | Coverage (SINR ≥ −10 dB) | Median SINR | 5th-percentile Shannon rate | Median Shannon rate |
+|---|---|---|---|---|---|
+| 1.8 GHz, 20 MHz | −41.5 dBm | 99.9 % | 19.9 dB | 31 Mbit/s | 132 Mbit/s |
+| 3.5 GHz, 100 MHz | −47.4 dBm | 99.8 % | 19.2 dB | 146 Mbit/s | 639 Mbit/s |
+| 8 GHz, 400 MHz | −54.8 dBm | 98.6 % | 15.2 dB | 326 Mbit/s | 2,033 Mbit/s |
+| 15 GHz, 400 MHz | −60.4 dBm | 96.1 % | 12.6 dB | 84 Mbit/s | 1,709 Mbit/s |
+| 28 GHz, 400 MHz | −65.9 dBm | 89.1 % | 9.7 dB | 15 Mbit/s | 1,344 Mbit/s |
+
+What the pipeline shows (for understanding the method, not as findings): received power
+falls by about 24 dB from 1.8 to 28 GHz, as free-space loss predicts; SINR here is limited
+by the site's own neighbouring sectors (reuse 1, full load); the 400 MHz carriers have the
+highest median rates but the 28 GHz 5th percentile collapses where cells lie below the
+downtilted beam. These numbers depend on the unapproved parameters and on placeholder
+heights, and would change with real building data.
+
+**Timing and memory.** 15 traces: 13 took 57-66 s, two took 216 s and 248 s (cause not
+identified; a similar transient slowdown was seen in Phase 0); 31 minutes in total including
+first-time compilation and retries. Peak committed memory per worker 0.86 GB; the script
+itself 0.62 GB.
+
+### Limitations
+
+- Single site only; multi-site SINR and greedy site selection not yet run on ray-traced maps.
+- Standard profile costs about 1 minute per sector and band; site planning at this profile
+  needs hours (`docs/convergence.md`).
+- The provisional area lacks a third of its buildings and almost all heights.
+- The research profile (5 m) is not validated.
+- No 3GPP TR 38.901 or MATLAB validation yet.
+
+### Remaining scientific blockers
+
+A1 district, A2 building data (missing footprints, heights, field observations, optional
+GlobalBuildingAtlas download), A3 radio parameters, A4 site rule; then B1-B3 before
+conclusions (`docs/supervisor-decisions.md`). Phase 0 laptop gate.
+
+### Phase 5 readiness
+
+| Requirement | State |
+|---|---|
+| Pipeline from dataset to coverage maps, all five bands | Ready, demonstrated |
+| Validated profile | Ready (standard, 10 m, 1e9) |
+| Correct propagation physics in the pipeline | Verified in free space and for the antenna pattern; not yet against an urban reference |
+| Approved study district and building data | **Missing** (A1, A2) |
+| Approved radio parameters | **Missing** (A3) |
+| Approved site rule | **Missing** (A4) |
+
+**Phase 5 is technically ready and scientifically blocked.** Research runs will start as
+soon as A1-A4 are approved; until then development runs can be repeated for teaching and
+for testing multi-site and site-selection code (Phases 6 and 8).

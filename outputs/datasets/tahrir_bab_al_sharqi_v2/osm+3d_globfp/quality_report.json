@@ -1,0 +1,110 @@
+{
+  "area": {
+    "name": "tahrir_bab_al_sharqi_v2",
+    "role": "provisional study area",
+    "approved": false
+  },
+  "buildings": 1193,
+  "missing_height_buildings": 322,
+  "conflicting_buildings": 3,
+  "buildings_with_alternative_sources": 5,
+  "height_categories": {
+    "by_count": {
+      "observed": 9,
+      "estimated": 862,
+      "placeholder": 322
+    },
+    "by_count_percent": {
+      "observed": 0.7544006705783739,
+      "estimated": 72.25481978206203,
+      "placeholder": 26.990779547359598
+    },
+    "by_area_percent": {
+      "observed": 1.7883981246764449,
+      "estimated": 71.30824338539031,
+      "placeholder": 26.90335848993323
+    }
+  },
+  "height_sources": {
+    "by_count": {
+      "dataset:3D-GloBFP figshare": 858,
+      "osm:height": 9,
+      "osm:building:levels": 4,
+      "placeholder": 322
+    },
+    "by_area_percent": {
+      "dataset:3D-GloBFP figshare": 68.68080239769773,
+      "osm:building:levels": 2.62744098769261,
+      "osm:height": 1.7883981246764449,
+      "placeholder": 26.90335848993323
+    }
+  },
+  "height_statistics": {
+    "observed": {
+      "min_m": 1.0,
+      "median_m": 10.0,
+      "max_m": 60.0
+    },
+    "estimated": {
+      "min_m": 1.2495984,
+      "median_m": 19.2388305834305,
+      "max_m": 96.51868000000002
+    },
+    "placeholder": {
+      "min_m": 9.0,
+      "median_m": 9.0,
+      "max_m": 9.0
+    }
+  },
+  "height_model": null,
+  "height_warnings": [
+    {
+      "building_id": "way/919688856",
+      "warning": "sources disagree: osm:height 55 m vs dataset:3D-GloBFP figshare 80.002 m"
+    },
+    {
+      "building_id": "way/745209243",
+      "warning": "sources disagree: osm:building:levels 9 m vs dataset:3D-GloBFP figshare 80.002 m"
+    },
+    {
+      "building_id": "way/1085956708",
+      "warning": "sources disagree: osm:height 3 m vs dataset:3D-GloBFP figshare 34.9365 m"
+    }
+  ],
+  "footprint_area_m2": 318272.1775346092,
+  "built_share_of_receiver_area_percent": 23.237487963860648,
+  "parse": {
+    "buildings_read": 1228,
+    "relations_read": 8,
+    "relations_with_missing_members": 0,
+    "skipped": {},
+    "duplicate_pairs": 2
+  },
+  "cleaning": {
+    "dataset 3D-GloBFP figshare: matched buildings": 884,
+    "dropped_small": 2,
+    "overlaps_resolved": 301,
+    "buildings_outside_area_or_too_small": 36,
+    "footprints_before_merge": 1193,
+    "solids_after_merge": 949,
+    "different_height_contacts": 467
+  },
+  "mesh": {
+    "vertices": 10596,
+    "triangles": 14012,
+    "degenerate_triangles": 0,
+    "rim_edges": 5306,
+    "wedges": 10589,
+    "flat_shared_edges": 7776,
+    "non_manifold_edges": 0,
+    "roof_triangles_facing_down": 0
+  },
+  "fit_for_research": false,
+  "not_fit_reasons": [
+    "the area is a provisional study area, not the study district",
+    "the area has not been approved by the supervisor",
+    "the building-height methodology has not been approved",
+    "27.0 % of buildings have placeholder heights"
+  ],
+  "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312"
+}

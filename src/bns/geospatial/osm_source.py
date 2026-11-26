@@ -45,8 +45,17 @@ def overpass_query(bbox: tuple[float, float, float, float]) -> str:
             '(way["building"];relation["building"];);out geom;')
 
 
-def fetch_snapshot(raw_dir: Path, name: str, bbox, area_info: dict | None = None) -> dict:
-    """Download the buildings of a bounding box and store them with their hash."""
+def fetch_snapshot(raw_dir: Path, name: str, bbox, area_info: dict | None = None,
+                   replace: bool = False) -> dict:
+    """Download the buildings of a bounding box and store them with their hash.
+
+    An existing snapshot is never overwritten unless replace=True: snapshots are
+    the record of the data behind earlier results.
+    """
+    if (Path(raw_dir) / f"{name}.json").exists() and not replace:
+        raise FileExistsError(
+            f"Snapshot '{name}' already exists in {raw_dir}. Use a new snapshot name "
+            "(configs/study_area.yaml) or replace it explicitly.")
     query = overpass_query(bbox)
     body = urllib.parse.urlencode({"data": query}).encode()
     last_error = None
@@ -124,6 +133,7 @@ def parse_buildings(overpass_json: dict, transformer: Transformer) -> tuple[list
     buildings: list[OsmBuilding] = []
     skipped: Counter = Counter()
     relations = 0
+    relations_missing_members = 0
     for element in overpass_json.get("elements", []):
         tags = element.get("tags", {})
         if "building" not in tags:
@@ -144,6 +154,8 @@ def parse_buildings(overpass_json: dict, transformer: Transformer) -> tuple[list
             if not any("geometry" in m for m in members):
                 skipped["relation stored without member geometry"] += 1
                 continue
+            if any(m.get("type") == "way" and "geometry" not in m for m in members):
+                relations_missing_members += 1
             outer = _rings_to_area(members, ("outer", ""), transformer)
             if outer is None:
                 skipped["relation without a closed outer ring"] += 1
@@ -160,5 +172,35 @@ def parse_buildings(overpass_json: dict, transformer: Transformer) -> tuple[list
         else:
             skipped[f"unsupported element type {kind}"] += 1
     report = {"buildings_read": len(buildings), "relations_read": relations,
+              "relations_with_missing_members": relations_missing_members,
               "skipped": dict(skipped)}
     return buildings, report
+
+
+def find_duplicates(buildings: list[OsmBuilding], min_overlap: float = 0.9) -> list[tuple[str, str]]:
+    """Pairs of buildings whose footprints overlap by at least `min_overlap` of the smaller one.
+
+    Such pairs are usually the same building mapped twice. They are reported,
+    not removed: the footprint cleaner later gives overlapping ground to the
+    taller of the two.
+    """
+    return overlapping_pairs([b.building_id for b in buildings], [b.polygon for b in buildings],
+                             min_overlap)
+
+
+def overlapping_pairs(ids: list[str], polygons, min_overlap: float) -> list[tuple[str, str]]:
+    """Id pairs whose shapes overlap by at least `min_overlap` of the smaller area."""
+    import shapely
+
+    polygons = [shapely.make_valid(p) for p in polygons]
+    if not polygons:
+        return []
+    tree = shapely.STRtree(polygons)
+    pairs = []
+    for i, j in zip(*tree.query(polygons, predicate="intersects"), strict=True):
+        if i >= j:
+            continue
+        smaller = min(polygons[i].area, polygons[j].area)
+        if smaller > 0 and polygons[i].intersection(polygons[j]).area >= min_overlap * smaller:
+            pairs.append(tuple(sorted((ids[i], ids[j]))))
+    return sorted(pairs)

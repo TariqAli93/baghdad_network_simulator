@@ -159,7 +159,57 @@ configs/study_area.yaml ──► StudyArea ──► OSM snapshot (hashed, read
 The Phase 0 scripts (`build_poc_scene.py`, `poc_validate.py`, `poc_benchmark.py`) still use
 `osm_scene` directly and are kept so the Phase 0 evidence stays reproducible.
 
-## 7. Deviations from the structure in the master brief
+## 7. Production simulation pipeline (Phases 3-4)
+
+```
+configs/study_area.yaml ─► dataset (scene + buildings + quality report)    bns.geospatial.pipeline
+configs/simulation.yaml ─► profile, mechanisms, seeds                       bns.simulation.setup
+configs/radio_system.yaml ─► antenna (pattern, sectors, downtilt, mast)     bns.analysis.radio_system
+        │
+        ▼  one PropagationJob per site × sector × band          bns.simulation.jobs
+   cache lookup by job key ──hit──► path gain                   bns.simulation.cache
+        │ miss
+        ▼  batches by scene and frequency, one fresh worker each bns.simulation.propagation
+   worker (bns.simulation.worker) traces, stages <key>.npz + manifest
+        │ only on clean exit: atomic publication into the cache (bns.runtime.run_isolated)
+        ▼
+   radio-system results from path gain                          bns.simulation.radio
+   (power, gas/rain loss, noise, SINR with linear interference, coverage, Shannon rate)
+        ▼
+   run folder: manifest.json (every input, state and version), summary, figures, arrays
+```
+
+- **Propagation is separated from the radio system.** A `PropagationJob` contains only what
+  changes the path gain: scene fingerprint (SHA-256 of `scene.xml` and every mesh, so
+  geometry, heights and materials), frequency, transmitter position, antenna pattern,
+  polarisation and orientation, receiver grid, mechanisms, ray count, seeds, engine versions
+  and settings (including the wedge-table size). Its key is the SHA-256 of these fields.
+  Transmit power, noise figure, bandwidth, thresholds, targets and load are not in the job,
+  so changing them never re-traces; changing anything in the job always does.
+- **Atomic publication.** A worker writes into a staging folder; the parent publishes into
+  the cache only after a clean exit, data file first and manifest last, each by atomic
+  rename. A cache entry counts only if its manifest exists and its checksum matches.
+- **Progress and cancellation.** Workers report each finished job as a JSON line; the
+  runner passes them to a callback. A cancellation callback kills the worker and discards its
+  batch; batches finished before stay cached, so rerunning resumes.
+- **Failure recovery.** Crashes (the Windows compiler instability) are retried with the
+  kernel cache; Python errors stop immediately; nothing from a failed attempt is kept.
+- **Antenna.** Sectors are separate traced transmitters. With the 3GPP TR 38.901 pattern
+  traced, its 8 dBi are inside the path gain and no gain is added afterwards; the radio
+  configuration refuses combinations that would count a gain twice.
+- **Run modes.** Development runs use proposed values and stamp every output
+  "DEVELOPMENT — NOT APPROVED FOR RESEARCH"; research runs refuse unapproved parameters and
+  non-approved study areas.
+- **Profiles** (`configs/simulation.yaml`, `docs/convergence.md`): preview 25 m / 1e8 rays,
+  standard 10 m / 1e9 rays; the 5 m research profile is not yet validated and cannot be
+  selected.
+
+Engine-specific settings and limits in force: CPU variant `llvm_ad_mono_polarized`;
+wedge table 2^20 slots; refraction and diffuse scattering off; radio-map diffraction
+first-order and never after a reflection; power sums without phase; isotropic receiver;
+no gas or rain inside the engine (added afterwards).
+
+## 8. Deviations from the structure in the master brief
 
 | Brief | Here | Reason |
 |---|---|---|

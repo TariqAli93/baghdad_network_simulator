@@ -1,0 +1,32 @@
+# External building-height datasets known to the project (docs/building-height-data.md).
+# The original files are large and are cached in data/cache/datasets/ (git-ignored); the
+# study-area extracts and their manifests are kept in data/raw/heights/.
+# A dataset listed here is NOT approved as a height source (decision D2).
+datasets:
+  3d_globfp:
+    name: 3D-GloBFP
+    version: "figshare v4 (part V, grid IDs 1300-1699)"
+    year_of_heights: 2020
+    doi: 10.6084/m9.figshare.28890593.v4
+    published: 2025-12-05
+    licence: CC BY 4.0
+    licence_url: https://creativecommons.org/licenses/by/4.0/
+    citation: >-
+      Y. Che, X. Li, X. Liu, Y. Wang, W. Liao, X. Zheng, X. Zhang, X. Xu, "3D-GloBFP: the
+      first global three-dimensional building footprint dataset", Earth System Science Data,
+      16, 5357-5374, 2024. https://essd.copernicus.org/articles/16/5357/2024/
+    method: >-
+      Building heights estimated per footprint with an XGBoost model from Sentinel-1/2,
+      elevation, night-light and population data; a model estimate, not a measurement.
+    stated_accuracy: >-
+      RMSE 1.9-14.6 m and R2 0.66-0.96 across 33 validation subregions (dataset record);
+      no validation in Iraq.
+    tile: 1590_43.75_32.5_45.0_33.75_IZ
+    file: 1590_43.75_32.5_45.0_33.75_IZ.zip
+    url: https://ndownloader.figshare.com/files/54046820
+    size_bytes: 205205235
+    md5: 243450f2c0c0ba1ae537e7bd0a8a9f1b
+    sha256: 6147758ea67d3a174cca63ad17e2ac347e3ac994aec3dc9f611752a5429b3dba
+    crs: EPSG:4326
+    height_field: Height
+    downloaded: 2026-11-26

@@ -28,13 +28,10 @@ if mi.variant() != CPU_VARIANT:
 _TX_NAME = "site"
 _solver = None
 
-# Sionna RT finds diffracting wedges with a hash table and drops a wedge whose
-# slot is already taken by another one. Its default of 10,000 slots loses a
-# large share of the wedges of a city scene (measured in experiment E4), which
-# silently removes diffracted power. A larger table makes collisions negligible;
-# it changes no physics, only how many wedges can be remembered.
-SIONNA_DEFAULT_WEDGE_SLOTS = 10_000
-WEDGE_TABLE_SLOTS = 2**20
+# The wedge-table workaround (see bns.propagation.engine_settings): Sionna's default of
+# 10,000 slots silently drops diffracting wedges of a city scene.
+from bns.propagation.engine_settings import (SIONNA_DEFAULT_WEDGE_SLOTS,  # noqa: E402,F401
+                                             WEDGE_TABLE_SLOTS)
 
 
 def set_wedge_table_slots(slots: int) -> None:
@@ -81,19 +78,21 @@ class PathGainMap:
                 "seconds_per_seed": [round(s, 4) for s in self.seconds_per_seed]}
 
 
-def open_scene(scene_xml: Path | None, frequency_hz: float, polarization: str = "V"):
-    """Load a scene (or an empty one) with a single isotropic transmit antenna."""
+def open_scene(scene_xml: Path | None, frequency_hz: float, polarization: str = "V",
+               pattern: str = "iso"):
+    """Load a scene (or an empty one) with a single-element transmit antenna."""
     if scene_xml is None:
         scene = load_scene()
     else:
         scene = load_scene(str(scene_xml), merge_shapes=True, remove_duplicate_vertices=True)
     scene.frequency = frequency_hz
-    scene.tx_array = PlanarArray(num_rows=1, num_cols=1, pattern="iso", polarization=polarization)
+    scene.tx_array = PlanarArray(num_rows=1, num_cols=1, pattern=pattern, polarization=polarization)
     return scene
 
 
 def path_gain_map(scene, tx_position, grid: Grid, propagation: Propagation,
-                  samples_per_seed: int, seeds, keep_per_seed: bool = False) -> PathGainMap:
+                  samples_per_seed: int, seeds, keep_per_seed: bool = False,
+                  orientation_rad=(0.0, 0.0, 0.0)) -> PathGainMap:
     """Trace one site and return the mean path gain over the given seeds.
 
     Rays leave the site on a deterministic Fibonacci lattice, so line-of-sight
@@ -108,7 +107,8 @@ def path_gain_map(scene, tx_position, grid: Grid, propagation: Propagation,
         _solver = RadioMapSolver()
     if _TX_NAME in scene.transmitters:
         scene.remove(_TX_NAME)
-    scene.add(Transmitter(_TX_NAME, position=[float(v) for v in tx_position], power_dbm=0.0))
+    scene.add(Transmitter(_TX_NAME, position=[float(v) for v in tx_position], power_dbm=0.0,
+                          orientation=[float(v) for v in orientation_rad]))
 
     seeds = [int(s) for s in seeds]
     total = np.zeros(grid.shape)

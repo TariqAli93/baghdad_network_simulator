@@ -1,0 +1,42 @@
+# Ray-tracing settings (propagation only; radio-system parameters are in radio_system.yaml).
+#
+# Profiles: provisional, from the convergence check on the full 1 km2 provisional area
+# (docs/convergence.md: 3 sites, 2 bands, 2 height variants, 8 cases). They describe
+# measured agreement, not accuracy guarantees. A profile with rays_per_site: null has not
+# been validated and cannot be selected.
+profiles:
+  preview:
+    cell_size_m: 25
+    rays_per_site: 1.0e8
+    basis: >-
+      All 8 cases: 95 % of outdoor cells within 2.9 dB of a 1-billion-ray map, no cell
+      missed. 1e7 rays failed (up to 16 dB).
+  standard:
+    cell_size_m: 10
+    rays_per_site: 1.0e9
+    basis: >-
+      All 8 cases: two independent 1-billion-ray maps agree within 1.4-2.0 dB for 95 % of
+      outdoor cells, no cell missed. 1e8 rays failed on the full area (3.9-5.2 dB), although
+      it passed on the 400 m block of Phase 0 (E5).
+  research:
+    cell_size_m: 5
+    rays_per_site: null
+    basis: >-
+      Not validated: two independent 1-billion-ray maps differ by about 3 dB for 5 % of
+      cells. Needs more rays or seed averaging, to be measured before use.
+
+# Propagation mechanisms of the project baseline (project description, Stage 4): line of
+# sight, up to two reflections, diffraction; buildings opaque, no diffuse scattering.
+mechanisms:
+  max_depth: 2
+  los: true
+  specular_reflection: true
+  diffraction: true
+  refraction: false
+  diffuse_reflection: false
+  edge_diffraction: false
+
+# Seed of the random parts of the solver (diffraction); line-of-sight and reflected power
+# do not depend on it (docs/benchmarks.md, E1 and E4).
+seeds: [1]
+polarization: V

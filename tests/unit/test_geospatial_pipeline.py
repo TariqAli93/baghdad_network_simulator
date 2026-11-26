@@ -31,6 +31,27 @@ def test_repository_config_defines_the_fixture_and_marks_it_not_final(repo_root)
     assert not fixture.is_research_dataset
 
 
+def test_provisional_area_uses_its_own_snapshot_and_leaves_the_fixture_alone(repo_root):
+    areas = load_study_areas(repo_root / "configs" / "study_area.yaml")
+    fixture, provisional = areas["tahrir_bab_al_sharqi"], areas["tahrir_bab_al_sharqi_v2"]
+    assert fixture.snapshot == "tahrir_bab_al_sharqi"
+    assert provisional.snapshot != fixture.snapshot
+    assert provisional.role == "provisional study area" and not provisional.is_research_dataset
+    assert (provisional.center_lat, provisional.center_lon, provisional.receiver_size_m,
+            provisional.margin_m) == (fixture.center_lat, fixture.center_lon,
+                                      fixture.receiver_size_m, fixture.margin_m)
+
+
+def test_snapshot_defaults_to_the_area_name():
+    assert AREA.snapshot == "test_area"
+
+
+def test_fetch_refuses_to_overwrite_an_existing_snapshot(tmp_path):
+    (tmp_path / "kept.json").write_text("{}")
+    with pytest.raises(FileExistsError, match="kept"):
+        osm_source.fetch_snapshot(tmp_path, "kept", (33.0, 44.0, 33.1, 44.1))
+
+
 def test_extent_and_bounding_box_include_the_margin():
     assert AREA.half_extent_m == (300.0, 200.0)
     south, west, north, east = AREA.bbox_degrees(pad_m=0.0)
@@ -136,6 +157,26 @@ def test_unusable_elements_are_counted_not_dropped_silently():
                                                    AREA.transformer())
     assert buildings == []
     assert sum(report["skipped"].values()) == 2
+
+
+def test_relation_with_a_missing_outer_member_is_skipped_and_counted():
+    # one of the two outer ways lies outside the download box and came without geometry
+    outer_a = lonlat(AREA, [(0, 0), (40, 0), (40, 40)])
+    relation = {"type": "relation", "id": 6, "tags": {"building": "yes"},
+                "members": [{"type": "way", "role": "outer", "geometry": outer_a},
+                            {"type": "way", "role": "outer", "ref": 99}]}
+    buildings, report = osm_source.parse_buildings({"elements": [relation]}, AREA.transformer())
+    assert buildings == []
+    assert report["skipped"] == {"relation without a closed outer ring": 1}
+    assert report["relations_with_missing_members"] == 1
+
+
+def test_duplicate_footprints_are_found():
+    data = {"elements": [way(AREA, 1, SQUARE, {"building": "yes"}),
+                         way(AREA, 2, shifted(SQUARE, 0.2), {"building": "yes"}),
+                         way(AREA, 3, shifted(SQUARE, 50), {"building": "yes"})]}
+    buildings, _ = osm_source.parse_buildings(data, AREA.transformer())
+    assert osm_source.find_duplicates(buildings, min_overlap=0.9) == [("way/1", "way/2")]
 
 
 def test_relation_stored_without_member_geometry_is_reported_as_such():
@@ -380,6 +421,44 @@ def test_build_dataset_writes_scene_buildings_and_report_with_provenance(tmp_pat
     assert report["buildings"] == 3
     assert report["height_categories"]["by_count_percent"][ht.PLACEHOLDER] == pytest.approx(100 / 3)
     assert report["mesh"]["non_manifold_edges"] == 0
+
+
+def test_a_building_split_by_cleaning_gets_unique_piece_ids():
+    # a tall building cuts a low one in two: the low one becomes two pieces
+    data = {"elements": [way(AREA, 1, [(0, 0), (60, 0), (60, 10), (0, 10)], {"building": "yes"}),
+                         way(AREA, 2, [(25, -5), (35, -5), (35, 15), (25, 15)],
+                             {"building": "yes", "height": "30"})]}
+    buildings, _, _ = pipeline.provenance_buildings(AREA, data, POLICY, "s")
+    ids = [b.building_id for b in buildings]
+    assert len(ids) == len(set(ids)) == 3
+    assert sorted(ids) == ["way/1#p1", "way/1#p2", "way/2"]
+
+
+def test_build_dataset_with_an_external_dataset_records_every_source(tmp_path):
+    from bns.geospatial import height_datasets as hd
+
+    data = {"elements": [way(AREA, 1, SQUARE, {"building": "yes", "height": "30"}),
+                         way(AREA, 2, shifted(SQUARE, 60), {"building": "yes"})]}
+    ring = lambda pts: [[lon, lat] for lon, lat in ((p["lon"], p["lat"]) for p in lonlat(AREA, pts))]
+    features = [{"type": "Feature", "properties": {"record": 11, "height_m": 70.0},
+                 "geometry": {"type": "Polygon", "coordinates": [ring(SQUARE + [SQUARE[0]])]}},
+                {"type": "Feature", "properties": {"record": 12, "height_m": 14.0},
+                 "geometry": {"type": "Polygon",
+                              "coordinates": [ring(shifted(SQUARE, 60) + [shifted(SQUARE, 60)[0]])]}}]
+    extract = tmp_path / "extract.geojson"
+    hd.write_extract(features, extract, {"dataset": "TestSet"})
+    report = pipeline.build_dataset(AREA, data, tmp_path / "out", POLICY, snapshot_sha256="s",
+                                    height_datasets=[("TestSet", extract, "test tile")])
+    props = {f["properties"]["building_id"]: f["properties"]
+             for f in json.loads((tmp_path / "out" / "buildings.geojson").read_text())["features"]}
+    assert props["way/1"]["height_m"] == 30.0 and props["way/1"]["height_conflict"] is True
+    assert props["way/1"]["height_alternatives"][0]["source"] == "dataset:TestSet"
+    assert props["way/2"]["height_m"] == 14.0 and props["way/2"]["height_category"] == ht.ESTIMATED
+    assert report["conflicting_buildings"] == 1
+    assert report["height_sources"]["by_count"]["dataset:TestSet"] == 1
+    reloaded = {b.building_id: b for b in pipeline.load_buildings(tmp_path / "out", AREA)}
+    assert reloaded["way/1"].height.alternatives[0].height_m == 70.0
+    assert reloaded["way/1"].tags == {"height": "30"}
 
 
 def test_build_dataset_with_a_height_model_labels_the_variant(tmp_path):

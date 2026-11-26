@@ -130,11 +130,104 @@ None was made. Each is listed with what it would settle.
 
 | File | Size | Licence | What it settles |
 |---|---|---|---|
-| 3D-GloBFP tile `1590_43.75_32.5_45.0_33.75_IZ.zip` (figshare) | 205 MB | CC BY 4.0 | Whether 3D-GloBFP covers the box and how it treats the tower; needed before choosing between the two per-building datasets |
+| 3D-GloBFP tile `1590_43.75_32.5_45.0_33.75_IZ.zip` (figshare) | 205 MB | CC BY 4.0 | **Downloaded and evaluated 2026-11-26 (section 9)** |
 | GlobalBuildingAtlas heights `LoD1/africa/e040_n35_e045_n30.json` (Hugging Face) | 378 MB | CC BY-NC 4.0 | Confirms the partial read was complete; needed to use it for the study district |
 | GlobalBuildingAtlas footprints for the same tile | 2.09 GB | ODbL | Same; could be avoided by joining heights to OSM footprints |
 | UT-GLOBUS `Baghdad_2.gpkg` (Zenodo) | 68.5 MB within a 4.6 GB archive | CC BY 4.0 | A third per-building source |
 | ITU-R P.837-8 rain maps (see `docs/atmospheric-losses.md`) | 361 MB | ITU | Current-edition rain rate for Baghdad |
+
+## 9. 3D-GloBFP evaluated in the provisional area (Phase 2-3, 2026-11-26)
+
+Downloaded with approval: figshare record 10.6084/m9.figshare.28890593.v4 (published
+2025-12-05, CC BY 4.0), tile `1590_43.75_32.5_45.0_33.75_IZ.zip`, 205,205,235 bytes, MD5
+matching the record. The original stays in `data/cache/datasets/3d_globfp/` (git-ignored);
+the 2,526 footprints of the study box are extracted with their record numbers to
+`data/raw/heights/3d_globfp/tahrir_bab_al_sharqi_v2.geojson` with a manifest (source
+checksums, extraction date). Reproduce with `scripts/import_height_dataset.py` and
+`scripts/evaluate_height_dataset.py`. Full report:
+`outputs/datasets/tahrir_bab_al_sharqi_v2/3d_globfp_evaluation.md`; per-building table
+`3d_globfp_buildings.csv`.
+
+**Footprint matching** against the 1,194 OSM buildings (a building counts as matched when
+dataset footprints cover at least half of it):
+
+| Result | Count |
+|---|---|
+| Matched one-to-one | 191 |
+| Matched, OSM building split into several dataset footprints | 101 |
+| Matched, one dataset footprint spanning several OSM buildings | 568 |
+| OSM buildings without a match | 334 |
+| Dataset footprints overlapping no OSM building at all | 1,379 (275,628 m²) |
+| Dataset duplicates (90 % overlap) | 0 |
+
+One-to-one matches overlap only moderately (median intersection-over-union 0.58). Two
+thirds of the matches are blocks that span several OSM buildings. The 1,379 dataset
+footprints with no OSM counterpart cover nearly as much ground as the OSM buildings
+themselves (about 318,000 m²): **OpenStreetMap is missing many buildings in this area**, a
+second data-quality finding independent of heights.
+
+**Heights:**
+
+| Measure | Value |
+|---|---|
+| All dataset footprints in the receiver area | median 19.9 m, 95th percentile 37.4 m, maximum 96.5 m; 520 footprints above 30 m |
+| One-to-one matches with good overlap (IoU ≥ 0.5) | median 21.4 m |
+| Same area in GlobalBuildingAtlas (Phase 2 measurement) | median 6.3 m |
+| Same area in GHSL (100 m cell averages, Phase 2) | median 13.2 m, maximum 22 m |
+| Against the five tagged OSM buildings | mean +26.3 m, RMSE 36.6 m |
+| The 55 m tower (way/919688856) | inside an 80 m footprint of 3,350 m² that covers 89 % of it and its neighbours |
+
+**Verdict: not suitable as a height source for this area.** Its heights are systematically
+higher than every other source and than the few tags (a three-storey building receives
+80 m), its footprints merge neighbouring buildings into blocks, and the one tall building is
+assigned the height of a block four times its size. This agrees with the authors' general
+statement that such models overestimate low buildings. It remains useful as evidence that
+OSM footprints are incomplete. **No other large dataset was downloaded.** GlobalBuildingAtlas
+is the remaining per-building candidate (378 MB download, needs approval); its Phase 2
+partial read showed a median of 6.3 m but also turned the tower into 5.4 m.
+
+## 10. Hybrid height resolution (implemented)
+
+Every building collects height candidates from all available sources; the configured
+priority decides which one is used, and the others are kept as *alternatives* with their
+own source, method and reference. Original OSM tags are never overwritten.
+
+Priority in `configs/study_area.yaml` (provisional, decision D2):
+
+1. observation — supervisor-approved field observations (`--observations` CSV)
+2. osm_height — a valid OSM `height` tag
+3. osm_levels — OSM `building:levels` × storey height
+4. dataset — a building-level external dataset matched by footprint
+5. model — a supervisor-approved statistical height model
+6. placeholder — the explicit development default
+
+**Why storeys rank above a dataset** (the brief proposed the opposite order, to be justified
+against accuracy): a storey count is information about the building itself, and its error
+comes only from the assumed storey height; the one dataset evaluated here was 26 m too high
+on average where tags exist, and modelled datasets report errors of several metres per
+building even where they were validated. The order is a configuration line and can be
+swapped if the supervisor prefers.
+
+Sources disagree when they differ by more than 6 m or a quarter of the chosen height; such
+buildings are flagged ("conflicting sources") in the building table and the quality report.
+Height categories are never upgraded: a dataset height is `estimated`, a model draw stays
+`placeholder`, and only an OSM height tag or a field observation is `observed`.
+
+Building tables (`buildings.geojson`) record, per building: identifier, footprint, height,
+category, source, method, uncertainty where the source states one, reference (OSM object and
+snapshot hash, dataset record and DOI, or observation file), the original OSM tags, the
+alternatives and the conflict flag.
+
+## 11. Manual overrides
+
+`scripts/height_worklist.py` lists the buildings whose height should be observed: tall
+buildings (by any source), candidate rooftops, buildings with conflicting sources, and
+buildings near a candidate site that could block it. It writes a CSV with empty columns
+`height_m, method, observer, date, uncertainty_m`; filled rows are applied with
+`scripts/build_dataset.py --observations FILE` and become `observed` heights that outrank
+every other source, while all earlier values stay attached as alternatives. Blank rows are
+ignored. With illustrative arguments the provisional area gives 249 buildings to check, most
+of them low buildings of unknown height near the four candidate sites.
 
 ## 7. Not verified
 

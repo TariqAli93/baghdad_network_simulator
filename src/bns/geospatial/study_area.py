@@ -16,7 +16,10 @@ from shapely.geometry import Polygon, box
 
 from bns.geospatial.grid import Grid
 
-ROLES = ("development fixture", "study district")
+# development fixture     frozen data for tests and reproducibility; never for results
+# provisional study area  candidate study district used for development; not approved
+# study district          the area the thesis reports on (only with approved: true)
+ROLES = ("development fixture", "provisional study area", "study district")
 
 
 def local_transformer(lat0: float, lon0: float) -> Transformer:
@@ -35,8 +38,11 @@ class StudyArea:
     receiver_size_m: tuple[float, float]    # east-west, north-south extent of the receiver grid
     margin_m: float                         # buildings are kept this far beyond the receivers
     description: str = ""
+    snapshot: str = ""                      # OSM snapshot name in data/raw/osm (default: name)
 
     def __post_init__(self):
+        if not self.snapshot:
+            object.__setattr__(self, "snapshot", self.name)
         if self.role not in ROLES:
             raise ValueError(f"role must be one of {ROLES}, not {self.role!r}.")
         if not (-90.0 <= self.center_lat <= 90.0 and -180.0 <= self.center_lon <= 180.0):
@@ -86,5 +92,6 @@ def load_study_areas(path: Path) -> dict[str, StudyArea]:
             name=name, role=entry["role"], approved=bool(entry["approved"]),
             center_lat=float(entry["center"]["lat"]), center_lon=float(entry["center"]["lon"]),
             receiver_size_m=tuple(float(v) for v in entry["receiver_area_m"]),
-            margin_m=float(entry["margin_m"]), description=entry.get("description", ""))
+            margin_m=float(entry["margin_m"]), description=entry.get("description", ""),
+            snapshot=entry.get("snapshot", ""))
     return areas

@@ -22,6 +22,8 @@ import shutil
 import sys
 from pathlib import Path
 
+import yaml
+
 from bns.geospatial import heights as ht
 from bns.geospatial import osm_source, pipeline
 from bns.geospatial.study_area import load_study_areas
@@ -40,6 +42,9 @@ def main() -> int:
     parser.add_argument("--seed", type=int, help="random seed, required with --height-model")
     parser.add_argument("--observations", type=Path,
                         help="CSV of observed heights: building_id,height_m,method[,observer,date,uncertainty_m]")
+    parser.add_argument("--height-dataset", action="append", default=[],
+                        help="name in configs/height_datasets.yaml whose extract for this area "
+                             "(scripts/import_height_dataset.py) adds height candidates")
     args = parser.parse_args()
 
     areas = load_study_areas(ROOT / "configs" / "study_area.yaml")
@@ -51,10 +56,10 @@ def main() -> int:
 
     if args.fetch:
         meta = osm_source.fetch_snapshot(
-            RAW_OSM, area.name, area.bbox_degrees(),
+            RAW_OSM, area.snapshot, area.bbox_degrees(),
             {"name": area.name, "lat": area.center_lat, "lon": area.center_lon})
-        print(f"Fetched snapshot {area.name}.json ({meta['sha256'][:12]}, {meta['fetched_utc']})")
-    data, meta = osm_source.load_snapshot(RAW_OSM, area.name)
+        print(f"Fetched snapshot {area.snapshot}.json ({meta['sha256'][:12]}, {meta['fetched_utc']})")
+    data, meta = osm_source.load_snapshot(RAW_OSM, area.snapshot)
 
     model, variant = None, "osm"
     if args.height_model:
@@ -70,11 +75,26 @@ def main() -> int:
     if args.observations:
         with open(args.observations, newline="", encoding="utf-8") as handle:
             rows = list(csv.DictReader(handle))
+        variant += "+observations"
+    datasets = []
+    if args.height_dataset:
+        specs = yaml.safe_load((ROOT / "configs" / "height_datasets.yaml").read_text(
+            encoding="utf-8"))["datasets"]
+        for key in args.height_dataset:
+            extract = ROOT / "data" / "raw" / "heights" / key / f"{area.name}.geojson"
+            if not extract.exists():
+                print(f"No {key} extract for {area.name}: run scripts/import_height_dataset.py first.")
+                return 1
+            spec = specs[key]
+            datasets.append((f"{spec['name']} {spec['version'].split()[0]}", extract,
+                             f"{spec['name']} tile {spec.get('tile', '')}, DOI {spec['doi']}"))
+            variant += f"+{key}"
 
     scene_dir = ROOT / "data" / "scenes" / area.name / variant
     report = pipeline.build_dataset(
         area, data, scene_dir, policy, meta["sha256"], height_model=model, seed=args.seed,
-        manual_rows=rows, manual_name=args.observations.name if args.observations else "manual")
+        manual_rows=rows, manual_name=args.observations.name if args.observations else "manual",
+        height_datasets=datasets)
 
     report_dir = ROOT / "outputs" / "datasets" / area.name / variant
     report_dir.mkdir(parents=True, exist_ok=True)

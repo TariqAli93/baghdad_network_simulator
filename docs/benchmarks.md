@@ -158,6 +158,10 @@ one third (about 1.2 dB) for a single 100-million-ray run with 5 m cells.
 
 ### 3.5 E5 — how many rays a map needs (informative)
 
+> **Superseded for the profiles (Phase 4, `docs/convergence.md`).** The numbers below were
+> measured on a 400 m block. On the full 1 km² area 1e8 rays at 10 m cells give 3.9-5.2 dB
+> (95th percentile) against a 1e9-ray map; the standard profile now uses 1e9 rays.
+
 Same block, baseline settings, 3.5 GHz. Each map is compared with a 1-billion-ray map over
 outdoor cells; the 10 m results are the same maps averaged 2 x 2.
 

@@ -84,6 +84,30 @@ def test_cell_average_differs_from_centre_value_near_tx_and_has_converged():
     assert abs(linear_to_db(avg / fine)) < 0.01           # 8x8 sub-samples are enough
 
 
+def test_tr38901_element_reaches_8_dbi_on_boresight_and_minus_22_behind():
+    assert a.tr38901_element_gain_dbi((1.0, 0.0, 0.0)) == pytest.approx(8.0)
+    assert a.tr38901_element_gain_dbi((-1.0, 0.0, 0.0)) == pytest.approx(8.0 - 30.0)
+
+
+def test_tr38901_element_is_3_db_down_at_half_the_beamwidth():
+    half = np.radians(32.5)
+    assert a.tr38901_element_gain_dbi((np.cos(half), np.sin(half), 0.0)) == pytest.approx(5.0)
+    assert a.tr38901_element_gain_dbi((np.cos(half), 0.0, -np.sin(half))) == pytest.approx(5.0)
+
+
+def test_tr38901_downtilt_points_the_boresight_below_the_horizon():
+    tilt = np.radians(10.0)
+    below = (np.cos(tilt), 0.0, -np.sin(tilt))
+    assert a.tr38901_element_gain_dbi(below, (0.0, tilt, 0.0)) == pytest.approx(8.0)
+    assert a.tr38901_element_gain_dbi((1.0, 0.0, 0.0), (0.0, tilt, 0.0)) == pytest.approx(
+        8.0 - 12 * (10 / 65) ** 2)
+
+
+def test_tr38901_azimuth_rotation_turns_the_sector():
+    yaw = np.radians(120.0)
+    assert a.tr38901_element_gain_dbi((np.cos(yaw), np.sin(yaw), 0.0), (yaw, 0.0, 0.0)) == pytest.approx(8.0)
+
+
 def test_knife_edge_is_minus_6_db_on_the_shadow_boundary():
     assert linear_to_db(a.knife_edge_gain(0.0)) == pytest.approx(-6.0206, abs=1e-3)
     assert a.knife_edge_loss_db_p526(0.0) == pytest.approx(6.03, abs=0.05)

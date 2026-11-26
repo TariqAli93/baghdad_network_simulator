@@ -26,6 +26,14 @@ def test_every_scenario_cites_registered_sources():
         assert not missing, f"{scenario['id']} cites unknown sources {missing}"
 
 
+def test_every_radio_parameter_cites_registered_sources():
+    parameters = yaml.safe_load((ROOT / "configs" / "radio_system.yaml").read_text(
+        encoding="utf-8"))["parameters"]
+    for name, entry in parameters.items():
+        missing = set(entry.get("sources", [])) - set(REGISTRY_IDS)
+        assert not missing, f"{name} cites unknown sources {missing}"
+
+
 def test_the_five_baseline_scenarios_are_unchanged():
     table = {s["id"]: (float(s["frequency_hz"]), float(s["bandwidth_hz"])) for s in SCENARIOS}
     assert table == {

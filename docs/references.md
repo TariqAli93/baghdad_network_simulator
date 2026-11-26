@@ -107,6 +107,27 @@ so 1.8 GHz sits in the gap between uplink and downlink. Simulating at the downli
 (1842.5 MHz) instead would change free-space loss by 0.2 dB. Keep 1.8 GHz as the nominal
 frequency or switch to 1842.5 MHz, but state which.
 
+### 3.1 Sources of radio-system parameters (added in Phase 3)
+
+Read for the parameter proposal in `docs/radio-parameters.md` (text of each document
+extracted and read on 2026-11-26, archive URLs under https://www.3gpp.org/ftp/Specs/archive/
+for 3GPP).
+
+| ID | Document | Used for | Check |
+|---|---|---|---|
+| `ITU-M2292` | Report ITU-R M.2292-0 (12/2013), characteristics of terrestrial IMT-Advanced systems for sharing studies. https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-M.2292-2014-PDF-E.pdf | Macro base-station power, antenna, downtilt, noise figure, reuse and activity factor (Tables 1-4) | Read |
+| `3GPP-TR38921` | TR 38.921 V19.0.0, IMT parameters for the 7 GHz and 10 GHz ranges (study for ITU-R sharing work; copy the exact title from 3gpp.org before citing) | 7 GHz-range base-station power, element, array and downtilt; UE noise figure; truncated Shannon mapping (Table 4.2.7-1) | Read |
+| `3GPP-TR38830` | TR 38.830 V17.0.0, study on NR coverage enhancements | Coverage link-budget templates, cell-area reliability (Table A.3), UE antenna gains | Read |
+| `3GPP-TR38802` | TR 38.802 V14.2.0, study on New Radio access technology physical layer aspects | Evaluation power, noise figure, EIRP caps, load levels (Annex A) | Read |
+| `3GPP-TR36814` | TR 36.814 V9.2.0, further advancements for E-UTRA physical layer aspects | LTE macro power (Table A.2.1.1-2) | Read |
+| `ITU-P372` | Rec. ITU-R P.372-15 (09/2021), radio noise | Reference noise temperature T0 = 290 K (§1.2.1) | Read |
+| `CEPT-ECC-1106` | ECC/DEC/(11)06, harmonised frequency arrangements for 3 400-3 800 MHz (amended 26 Oct 2018). https://docdb.cept.org/download/1531 | Regulatory EIRP context at 3.5 GHz (no obligatory in-block limit) | Read |
+
+The 3GPP band specifications already registered (`3GPP-TS36101`, `3GPP-TS38101-1`,
+`3GPP-TS38101-2`) also give the receiver reference sensitivities quoted in
+`docs/radio-parameters.md`; `ITU-M2412`, `3GPP-TR38914`, `3GPP-TR36942` and `3GPP-TR38901`
+supply the remaining values.
+
 ## 4. Mobile market and spectrum in Iraq
 
 | ID | Document | Used for | Check |

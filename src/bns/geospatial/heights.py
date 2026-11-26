@@ -34,13 +34,45 @@ _HEIGHT_TAGS = ("height", "building:levels")
 _NUMBER = re.compile(r"^\s*([0-9]+(?:\.[0-9]+)?)\s*(m|meters|metres)?\s*$", re.IGNORECASE)
 
 
+SOURCE_KINDS = ("observation", "osm_height", "osm_levels", "dataset", "model", "placeholder")
+DEFAULT_PRIORITY = SOURCE_KINDS
+
+# Two sources "disagree" when they differ by more than max(6 m, a quarter of the chosen
+# height): about two storeys for low buildings, and more than an error in the assumed
+# storey height could explain for tall ones (a 55 m tower and an 80 m estimate disagree).
+_CONFLICT_ABS_M = 6.0
+_CONFLICT_REL = 0.25
+
+
+def source_kind(source: str) -> str:
+    """The kind of a HeightRecord.source, used for priorities."""
+    if source.startswith("manual:"):
+        return "observation"
+    if source == "osm:height":
+        return "osm_height"
+    if source == "osm:building:levels":
+        return "osm_levels"
+    if source.startswith("dataset:"):
+        return "dataset"
+    if source.startswith("model:"):
+        return "model"
+    if source == "placeholder":
+        return "placeholder"
+    raise ValueError(f"Unknown height source {source!r}.")
+
+
 @dataclass(frozen=True)
 class HeightPolicy:
-    """How OSM tags are turned into heights. Every value is a recorded assumption."""
+    """How heights are derived and chosen. Every value is a recorded assumption."""
 
     storey_height_m: float
     placeholder_height_m: float
     max_plausible_height_m: float
+    priority: tuple[str, ...] = DEFAULT_PRIORITY    # which source wins when several exist
+
+    def __post_init__(self):
+        if sorted(self.priority) != sorted(SOURCE_KINDS) or self.priority[-1] != "placeholder":
+            raise ValueError(f"priority must order all of {SOURCE_KINDS}, with placeholder last.")
 
 
 @dataclass(frozen=True)
@@ -54,6 +86,7 @@ class HeightRecord:
     uncertainty_m: float | None = None  # only when the source states one
     warnings: tuple[str, ...] = ()
     superseded: "HeightRecord | None" = None        # the record this one replaced
+    alternatives: tuple["HeightRecord", ...] = ()   # other valid sources, not chosen
 
 
 @dataclass(frozen=True)
@@ -101,13 +134,17 @@ def height_from_osm_tags(tags: dict, policy: HeightPolicy, building_id: str,
         if abs(height - from_levels) > max(6.0, 0.5 * from_levels):
             warnings.append(f"height={height:g} m contradicts building:levels={levels:g}")
 
-    if height is not None:
-        return HeightRecord(height, OBSERVED, "osm:height", "value of the OSM height tag",
-                            reference, original, warnings=tuple(warnings))
+    from_levels = None
     if levels is not None:
         method = f"{levels:g} levels x {policy.storey_height_m} m per storey (assumed storey height)"
-        return HeightRecord(levels * policy.storey_height_m, ESTIMATED, "osm:building:levels",
-                            method, reference, original, warnings=tuple(warnings))
+        from_levels = HeightRecord(levels * policy.storey_height_m, ESTIMATED, "osm:building:levels",
+                                   method, reference, original, warnings=tuple(warnings))
+    if height is not None:
+        return HeightRecord(height, OBSERVED, "osm:height", "value of the OSM height tag",
+                            reference, original, warnings=tuple(warnings),
+                            alternatives=(from_levels,) if from_levels else ())
+    if from_levels is not None:
+        return from_levels
     return HeightRecord(policy.placeholder_height_m, PLACEHOLDER, "placeholder",
                         f"no height information; default of {policy.placeholder_height_m} m assigned",
                         reference, original, warnings=tuple(warnings))
@@ -122,7 +159,8 @@ def apply_manual_observations(buildings: list[Building], rows: list[dict],
     ids in `rows` that match no building. The previous record and the original
     OSM values stay attached to the new record.
     """
-    by_id = {row["building_id"]: row for row in rows}
+    by_id = {row["building_id"]: row for row in rows
+             if str(row.get("height_m") or "").strip()}        # unfilled worklist rows
     known = {b.building_id for b in buildings}
     updated = []
     for b in buildings:
@@ -134,10 +172,108 @@ def apply_manual_observations(buildings: list[Building], rows: list[dict],
         method = row["method"] + (f" by {observer}" if observer else "")
         reference = f"{source_name}, {b.building_id}" + (f", {date}" if date else "")
         uncertainty = float(row["uncertainty_m"]) if row.get("uncertainty_m") not in (None, "") else None
+        earlier = _informative((b.height,) + b.height.alternatives)
         record = HeightRecord(float(row["height_m"]), OBSERVED, f"manual:{source_name}", method,
-                              reference, b.height.original, uncertainty, superseded=b.height)
-        updated.append(replace(b, height=record))
+                              reference, b.height.original, uncertainty, superseded=b.height,
+                              alternatives=earlier)
+        updated.append(replace(b, height=_with_conflicts(record)))
     return updated, [i for i in by_id if i not in known]
+
+
+def _informative(records) -> tuple[HeightRecord, ...]:
+    """Records that carry information about the building itself (not models, not defaults)."""
+    seen, kept = set(), []
+    for r in records:
+        if source_kind(r.source) in ("model", "placeholder") or (r.source, r.height_m) in seen:
+            continue
+        seen.add((r.source, r.height_m))
+        kept.append(replace(r, alternatives=()))
+    return tuple(kept)
+
+
+def _disagrees(a: float, b: float) -> bool:
+    return abs(a - b) > max(_CONFLICT_ABS_M, _CONFLICT_REL * a)
+
+
+def _with_conflicts(record: HeightRecord) -> HeightRecord:
+    notes = [f"sources disagree: {record.source} {record.height_m:g} m vs {alt.source} "
+             f"{alt.height_m:g} m" for alt in record.alternatives
+             if _disagrees(record.height_m, alt.height_m)]
+    kept = [w for w in record.warnings if not w.startswith("sources disagree")]
+    return replace(record, warnings=tuple(kept + notes))
+
+
+def has_conflict(record: HeightRecord) -> bool:
+    return any(w.startswith("sources disagree") for w in record.warnings)
+
+
+def resolve(candidates: list[HeightRecord], policy: HeightPolicy) -> HeightRecord:
+    """Pick the candidate whose source kind ranks first in the policy's priority.
+
+    The others that describe the building itself are kept as alternatives, and
+    a warning is added for every alternative that disagrees with the choice.
+    """
+    rank = {kind: i for i, kind in enumerate(policy.priority)}
+    ordered = sorted(candidates, key=lambda r: rank[source_kind(r.source)])
+    chosen = ordered[0]
+    alternatives = _informative([r for r in ordered[1:] if r is not chosen])
+    return _with_conflicts(replace(chosen, alternatives=alternatives))
+
+
+def apply_candidates(buildings: list[Building], extra: dict[str, list[HeightRecord]],
+                     policy: HeightPolicy) -> list[Building]:
+    """Add height candidates (for example from a dataset) and re-resolve each building."""
+    updated = []
+    for b in buildings:
+        more = extra.get(b.building_id, [])
+        if not more:
+            updated.append(b)
+            continue
+        base = replace(b.height, alternatives=())
+        candidates = [base, *b.height.alternatives, *more]
+        updated.append(replace(b, height=resolve(candidates, policy)))
+    return updated
+
+
+def observation_worklist(buildings: list[Building], candidates, *, tall_m: float,
+                         near_site_m: float, blocking_share: float) -> list[dict]:
+    """Buildings whose height should be observed, with the reasons.
+
+    tall               any source gives at least tall_m
+    candidate rooftop  a candidate site stands on it
+    conflicting sources
+    may block a candidate site
+                       within near_site_m of a site and at least blocking_share of the
+                       site's antenna height (by any source)
+    The height columns are left empty for the observer to fill; the filled file is
+    read back with apply_manual_observations.
+    """
+    hosts = {c.building_id for c in candidates}
+    rows = []
+    for b in buildings:
+        heights = [b.height.height_m] + [a.height_m for a in b.height.alternatives]
+        highest = max(heights)
+        spot = b.polygon.representative_point()
+        reasons = []
+        if b.building_id in hosts:
+            reasons.append("candidate rooftop")
+        if highest >= tall_m:
+            reasons.append("tall")
+        if has_conflict(b.height):
+            reasons.append("conflicting sources")
+        if b.building_id not in hosts and any(
+                (spot.x - c.x) ** 2 + (spot.y - c.y) ** 2 <= near_site_m**2
+                and highest >= blocking_share * c.z for c in candidates):
+            reasons.append("may block a candidate site")
+        if reasons:
+            rows.append({
+                "building_id": b.building_id, "reasons": "; ".join(reasons),
+                "current_height_m": round(b.height.height_m, 1), "current_source": b.height.source,
+                "other_sources": "; ".join(f"{a.source} {a.height_m:g} m" for a in b.height.alternatives),
+                "x_m": round(spot.x, 1), "y_m": round(spot.y, 1),
+                "height_m": "", "method": "", "observer": "", "date": "", "uncertainty_m": "",
+            })
+    return rows
 
 
 def _draw(model: HeightModel, rng: np.random.Generator) -> float:
@@ -188,4 +324,5 @@ def load_height_models(path: Path) -> dict[str, HeightModel]:
 def load_height_policy(path: Path) -> HeightPolicy:
     data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))["height_policy"]
     return HeightPolicy(float(data["storey_height_m"]), float(data["placeholder_height_m"]),
-                        float(data["max_plausible_height_m"]))
+                        float(data["max_plausible_height_m"]),
+                        tuple(data.get("priority", DEFAULT_PRIORITY)))

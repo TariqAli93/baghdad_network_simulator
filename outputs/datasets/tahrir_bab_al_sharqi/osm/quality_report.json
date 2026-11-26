@@ -6,6 +6,8 @@
   },
   "buildings": 1186,
   "missing_height_buildings": 1172,
+  "conflicting_buildings": 0,
+  "buildings_with_alternative_sources": 1,
   "height_categories": {
     "by_count": {
       "observed": 10,
@@ -18,20 +20,20 @@
       "placeholder": 98.8195615514334
     },
     "by_area_percent": {
-      "observed": 1.8330077723987848,
-      "estimated": 2.6782765311761128,
+      "observed": 1.8330077723987857,
+      "estimated": 2.678276531176115,
       "placeholder": 95.4887156964251
     }
   },
   "height_sources": {
     "by_count": {
       "osm:height": 10,
-      "osm:building:levels": 4,
-      "placeholder": 1172
+      "placeholder": 1172,
+      "osm:building:levels": 4
     },
     "by_area_percent": {
-      "osm:building:levels": 2.6782765311761128,
-      "osm:height": 1.8330077723987848,
+      "osm:building:levels": 2.678276531176115,
+      "osm:height": 1.8330077723987857,
       "placeholder": 95.4887156964251
     }
   },
@@ -64,14 +66,17 @@
   "parse": {
     "buildings_read": 1220,
     "relations_read": 0,
+    "relations_with_missing_members": 0,
     "skipped": {
       "relation stored without member geometry": 8
-    }
+    },
+    "duplicate_pairs": 2
   },
   "cleaning": {
+    "buildings_split_into_pieces": 1,
     "dropped_small": 2,
     "overlaps_resolved": 317,
-    "buildings_outside_area_or_too_small": 35,
+    "buildings_outside_area_or_too_small": 34,
     "footprints_before_merge": 1186,
     "solids_after_merge": 453,
     "different_height_contacts": 55

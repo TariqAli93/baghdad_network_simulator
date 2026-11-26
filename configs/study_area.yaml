@@ -1,9 +1,13 @@
 # Study areas. Coordinates are WGS84 degrees; sizes are metres.
 #
 # role:
-#   development fixture  used to build and test the pipeline; never for thesis results
-#   study district       the area the thesis reports on
+#   development fixture     frozen data used to test the pipeline and reproduce Phase 0;
+#                           never for thesis results
+#   provisional study area  candidate study district used for development; not approved
+#   study district          the area the thesis reports on
 # approved: true only once the supervisor has approved the area as the study district.
+# snapshot: name of the OpenStreetMap snapshot in data/raw/osm (defaults to the area name).
+# A snapshot is never overwritten; a new download needs a new snapshot name.
 #
 # The study district has NOT been chosen yet (docs/supervisor-decisions.md, decision D1).
 # Add it here when it is; nothing else in the pipeline needs to change.
@@ -18,6 +22,19 @@ areas:
     center: {lat: 33.3280, lon: 44.4085}
     receiver_area_m: [1000.0, 1000.0]
     margin_m: 150.0
+    snapshot: tahrir_bab_al_sharqi      # Phase 0 download; lacks multipolygon geometry; frozen
+
+  tahrir_bab_al_sharqi_v2:
+    role: provisional study area
+    approved: false
+    description: >-
+      Same area as the fixture, from a new snapshot taken with the corrected query that
+      includes multipolygon buildings. Provisional development area until the supervisor
+      chooses the study district.
+    center: {lat: 33.3280, lon: 44.4085}
+    receiver_area_m: [1000.0, 1000.0]
+    margin_m: 150.0
+    snapshot: tahrir_bab_al_sharqi_v2
 
 # How OpenStreetMap tags become heights. Every value is an assumption that must be approved
 # (docs/supervisor-decisions.md, decision D2) before it is used for thesis results.
@@ -25,3 +42,16 @@ height_policy:
   storey_height_m: 3.0            # used when only building:levels is tagged
   placeholder_height_m: 9.0       # assigned when a building has no height information
   max_plausible_height_m: 250.0   # larger tag values are treated as mapping errors
+  # Which source wins when a building has several (provisional; decision D2).
+  # Storey counts rank above modelled datasets: a storey count is information about the
+  # building itself and its error grows only with the storey-height assumption, whereas the
+  # one dataset evaluated here (3D-GloBFP) was 26 m too high on average on tagged buildings
+  # (docs/building-height-data.md, section 9). The brief's provisional order put datasets
+  # before storeys; swap the two lines below to use that order.
+  priority:
+    - observation     # supervisor-approved field observations
+    - osm_height      # OSM height tag
+    - osm_levels      # OSM building:levels x storey height
+    - dataset         # per-building external dataset, matched by footprint
+    - model           # supervisor-approved statistical height model
+    - placeholder     # explicit development placeholder

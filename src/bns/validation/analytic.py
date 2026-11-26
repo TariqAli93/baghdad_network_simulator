@@ -112,6 +112,35 @@ def cell_averaged_friis(tx_xyz, x_centers, y_centers, z_rx_m: float,
     return cell_average(gain, x_centers, y_centers, cell_size_m, n_sub)
 
 
+# --- Antenna pattern reference ----------------------------------------------------
+
+
+def _rotation(orientation_rad) -> np.ndarray:
+    """3GPP TR 38.901 eq. (7.1-1): LCS -> GCS for bearing alpha, downtilt beta, slant gamma."""
+    a, b, c = orientation_rad
+    rz = np.array([[np.cos(a), -np.sin(a), 0], [np.sin(a), np.cos(a), 0], [0, 0, 1]])
+    ry = np.array([[np.cos(b), 0, np.sin(b)], [0, 1, 0], [-np.sin(b), 0, np.cos(b)]])
+    rx = np.array([[1, 0, 0], [0, np.cos(c), -np.sin(c)], [0, np.sin(c), np.cos(c)]])
+    return rz @ ry @ rx
+
+
+def tr38901_element_gain_dbi(direction_gcs, orientation_rad=(0.0, 0.0, 0.0)) -> float:
+    """Gain of the 3GPP TR 38.901 Table 7.3-1 element towards a direction, in dBi.
+
+    Vertical cut -min(12((theta-90)/65)^2, 30), horizontal cut -min(12(phi/65)^2, 30),
+    combined as -min(-(A_V + A_H), 30), plus 8 dBi maximum gain. theta is the zenith
+    and phi the azimuth angle in the antenna's own frame; a positive downtilt points
+    the boresight below the horizon.
+    """
+    d = np.asarray(direction_gcs, dtype=float)
+    local = _rotation(orientation_rad).T @ (d / np.linalg.norm(d))
+    theta = np.degrees(np.arccos(np.clip(local[2], -1.0, 1.0)))
+    phi = np.degrees(np.arctan2(local[1], local[0]))
+    a_v = -min(12.0 * ((theta - 90.0) / 65.0) ** 2, 30.0)
+    a_h = -min(12.0 * (phi / 65.0) ** 2, 30.0)
+    return 8.0 - min(-(a_v + a_h), 30.0)
+
+
 # --- Diffraction references -------------------------------------------------------
 
 

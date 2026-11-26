@@ -24,6 +24,9 @@ uv sync                                         # create/update .venv from uv.lo
 uv run pytest                                   # unit tests (fast, no ray tracing)
 uv run pytest -m engine                         # scientific tests through the real engine
 uv run python scripts/build_dataset.py --area NAME   # OSM snapshot -> scene + quality report
+uv run python scripts/run_single_site.py --area NAME --mode development   # five-band single site
+uv run python scripts/run_convergence.py --area NAME # ray-count check behind the profiles
+uv run python scripts/import_height_dataset.py / evaluate_height_dataset.py / height_worklist.py
 uv run python scripts/run_height_sensitivity.py ...  # compare height models (see its --help)
 uv run python scripts/atmosphere_table.py            # rain and gas loss per band
 uv run python scripts/build_poc_scene.py        # Phase 0 scenes (kept for the Phase 0 experiments)
@@ -38,9 +41,16 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 - **Every building height has a provenance record** (`bns.geospatial.heights`): observed,
   estimated or placeholder, with source, method and the untouched original values. Never
   present a placeholder or a height-model draw as an estimate or a measurement.
-- **Radio-system parameters are undecided** (`configs/radio_system.yaml`). Do not add a
-  default power, gain, noise figure, threshold or target anywhere in code. Functions take
-  them as arguments; scripts take them from the config or the command line and record them.
+- **Radio-system parameters are proposals, not approved** (`configs/radio_system.yaml`,
+  `docs/radio-parameters.md`): each is development, candidate or approved. Development runs
+  label every output "DEVELOPMENT — NOT APPROVED FOR RESEARCH"; research runs refuse
+  unapproved values. Do not add a default power, gain, noise figure, threshold or target
+  anywhere in code. Never add an antenna gain on top of an EIRP or of a traced pattern.
+- **Propagation and radio system stay separate**: ray tracing goes through
+  `bns.simulation.propagation` (cached by job key); received power, SINR and rates through
+  `bns.simulation.radio`. A path-gain map is never reported as coverage.
+- **Profiles** come from `configs/simulation.yaml` (`docs/convergence.md`); do not lower a
+  ray count without a new convergence measurement.
 - **Baseline atmosphere is clear sky** (gas included, no rain). Rain cases in
   `configs/atmosphere.yaml` are unapproved sensitivity cases.
 - Open decisions live in `docs/supervisor-decisions.md`; corrections to the project
@@ -75,7 +85,11 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 - SI units internally (Hz, m, W); dB and dBm only at the edges. Helpers: `bns.core.units`.
 - Scene coordinates: metres, z up, origin at the centre of the study box (local transverse
   Mercator). Grid arrays are indexed `[y, x]`.
-- Every building height carries its source: `tag:height`, `tag:building:levels` or `assumed`.
+- Every building height carries a category (observed / estimated / placeholder), a source
+  (`manual:`, `osm:height`, `osm:building:levels`, `dataset:`, `model:`, `placeholder`) and
+  its alternatives; the priority between sources is in `configs/study_area.yaml`.
+- Snapshots are never overwritten; a new download gets a new snapshot name. The Phase 0
+  fixture (`tahrir_bab_al_sharqi`) is frozen; development work uses `tahrir_bab_al_sharqi_v2`.
 - Raw data in `data/raw/` is immutable and hashed; `data/scenes/`, `data/cache/` and large
   run outputs are regenerated and git-ignored.
 - Charts use `bns.reporting.plotstyle` (one colour per scenario, everywhere).
@@ -86,8 +100,11 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 configs/scenarios.yaml          the five scenarios (single source of truth)
 configs/study_area.yaml         study areas and the OSM height policy
 configs/height_models.yaml      assumed height distributions for the sensitivity analysis
-configs/radio_system.yaml       power, gains, noise, thresholds (all undecided)
+configs/radio_system.yaml       power, antenna, noise, thresholds with approval states
+configs/simulation.yaml         profiles, mechanisms, seeds
+configs/height_datasets.yaml    external height datasets (manifests, checksums)
 configs/atmosphere.yaml         clear-sky baseline and rain sensitivity cases
+src/bns/simulation/             jobs, cache, propagation (runner), worker, radio, setup
 src/bns/runtime.py              CPU bootstrap, memory cap, isolated workers
 src/bns/core/units.py           conversions, Friis, thermal noise
 src/bns/analysis/               link_budget (received power, SINR, Shannon), metrics (coverage,

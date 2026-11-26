@@ -1,46 +1,173 @@
-# Radio-system parameters. The project description does not give them, so they are decisions
-# for the supervisor (docs/supervisor-decisions.md). Nothing here is decided yet: every entry
-# is "undecided" and has no value, and calculations that need one stop with a clear error.
+# Radio-system parameters (docs/radio-parameters.md explains every value).
 #
 # status:
-#   undecided    no value
-#   provisional  a documented value, not approved; results using it must be labelled provisional
-#   approved     approved by the supervisor; "source" says by whom and when
+#   undecided    no value; calculations that need it stop
+#   development  value for software testing only; needs a justification, no source
+#   candidate    sourced proposal awaiting supervisor approval (usable in development runs)
+#   approved     approved by the supervisor; approved_by says who and when
+# Development runs accept development, candidate and approved values and label every output
+# "DEVELOPMENT — NOT APPROVED FOR RESEARCH". Research runs accept approved values only.
 #
-# "value" is a number, or a mapping from scenario id to a number when it differs per band,
-# for example:   value: {lte_1800: 15.0, nr_3500: 18.0, c6g_8000: 21.0}
-#
-# Values used in related studies are listed in docs/supervisor-decisions.md as options.
+# The candidate values describe the CONTROLLED experiment: one common radio system for all
+# five bands, so that only frequency and bandwidth differ (docs/methodology.md).
+# sources: IDs in docs/references.md (checked by tests/unit/test_references.py).
 parameters:
   tx_power_dbm:
-    value: null
-    status: undecided
-    source: ""
+    value: 46.0
+    definition: conducted          # at the antenna port, before any antenna gain
+    unit: dBm per sector carrier
+    status: candidate
+    sources: [3GPP-TR38914, 3GPP-TR36942, ITU-M2292, 3GPP-TR38921]
+    justification: >-
+      46 dBm is the macro downlink power in the 3GPP 6G coverage assumptions (TR 38.914
+      Table 5.1.20.1-2), the E-UTRA reference base station (TR 36.942 Table 4.6), ITU-R
+      M.2292 macro urban (Tables 3-4) and TR 38.921 (two polarisations, 7 GHz range).
+      The same total power in every band; the power per MHz therefore falls with bandwidth
+      (33 dBm/MHz at 20 MHz, 26 at 100 MHz, 20 at 400 MHz).
+    validity: Macro sites; conducted total power per sector carrier.
+    impact: >-
+      Shifts every received-power value by the same amount in all bands. Wider carriers
+      spread the same power, so their SNR is lower; constant power per MHz is the
+      alternative for the deployment interpretation.
+
+  tx_antenna_pattern:
+    value: tr38901
+    unit: pattern name
+    status: candidate
+    sources: [3GPP-TR38901, ITU-M2412]
+    justification: >-
+      3GPP TR 38.901 Table 7.3-1 sector element (65 degree beamwidth, 8 dBi peak, 30 dB
+      front-to-back), the element ITU-R M.2412 also uses. It is TRACED by the ray tracer,
+      so its gain is part of the path gain.
+    validity: Single element per sector; no array or beamforming gain.
+    impact: >-
+      Concentrates power in front of each sector and reduces it behind; array gain, which
+      grows with frequency at fixed size, is excluded from the controlled experiment.
+
   tx_antenna_gain_dbi:
-    value: null
-    status: undecided
-    source: ""
-  rx_antenna_gain_dbi:
-    value: null
-    status: undecided
-    source: ""
-  noise_figure_db:
-    value: null
-    status: undecided
-    source: ""
-  coverage_threshold_dbm:
-    value: null
-    status: undecided
-    source: ""
-  coverage_target:
-    value: null
-    status: undecided
-    source: ""
-  interference_activity:      # 1.0 = every other site transmits at full power all the time
-    value: null
-    status: undecided
-    source: ""
+    value: 0.0
+    unit: dBi added after tracing
+    status: candidate
+    sources: [3GPP-TR38901]
+    justification: >-
+      Zero because the traced tr38901 pattern already contains the 8 dBi peak gain; any
+      other value would count the gain twice (refused when the file is loaded).
+    validity: Only with a traced pattern.
+    impact: None by itself; guards against double counting.
+
+  sectors_per_site:
+    value: 3
+    unit: sectors
+    status: candidate
+    sources: [ITU-M2412, ITU-M2292]
+    justification: "Three sectors per site (M.2412 section 8.3: three TRxPs per site)."
+    validity: Sectors at 0, 120 and 240 degrees azimuth; all on the same carrier.
+    impact: Three traces per site and band; sectors of one site interfere with each other.
+
+  mechanical_downtilt_deg:
+    value: 10.0
+    unit: degrees below horizon
+    status: candidate
+    sources: [ITU-M2292, 3GPP-TR38921]
+    justification: Macro urban downtilt of 10 degrees (M.2292 Tables 3-4; TR 38.921 Table 8.1.2-1).
+    validity: Same for every site and band.
+    impact: Moves the strongest signal closer to the site; matters most for tall sites.
+
   antenna_height_above_roof_m:
-    value: null
-    status: undecided
-    source: ""
+    value: 3.0
+    unit: m
+    status: development
+    justification: >-
+      Software testing only. No primary source gives a mast height above a roof; the
+      references give total heights (25 m in M.2412 and TR 38.901 UMa) for flat layouts.
+      Decision D4.
+    impact: Raises every antenna by the same amount; affects shadowing by nearby roofs.
+
+  rx_height_m:
+    value: 1.5
+    unit: m above ground
+    status: approved
+    approved_by: project description, Stage 6 (the approved project baseline)
+    sources: [ITU-M2412]
+    justification: Receivers 1.5 m above street level; the outdoor UE height of M.2412 Table 5(b).
+    validity: Outdoor pedestrian users.
+    impact: Fixed for all scenarios.
+
+  rx_antenna_gain_dbi:
+    value: 0.0
+    unit: dBi
+    status: candidate
+    sources: [3GPP-TR36942, ITU-M2412, 3GPP-TR38830]
+    justification: >-
+      Isotropic user antenna, matching the isotropic receiver of the ray-traced maps
+      (0 dBi in TR 36.942 section 4.2.2, M.2412 at 4 GHz, TR 38.830 for FR1). M.2412 and
+      TR 38.830 give 5 dBi at 30 GHz with user-side beamforming, left to the deployment
+      interpretation.
+    validity: All bands, controlled experiment.
+    impact: Shifts received power equally in all bands.
+
+  noise_figure_db:
+    value: 9.0
+    unit: dB
+    status: candidate
+    sources: [3GPP-TR38914, 3GPP-TR36942, ITU-M2292, 3GPP-TR38921]
+    justification: >-
+      9 dB user noise figure in the 3GPP 6G coverage assumptions (TR 38.914 Table
+      5.1.20.1-2), TR 36.942 Table 4.8, M.2292 Table 1 and the TR 38.921 baseline. Per-band
+      values (7 dB at 4 GHz, 10 dB at 30 GHz in M.2412) belong to the deployment interpretation.
+    validity: All bands, controlled experiment.
+    impact: Shifts SNR and SINR equally in all bands.
+
+  noise_temperature_k:
+    value: 290.0
+    unit: K
+    status: candidate
+    sources: [ITU-P372, ITU-M2412]
+    justification: Reference temperature T0 = 290 K (P.372 section 1.2.1), giving -174 dBm/Hz (M.2412 Table 5).
+    validity: Reference value; the physical temperature in Baghdad is not used.
+    impact: Fixes the thermal noise floor.
+
+  coverage_threshold:
+    value: -10.0
+    definition: snr_db             # signal-to-noise (or SINR in multi-site runs) of the best server
+    unit: dB
+    status: candidate
+    sources: [3GPP-TR38921, 3GPP-TR36942]
+    justification: >-
+      -10 dB is the lowest SINR at which the 3GPP link-level throughput mapping gives any
+      data rate (TR 38.921 Table 4.2.7-1, TR 36.942 Annex A). A noise-referenced threshold
+      is the same physical condition at every bandwidth.
+    validity: All bands; compares like with like across bandwidths.
+    impact: >-
+      Equivalent to a received-power threshold that rises with bandwidth (13 dB higher at
+      400 MHz than at 20 MHz). Receiver reference sensitivities are reported separately in
+      docs/radio-parameters.md for the deployment interpretation.
+
+  coverage_target:
+    value: 0.95
+    unit: share of outdoor cells
+    status: candidate
+    sources: [3GPP-TR38830]
+    justification: 95 % cell-area reliability for control channels (TR 38.830 Table A.3).
+    validity: Area coverage of outdoor receiver cells.
+    impact: Sets the stopping point of the greedy site selection.
+
+  frequency_reuse:
+    value: "1"
+    unit: reuse factor
+    status: candidate
+    sources: [ITU-M2412, ITU-M2292]
+    justification: Every site and sector uses the whole carrier (M.2412 evaluations; M.2292 Tables 2-4).
+    validity: Multi-site runs.
+    impact: Worst case for interference.
+
+  interference_activity:
+    value: 1.0
+    unit: share of time other sectors transmit
+    status: candidate
+    sources: [ITU-M2412, ITU-M2292]
+    justification: >-
+      Full buffer (M.2412 Table 5): every other sector transmits all the time. M.2292 uses
+      a 50 % average activity, a sensitivity case.
+    validity: Multi-site and multi-sector runs.
+    impact: Lower activity raises SINR; does not change single-transmitter SNR.

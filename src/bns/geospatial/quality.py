@@ -6,7 +6,7 @@ from collections import Counter
 
 import numpy as np
 
-from bns.geospatial.heights import CATEGORIES, PLACEHOLDER, Building
+from bns.geospatial.heights import CATEGORIES, PLACEHOLDER, Building, has_conflict
 from bns.geospatial.study_area import StudyArea
 
 
@@ -60,6 +60,8 @@ def quality_report(buildings: list[Building], area: StudyArea, parse_report: dic
         "area": {"name": area.name, "role": area.role, "approved": area.approved},
         "buildings": len(buildings),
         "missing_height_buildings": count_by_category.get(PLACEHOLDER, 0),
+        "conflicting_buildings": sum(has_conflict(b.height) for b in buildings),
+        "buildings_with_alternative_sources": sum(bool(b.height.alternatives) for b in buildings),
         "height_categories": {
             "by_count": {c: count_by_category.get(c, 0) for c in CATEGORIES},
             "by_count_percent": _shares(dict(count_by_category), CATEGORIES),
@@ -122,7 +124,12 @@ def render_markdown(report: dict) -> str:
         "## Geometry",
         "",
         f"- Buildings: {report['buildings']}; without any height information: "
-        f"{report['missing_height_buildings']}.",
+        f"{report['missing_height_buildings']}; with more than one height source: "
+        f"{report['buildings_with_alternative_sources']}; where sources disagree: "
+        f"{report['conflicting_buildings']}.",
+        f"- Relations read: {report['parse'].get('relations_read', 0)}; with missing members: "
+        f"{report['parse'].get('relations_with_missing_members', 0)}; duplicate footprint pairs: "
+        f"{report['parse'].get('duplicate_pairs', 0)}.",
         f"- Built share of the receiver area: {report['built_share_of_receiver_area_percent']:.1f} %.",
         f"- Elements skipped while reading: {report['parse'].get('skipped') or 'none'}.",
         f"- Cleaning: {report['cleaning'] or 'no changes'}.",

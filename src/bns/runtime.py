@@ -227,8 +227,57 @@ def init(threads: int | None = None, mem_cap_gb: float | None = None,
     }
 
 
+class Cancelled(RuntimeError):
+    """The caller asked to stop; the worker was terminated and its output discarded."""
+
+
+def _publish(staging_dir: Path, final_dir: Path) -> None:
+    """Swap the staging folder in as the result; an earlier result is replaced only now."""
+    import shutil
+
+    final_dir.parent.mkdir(parents=True, exist_ok=True)
+    old = final_dir.with_name(final_dir.name + ".old")
+    if old.exists():
+        shutil.rmtree(old)
+    if final_dir.exists():
+        final_dir.rename(old)
+    staging_dir.rename(final_dir)
+    if old.exists():
+        shutil.rmtree(old)
+
+
+def _run_once(argv, env, on_line, should_cancel) -> int:
+    import subprocess
+    import threading
+    import time
+
+    process = subprocess.Popen(argv, env=env, stdout=subprocess.PIPE, text=True,
+                               encoding="utf-8", errors="replace", bufsize=1)
+
+    def pump():
+        for line in process.stdout:
+            line = line.rstrip("\n")
+            if on_line is None:
+                print(line, flush=True)
+            else:
+                on_line(line)
+
+    reader = threading.Thread(target=pump, daemon=True)
+    reader.start()
+    while process.poll() is None:
+        if should_cancel is not None and should_cancel():
+            process.kill()
+            process.wait()
+            reader.join(timeout=5)
+            raise Cancelled("Worker cancelled.")
+        time.sleep(0.1)
+    reader.join(timeout=5)
+    return process.returncode
+
+
 def run_isolated(argv: list[str], staging_dir: Path, final_dir: Path,
-                 max_attempts: int = 8, env: dict | None = None) -> list[dict]:
+                 max_attempts: int = 8, env: dict | None = None,
+                 on_line=None, should_cancel=None) -> list[dict]:
     """Run a worker in a fresh process and keep its output only if it exits cleanly.
 
     Why: with Dr.Jit 1.5.0 and LLVM 16+ on Windows, compiling a kernel for the
@@ -239,26 +288,32 @@ def run_isolated(argv: list[str], staging_dir: Path, final_dir: Path,
     results count only from a process that exits with code 0; anything else is
     discarded and repeated. The worker must write everything into `staging_dir`.
 
+    The worker's standard output is passed line by line to `on_line` (progress
+    reports), or printed. `should_cancel` is polled; when it returns True the
+    worker is killed, its output discarded and Cancelled raised. An existing
+    `final_dir` is replaced only by the output of a clean run.
+
     Returns one record per attempt. Raises if no attempt exits cleanly.
     """
     import shutil
-    import subprocess
     import time
 
+    staging_dir, final_dir = Path(staging_dir), Path(final_dir)
     attempts = []
     for attempt in range(1, max_attempts + 1):
         if staging_dir.exists():
             shutil.rmtree(staging_dir)
         staging_dir.mkdir(parents=True)
         start = time.perf_counter()
-        code = subprocess.run(argv, env=env).returncode
+        try:
+            code = _run_once(argv, env, on_line, should_cancel)
+        except Cancelled:
+            shutil.rmtree(staging_dir, ignore_errors=True)
+            raise
         attempts.append({"attempt": attempt, "exit_code": code,
                          "seconds": round(time.perf_counter() - start, 2)})
         if code == 0:
-            if final_dir.exists():
-                shutil.rmtree(final_dir)
-            final_dir.parent.mkdir(parents=True, exist_ok=True)
-            staging_dir.rename(final_dir)
+            _publish(staging_dir, final_dir)
             return attempts
         if code == 1:
             # An ordinary Python exception: repeating it would fail the same way.

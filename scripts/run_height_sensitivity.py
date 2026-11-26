@@ -58,7 +58,7 @@ def worker(job: dict, out: Path) -> None:
     area = load_study_areas(ROOT / "configs" / "study_area.yaml")[job["area"]]
     policy = ht.load_height_policy(ROOT / "configs" / "study_area.yaml")
     model = ht.load_height_models(ROOT / "configs" / "height_models.yaml")[job["model"]]
-    data, meta = osm_source.load_snapshot(RAW_OSM, area.name)
+    data, meta = osm_source.load_snapshot(RAW_OSM, area.snapshot)
 
     scene_dir = ROOT / "data" / "scenes" / area.name / f"{model.name}-seed{job['seed']}"
     report = pipeline.build_dataset(area, data, scene_dir, policy, meta["sha256"],
@@ -178,7 +178,7 @@ def main() -> int:
 
     area = load_study_areas(ROOT / "configs" / "study_area.yaml")[args.area]
     policy = ht.load_height_policy(ROOT / "configs" / "study_area.yaml")
-    data, meta = osm_source.load_snapshot(RAW_OSM, area.name)
+    data, meta = osm_source.load_snapshot(RAW_OSM, area.snapshot)
     base, _, _ = pipeline.provenance_buildings(area, data, policy, meta["sha256"])
     inside = [b for b in base if area.receiver_box().contains(b.polygon.representative_point())]
     candidates = sites.rooftop_candidates(

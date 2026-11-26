@@ -28,10 +28,11 @@ Role: development fixture. Approved as study district: no.
 
 ## Geometry
 
-- Buildings: 1186; without any height information: 1172.
+- Buildings: 1186; without any height information: 1172; with more than one height source: 1; where sources disagree: 0.
+- Relations read: 0; with missing members: 0; duplicate footprint pairs: 2.
 - Built share of the receiver area: 22.6 %.
 - Elements skipped while reading: {'relation stored without member geometry': 8}.
-- Cleaning: {'dropped_small': 2, 'overlaps_resolved': 317, 'buildings_outside_area_or_too_small': 35, 'footprints_before_merge': 1186, 'solids_after_merge': 453, 'different_height_contacts': 55}.
+- Cleaning: {'buildings_split_into_pieces': 1, 'dropped_small': 2, 'overlaps_resolved': 317, 'buildings_outside_area_or_too_small': 34, 'footprints_before_merge': 1186, 'solids_after_merge': 453, 'different_height_contacts': 55}.
 - Mesh: 9873 triangles, 7149 wedges, 0 non-manifold edges, 0 degenerate triangles.
 
 ## Height warnings (1)
