@@ -134,7 +134,8 @@ def main() -> int:
         mapped = ex.mapped_rate_bps(exp, sc, final.radio.sinr_db) if final is not None else None
         if mapped is not None:
             final.summary.update({"rate_3gpp_p5_bps": metrics.percentile(mapped, 5, exp.outdoor),
-                                  "rate_3gpp_median_bps": metrics.percentile(mapped, 50, exp.outdoor)})
+                                  "rate_3gpp_median_bps": metrics.percentile(mapped, 50, exp.outdoor),
+                                  "rate_3gpp_model": ex.rate_mapping(exp, sc).describe()})
         if final is not None:
             ss = final.serving_site
             maps[sid] = {"sinr_db": final.radio.sinr_db, "covered": final.radio.covered,

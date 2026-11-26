@@ -14,6 +14,18 @@ Status key: ☐ open · ☑ approved (write the decision and date).
 > heights), the MATLAB run and its reflection-then-diffraction cases (B1/B2), laptop
 > measurement, and the written approval reference. The boxes below keep the original
 > recommendation text; read them as approved subject to those conditions.
+>
+> **Update 2026-11-27.** The project owner reported a second approval (again without a written
+> reference) of the follow-up recommendations: reduced fieldwork for the initial stage (P0-P2,
+> 38 buildings, plus the candidate survey S, 43; P3 through the height sensitivity analysis),
+> the 1 m roof-edge inset, the exclusion of monuments, memorials and artworks from candidate
+> roofs, the B1 tolerance (median |Δ| in LOS cells ≤ 2.0 dB, RMSE and NLOS separate), and per-band
+> rate mappings for B3 (LTE TR 36.942 for 4G, NR TR 38.921 for 5G, NR-based approximation for
+> candidate 6G). Since then B3 is implemented (the text "not implemented" below is the original
+> wording), and the candidate thresholds (minimum roof height, area, spacing) remain **pending**.
+> The original options, the approved changes, the implementation status and the remaining
+> conditions are listed separately in `docs/approval-record.md`; the live gate status is on the
+> application's Overview page.
 
 ## A. Before the final experiments
 

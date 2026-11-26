@@ -1,21 +1,27 @@
 # Supervisor approvals (machine-readable record; docs/approval-record.md explains it).
 #
-# Source of the approval: the project owner reported on 2026-11-26 that the supervisor
-# accepted every recommended option of docs/supervisor-checklist.md as written
-# (configuration version: commit bc750b3, tag v1.0.0-rc.1). No written reference was
-# provided; it is a remaining condition. Nothing beyond the checklist's recommended options
-# is recorded as approved.
+# Two reports by the project owner, neither with a written reference (a remaining condition):
+#   2026-11-26  the supervisor accepted every recommended option of docs/supervisor-checklist.md
+#               as written (configuration version: commit bc750b3, tag v1.0.0-rc.1)
+#   2026-11-27  the supervisor approved the follow-up recommendations of the review of
+#               2026-11-27 (commit 95f12ff / dac5d86): reduced fieldwork, 1 m roof-edge inset,
+#               monument exclusion, the B1 tolerance, per-band rate mappings
+# Nothing beyond these is recorded as approved. Values not given by the supervisor stay null
+# (see "unspecified" below); they are never invented.
 record:
   reported_by: project owner
-  reported_on: 2026-11-26
+  reports:
+    - {reported_on: 2026-11-26, scope: every recommended option of the checklist (bc750b3)}
+    - {reported_on: 2026-11-27, scope: follow-up recommendations of the 2026-11-27 review}
   approval_reference: none provided (written confirmation pending)
   checklist_version: bc750b3 (v1.0.0-rc.1)
-  approved_by_text: "supervisor, as reported by the project owner on 2026-11-26 (written reference pending)"
+  approved_by_text: "supervisor, as reported by the project owner (written reference pending)"
 
 decisions:
   A1_study_district:
     decision: Tahrir Square / Bab Al-Sharqi
     boundary: {center_lat: 33.3280, center_lon: 44.4085, receiver_area_m: [1000, 1000], margin_m: 150}
+    approved_on: 2026-11-26
     condition: >-
       The recommendation was conditional: keep this district only if the student can observe
       its tall buildings (A2). Observations do not exist yet.
@@ -24,44 +30,90 @@ decisions:
     footprints: OSM plus the footprints missing from OSM taken from 3D-GloBFP (footprints only, not its heights), each marked with its source
     height_priority: [observation, osm_height, osm_levels, dataset, model, placeholder]
     storey_height_m: 3.0
-    external_height_datasets: none as the height source (3D-GloBFP and GlobalBuildingAtlas rejected as height sources)
+    external_height_datasets: >-
+      none as the height source (3D-GloBFP heights and GlobalBuildingAtlas rejected as height
+      sources; an external dataset enters the priority only if separately authorised)
     missing_heights: report the spread over assumed height models (sensitivity analysis)
-    manual_verification: observe the worklist buildings (tall buildings, candidate roofs, conflicts, near sites)
+    manual_verification: >-
+      2026-11-26: observe the worklist buildings (190: P0-P3). 2026-11-27: reduced to the
+      initial stage P0-P2 (38) plus the candidate survey S (43, storey counts at least) = 81;
+      P3 (152) through the height sensitivity analysis. The 190-building list stays on record.
     licensing: GlobalBuildingAtlas used only if its CC BY-NC 4.0 licence fits the project's use; never redistributed
+    approved_on: [2026-11-26, 2026-11-27]
     condition: field observations not yet collected; the research dataset is incomplete until they are imported
     status: approved_with_condition
   A3_radio_parameters:
     values: see configs/radio_system.yaml (status approved)
+    approved_on: 2026-11-26
     status: approved
   A4_site_rule:
-    candidate_roofs: buildings with observed or storey-based heights; minimum height and spacing chosen for 20-40 candidates
+    candidate_roofs: buildings with observed or storey-based heights; minimum height, area and spacing chosen for 20-40 candidates
     mast_height_m: 3.0
     sector_orientation: "azimuths 0, 120, 240 degrees; 10 degree downtilt"
-    antenna_position: roof edge facing each sector
+    antenna_position: roof edge facing each sector, 1 m inside the edge (inset approved 2026-11-27)
+    excluded_structures: monuments, memorials and artworks are never candidates (kept as obstacles; approved 2026-11-27)
+    site_selection: the existing interference-aware SINR greedy
+    approved_on: [2026-11-26, 2026-11-27]
     condition: >-
-      The minimum height and spacing are to be chosen once observed heights exist (they set
-      the candidate count); the 1 m inset from the roof edge is an implementation choice of the
-      software (same as the controlled experiment), not part of the decision.
+      The minimum roof height, minimum roof area and minimum spacing are chosen once the
+      stage-1 observations exist (they set the candidate count); until then research site
+      planning refuses (configs/site_rule.yaml, candidate_thresholds: pending).
     status: approved_with_condition
   B1_validation:
-    decision: keep the controlled TR 38.901 comparison; MATLAB agreement = median |difference| in LOS cells within the profile's convergence floor, reported with RMSE
-    status: approved
+    decision: >-
+      keep the controlled TR 38.901 comparison (UMa/UMi); MATLAB is an external cross-check;
+      agreement criterion: median |difference| in LOS cells <= 2.0 dB, with RMSE and the NLOS
+      cells reported separately (tolerance approved 2026-11-27)
+    los_median_abs_tolerance_db: 2.0
+    approved_on: [2026-11-26, 2026-11-27]
+    condition: MATLAB not executed (laptop)
+    status: approved_with_condition
   B2_engine_limitations:
     decision: accepted as documented; add 2-3 MATLAB cases on reflection-then-diffraction streets
-    status: approved
+    approved_on: 2026-11-26
+    condition: the reflection-then-diffraction cases need the final scene; not prepared yet
+    status: approved_with_condition
   B3_rate_reporting:
-    decision: Shannon upper bound, plus the 3GPP truncated mapping (alpha 0.6, SINR -10 to 30 dB, TR 38.921) beside it
+    decision: >-
+      Shannon upper bound for every band, plus a practical mapping beside it: LTE (TR 36.942,
+      alpha 0.6, -10 dB, cap 4.4 bit/s/Hz) for 4G; NR (TR 38.921, alpha 0.6, -10 to 30 dB) for
+      5G; the NR values as a labelled research approximation for candidate 6G
+    history: 2026-11-26 one NR mapping for all bands; 2026-11-27 the per-band assignment
+    values: see configs/radio_system.yaml (rate_mappings, scenario_rate_mapping)
+    approved_on: [2026-11-26, 2026-11-27]
     status: approved
   C6_gpu_for_research:
-    decision: CPU for thesis results; GPU for exploration only
+    decision: CPU for thesis results; GPU and auto for exploration only
+    approved_on: 2026-11-26
     status: approved
   convergence:
-    decision: standard profile (10 m, 1e9 rays) accepted for final runs
-    status: approved
+    decision: standard profile (10 m, 1e9 rays) accepted for final runs; preview (25 m, 1e8) for development; research profile (5 m) disabled
+    approved_on: 2026-11-26
+    condition: convergence must be evaluated again on the final research scene (not done)
+    status: approved_with_condition
   matlab:
     decision: required before conclusions; run the prepared case on the laptop with the B1 criterion
-    status: approved
+    approved_on: 2026-11-26
+    condition: not executed
+    status: approved_with_condition
   laptop:
     decision: accept the measured laptop run times as the time budget
+    approved_on: 2026-11-26
     condition: the laptop has not been measured yet
     status: approved_with_condition
+  sensitivity_cases:
+    decision: >-
+      optional sensitivity experiments kept, never a substitute for the baseline: rain 18.6 mm/h
+      (older ITU-R P.837 map edition, qualified), equal power per MHz, 50 % load, building-height
+      uncertainty, array-gain illustration by link-budget arithmetic only
+    approved_on: 2026-11-27
+    status: approved
+
+# Values the supervisor has not specified. They stay null in the configuration files and the
+# software refuses the research step that needs them.
+unspecified:
+  - {item: written approval reference, needed_for: final delivery}
+  - {item: minimum candidate roof height, file: configs/site_rule.yaml, needed_for: research site planning}
+  - {item: minimum candidate roof area, file: configs/site_rule.yaml, needed_for: research site planning}
+  - {item: minimum candidate spacing, file: configs/site_rule.yaml, needed_for: research site planning}
+  - {item: azimuth reference direction (implemented counter-clockwise from east; compass convention not stated), file: configs/radio_system.yaml, needed_for: confirmation only}

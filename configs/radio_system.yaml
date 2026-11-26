@@ -65,7 +65,10 @@ parameters:
     approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [ITU-M2412, ITU-M2292]
     justification: "Three sectors per site (M.2412 section 8.3: three TRxPs per site)."
-    validity: Sectors at 0, 120 and 240 degrees azimuth; all on the same carrier.
+    validity: >-
+      Sectors at 0, 120 and 240 degrees azimuth in the scene frame (measured counter-clockwise
+      from east, the ray tracer's convention; compass bearings 90, 330 and 210 degrees); all
+      on the same carrier.
     impact: Three traces per site and band; sectors of one site interfere with each other.
 
   mechanical_downtilt_deg:
@@ -186,15 +189,41 @@ parameters:
     validity: Multi-site and multi-sector runs.
     impact: Lower activity raises SINR; does not change single-transmitter SNR.
 
-# Decision B3: a practical rate mapping reported BESIDE the Shannon upper bound, never instead
-# of it. Truncated, attenuated Shannon: 0 below sinr_min_db, alpha * log2(1 + SINR) between,
-# capped at sinr_max_db (3GPP TR 38.921 Table 4.2.7-1; the same form as TR 36.942 Annex A).
-rate_mapping:
-  name: 3GPP truncated Shannon
-  alpha: 0.6
-  sinr_min_db: -10.0
-  sinr_max_db: 30.0
-  status: approved
-  approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
-  sources: [3GPP-TR38921-427, 3GPP-TR36942]
-  verification: docs/rate-mapping-verification.md (values match TR 38.921 Table 4.2.7-1 DL exactly)
+# Decision B3: practical rate mappings reported BESIDE the Shannon upper bound, never instead
+# of it. Attenuated, truncated Shannon: 0 below sinr_min_db, alpha * log2(1 + SINR) above,
+# capped either at the value reached at sinr_max_db (NR form) or at thr_max_bps_hz (LTE form).
+# Shannon itself is reported for every band. Verification: docs/rate-mapping-verification.md.
+# History: 2026-11-26 one NR mapping for all bands (approved as recommended); 2026-11-27 the
+# per-band assignment below (LTE for 4G, NR for 5G, NR-based approximation for candidate 6G).
+rate_mappings:
+  lte:
+    name: LTE truncated Shannon (3GPP TR 36.942 Annex A, Table A.1, downlink)
+    alpha: 0.6
+    sinr_min_db: -10.0
+    thr_max_bps_hz: 4.4
+    assumptions: 1:2 antennas, Typical Urban fading, link adaptation, channel prediction, HARQ
+    sources: [3GPP-TR36942]
+    verification: reproduces the Table A.2 downlink rows (-10 dB 0.08, 22 dB 4.39, 23 dB 4.40 bit/s/Hz)
+  nr:
+    name: NR truncated Shannon (3GPP TR 38.921 Table 4.2.7-1, downlink)
+    alpha: 0.6
+    sinr_min_db: -10.0
+    sinr_max_db: 30.0
+    assumptions: 1:1 antenna, AWGN, link adaptation, no HARQ
+    sources: [3GPP-TR38921-427]
+    verification: values match Table 4.2.7-1 (DL) exactly
+  nr_based_candidate_6g:
+    name: NR-based research approximation for candidate 6G (TR 38.921 values)
+    based_on: nr          # same constants as nr; no 6G link-level mapping exists
+    caveat: >-
+      Candidate 6G bands have no standardised link-level mapping; the NR values are used as a
+      research approximation and every output labels it so.
+    sources: [3GPP-TR38921-427]
+scenario_rate_mapping:
+  lte_1800: lte
+  nr_3500: nr
+  nr_28000: nr
+  c6g_8000: nr_based_candidate_6g
+  c6g_15000: nr_based_candidate_6g
+rate_mapping_status: approved
+rate_mapping_approved_by: supervisor, as reported by the project owner on 2026-11-27 (written reference pending; configs/approvals.yaml)

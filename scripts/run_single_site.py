@@ -36,6 +36,7 @@ from bns.geospatial import pipeline, sites
 from bns.geospatial.grid import outdoor_mask
 from bns.geospatial.study_area import load_study_areas
 from bns.propagation import atmosphere as atm
+from bns.simulation import experiment as ex
 from bns.simulation import propagation as prop
 from bns.simulation.cache import PathGainCache, scene_fingerprint
 from bns.simulation.radio import RadioInputs, multi_site
@@ -146,6 +147,13 @@ def main() -> int:
     if args.mode == "research" and not area.is_research_dataset:
         print(f"Research mode needs an approved study district; {area.name} is a {area.role}.")
         return 1
+    try:                    # the same research guards as every other experiment (bns.simulation.experiment)
+        ex.require_research_ready(ROOT, args.mode)
+        ex.require_research_profile(SimulationConfig.load(ROOT / "configs" / "simulation.yaml").profile(args.profile),
+                                    args.mode)
+    except ex.ExperimentError as exc:
+        print(exc)
+        return 1
     system = RadioSystem.load(ROOT / "configs" / "radio_system.yaml")
     config = SimulationConfig.load(ROOT / "configs" / "simulation.yaml")
     profile = config.profile(args.profile)
@@ -161,6 +169,17 @@ def main() -> int:
         print(f"No dataset {scene_dir}; run scripts/build_dataset.py first.")
         return 1
     quality = json.loads((scene_dir / "quality_report.json").read_text(encoding="utf-8"))
+    try:
+        ex.require_research_dataset(quality, args.mode)
+    except ex.ExperimentError as exc:
+        print(exc)
+        return 1
+    if args.mode == "research":
+        # this Phase 4 script puts every sector at one interior roof point; the approved site rule
+        # (roof edge, configs/site_rule.yaml) is applied by run_multi_site.py (--sites 1 / --buildings)
+        print("Research single-site runs use scripts/run_multi_site.py, which applies the approved site rule "
+              "(roof-edge antennas); this script places the sectors at an interior roof point.")
+        return 1
     buildings = pipeline.load_buildings(scene_dir, area)
     inside = [b for b in buildings if area.receiver_box().contains(b.polygon.representative_point())]
     mast = system.require("antenna_height_above_roof_m", mode=args.mode)

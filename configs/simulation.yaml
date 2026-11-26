@@ -19,6 +19,9 @@ profiles:
     status: approved
     approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     convergence: borderline (two independent 1e9-ray maps within 1.4-2.0 dB for 95 % of cells), accepted as sufficient
+    # The acceptance rests on the provisional scene; it must be re-measured on the final research
+    # scene (scripts/run_convergence.py) before research runs. Research mode refuses until then.
+    final_scene_convergence: not evaluated
     basis: >-
       All 8 cases: two independent 1-billion-ray maps agree within 1.4-2.0 dB for 95 % of
       outdoor cells, no cell missed. 1e8 rays failed on the full area (3.9-5.2 dB), although
@@ -49,8 +52,11 @@ seeds: [1]
 polarization: V
 
 # Execution backends (same scene, settings and cache-key fields; the variant differs).
-# Research runs accept only a backend whose status is "production". GPU maps are cached
-# separately from CPU maps and are not interchangeable without the recorded agreement.
+# Research runs accept only a backend whose status is "production" (decision C6: CPU for thesis
+# results). GPU, and "auto" (which may pick the GPU), are for development only. GPU maps are
+# cached separately from CPU maps and are not interchangeable without the recorded agreement;
+# on a harder case single cells differed by up to 26 dB (docs/validation.md section 7).
+research_backend: cpu
 backends:
   cpu:
     status: production

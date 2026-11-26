@@ -18,10 +18,11 @@ Priorities (plain geometry, no new optimisation):
       every 10 m within --near-site-m, the first building that cuts the straight line
   P3  the remaining worklist buildings (their uncertainty is carried by the height
       sensitivity analysis)
-  S   PROPOSAL, not in the approved worklist: large placeholder buildings in the receiver area
-      (footprint >= --search-min-area-m2) whose storeys would reveal further candidate roofs (A4)
-Which priorities are mandatory is set in configs/study_area.yaml (observations); the approved
-method today requires the whole worklist (P0-P3).
+  S   candidate survey: large placeholder buildings in the receiver area (footprint >=
+      --search-min-area-m2) whose storeys would reveal further candidate roofs (A4)
+Which priorities are mandatory is set in configs/study_area.yaml (observations): since
+2026-11-27 the initial stage requires P0, P1, P2 and S; P3 is covered by the height sensitivity
+analysis (before: the whole worklist P0-P3).
 """
 
 from __future__ import annotations
@@ -129,7 +130,7 @@ def main() -> int:
         out.append({"building_id": r["building_id"], "priority": priority(r), "reasons": r["reasons"],
                     "shadow_lines": hits.get(r["building_id"], 0), "b": b})
     for b in search:
-        out.append({"building_id": b.building_id, "priority": "S", "reasons": "candidate search (proposal)",
+        out.append({"building_id": b.building_id, "priority": "S", "reasons": "candidate survey (storey count)",
                     "shadow_lines": 0, "b": b})
     order = {"P0": 0, "P1": 1, "P2": 2, "P3": 3, "S": 4}
     out.sort(key=lambda o: (order[o["priority"]], -o["shadow_lines"], -o["b"].polygon.area, o["building_id"]))

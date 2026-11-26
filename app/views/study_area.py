@@ -4,12 +4,15 @@ import plotly.graph_objects as go
 import streamlit as st
 import ui
 
+from bns.analysis import readiness
+from bns.app import configuration
+
 ui.page_header("Study area", "Buildings, height provenance and data quality of each dataset variant.")
 
 areas = ui.study_areas()
 c1, c2 = st.columns([2, 2])
-area_name = c1.selectbox("Area", list(areas), index=list(areas).index("tahrir_bab_al_sharqi_v2")
-                         if "tahrir_bab_al_sharqi_v2" in areas else 0)
+approved_areas = [k for k, v in areas.items() if v.get("approved")]
+area_name = c1.selectbox("Area", list(areas), index=list(areas).index(approved_areas[0]) if approved_areas else 0)
 info = areas[area_name]
 variants = ui.variants(area_name)
 if not variants:
@@ -21,6 +24,28 @@ variant = c2.selectbox("Dataset variant", variants, index=variants.index("osm") 
 st.markdown(f"**Role:** {info['role']} · **approved:** {info.get('approved', False)}")
 if info["role"] != "study district":
     st.warning("Not the study district: use for development and testing only, never to report Baghdad results.")
+else:
+    gates = {g.id: g for g in readiness.gates(ui.ROOT)}
+    with st.expander("Approved study-area and building-data methodology", expanded=True):
+        rows = configuration.study_area_rows(ui.ROOT, area_name)
+        st.dataframe(rows, hide_index=True, use_container_width=True, height=36 * len(rows) + 40)
+    obs = gates["observations"]
+    st.markdown(f"**Mandatory observations:** {obs.detail}")
+    data = obs.data
+    if data.get("by_priority"):
+        cols = st.columns(len(data["by_priority"]) + 1)
+        for col, (p, v) in zip(cols, data["by_priority"].items()):
+            col.metric("Candidate survey (S)" if p == "S" else f"{p} observed", f"{v['observed']} / {v['required']}")
+            col.progress(v["observed"] / v["required"] if v["required"] else 0.0)
+        cols[-1].metric("Covered by sensitivity", ", ".join(f"{k}: {n}" for k, n in data["covered_by_sensitivity"].items())
+                        or "—")
+    st.caption("Worklist, map and template: outputs/datasets/<area>/fieldwork/ (scripts/fieldwork_package.py). "
+               "Import observations with scripts/build_dataset.py --observations FILE; the required list comes from "
+               "configs/study_area.yaml, never from the submitted file.")
+    with st.expander("Site rule and candidate rooftops (decision A4)"):
+        rows = configuration.site_rule_rows(ui.ROOT)
+        st.dataframe(rows, hide_index=True, use_container_width=True, height=36 * len(rows) + 40)
+        st.caption(gates["candidate_criteria"].title + ": " + gates["candidate_criteria"].detail)
 
 quality = json.loads((ui.ROOT / "data" / "scenes" / area_name / variant / "quality_report.json").read_text(encoding="utf-8"))
 cats = quality["height_categories"]["by_count"]

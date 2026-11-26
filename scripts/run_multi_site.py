@@ -192,8 +192,11 @@ def main() -> int:
         if mapped is not None:
             net.summary.update({"rate_3gpp_p5_bps": metrics.percentile(mapped, 5, exp.outdoor),
                                 "rate_3gpp_median_bps": metrics.percentile(mapped, 50, exp.outdoor),
-                                "rate_3gpp_note": "3GPP truncated Shannon (TR 38.921), decision B3; beside, "
-                                                  "not instead of, the Shannon bound"})
+                                "rate_3gpp_model": ex.rate_mapping(exp, sc).describe(),
+                                "rate_3gpp_note": "3GPP truncated Shannon of the band's technology, decision B3; "
+                                                  "beside, not instead of, the Shannon bound"
+                                                  + (f". {ex.rate_mapping(exp, sc).caveat.strip()}"
+                                                     if ex.rate_mapping(exp, sc).caveat else "")})
         maps[sid] = {"path_gain_db": linear_to_db(stack.max(axis=0)), "rx_power_dbm": net.radio.rx_power_dbm,
                      "sinr_db": net.radio.sinr_db, "rate_bps": net.radio.rate_bps, "covered": net.radio.covered,
                      "serving_site": net.serving_site, "serving_sector": net.serving_sector,

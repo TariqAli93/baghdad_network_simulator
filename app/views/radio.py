@@ -1,11 +1,12 @@
 import streamlit as st
 import ui
-import yaml
 
 from bns.analysis.radio_system import RadioSystem
+from bns.app import configuration
 from bns.core.units import noise_power_dbm
 
-ui.page_header("Radio scenarios", "The five scenarios and the proposed radio system (configs/*.yaml).")
+ui.page_header("Radio scenarios", "The five scenarios, the approved radio system and the rate models "
+               "(read from configs/*.yaml; read-only here).")
 
 scen = ui.scenarios()
 system = RadioSystem.load(ui.ROOT / "configs" / "radio_system.yaml")
@@ -21,17 +22,24 @@ st.caption("Only frequency and bandwidth differ between scenarios (controlled ex
            "6G bands are candidate research assumptions; 3.5 GHz for Iraq is assumed.")
 
 st.subheader("Radio-system parameters")
-raw = yaml.safe_load((ui.ROOT / "configs" / "radio_system.yaml").read_text(encoding="utf-8"))["parameters"]
+rows = configuration.radio_rows(ui.ROOT)
 counts = {}
-for v in raw.values():
-    counts[v["status"]] = counts.get(v["status"], 0) + 1
+for r in rows:
+    key = "approved" if r["approval"] == "approved" else ("void" if r["approval"].startswith("approval void") else r["approval"])
+    counts[key] = counts.get(key, 0) + 1
 c = st.columns(4)
-for col, state in zip(c, ("approved", "candidate", "development", "undecided"), strict=True):
-    col.metric(state.capitalize(), counts.get(state, 0))
-if counts.get("approved", 0) < len(raw):
+for col, state in zip(c, ("approved", "void", "candidate", "development"), strict=True):
+    col.metric({"void": "Approval void (changed)"}.get(state, state.capitalize()), counts.get(state, 0))
+if counts.get("approved", 0) < len(rows):
     ui.development_banner()
-    st.caption("Research runs refuse any parameter that is not approved by the supervisor.")
-st.dataframe([{"parameter": k, "value": v.get("value"), "unit": v.get("unit", ""), "definition": v.get("definition", ""),
-               "status": v["status"], "sources": ", ".join(v.get("sources", []) or []),
-               "justification": " ".join(str(v.get("justification", "")).split())} for k, v in raw.items()],
-             hide_index=True, use_container_width=True)
+    st.caption("Research runs refuse any parameter that is not approved, or that changed since its approval.")
+st.dataframe(rows, hide_index=True, use_container_width=True)
+st.caption("Approved values are read-only: they change only through the approval workflow (edit the configuration "
+           "file, obtain the supervisor's reconfirmation, then scripts/approval_lock.py --record). The traced TR 38.901 "
+           "pattern already contains the 8 dBi peak gain, so the added antenna gain is 0 (no double counting).")
+
+st.subheader("Data-rate models (decision B3)")
+st.dataframe(configuration.rate_rows(ui.ROOT, scen), hide_index=True, use_container_width=True)
+st.caption("The Shannon bound is reported for every band; the practical mapping is reported beside it, never "
+           "instead. Candidate 6G uses the NR values as a research approximation: no 6G link-level mapping exists. "
+           "Verification against TR 36.942 and TR 38.921: docs/rate-mapping-verification.md.")

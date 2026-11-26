@@ -40,6 +40,7 @@ nav = st.navigation(pages)
 with st.sidebar:
     st.markdown("**Baghdad Network Simulator**")
     st.markdown('<div class="sidebar-note">4G · 5G · candidate 6G coverage by ray tracing (Sionna RT; CPU, optional GPU).<br>'
-                "All radio parameters are unapproved proposals: every result is labelled "
-                f"<b>{ui.DEV_LABEL}</b>.</div>", unsafe_allow_html=True)
+                "Methodology approved as reported; research mode stays locked until the readiness gates pass "
+                f"(Overview). Every development result is labelled <b>{ui.DEV_LABEL}</b>.</div>",
+                unsafe_allow_html=True)
 nav.run()

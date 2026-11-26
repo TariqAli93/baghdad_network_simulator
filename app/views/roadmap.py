@@ -96,8 +96,12 @@ for tab, stage in zip(tabs, roadmap["stages"], strict=True):
 
 st.divider()
 st.subheader("Assumptions and limitations")
-for line in ("The simulation district, building heights, radio parameters and site rule are not approved (A1-A4).",
-             "Shannon rates are theoretical upper bounds for one user with the whole carrier.",
+for line in ("The district, building-data method, radio parameters and site rule are approved as reported (A1-A4, "
+             "written reference pending), but the dataset is not yet fit for research (field observations) and the "
+             "candidate thresholds are pending: the evidence above is from development runs.",
+             "Shannon rates are theoretical upper bounds for one user with the whole carrier; the 3GPP mapping "
+             "beside them uses LTE (TR 36.942) for 4G, NR (TR 38.921) for 5G and the NR values as an approximation "
+             "for candidate 6G.",
              "8 and 15 GHz are candidate research bands (WRC-27 studies), not finalized 6G specifications.",
              "Press-based facts about Iraq's 5G status rest on few sources and must be re-checked before submission."):
     st.markdown(f"- {line}")

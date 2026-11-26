@@ -27,7 +27,7 @@ LAYERS = {   # name in the saved arrays -> (title, unit, colour range, kind)
     "rx_power_dbm": ("Received power, serving sector", "dBm", (-120, -20), "seq"),
     "sinr_db": ("SINR", "dB", (-10, 40), "seq"),
     "rate_bps": ("Shannon rate (upper bound)", "Mbit/s", None, "rate"),
-    "rate_3gpp_bps": ("3GPP truncated rate (TR 38.921, beside Shannon)", "Mbit/s", None, "rate"),
+    "rate_3gpp_bps": ("3GPP truncated rate (beside Shannon; mapping per band in the run summary)", "Mbit/s", None, "rate"),
     "covered": ("Coverage (SINR at or above threshold)", "", (0, 1), "binary"),
     "serving_site": ("Serving site", "", None, "site"),
     "interference_dbm": ("Interference power (all non-serving sectors)", "dBm", (-130, -50), "seq"),

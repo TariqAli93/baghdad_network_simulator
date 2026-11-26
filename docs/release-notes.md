@@ -7,6 +7,14 @@
   3D-GloBFP (A2), 3GPP truncated rate beside Shannon (B3).
 - Research mode refuses datasets that are not fit for research; fitness follows the approved A2 method.
 - Study dataset `tahrir_bab_al_sharqi_study/osm+fp_3d_globfp` and its observation worklist.
+- Second reported approval applied (2026-11-27): per-band rate mappings (LTE TR 36.942 for 4G, NR
+  TR 38.921 for 5G, NR-based approximation for candidate 6G), reduced fieldwork P0-P2 + S (81),
+  1 m inset, monument exclusion, B1 tolerance 2.0 dB; candidate thresholds left pending.
+- Approval lock (`configs/approval_lock.yaml`, `scripts/approval_lock.py`): an approved value that
+  changes loses its approval until reconfirmed. Eight readiness gates (`bns.analysis.readiness`);
+  research mode refuses until the five pre-experiment gates pass. Shown on the Overview, Radio and
+  Study area pages.
+- Fix: `run_single_site.py --mode research` now applies the shared research guards.
 - **v1.0.0 is not released**: field observations, laptop acceptance, MATLAB and the written approval
   reference are open (`docs/implementation-plan.md`, last section).
 

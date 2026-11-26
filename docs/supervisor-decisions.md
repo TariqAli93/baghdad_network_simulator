@@ -2,8 +2,20 @@
 
 Updated 2026-11-26 (Phases 3-4; evidence added in Phases 5-10). Related questions are merged so that there are **four
 decisions needed before final experiments**, three before conclusions, and a short list of
-optional refinements. Nothing here is assumed approved. The software runs in development
-mode on proposed values meanwhile; research runs refuse unapproved values.
+optional refinements. The text below is the decision record as it was put to the
+supervisor (recommendations and evidence); it is kept unchanged as history.
+
+> **Outcome (2026-11-26 and 2026-11-27, as reported by the project owner; no written
+> reference).** All recommendations were approved, with the 2026-11-27 changes: reduced
+> fieldwork P0-P2 + S (81 buildings; 190 before), 1 m roof-edge inset, monuments never
+> candidates, B1 tolerance ≤ 2.0 dB (median \|Δ\|, LOS), B3 per band (LTE for 4G, NR for 5G,
+> NR-based approximation for candidate 6G). Open: observations, candidate thresholds,
+> final-scene convergence, MATLAB, laptop, written reference. Reconciled record:
+> `docs/approval-record.md`. Points below that the outcome settles: A2 "GBA as a low-rise
+> sensitivity case" was not chosen (GBA is not a height source); the missing footprints come
+> from 3D-GloBFP (the 2.1 GB GBA polygon tile was not downloaded); the A4 "interior point"
+> placement was replaced by the roof edge; B3 "not implemented" is implemented; GPU runs are
+> development only because a harder case differed by up to 26 dB in single cells.
 
 | ID | Decision | Needed before | Blocks development? |
 |---|---|---|---|
@@ -230,7 +242,7 @@ Recorded so they are not asked again; each can be reopened.
 | Wedge-table workaround | 1,048,576 slots instead of 10,000 | Phase 0, E4: default loses > 1 dB |
 | Worker isolation | Results accepted only from cleanly exiting workers; retries | Phase 0 instability measurements |
 | Cache | Path gain cached per job; key includes scene hash, frequency, position, antenna, grid, mechanisms, rays, seeds, engine versions and settings; radio parameters excluded | `docs/architecture.md` |
-| Profiles | Preview 25 m, standard 10 m at 1e8 rays, research 5 m at 1e9 rays | `docs/convergence.md` |
+| Profiles | Preview 25 m at 1e8 rays per sector (development); standard 10 m at 1e9 rays (approved, borderline convergence, to be re-evaluated on the final scene); research 5 m disabled (not converged at 1e9). *Corrected 2026-11-27: this row said "standard 1e8, research 1e9", the Phase 3-4 plan before the convergence measurement* | `docs/convergence.md`, `configs/simulation.yaml` |
 | Five scenarios | Unchanged | Project description, Table 1 |
 | Corrections to the project description | Kept beside the PDF | `docs/project-description-corrections.md` |
 | Fixture vs provisional area | Phase 0 snapshot frozen; v2 snapshot adds 8 multipolygon buildings | `docs/study-area-evaluation.md` |

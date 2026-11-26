@@ -16,9 +16,10 @@ from pathlib import Path
 LIMITATIONS = [
     "Development data: provisional study area with mostly placeholder building heights and about a third of "
     "the buildings missing from OpenStreetMap.",
-    "Radio parameters, coverage threshold, load and site rule are proposals awaiting supervisor approval.",
+    "Approval status of every input at the time of the run is in the tables above; a run in development mode "
+    "is not a research result even where its inputs were later approved (docs/approval-record.md).",
     "Shannon rates are theoretical upper bounds for one user with the whole carrier; not network capacity or "
-    "user throughput.",
+    "user throughput. A 3GPP mapping, where present, is reported beside them (the run summary names it).",
     "Greedy site selection is a heuristic; it does not give a minimum site count.",
     "Validation so far: analytical checks and comparison with 3GPP TR 38.901 (model-to-model). MATLAB "
     "cross-check prepared but not executed; no field measurements.",

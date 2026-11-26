@@ -29,7 +29,15 @@ Shadow lines: 895 in total; worklist buildings block 587 of them first, P2 cover
 (90.6 %). Another 17 buildings outside the worklist block a few lines (largest 8): they fall
 below the worklist's blocking rule and are listed by the script for information.
 
-## 3. Proposed reduced set (needs the supervisor's approval)
+## 3. Reduced set (approved 2026-11-27, as reported; initial stage)
+
+> **Approved.** The project owner reported on 2026-11-27 that the supervisor approved this
+> proposal for the **initial stage**: P0 + P1 + P2 (38) and the S candidate survey (43) are
+> mandatory, 81 buildings in all; P3 is covered by the height sensitivity analysis.
+> `configs/study_area.yaml` now has `required_priorities: [P0, P1, P2, S]` and keeps the earlier
+> 190-building requirement in its `history`. The limits listed below still apply: after stage 1
+> the candidate set changes and P2/P3 are recomputed; the supervisor may extend the list. The
+> proposal text is kept as written:
 
 **Proposal:** observe P0 + P1 + P2 (**38 buildings**, P0/P1 measured or documented) plus storey
 counts of the S group (43, quick from the street), instead of all 190; cover P3 with the
@@ -49,6 +57,6 @@ Limits of the argument (why it is a proposal, not a change):
 - The candidate set will change after stage 1 (S storey counts); P2/P3 must be recomputed then.
 - Only geometry (straight lines, plan footprints) was used; no new propagation runs.
 
-Until approved, `configs/study_area.yaml` keeps `required_priorities: [P0, P1, P2, P3]`, and the
-dataset stays unfit for research until all 190 are observed. Approval would mean changing that
-list to `[P0, P1, P2]` (and adding `S` if the supervisor wants the candidate search mandatory).
+*(Before the approval:)* `configs/study_area.yaml` kept `required_priorities: [P0, P1, P2, P3]`
+and the dataset stayed unfit until all 190 were observed. *(Now:)* `[P0, P1, P2, S]`; the
+dataset is unfit until all 81 are observed (today 0 of 81).

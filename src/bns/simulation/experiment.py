@@ -102,6 +102,20 @@ def require_research_profile(profile: Profile, mode: str) -> None:
                               "(set its status to 'approved' in configs/simulation.yaml after the supervisor's decision).")
 
 
+def require_research_ready(root: Path, mode: str) -> None:
+    """Research runs need every pre-experiment gate (bns.analysis.readiness): methodology approved and
+    unchanged since, a fit dataset, the mandatory observations, approved candidate criteria and the
+    convergence on the final scene."""
+    from bns.analysis import readiness
+
+    if mode != "research":
+        return
+    try:
+        readiness.require_research_ready(root)
+    except readiness.NotReady as exc:
+        raise ExperimentError(str(exc)) from exc
+
+
 def require_research_dataset(quality: dict, mode: str) -> None:
     """Research runs need a dataset whose quality report says it is fit for research."""
     if mode == "research" and not quality.get("fit_for_research"):
@@ -117,6 +131,7 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
     area = areas[area_name]
     if mode == "research" and not area.is_research_dataset:
         raise ExperimentError(f"Research mode needs an approved study district; {area.name} is a {area.role}.")
+    require_research_ready(root, mode)
     system = RadioSystem.load(root / "configs" / "radio_system.yaml")
     config = SimulationConfig.load(root / "configs" / "simulation.yaml")
     try:
@@ -216,25 +231,28 @@ def radio_inputs(exp: Experiment, scenario: dict) -> RadioInputs:
         interference_activity=sys_.require("interference_activity", sid, mode=mode))
 
 
-def rate_mapping(exp: Experiment) -> dict | None:
-    """The practical rate mapping of decision B3 (configs/radio_system.yaml), or None if absent."""
-    data = yaml.safe_load((exp.root / "configs" / "radio_system.yaml").read_text(encoding="utf-8"))
-    mapping = data.get("rate_mapping")
-    if mapping and exp.mode == "research" and mapping.get("status") != "approved":
-        raise ExperimentError("The rate mapping (B3) is not approved.")
-    return mapping
+def rate_mapping(exp: Experiment, scenario: dict):
+    """The B3 practical rate model of this scenario (configs/radio_system.yaml), or None if absent."""
+    from bns.analysis import rate_models
+
+    path = exp.root / "configs" / "radio_system.yaml"
+    models = rate_models.load(path)
+    if not models:
+        return None
+    if scenario["id"] not in models:
+        raise ExperimentError(f"No rate mapping is assigned to scenario {scenario['id']} (scenario_rate_mapping).")
+    if exp.mode == "research" and rate_models.approval(path)[0] != "approved":
+        raise ExperimentError("The rate mappings (B3) are not approved.")
+    return models[scenario["id"]]
 
 
 def mapped_rate_bps(exp: Experiment, scenario: dict, sinr_db: np.ndarray) -> np.ndarray | None:
-    """Rate of the B3 mapping for a SINR map (dB; -inf where unreached), or None without a mapping."""
-    from bns.analysis.link_budget import truncated_shannon_bps
-
-    m = rate_mapping(exp)
-    if not m:
+    """Rate of the scenario's B3 mapping for a SINR map (dB; -inf where unreached), or None."""
+    model = rate_mapping(exp, scenario)
+    if model is None:
         return None
     sinr = np.where(np.isfinite(sinr_db), 10.0 ** (np.where(np.isfinite(sinr_db), sinr_db, 0.0) / 10.0), 0.0)
-    return truncated_shannon_bps(scenario["bandwidth_hz"], sinr, alpha=float(m["alpha"]),
-                                 sinr_min_db=float(m["sinr_min_db"]), sinr_max_db=float(m["sinr_max_db"]))
+    return model.rate_bps(scenario["bandwidth_hz"], sinr)
 
 
 def gas_loss_db(exp: Experiment, scenario: dict, position_m) -> np.ndarray:

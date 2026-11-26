@@ -44,6 +44,7 @@ uv run python scripts/fieldwork_package.py --area NAME --variant V   # prioritis
 uv run python scripts/import_height_dataset.py / evaluate_height_dataset.py / height_worklist.py
 uv run python scripts/run_height_sensitivity.py ...  # compare height models (see its --help)
 uv run python scripts/atmosphere_table.py            # rain and gas loss per band
+uv run python scripts/approval_lock.py              # approved values unchanged? (--record only after reconfirmation)
 uv run python scripts/build_poc_scene.py        # Phase 0 scenes (kept for the Phase 0 experiments)
 uv run python scripts/poc_validate.py all       # experiments E1-E5 -> outputs/runs/phase0/
 uv run python scripts/poc_benchmark.py          # time and memory -> outputs/runs/phase0/benchmark/
@@ -127,6 +128,12 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   the submitted file. Monuments, memorials and artworks are never transmitter candidates.
 - Research runs refuse unless area, radio parameters, profile (status `approved`) and backend
   (status `production`) are approved.
+- Research is also locked by the readiness gates (`bns.analysis.readiness`: methodology unchanged
+  since approval, dataset fit, mandatory observations, approved candidate thresholds, final-scene
+  convergence). Changing an approved value voids it until reconfirmed (`configs/approval_lock.yaml`);
+  never run `approval_lock.py --record` without the supervisor's reconfirmation.
+- Rate mappings per band (`rate_mappings` in `radio_system.yaml`): LTE for 4G, NR for 5G, NR-based
+  approximation (labelled) for candidate 6G; always beside Shannon, never instead.
 - Distribute `scripts/make_distribution.py` archives, never the repository (GBA values in history).
 - Validation categories stay separate: analytical, model-to-model (TR 38.901), MATLAB (prepared,
   not executed), field measurements (none).

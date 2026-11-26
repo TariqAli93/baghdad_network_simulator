@@ -79,11 +79,12 @@ def test_attenuation_map_uses_the_straight_line_distance_from_the_site():
     assert loss[0, 1] == pytest.approx(2.0 * np.hypot(1000.0, 300.0) / 1000.0)
 
 
-def test_repository_baseline_is_clear_sky_and_no_rain_case_is_approved(repo_root):
+def test_repository_baseline_is_clear_sky_and_only_the_approved_rain_case_is_a_sensitivity_case(repo_root):
     baseline, cases = atm.load_conditions(repo_root / "configs" / "atmosphere.yaml")
-    assert baseline == atm.Conditions(rain_rate_mm_h=0.0, include_gas=True)
+    assert baseline == atm.Conditions(rain_rate_mm_h=0.0, include_gas=True)        # rain never in the baseline
     assert len(cases) >= 2
-    assert all(case["approved"] is False for case in cases)
+    # C2 (reported 2026-11-27): 18.6 mm/h approved as an optional sensitivity case only
+    assert [c["conditions"].rain_rate_mm_h for c in cases if c["approved"]] == [18.6]
     assert all(case["conditions"].rain_rate_mm_h > 0 and case["source"] for case in cases)
 
 

@@ -9,8 +9,8 @@
 # snapshot: name of the OpenStreetMap snapshot in data/raw/osm (defaults to the area name).
 # A snapshot is never overwritten; a new download needs a new snapshot name.
 #
-# The study district has NOT been chosen yet (docs/supervisor-decisions.md, decision D1).
-# Add it here when it is; nothing else in the pipeline needs to change.
+# The study district is tahrir_bab_al_sharqi_study (decision A1, configs/approvals.yaml),
+# approved on condition that its tall buildings can be observed.
 areas:
   tahrir_bab_al_sharqi:
     role: development fixture
@@ -38,12 +38,27 @@ areas:
     receiver_area_m: [1000.0, 1000.0]
     margin_m: 150.0
     snapshot: tahrir_bab_al_sharqi_v2
-    # Mandatory observations of the approved method (A2): the worklist with these priorities.
-    # The approved method requires the whole worklist (P0-P3). Group S is a proposal only.
-    # A reduced set (e.g. [P0, P1, P2]) needs the supervisor's approval before it is set here.
+    # Footprints: OSM plus the footprints missing from OSM taken from 3D-GloBFP (footprints
+    # only; its heights are not used). Footprint provenance (footprint_source) and height
+    # provenance (category, source) are recorded separately for every building.
+    footprint_sources: [osm, 3d_globfp]
+    # Mandatory observations (A2, reduced fieldwork approved 2026-11-27 as reported): the
+    # initial stage is P0-P2 (38 buildings: tall, conflicting, shadowing the candidates) plus
+    # the candidate survey S (43 candidate roofs, storey counts at least). P3 (152 buildings)
+    # is covered by the building-height sensitivity analysis instead of observation.
+    # The historical requirement is kept on record below; the full worklist stays in
+    # outputs/datasets/tahrir_bab_al_sharqi_study/height_worklist.csv. The reduced list is the
+    # initial stage only: the supervisor may extend it after the stage-1 results.
     observations:
       worklist: outputs/datasets/tahrir_bab_al_sharqi_study/fieldwork/observation_priorities.csv
-      required_priorities: [P0, P1, P2, P3]
+      required_priorities: [P0, P1, P2, S]
+      stage: initial
+      covered_by_sensitivity: [P3]
+      history:
+        - {from: 2026-11-26, required_priorities: [P0, P1, P2, P3], buildings: 190,
+           basis: approved method A2 as recommended (whole worklist)}
+        - {from: 2026-11-27, required_priorities: [P0, P1, P2, S], buildings: 81,
+           basis: reduced fieldwork, initial stage (reported approval)}
 
   tahrir_bab_al_sharqi_v2:
     role: provisional study area
@@ -57,23 +72,24 @@ areas:
     margin_m: 150.0
     snapshot: tahrir_bab_al_sharqi_v2
 
-# How OpenStreetMap tags become heights. Every value is an assumption that must be approved
-# (docs/supervisor-decisions.md, decision D2) before it is used for thesis results.
+# How OpenStreetMap tags and observations become heights (decision A2, configs/approvals.yaml).
 height_policy:
-  # Decision A2 approved (configs/approvals.yaml): this priority, storey height 3.0 m, no external
-  # dataset as the height source, field observations for the worklist buildings.
+  # Decision A2 approved: this priority, storey height 3.0 m, no external dataset as the height
+  # source (3D-GloBFP heights and GlobalBuildingAtlas rejected; an external dataset enters only
+  # if separately authorised), field observations for the required worklist buildings.
   approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending)
+  external_height_dataset: none   # none authorised; "dataset" in the priority stays unused
+  height_sensitivity: enabled     # missing heights reported as a spread (configs/height_models.yaml)
   storey_height_m: 3.0            # used when only building:levels is tagged
   placeholder_height_m: 9.0       # assigned when a building has no height information
   max_plausible_height_m: 250.0   # larger tag values are treated as mapping errors
-  # Which source wins when a building has several (provisional; decision D2).
-  # Storey counts rank above modelled datasets: a storey count is information about the
-  # building itself and its error grows only with the storey-height assumption, whereas the
+  # Which source wins when a building has several (approved, A2). Storey counts rank above
+  # modelled datasets: a storey count is information about the building itself, whereas the
   # one dataset evaluated here (3D-GloBFP) was 26 m too high on average on tagged buildings
-  # (docs/building-height-data.md, section 9). The brief's provisional order put datasets
-  # before storeys; swap the two lines below to use that order.
+  # (docs/building-height-data.md, section 9).
   priority:
-    - observation     # supervisor-approved field observations
+    - observation     # measured or documented field observation (storey counts and visual
+                      # estimates enter here too, recorded as "estimated")
     - osm_height      # OSM height tag
     - osm_levels      # OSM building:levels x storey height
     - dataset         # per-building external dataset, matched by footprint

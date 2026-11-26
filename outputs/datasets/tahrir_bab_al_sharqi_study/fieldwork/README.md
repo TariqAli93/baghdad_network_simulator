@@ -20,11 +20,12 @@ the 9 m placeholder.
 | P1 | 1 | candidate transmitter rooftop (sets the antenna height) | **measured** or **documented** height |
 | P2 | 34 | at their current heights these cast 90 % of the shadow around the candidate sites | measured if possible, otherwise a storey count |
 | P3 | 152 | near a candidate but shadowed by other buildings first | storey count is enough |
-| S | 43 | *proposal, not yet required:* large buildings of unknown height whose storeys may make them candidate roofs | storey count |
+| S | 43 | candidate survey (**required** since 2026-11-27): large buildings of unknown height whose storeys may make them candidate roofs | storey count |
 
-The approved method (decision A2) requires **all of P0-P3** (190 buildings). Using only
-P0-P2 (38 buildings) plus the S storey counts is a proposal awaiting the supervisor
-(`docs/fieldwork-prioritisation.md`). The monuments at Tahrir Square (Freedom Monument,
+**Required now (initial stage, approved 2026-11-27 as reported): P0, P1, P2 and S — 81
+buildings.** P3 (152) is covered by the height sensitivity analysis; observing P3 storey counts
+anyway is cheap and welcome (they are imported like any other row). Until 2026-11-27 all of
+P0-P3 (190) were required (`configs/study_area.yaml`, `history`; `docs/fieldwork-prioritisation.md`). The monuments at Tahrir Square (Freedom Monument,
 Faeq Hassan mural) are obstacles only: they are not transmitter candidates.
 
 ### Two stages

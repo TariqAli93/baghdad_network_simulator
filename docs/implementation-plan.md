@@ -867,3 +867,32 @@ report; the clean distribution leaves them out of the demonstration results. Sti
 development demonstrations: the standard single-site run (tower), the three one-site runs, the
 antenna-placement experiment and the TR 38.901 comparison. The CPU/GPU agreement measured in an
 invalidated run remains valid as an engine comparison only.
+
+### Addendum: approved supervisor configuration applied (2026-11-27)
+
+Under the feature freeze, configuration and guards only; no simulation was run.
+
+- **Recorded** the second reported approval (no written reference): reduced fieldwork
+  (P0-P2 + S, 81 buildings), 1 m inset, monument exclusion, B1 ≤ 2.0 dB, per-band B3 mappings,
+  sensitivity cases (`configs/approvals.yaml`, `docs/approval-record.md`).
+- **Configs:** `radio_system.yaml` (`rate_mappings` lte/nr/nr_based_candidate_6g,
+  `scenario_rate_mapping`; azimuth convention stated), `site_rule.yaml` (references to the
+  radio parameters instead of copies; candidate target, exclusions, pending thresholds),
+  `study_area.yaml` (required `[P0, P1, P2, S]` with history; footprint sources; external
+  dataset none; height sensitivity enabled), `simulation.yaml` (`research_backend: cpu`,
+  `final_scene_convergence: not evaluated`), `atmosphere.yaml` (18.6 mm/h sensitivity case).
+- **Code:** LTE cap in `link_budget.truncated_shannon_bps`; `bns.analysis.rate_models`;
+  `bns.analysis.approval_lock` + `scripts/approval_lock.py` (changed approved values lose
+  their approval); `bns.analysis.readiness` (eight gates; research refuses until the five
+  pre-experiment gates pass); `bns.app.configuration` (display rows); app pages Overview,
+  Radio, Study area show the approved configuration, gates and observation progress.
+- **Defect fixed:** `scripts/run_single_site.py --mode research` skipped the profile, dataset
+  and site-rule checks; it now applies the shared guards and refers research single-site runs
+  to `run_multi_site.py`.
+- **Dataset record:** study dataset rebuilt for the new requirement (scene fingerprint
+  unchanged); quality report: 0 of 81 observed, not fit.
+- **Tests run 2026-11-27:** `uv run pytest` 320 passed (18 deselected); `uv run pytest -m app`
+  12 passed; `uv run pytest -m engine` 6 passed. App screenshots: `outputs/app_screenshots/2026-11-27/`.
+- **Blockers unchanged:** observations, candidate thresholds, final-scene convergence, MATLAB,
+  laptop, written reference.
+

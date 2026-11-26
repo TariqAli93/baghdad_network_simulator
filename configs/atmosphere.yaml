@@ -7,7 +7,9 @@ baseline:
   rain_rate_mm_h: 0.0
   include_gas: true
 
-# Rain cases for a separate sensitivity experiment. NOT part of the baseline and NOT approved.
+# Rain cases for a separate sensitivity experiment, NEVER part of the baseline. The 18.6 mm/h
+# case is approved as an optional sensitivity case only (C2, reported 2026-11-27), qualified by
+# the older map edition below; the other two are not approved.
 # The rates come from the ITU's digital rain maps, but from the previous edition
 # (ITU-R P.837-7), read through the open-source library ITU-Rpy 0.4.0 at 33.328 N, 44.4085 E
 # on 2026-11-26. The edition in force is P.837-8 (09/2025), whose map value for Baghdad has
@@ -20,7 +22,7 @@ rain_sensitivity:
       source: ITU-R P.837-7 digital maps via ITU-Rpy 0.4.0 (superseded edition)
     - label: rain rate exceeded 0.01 % of an average year (about 53 minutes)
       rain_rate_mm_h: 18.6
-      approved: false
+      approved: true      # as a sensitivity case only (C2); never the baseline
       source: ITU-R P.837-7 digital maps via ITU-Rpy 0.4.0 (superseded edition)
     - label: rain rate exceeded 0.001 % of an average year (about 5 minutes)
       rain_rate_mm_h: 55.1

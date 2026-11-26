@@ -72,15 +72,25 @@ def shannon_capacity_bps(bandwidth_hz, sinr_linear):
     return np.asarray(bandwidth_hz, dtype=float) * np.log2(1.0 + ratio)
 
 
-def truncated_shannon_bps(bandwidth_hz, sinr_linear, *, alpha: float, sinr_min_db: float, sinr_max_db: float):
-    """Practical rate beside the Shannon bound (decision B3; 3GPP TR 38.921 Table 4.2.7-1).
+def truncated_shannon_bps(bandwidth_hz, sinr_linear, *, alpha: float, sinr_min_db: float,
+                          sinr_max_db: float | None = None, thr_max_bps_hz: float | None = None):
+    """Practical rate beside the Shannon bound (decision B3): attenuated, truncated Shannon.
 
-    0 below sinr_min_db; alpha * B * log2(1 + SINR) between; the value at sinr_max_db above.
-    The constants come from the approved configuration (configs/radio_system.yaml, rate_mapping).
+    0 below sinr_min_db (inclusive bound); alpha * B * log2(1 + SINR) above, capped by exactly
+    one of:
+      sinr_max_db     the value reached at that SINR (NR form, TR 38.921 Table 4.2.7-1)
+      thr_max_bps_hz  a maximum spectral efficiency (LTE form, TR 36.942 Annex A Table A.1)
+    The constants come from the approved configuration (configs/radio_system.yaml, rate_mappings).
     """
+    if (sinr_max_db is None) == (thr_max_bps_hz is None):
+        raise ValueError("Give exactly one cap: sinr_max_db (NR form) or thr_max_bps_hz (LTE form).")
     ratio = np.asarray(sinr_linear, dtype=float)
     if np.any(ratio < 0):
         raise ValueError("SINR must be given as a non-negative linear ratio, not in dB.")
-    lo, hi = 10 ** (sinr_min_db / 10), 10 ** (sinr_max_db / 10)
-    rate = alpha * np.asarray(bandwidth_hz, dtype=float) * np.log2(1.0 + np.minimum(ratio, hi))
-    return np.where(ratio >= lo, rate, 0.0)
+    bandwidth = np.asarray(bandwidth_hz, dtype=float)
+    lo = 10 ** (sinr_min_db / 10)
+    if sinr_max_db is not None:
+        efficiency = alpha * np.log2(1.0 + np.minimum(ratio, 10 ** (sinr_max_db / 10)))
+    else:
+        efficiency = np.minimum(alpha * np.log2(1.0 + ratio), thr_max_bps_hz)
+    return np.where(ratio >= lo, bandwidth * efficiency, 0.0)
