@@ -39,6 +39,8 @@ def main() -> int:
         parser.add_argument(name, type=float, required=True)
     parser.add_argument("--max-sites", type=int, required=True)
     parser.add_argument("--height-dataset", action="append", default=[])
+    parser.add_argument("--observations", type=Path,
+                        help="observations made so far (stage 1), so new candidate roofs are found")
     parser.add_argument("--add-footprints", action="append", default=[],
                         help="also list footprints added from this dataset (as scripts/build_dataset.py does)")
     args = parser.parse_args()
@@ -52,8 +54,14 @@ def main() -> int:
     raw = ROOT / "data" / "raw" / "heights"
     footprints = [(k, next(p for p in (raw / k / f"{area.name}.geojson", raw / k / f"{area.snapshot}.geojson")
                           if p.exists()), specs["datasets"][k]["name"]) for k in args.add_footprints]
+    rows = None
+    if args.observations:
+        with open(args.observations, newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(line for line in handle if not line.startswith("#")))
     buildings, _, _ = pipeline.provenance_buildings(area, data, policy, meta["sha256"],
-                                                    height_datasets=datasets, extra_footprints=footprints)
+                                                    height_datasets=datasets, extra_footprints=footprints,
+                                                    manual_rows=rows, manual_name=Path(args.observations).name
+                                                    if args.observations else "manual")
     inside = [b for b in buildings if area.receiver_box().contains(b.polygon.representative_point())]
     candidates = sites.rooftop_candidates(
         inside, mast_height_m=args.mast_height_m, min_height_m=args.min_site_height_m,
@@ -65,7 +73,9 @@ def main() -> int:
     for row in rows:
         lon, lat = inverse.transform(row["x_m"], row["y_m"], direction="INVERSE")
         row["lat"], row["lon"] = round(lat, 6), round(lon, 6)
-        row["osm_url"] = f"https://www.openstreetmap.org/{row['building_id'].split('#')[0]}"
+        kind = row["building_id"].split("/")[0]
+        row["osm_url"] = (f"https://www.openstreetmap.org/{row['building_id'].split('#')[0]}"
+                          if kind in ("way", "relation") else "")
         row["building_id"] = row["building_id"].split("#p")[0]    # observations apply to the whole building
     out = ROOT / "outputs" / "datasets" / area.name / "height_worklist.csv"
     out.parent.mkdir(parents=True, exist_ok=True)

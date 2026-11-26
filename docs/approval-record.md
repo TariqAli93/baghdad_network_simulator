@@ -35,6 +35,29 @@ Machine-readable version: `configs/approvals.yaml`. Configuration states updated
   `configs/site_rule.yaml`), missing-footprint import (A2, `build_dataset.py --add-footprints`),
   the 3GPP truncated rate beside Shannon (B3).
 - Research mode now also refuses a dataset that is not fit for research. Under the approved
-  A2 method a dataset becomes fit when the method is approved **and** every building of the
-  observation worklist has an observed height (placeholders elsewhere are then reported through
-  the sensitivity analysis). Today the study dataset is not fit: no observations yet.
+  A2 method a dataset becomes fit when the method is approved **and** every REQUIRED building
+  (configured worklist and priorities, `configs/study_area.yaml`) has a valid fieldwork
+  observation — measured or documented heights are recorded as observed, storey counts and
+  visual estimates as estimated (placeholders elsewhere are then reported through the
+  sensitivity analysis). Today the study dataset is not fit: 0 of 190 required buildings observed.
+
+## Status classification (review 2026-11-27)
+
+| Kind | Decisions | Evidence |
+|---|---|---|
+| Explicitly approved in writing | **none** | no written reference has been supplied |
+| Reported as approved (all recommended options, as written) | A3 values, B1, B2, B3, C6, convergence profile, MATLAB requirement | the project owner's report of 2026-11-26 |
+| Approved with an open condition | A1 (observability of the tall buildings), A2 (observations not collected), A4 (thresholds need observed heights), laptop (not measured) | conditions in `configs/approvals.yaml` |
+| Inferred or implementation choices (not approved as such) | 1 m inset from the roof edge; the B1 tolerance as a number (the "convergence floor" of the standard profile is 1.4-2.0 dB); the worklist settings of `scripts/height_worklist.py`; P0-P3 prioritisation and the reduced set; excluding monuments from candidates | software decisions, listed for confirmation |
+
+### Exact values still to be confirmed by the supervisor
+
+1. A written approval reference (e-mail or signed minutes) for the recommended options.
+2. B1: the MATLAB agreement tolerance as a number (proposal: median |Δ| in LOS cells ≤ 2.0 dB).
+3. B3: one mapping for all bands (TR 38.921, cap 30 dB) or the LTE mapping of TR 36.942 for the
+   4G scenario (cap 4.4 bit/s/Hz) (`docs/rate-mapping-verification.md`).
+4. A2: whether the reduced observation set P0-P2 (+ S storey counts) may replace the full
+   worklist (`docs/fieldwork-prioritisation.md`).
+5. A4: candidate minimum roof height and spacing, after stage-1 observations; the 1 m inset;
+   the exclusion of monuments, memorials and artworks from candidate roofs.
+6. GlobalBuildingAtlas: not used (no licence decision needed unless it is to be used).

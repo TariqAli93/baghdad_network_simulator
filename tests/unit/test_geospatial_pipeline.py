@@ -510,3 +510,45 @@ def test_placeholders_block_research_until_the_approved_worklist_is_complete():
     assert fit(height_method_approved=True, worklist={"listed": 1, "observed": 1, "unmatched": 0}) == (True, [])
     assert not fit(height_method_approved=False, worklist={"listed": 1, "observed": 1, "unmatched": 0})[0]
     assert not fit(height_method_approved=True, worklist={"listed": 1, "observed": 1, "unmatched": 1})[0]
+
+
+def test_completeness_is_judged_against_the_required_list_not_the_submitted_file():
+    from bns.geospatial.pipeline import observation_status
+
+    required = ["way/1", "way/2", "way/3"]
+    rows = [{"building_id": "way/1", "method_class": "measured", "height_m": "20"},
+            {"building_id": "way/2", "method_class": "storey_count", "storeys": "4"},
+            {"building_id": "way/9", "method_class": "measured", "height_m": "10"}]     # not required
+    status = observation_status(required, rows, unmatched=[])
+    assert status == {"listed": 3, "observed": 2, "unmatched": 0, "missing": ["way/3"]}
+    legacy = [{"building_id": i, "height_m": "10", "method": "x"} for i in required]   # no method class
+    assert observation_status(required, legacy, unmatched=[])["observed"] == 0
+    assert observation_status(required, None, unmatched=[])["observed"] == 0
+
+
+def test_shadowing_counts_only_buildings_tall_enough_to_cut_the_line_first():
+    from shapely.geometry import box
+
+    from bns.geospatial.sites import shadowing_buildings
+
+    low = ht.HeightRecord(3.0, ht.PLACEHOLDER, "placeholder", "none", "x")
+    high = ht.HeightRecord(25.0, ht.OBSERVED, "osm:height", "tag", "x")
+    blds = [ht.Building("low_near", box(10, -5, 15, 5), {}, low),       # under the line: no shadow
+            ht.Building("high_mid", box(40, -5, 45, 5), {}, high),      # cuts the line first
+            ht.Building("high_far", box(70, -5, 75, 5), {}, high)]      # behind high_mid
+    hits = shadowing_buildings(blds, [(0.0, 0.0, 20.0)], [(100.0, 0.0)], receiver_height_m=1.5)
+    assert hits == {"high_mid": 1}
+
+
+def test_monuments_memorials_and_artworks_are_never_transmitter_candidates():
+    from shapely.geometry import box
+
+    from bns.geospatial.sites import rooftop_candidates
+
+    rec = ht.HeightRecord(15.0, ht.OBSERVED, "osm:height", "tag", "x")
+    blds = [ht.Building("way/1", box(0, 0, 50, 2), {"building": "yes", "historic": "monument"}, rec),
+            ht.Building("way/2", box(100, 0, 104, 4), {"building": "yes", "memorial": "yes"}, rec),
+            ht.Building("way/3", box(200, 0, 204, 4), {"building": "yes", "tourism": "artwork"}, rec),
+            ht.Building("way/4", box(300, 0, 330, 30), {"building": "commercial"}, rec)]
+    got = rooftop_candidates(blds, mast_height_m=3.0, min_height_m=0.0, min_area_m2=0.0, min_spacing_m=0.0)
+    assert [c.building_id for c in got] == ["way/4"]

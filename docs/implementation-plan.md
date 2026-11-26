@@ -815,3 +815,39 @@ tree (the user's own theme edit and roadmap file left untouched).
 ### Tests
 
 Unit 280 passed; engine 6 passed (Phase 0 records untouched); pages 12 passed; lint clean.
+
+---
+
+## Final research readiness: external blockers (2026-11-27)
+
+**Status.** Branch `final-research-readiness` (from `4928b4f`). `v1.0.0-rc.1` unchanged; no
+`v1.0.0`. Research mode stays locked: the study dataset is not fit (0 of 190 required
+buildings observed).
+
+Done:
+1. **Worklist reviewed** (`docs/fieldwork-prioritisation.md`): no duplicates; two "candidate
+   rooftops" were monuments (Freedom Monument, Faeq Hassan mural) — monuments, memorials and
+   artworks are now excluded from candidates (test added); worklist 330 → 190; broken OSM links
+   for 3D-GloBFP footprints fixed.
+2. **Prioritised** P0 3, P1 1, P2 34 (90.6 % of the shadow lines around the candidates, 3-D
+   line-of-sight test with current heights), P3 152, plus S 43 (proposal: candidate search).
+   Reduced set P0-P2 (38) + S storey counts proposed, not adopted.
+3. **Fieldwork package** `outputs/datasets/tahrir_bab_al_sharqi_study/fieldwork/`: A3 map
+   (PDF/PNG), priorities CSV with reasons and coordinates, observation template, guide
+   (methods, safety, two stages, import).
+4. **Observation import hardened**: `method_class` (measured / documented → observed;
+   visual_estimate / storey_count → estimated, storeys × 3.0 m), invalid values rejected with
+   reasons; completeness judged against the configured required list, not the submitted file;
+   each observation file gives a new dataset version (`+observations-<sha8>`) with an automatic
+   `dataset_manifest.json`.
+5. **B3 verified** against TR 38.921 V19.0.0 Table 4.2.7-1 (exact match) and TR 36.942 Annex A
+   (`docs/rate-mapping-verification.md`).
+6. **Approval status classified** (`docs/approval-record.md`): nothing in writing; six values to
+   confirm.
+
+Tests: unit 293 passed; pages 12 passed; lint clean. No simulation was run in this cycle.
+
+Remaining gates: field observations (stage 1, then stage 2), supervisor confirmations (six
+items), written approval, laptop acceptance, MATLAB on the final scene (the current package uses
+the development scene and must be regenerated with `scripts/export_matlab_case.py` from a
+TR 38.901 run on the final dataset), then the research execution plan.

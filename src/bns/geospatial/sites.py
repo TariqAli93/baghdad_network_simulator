@@ -19,6 +19,12 @@ class Candidate:
     height_category: str        # how trustworthy the roof height is
 
 
+def is_structure_not_building(tags: dict) -> bool:
+    """Monuments, memorials and artworks mapped as buildings: obstacles, but never transmitter sites."""
+    return bool(tags.get("historic") or tags.get("memorial") or tags.get("tourism") == "artwork"
+                or tags.get("man_made") in ("monument", "obelisk"))
+
+
 def rooftop_candidates(buildings: list[Building], *, mast_height_m: float, min_height_m: float,
                        min_area_m2: float, min_spacing_m: float,
                        max_candidates: int | None = None,
@@ -34,7 +40,8 @@ def rooftop_candidates(buildings: list[Building], *, mast_height_m: float, min_h
     Every argument is explicit: there is no default mast height.
     """
     eligible = [b for b in buildings
-                if b.height.height_m >= min_height_m and b.polygon.area >= min_area_m2
+                if not is_structure_not_building(b.tags or {})
+                and b.height.height_m >= min_height_m and b.polygon.area >= min_area_m2
                 and (categories is None or b.height.category in categories)]
     eligible.sort(key=lambda b: (-b.height.height_m, -b.polygon.area, b.building_id))
 
@@ -74,3 +81,44 @@ def edge_positions(polygon, x: float, y: float, azimuths_rad: list[float], inset
         d = max(r - inset_m, 0.0)
         out.append((float(x + d * np.cos(az)), float(y + d * np.sin(az))))
     return out
+
+
+def shadowing_buildings(buildings: list[Building], antennas_xyz: list[tuple[float, float, float]],
+                        receivers_xy: list[tuple[float, float]], receiver_height_m: float) -> dict[str, int]:
+    """Which building first blocks the straight line from each antenna to each receiver point.
+
+    Each building blocks with its CURRENT height (observed, estimated or placeholder), so
+    the result says which buildings decide the shadows if those heights are right; it is
+    the basis for prioritising observations, not a propagation result. Returns building
+    id -> number of (antenna, receiver) lines it blocks first.
+    """
+    import numpy as np
+    from shapely.geometry import LineString
+    from shapely.strtree import STRtree
+
+    polys = [b.polygon for b in buildings]
+    tree = STRtree(polys)
+    counts: dict[str, int] = {}
+    for ax, ay, az in antennas_xyz:
+        for rx, ry in receivers_xy:
+            length = float(np.hypot(rx - ax, ry - ay))
+            if length < 1e-6:
+                continue
+            seg = LineString([(ax, ay), (rx, ry)])
+            first = None
+            for i in tree.query(seg, predicate="intersects"):
+                part = polys[i].intersection(seg)
+                pieces = getattr(part, "geoms", [part])
+                for piece in pieces:
+                    if piece.is_empty:
+                        continue
+                    coords = np.asarray(piece.coords) if hasattr(piece, "coords") else np.empty((0, 2))
+                    if coords.size == 0:
+                        continue
+                    d = float(np.min(np.hypot(coords[:, 0] - ax, coords[:, 1] - ay)))
+                    z = az + (receiver_height_m - az) * d / length     # line height where it enters
+                    if z < buildings[i].height.height_m and (first is None or d < first[0]):
+                        first = (d, buildings[i].building_id)
+            if first is not None:
+                counts[first[1]] = counts.get(first[1], 0) + 1
+    return counts

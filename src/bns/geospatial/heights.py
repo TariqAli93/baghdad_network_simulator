@@ -150,34 +150,114 @@ def height_from_osm_tags(tags: dict, policy: HeightPolicy, building_id: str,
                         reference, original, warnings=tuple(warnings))
 
 
-def apply_manual_observations(buildings: list[Building], rows: list[dict],
-                              source_name: str) -> tuple[list[Building], list[str]]:
+METHOD_CLASSES = {"measured": OBSERVED, "documented": OBSERVED, "visual_estimate": ESTIMATED,
+                  "storey_count": ESTIMATED}
+
+
+def _float_or_none(value):
+    text = str(value if value is not None else "").strip()
+    return None if text == "" else float(text)
+
+
+def validate_observation(row: dict, *, storey_height_m: float | None, max_height_m: float | None):
+    """(height_m, category, problems) of one observation row with a method_class.
+
+    measured / documented heights are OBSERVED; a visual estimate or a storey count is
+    ESTIMATED (storeys x the approved storey height when no height is given). Nothing is
+    invented: a row with no value is skipped by the caller.
+    """
+    problems = []
+    cls = str(row.get("method_class") or "").strip()
+    if cls not in METHOD_CLASSES:
+        return None, None, [f"method_class must be one of {sorted(METHOD_CLASSES)}, not {cls!r}"]
+    try:
+        height = _float_or_none(row.get("height_m"))
+    except ValueError:
+        return None, None, [f"height_m {row.get('height_m')!r} is not a number"]
+    storeys = None
+    if str(row.get("storeys") or "").strip():
+        try:
+            storeys = float(row["storeys"])
+        except ValueError:
+            storeys = -1.0
+        if storeys <= 0 or storeys != int(storeys) or storeys > 200:
+            problems.append(f"storeys {row['storeys']!r} must be a whole number between 1 and 200")
+            storeys = None
+    if height is None and cls == "storey_count" and storeys is not None:
+        if storey_height_m is None:
+            problems.append("a storey count needs the approved storey height")
+        else:
+            height = storeys * storey_height_m
+    if height is None:
+        problems.append(f"{cls} needs height_m" + (" or storeys" if cls == "storey_count" else ""))
+    elif height <= 0 or (max_height_m is not None and height > max_height_m):
+        problems.append(f"height {height:g} m is outside 0-{max_height_m or 'inf'} m")
+    try:
+        unc = _float_or_none(row.get("uncertainty_m"))
+        if unc is not None and unc < 0:
+            problems.append("uncertainty_m must not be negative")
+    except ValueError:
+        problems.append(f"uncertainty_m {row.get('uncertainty_m')!r} is not a number")
+    return height, METHOD_CLASSES[cls], problems
+
+
+def apply_manual_observations(buildings: list[Building], rows: list[dict], source_name: str, *,
+                              storey_height_m: float | None = None,
+                              max_height_m: float | None = None) -> tuple[list[Building], list[str]]:
     """Replace heights by observations made for specific buildings.
 
-    Each row needs `building_id`, `height_m` and `method`; `observer`, `date`
-    and `uncertainty_m` are optional. Returns the updated buildings and the
-    ids in `rows` that match no building. The previous record and the original
-    OSM values stay attached to the new record.
+    Fieldwork rows carry `method_class` (measured | documented | visual_estimate |
+    storey_count), `height_m` and/or `storeys`, `method`, `source`, `date`, `observer`,
+    `uncertainty_m`, `notes`; invalid rows stop the import with every problem listed.
+    Rows without `method_class` (older files) need `height_m` and `method` and are
+    recorded as observed, as before. Returns the updated buildings and the ids that match
+    no building. The previous record and the original values stay attached.
     """
-    by_id = {row["building_id"]: row for row in rows
-             if str(row.get("height_m") or "").strip()}        # unfilled worklist rows
+    problems, parsed = [], {}
+    for row in rows:
+        has_value = any(str(row.get(k) or "").strip() for k in ("height_m", "storeys"))
+        if not has_value:
+            continue                                            # unfilled worklist row
+        if "method_class" in row and str(row.get("method_class") or "").strip():
+            height, category, issues = validate_observation(row, storey_height_m=storey_height_m,
+                                                            max_height_m=max_height_m)
+            problems += [f"{row.get('building_id')}: {i}" for i in issues]
+        else:
+            try:
+                height, category = float(row["height_m"]), OBSERVED
+            except (KeyError, ValueError):
+                problems.append(f"{row.get('building_id')}: height_m {row.get('height_m')!r} is not a number")
+                continue
+            if "method_class" in row:                         # template column present but empty
+                problems.append(f"{row.get('building_id')}: method_class is required")
+        parsed[row["building_id"]] = (row, height, category)
+    if problems:
+        raise ValueError("Invalid observations:\n  " + "\n  ".join(problems))
     known = {b.building_id for b in buildings}
     updated = []
     for b in buildings:
-        row = by_id.get(b.building_id)
-        if row is None:
+        item = parsed.get(b.building_id)
+        if item is None:
             updated.append(b)
             continue
+        row, height, category = item
+        cls = str(row.get("method_class") or "").strip()
         observer, date = row.get("observer", ""), row.get("date", "")
-        method = row["method"] + (f" by {observer}" if observer else "")
-        reference = f"{source_name}, {b.building_id}" + (f", {date}" if date else "")
-        uncertainty = float(row["uncertainty_m"]) if row.get("uncertainty_m") not in (None, "") else None
+        method = (f"{cls}: " if cls else "") + str(row.get("method") or "") + (f" by {observer}" if observer else "")
+        if cls == "storey_count" and not str(row.get("height_m") or "").strip():
+            method += f" ({int(float(row['storeys']))} storeys x {storey_height_m:g} m)"
+        reference = (f"{source_name}, {b.building_id}" + (f", {date}" if date else "")
+                     + (f", source: {row['source']}" if str(row.get("source") or "").strip() else "")
+                     + (f", notes: {row['notes']}" if str(row.get("notes") or "").strip() else ""))
+        uncertainty = _float_or_none(row.get("uncertainty_m"))
+        original = dict(b.height.original)
+        if str(row.get("storeys") or "").strip():
+            original["observed_storeys"] = int(float(row["storeys"]))
         earlier = _informative((b.height,) + b.height.alternatives)
-        record = HeightRecord(float(row["height_m"]), OBSERVED, f"manual:{source_name}", method,
-                              reference, b.height.original, uncertainty, superseded=b.height,
-                              alternatives=earlier)
+        record = HeightRecord(float(height), category, f"manual:{source_name}", method.strip(),
+                              reference, original, uncertainty, superseded=b.height, alternatives=earlier)
         updated.append(replace(b, height=_with_conflicts(record)))
-    return updated, [i for i in by_id if i not in known]
+    return updated, [i for i in parsed if i not in known]
 
 
 def _informative(records) -> tuple[HeightRecord, ...]:

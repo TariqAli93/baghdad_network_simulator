@@ -93,8 +93,9 @@
   "not_fit_reasons": [
     "the area is a provisional study area, not the study district",
     "the area has not been approved by the supervisor",
-    "the building-height methodology has not been approved",
     "98.8 % of buildings have placeholder heights"
   ],
+  "fitness_notes": [],
+  "observation_worklist": null,
   "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312"
 }

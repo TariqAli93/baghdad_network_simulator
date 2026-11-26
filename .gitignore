@@ -38,3 +38,4 @@ dist/
 !outputs/runs/development/**/*.npz
 !outputs/runs/development/**/*.png
 !outputs/validation/**/*.png
+!outputs/datasets/**/fieldwork/*.png

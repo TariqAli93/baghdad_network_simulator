@@ -18,7 +18,11 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
+import json
 import shutil
+import subprocess
+from datetime import datetime, timezone
 import sys
 from pathlib import Path
 
@@ -77,8 +81,10 @@ def main() -> int:
     rows = None
     if args.observations:
         with open(args.observations, newline="", encoding="utf-8") as handle:
-            rows = list(csv.DictReader(handle))
-        variant += "+observations"
+            rows = list(csv.DictReader(line for line in handle if not line.startswith("#")))
+        # every observation file gives its own, immutable dataset version
+        obs_sha = hashlib.sha256(Path(args.observations).read_bytes()).hexdigest()
+        variant += f"+observations-{obs_sha[:8]}"
     datasets = []
     if args.height_dataset:
         specs = yaml.safe_load((ROOT / "configs" / "height_datasets.yaml").read_text(
@@ -110,19 +116,59 @@ def main() -> int:
             spec = specs[key]
             footprints.append((key, extract, f"{spec['name']} {spec.get('tile', '')}, {spec.get('licence', '')}"))
             variant += f"+fp_{key}"
-    height_policy_raw = yaml.safe_load((ROOT / "configs" / "study_area.yaml").read_text(encoding="utf-8"))["height_policy"]
-    method_approved = bool(height_policy_raw.get("approved_by"))
+    area_config = yaml.safe_load((ROOT / "configs" / "study_area.yaml").read_text(encoding="utf-8"))
+    method_approved = bool(area_config["height_policy"].get("approved_by"))
+    # the mandatory observations of the approved method (A2): the configured worklist, filtered
+    # by the required priorities; the submitted file never defines what is mandatory
+    required = None
+    requirement = (area_config["areas"][area.name].get("observations") or {})
+    if requirement:
+        worklist_path = ROOT / requirement["worklist"]
+        if not worklist_path.exists():
+            print(f"The required worklist {worklist_path} is missing: run scripts/fieldwork_package.py first.")
+            return 1
+        with open(worklist_path, newline="", encoding="utf-8") as handle:
+            listed = list(csv.DictReader(line for line in handle if not line.startswith("#")))
+        required = [r["building_id"] for r in listed if r["priority"] in requirement["required_priorities"]]
 
     scene_dir = ROOT / "data" / "scenes" / area.name / variant
     report = pipeline.build_dataset(
         area, data, scene_dir, policy, meta["sha256"], height_model=model, seed=args.seed,
         manual_rows=rows, manual_name=args.observations.name if args.observations else "manual",
-        height_datasets=datasets, extra_footprints=footprints, height_method_approved=method_approved)
+        height_datasets=datasets, extra_footprints=footprints, height_method_approved=method_approved,
+        required_observations=required)
 
     report_dir = ROOT / "outputs" / "datasets" / area.name / variant
     report_dir.mkdir(parents=True, exist_ok=True)
     for name in ("quality_report.md", "quality_report.json"):
         shutil.copyfile(scene_dir / name, report_dir / name)
+
+    def sha(path):
+        return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+    from bns.simulation.cache import scene_fingerprint
+    manifest = {
+        "dataset": f"{area.name}/{variant}", "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "software_commit": subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True,
+                                          cwd=ROOT).stdout.strip() or "unknown",
+        "inputs": {"osm_snapshot": area.snapshot, "osm_snapshot_sha256": meta["sha256"],
+                   "observations": None if not args.observations else {
+                       "file": str(args.observations), "sha256": sha(args.observations)},
+                   "required_observations": None if required is None else {
+                       "worklist": requirement["worklist"], "sha256": sha(ROOT / requirement["worklist"]),
+                       "required_priorities": requirement["required_priorities"], "count": len(required)},
+                   "footprint_datasets": [{"name": k, "extract": str(p.relative_to(ROOT)), "sha256": sha(p)}
+                                          for k, p, _ in footprints],
+                   "height_datasets": [{"name": k, "extract": str(Path(p).relative_to(ROOT)), "sha256": sha(p)}
+                                       for k, p, _ in datasets]},
+        "outputs": {"scene_fingerprint": scene_fingerprint(scene_dir),
+                    "buildings_geojson_sha256": sha(scene_dir / "buildings.geojson"),
+                    "quality_report_sha256": sha(scene_dir / "quality_report.json")},
+        "height_categories": report["height_categories"]["by_count"],
+        "observation_worklist": report.get("observation_worklist"),
+        "fit_for_research": report["fit_for_research"], "not_fit_reasons": report["not_fit_reasons"],
+        "fitness_notes": report.get("fitness_notes", [])}
+    (report_dir / "dataset_manifest.json").write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
 
     cats = report["height_categories"]["by_count_percent"]
     print(f"{area.name} [{variant}]: {report['buildings']} buildings; heights observed "

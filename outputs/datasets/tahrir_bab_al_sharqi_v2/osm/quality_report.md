@@ -2,7 +2,7 @@
 
 Role: provisional study area. Approved as study district: no.
 
-**NOT fit for research:** the area is a provisional study area, not the study district; the area has not been approved by the supervisor; the building-height methodology has not been approved; 98.8 % of buildings have placeholder heights.
+**NOT fit for research:** the area is a provisional study area, not the study district; the area has not been approved by the supervisor; 98.8 % of buildings have placeholder heights.
 
 ## Where the building heights come from
 

@@ -2,7 +2,7 @@
 
 Role: study district. Approved as study district: yes.
 
-**NOT fit for research:** 99.4 % of buildings have placeholder heights.
+**NOT fit for research:** 99.4 % of buildings have placeholder heights; observation worklist incomplete: 0 of 190 buildings observed, 0 rows matching no building.
 
 ## Where the building heights come from
 

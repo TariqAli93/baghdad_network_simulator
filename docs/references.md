@@ -89,6 +89,7 @@ mobile use yet; the decision is for WRC-27.
 | `3GPP-TS38101-1` | TS 38.101-1 V20.1.0 (2026-09), NR FR1 | Band n78 definition | Read |
 | `3GPP-TS38101-2` | TS 38.101-2 V20.1.0 (2026-09), NR FR2 | Bands n257 / n258 / n261 | Read |
 | `3GPP-TR38901` | TR 38.901 V19.5.0 = ETSI TR 138 901 V19.5.0 (2026-09), "Study on channel model for frequencies from 0.5 to 100 GHz". https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/19.05.00_60/tr_138901v190500p.pdf | **Validation model (Phase 7)**; see section 5 | Read |
+| `3GPP-TR38921-427` | TR 38.921 V19.0.0 (2025-09) §4.2.7 and Table 4.2.7-1, from 38921-j00.zip (3GPP archive, SHA-256 88399296…), read 2026-11-27 | Attenuated, truncated Shannon mapping (B3): DL α 0.6, SNIR −10 to 30 dB (`docs/rate-mapping-verification.md`) | Read |
 | `3GPP-TR36942` | TR 36.942 V19.0.0 = ETSI TR 136 942 V19.0.0 (2025-10), Annex A. https://www.etsi.org/deliver/etsi_tr/136900_136999/136942/19.00.00_60/tr_136942v190000p.pdf | Attenuated Shannon rate model (optional) | Read |
 | `PODDAR2025` | H. Poddar et al., "Overview of 3GPP Release 19 Study on Channel Modeling Enhancements to TR 38.901 for 6G", arXiv:2507.19266 | Background on the 7-24 GHz update | Page |
 

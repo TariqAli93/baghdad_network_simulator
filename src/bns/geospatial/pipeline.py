@@ -69,7 +69,9 @@ def provenance_buildings(area: StudyArea, overpass_json: dict, policy: ht.Height
         buildings = ht.apply_candidates(buildings, extra, policy)
         clean_report[f"dataset {name}: matched buildings"] = len(extra)
     if manual_rows:
-        buildings, unmatched = ht.apply_manual_observations(buildings, manual_rows, manual_name)
+        buildings, unmatched = ht.apply_manual_observations(
+            buildings, manual_rows, manual_name, storey_height_m=policy.storey_height_m,
+            max_height_m=policy.max_plausible_height_m)
         clean_report["manual_observations_without_building"] = unmatched
     if height_model is not None:
         if seed is None:
@@ -122,6 +124,9 @@ def _geojson(area: StudyArea, buildings: list[ht.Building]) -> dict:
                 "height_reference": h.reference,
                 "original_height_tag": b.tags.get("height"),
                 "original_levels_tag": b.tags.get("building:levels"),
+                # what the object is, where it matters for site eligibility and provenance
+                "structure_tags": {k: b.tags[k] for k in ("historic", "memorial", "tourism", "man_made",
+                                                           "footprint_source") if k in b.tags},
                 "height_alternatives": [
                     {"height_m": a.height_m, "category": a.category, "source": a.source,
                      "method": a.method, "reference": a.reference} for a in h.alternatives],
@@ -135,14 +140,18 @@ def _geojson(area: StudyArea, buildings: list[ht.Building]) -> dict:
             "features": features}
 
 
-def _worklist_status(manual_rows: list[dict] | None, clean_report: dict) -> dict | None:
-    """How complete the observation file (the filled-in worklist) is."""
-    if not manual_rows:
-        return None
-    listed = len(manual_rows)
-    observed = sum(1 for r in manual_rows if str(r.get("height_m", "")).strip())
-    return {"listed": listed, "observed": observed,
-            "unmatched": len(clean_report.get("manual_observations_without_building") or [])}
+def observation_status(required_ids: list[str], manual_rows: list[dict] | None, unmatched: list[str]) -> dict:
+    """How many REQUIRED buildings (the approved worklist) have a fieldwork observation.
+
+    Only rows with a method_class and a value count, so an older free-text file or a
+    shortened file cannot make the worklist look complete. Validity is checked on import.
+    """
+    done = {r["building_id"] for r in (manual_rows or [])
+            if str(r.get("method_class") or "").strip()
+            and any(str(r.get(k) or "").strip() for k in ("height_m", "storeys"))}
+    missing = [i for i in required_ids if i not in done]
+    return {"listed": len(required_ids), "observed": len(required_ids) - len(missing),
+            "unmatched": len(unmatched), "missing": missing}
 
 
 def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: ht.HeightPolicy,
@@ -151,7 +160,8 @@ def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: h
                   manual_name: str = "manual", scene_settings=None,
                   height_datasets: list[tuple[str, Path, str]] | None = None,
                   height_method_approved: bool = False,
-                  extra_footprints: list[tuple[str, Path, str]] | None = None) -> dict:
+                  extra_footprints: list[tuple[str, Path, str]] | None = None,
+                  required_observations: list[str] | None = None) -> dict:
     """Write scene, building table and quality report into out_dir; return the report."""
     settings = scene_settings or osm_scene.SceneSettings()
     out_dir = Path(out_dir)
@@ -177,7 +187,9 @@ def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: h
     report = quality.quality_report(buildings, area, parse_report, clean_report,
                                     scene_meta.get("mesh", {}), height_model=model_info,
                                     height_method_approved=height_method_approved,
-                                    worklist=_worklist_status(manual_rows, clean_report))
+                                    worklist=None if required_observations is None else observation_status(
+                                        required_observations, manual_rows,
+                                        clean_report.get("manual_observations_without_building") or []))
     report["osm_snapshot_sha256"] = snapshot_sha256
     (out_dir / "quality_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     (out_dir / "quality_report.md").write_text(quality.render_markdown(report), encoding="utf-8")
@@ -200,6 +212,7 @@ def load_buildings(dataset_dir: Path, area: StudyArea) -> list[ht.Building]:
         p = feature["properties"]
         tags = {k: v for k, v in (("height", p["original_height_tag"]),
                                   ("building:levels", p["original_levels_tag"])) if v is not None}
+        tags.update(p.get("structure_tags") or {})
         alternatives = tuple(ht.HeightRecord(a["height_m"], a["category"], a["source"], a["method"],
                                              a["reference"]) for a in p.get("height_alternatives", []))
         record = ht.HeightRecord(p["height_m"], p["height_category"], p["height_source"],

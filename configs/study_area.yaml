@@ -38,6 +38,12 @@ areas:
     receiver_area_m: [1000.0, 1000.0]
     margin_m: 150.0
     snapshot: tahrir_bab_al_sharqi_v2
+    # Mandatory observations of the approved method (A2): the worklist with these priorities.
+    # The approved method requires the whole worklist (P0-P3). Group S is a proposal only.
+    # A reduced set (e.g. [P0, P1, P2]) needs the supervisor's approval before it is set here.
+    observations:
+      worklist: outputs/datasets/tahrir_bab_al_sharqi_study/fieldwork/observation_priorities.csv
+      required_priorities: [P0, P1, P2, P3]
 
   tahrir_bab_al_sharqi_v2:
     role: provisional study area

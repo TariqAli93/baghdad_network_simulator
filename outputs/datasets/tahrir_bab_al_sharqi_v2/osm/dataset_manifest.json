@@ -1,0 +1,31 @@
+{
+  "dataset": "tahrir_bab_al_sharqi_v2/osm",
+  "created_utc": "2026-11-26T21:48:27+00:00",
+  "software_commit": "4928b4f",
+  "inputs": {
+    "osm_snapshot": "tahrir_bab_al_sharqi_v2",
+    "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
+    "observations": null,
+    "required_observations": null,
+    "footprint_datasets": [],
+    "height_datasets": []
+  },
+  "outputs": {
+    "scene_fingerprint": "7f025e01f61b3e56ac1a5358556c1d8f56ca16fdeeb2e7c5fe16064cc0b01810",
+    "buildings_geojson_sha256": "42e09a7e6d39c55e48b762e376243676a4c34616ee99dbc3a004e97d75b4b98f",
+    "quality_report_sha256": "59c45db7ebaa9598752a57a87e59f0e9d93fe9829211a6be91ad850404f9df52"
+  },
+  "height_categories": {
+    "observed": 10,
+    "estimated": 4,
+    "placeholder": 1180
+  },
+  "observation_worklist": null,
+  "fit_for_research": false,
+  "not_fit_reasons": [
+    "the area is a provisional study area, not the study district",
+    "the area has not been approved by the supervisor",
+    "98.8 % of buildings have placeholder heights"
+  ],
+  "fitness_notes": []
+}

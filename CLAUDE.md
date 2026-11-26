@@ -40,6 +40,7 @@ uv run python scripts/experiment_antenna_placement.py SINGLE_SITE_RUN   # interi
 uv run pytest -m app                                   # every page headless (AppTest)
 uv run python scripts/diagnose_trace_time.py           # one job timed repeatedly: compile vs trace, busy cores
 uv run python scripts/make_distribution.py             # clean archive: current commit, restricted paths removed
+uv run python scripts/fieldwork_package.py --area NAME --variant V   # prioritised observation worklist, map, template
 uv run python scripts/import_height_dataset.py / evaluate_height_dataset.py / height_worklist.py
 uv run python scripts/run_height_sensitivity.py ...  # compare height models (see its --help)
 uv run python scripts/atmosphere_table.py            # rain and gas loss per band
@@ -121,6 +122,9 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 - Site planning is the SINR greedy over physical sites (`scripts/plan_sites.py`); threshold/load
   overrides are sensitivity cases (development only, recorded). Never claim a minimum site count.
 - Feature freeze since v1.0.0-rc.1: only defect fixes and approved research execution.
+- Observations: method_class measured/documented = observed, storey_count/visual_estimate =
+  estimated; mandatory buildings come from the configured worklist (study_area.yaml), never from
+  the submitted file. Monuments, memorials and artworks are never transmitter candidates.
 - Research runs refuse unless area, radio parameters, profile (status `approved`) and backend
   (status `production`) are approved.
 - Distribute `scripts/make_distribution.py` archives, never the repository (GBA values in history).

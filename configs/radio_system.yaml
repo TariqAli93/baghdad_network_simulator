@@ -196,4 +196,5 @@ rate_mapping:
   sinr_max_db: 30.0
   status: approved
   approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
-  sources: [3GPP-TR38921, 3GPP-TR36942]
+  sources: [3GPP-TR38921-427, 3GPP-TR36942]
+  verification: docs/rate-mapping-verification.md (values match TR 38.921 Table 4.2.7-1 DL exactly)

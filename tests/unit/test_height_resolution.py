@@ -103,3 +103,45 @@ def test_worklist_names_tall_conflicting_site_and_blocking_buildings():
     assert "may block a candidate site" in reasons["way/3"]
     assert "way/4" not in reasons
     assert all(r["height_m"] == "" for r in rows)                  # left for the observer
+
+
+# ---- fieldwork observations with a method class (measured / documented / visual / storeys) ----
+
+def test_method_class_decides_observed_versus_estimated():
+    rows = [{"building_id": "way/1", "method_class": "measured", "height_m": "21.5", "method": "laser rangefinder",
+             "uncertainty_m": "0.5"},
+            {"building_id": "way/2", "method_class": "documented", "height_m": "30", "source": "permit 2019"},
+            {"building_id": "way/3", "method_class": "visual_estimate", "height_m": "12", "uncertainty_m": "3"},
+            {"building_id": "way/4", "method_class": "storey_count", "storeys": "5"}]
+    out, unmatched = ht.apply_manual_observations([building(i) for i in (1, 2, 3, 4)], rows, "obs.csv",
+                                                  storey_height_m=3.0)
+    rec = {b.building_id: b.height for b in out}
+    assert rec["way/1"].category == ht.OBSERVED and "measured" in rec["way/1"].method
+    assert rec["way/2"].category == ht.OBSERVED and "documented" in rec["way/2"].method
+    assert "permit 2019" in rec["way/2"].reference
+    assert rec["way/3"].category == ht.ESTIMATED and rec["way/3"].uncertainty_m == 3.0
+    assert rec["way/4"].category == ht.ESTIMATED and rec["way/4"].height_m == 15.0      # 5 storeys x 3 m
+    assert "storey" in rec["way/4"].method and rec["way/4"].original.get("observed_storeys") == 5
+    assert unmatched == []
+
+
+@pytest.mark.parametrize("row, problem", [
+    ({"method_class": "measured", "height_m": "-3"}, "height"),
+    ({"method_class": "measured", "height_m": "abc"}, "height"),
+    ({"method_class": "measured", "height_m": "400"}, "height"),
+    ({"method_class": "measured", "storeys": "4"}, "needs height_m"),
+    ({"method_class": "storey_count", "storeys": "0"}, "storeys"),
+    ({"method_class": "storey_count", "storeys": "2.5"}, "storeys"),
+    ({"method_class": "guess", "height_m": "10"}, "method_class"),
+    ({"method_class": "visual_estimate", "height_m": "10", "uncertainty_m": "-1"}, "uncertainty"),
+])
+def test_invalid_observations_are_rejected_with_the_reason(row, problem):
+    with pytest.raises(ValueError, match=problem):
+        ht.apply_manual_observations([building(1)], [{"building_id": "way/1", **row}], "obs.csv",
+                                     storey_height_m=3.0, max_height_m=250.0)
+
+
+def test_rows_without_any_value_stay_unobserved_even_with_a_method_class():
+    rows = [{"building_id": "way/1", "method_class": "", "height_m": "", "storeys": ""}]
+    [b], _ = ht.apply_manual_observations([building(1)], rows, "obs.csv", storey_height_m=3.0)
+    assert b.height.category == ht.PLACEHOLDER
