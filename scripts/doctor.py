@@ -101,8 +101,8 @@ def main() -> int:
         from bns.analysis.radio_system import RadioSystem
         system = RadioSystem.load(ROOT / "configs" / "radio_system.yaml")
         approved = system.approved_parameters()
-        check("radio configuration", "PASS", f"loads; {len(approved)} approved parameter(s): research runs "
-              + ("possible only for approved values" if approved else "refuse until the supervisor approves A3"))
+        check("radio configuration", "PASS", f"loads; {len(approved)} research-baseline parameter(s); other "
+              "values run as custom experiments")
     except Exception as exc:                        # noqa: BLE001 - report, do not crash
         check("radio configuration", "FAIL", str(exc))
     with socket.socket() as s:

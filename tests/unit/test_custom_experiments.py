@@ -50,10 +50,15 @@ def test_a_custom_radio_system_keeps_the_double_counting_safeguard():
         custom.require("tx_power_dbm", "lte_1800", mode="research")
 
 
-def test_research_baseline_runs_refuse_overrides():
-    with pytest.raises(ex.ExperimentError, match="custom experiment"):
-        ex.load(ROOT, "tahrir_bab_al_sharqi_study", "osm+fp_3d_globfp", "standard", "research",
-                overrides={"tx_power_dbm": 43.0})
+def test_invalid_values_still_stop_a_run_before_anything_is_loaded():
+    with pytest.raises(ex.ExperimentError, match="valid range"):
+        ex.load(ROOT, "tahrir_bab_al_sharqi_study", "osm+fp_3d_globfp", "standard", overrides={"tx_power_dbm": 90.0})
+    with pytest.raises(ex.ExperimentError, match="Unknown study area"):
+        ex.load(ROOT, "nowhere", "osm", "standard")
+    with pytest.raises(ex.ExperimentError, match="No dataset"):
+        ex.load(ROOT, "tahrir_bab_al_sharqi_study", "missing-variant", "standard")
+    with pytest.raises(ex.ExperimentError):
+        ex.load(ROOT, "tahrir_bab_al_sharqi_study", "osm+fp_3d_globfp", "research")   # 5 m profile not converged
 
 
 def test_sectors_face_compass_bearings_0_120_240():

@@ -37,9 +37,11 @@ software does not ask for further approvals.
 The approved values are the **research baseline**. Any valid parameter can be changed for a
 run (Run simulation page, or `--overrides FILE` of `scripts/run_multi_site.py`); such a run is a
 **custom experiment**, records the values it used (`run_class`, `overrides` in its manifest),
-and is labelled as development output. A **research-baseline run** (mode research) uses the
-baseline unchanged and needs a dataset fit for research and the final-scene convergence. No
-approval is requested in either case. `scripts/research_baseline.py` compares the configuration
+and is classified accordingly. Nothing restricts execution: every technically valid run
+executes, on any study area with a built scene, with any profile and backend, and its result is
+classified from its configuration, dataset quality and validation status
+(`bns.analysis.classification`). Only a research-baseline run on complete data with validation
+completed is a Validated Research Result. No approval is requested. `scripts/research_baseline.py` compares the configuration
 files with the recorded baseline; `--record` is used only for a deliberate, documented baseline
 update (e.g. a candidate-threshold refinement), described in this file.
 

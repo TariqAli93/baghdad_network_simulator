@@ -34,7 +34,8 @@ USED = ["tx_power_dbm", "tx_antenna_gain_dbi", "tx_antenna_pattern", "sectors_pe
 
 
 class ExperimentError(RuntimeError):
-    """The experiment cannot run as configured (missing dataset, research refusal, ...)."""
+    """The experiment cannot run: a technical problem (missing dataset or scene, invalid value,
+    unknown area or profile, unavailable backend). Scientific limitations never raise this."""
 
 
 # Parameters a user may change for a custom or sensitivity experiment, with their valid range.
@@ -143,7 +144,8 @@ class Experiment:
 
     @property
     def run_class(self) -> str:
-        return run_class(self.overrides)
+        """Configuration class: research baseline, custom experiment or sensitivity analysis."""
+        return self.classification.configuration if self.classification is not None else run_class(self.overrides)
 
     @property
     def candidate_rule(self) -> dict:
@@ -166,69 +168,48 @@ def load_scenarios(root: Path) -> list[dict]:
     return sorted(scenarios, key=lambda s: s["frequency_hz"])
 
 
-def resolve_backend(requested: str, config: SimulationConfig, mode: str) -> tuple[str, str]:
-    """'cpu', 'gpu' or 'auto' -> the backend to use and why. GPU never silently replaces a refusal."""
+def resolve_backend(requested: str, config: SimulationConfig, mode: str = "development") -> tuple[str, str]:
+    """'cpu', 'gpu' or 'auto' -> the backend to use and why. Refuses only what cannot run (no GPU)."""
     from bns import runtime
 
     if requested not in ("cpu", "gpu", "auto"):
         raise ExperimentError(f"backend must be cpu, gpu or auto, not {requested!r}.")
-    statuses = {k: (v or {}).get("status", "") for k, v in (config.backends or {}).items()}
     if requested == "cpu":
         return "cpu", "CPU selected."
-    if requested == "auto" and mode == "research":
-        return "cpu", "Auto in research mode: CPU, the only production backend."
     available, message = runtime.probe_gpu()
     if requested == "gpu":
         if not available:
             raise ExperimentError(message)
-        if mode == "research" and statuses.get("gpu") != "production":
-            raise ExperimentError(f"The GPU backend is '{statuses.get('gpu')}', not approved for research runs.")
         return "gpu", message
     return ("gpu", message) if available else ("cpu", message)
 
 
-def require_research_profile(profile: Profile, mode: str) -> None:
-    """Research runs need a profile whose convergence the supervisor accepted (status 'approved')."""
-    if mode == "research" and profile.status != "approved":
-        raise ExperimentError(f"Profile '{profile.name}' is '{profile.status or 'not assessed'}', not accepted for research "
-                              "(set its status to 'approved' in configs/simulation.yaml after the supervisor's decision).")
+def baseline_deviations(root: Path, profile: Profile, backend: str) -> list[str]:
+    """Settings outside the parameter overrides that depart from the research baseline: the profile
+    (only an approved, converged profile belongs to it) and the backend (the research backend)."""
+    sim = yaml.safe_load((Path(root) / "configs" / "simulation.yaml").read_text(encoding="utf-8")) or {}
+    out = []
+    entry = (sim.get("profiles") or {}).get(profile.name.removesuffix("-custom")) or {}
+    if entry.get("status") != "approved" and not profile.name.endswith("-custom"):
+        out.append(f"{profile.name} profile ({profile.cell_size_m:g} m, {profile.rays_per_site:.0e} rays)")
+    research_backend = sim.get("research_backend", "cpu")
+    if backend != research_backend:
+        out.append(f"{backend.upper()} backend (numerical limits: docs/validation.md §7)")
+    return out
 
 
-def require_research_ready(root: Path, mode: str) -> None:
-    """Research runs need every pre-experiment gate (bns.analysis.readiness): methodology approved and
-    unchanged since, a fit dataset, the mandatory observations, approved candidate criteria and the
-    convergence on the final scene."""
-    from bns.analysis import readiness
-
-    if mode != "research":
-        return
-    try:
-        readiness.require_research_ready(root)
-    except readiness.NotReady as exc:
-        raise ExperimentError(str(exc)) from exc
-
-
-def require_research_dataset(quality: dict, mode: str) -> None:
-    """Research runs need a dataset whose quality report says it is fit for research."""
-    if mode == "research" and not quality.get("fit_for_research"):
-        raise ExperimentError("The dataset is not fit for research: " + "; ".join(quality.get("not_fit_reasons", [])))
-
-
-def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
+def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str = "development",
          backend: str = "cpu", overrides: dict | None = None) -> Experiment:
+    """Prepare an experiment. Only technical problems stop it (unknown area or profile, missing scene,
+    invalid values, unavailable backend); its scientific standing is recorded in `classification`.
+    `mode` is kept for older callers and output folders; it no longer restricts anything."""
     root = Path(root)
     overrides = validate_overrides(overrides)
-    if overrides and mode == "research":
-        raise ExperimentError("A research-baseline run uses the approved configuration unchanged; run changed "
-                              "parameters as a custom experiment (development mode): "
-                              + ", ".join(f"{k} = {v}" for k, v in overrides.items()) + ".")
+    mode = "development"                               # internal: no approval checks on parameter values
     areas = load_study_areas(root / "configs" / "study_area.yaml")
     if area_name not in areas:
         raise ExperimentError(f"Unknown study area '{area_name}'.")
     area = areas[area_name]
-    if mode == "research" and not area.is_research_dataset:
-        raise ExperimentError(f"Research mode needs an approved study district; {area.name} is a {area.role}.")
-    require_research_ready(root, mode)
     system = RadioSystem.load(root / "configs" / "radio_system.yaml")
     config = SimulationConfig.load(root / "configs" / "simulation.yaml")
     try:
@@ -243,33 +224,61 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
         profile = Profile(f"{profile.name}-custom", overrides.get("cell_size_m", profile.cell_size_m),
                           overrides.get("rays_per_site", profile.rays_per_site),
                           "custom (not convergence-checked)")
-    require_research_profile(profile, mode)
     baseline, _ = atm.load_conditions(root / "configs" / "atmosphere.yaml")
     if "rain_rate_mm_h" in overrides:
         baseline = atm.Conditions(rain_rate_mm_h=overrides["rain_rate_mm_h"], include_gas=baseline.include_gas)
     scene_dir = root / "data" / "scenes" / area.name / variant
     if not (scene_dir / "scene.xml").exists():
         raise ExperimentError(f"No dataset {scene_dir}; run scripts/build_dataset.py --area {area.name} first.")
-    quality = json.loads((scene_dir / "quality_report.json").read_text(encoding="utf-8"))
-    require_research_dataset(quality, mode)
-    from bns.analysis import classification
-    classes = classification.classify(root, overrides, quality)
-    label = classes.label                              # what the result is, scientifically
+    try:
+        quality = json.loads((scene_dir / "quality_report.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ExperimentError(f"The dataset {scene_dir} has no readable quality report: {exc}") from exc
     buildings = pipeline.load_buildings(scene_dir, area)
     rx_height = system.require("rx_height_m", mode=mode)
     grid = area.receiver_grid(profile.cell_size_m, rx_height)
     outdoor = outdoor_mask(grid, [b.polygon for b in buildings])
+    if not outdoor.any():
+        raise ExperimentError("The receiver grid has no outdoor cell: nothing to compute.")
     antennas = sector_antennas(system, mode=mode, polarization=config.polarization)
     mast = system.require("antenna_height_above_roof_m", mode=mode)
     chosen, note = resolve_backend(backend, config, mode)
     rule_path = root / "configs" / "site_rule.yaml"
     site_rule = yaml.safe_load(rule_path.read_text(encoding="utf-8")) if rule_path.exists() else \
         {"antenna_position": "interior"}
-    if mode == "research" and site_rule.get("status") != "approved":
-        raise ExperimentError("The site rule (configs/site_rule.yaml) is not approved.")
+    from bns.analysis import classification
+    classes = classification.classify(root, overrides, quality, study_district=area.is_research_dataset,
+                                      deviations=baseline_deviations(root, profile, chosen))
+    label = classes.label                              # what the result is, scientifically
     return Experiment(root, area, variant, mode, profile, system, config, load_scenarios(root), baseline,
                       label, scene_dir, quality, buildings, grid, outdoor, antennas, mast, chosen, note, site_rule,
                       overrides=overrides, classification=classes)
+
+
+def limitations(exp: Experiment) -> list[str]:
+    """The scientific limitations of a run of this experiment (shown, never blocking)."""
+    c = exp.classification
+    # dataset reasons; quality reports written before 2026-11-27 also listed the approval state, which
+    # repeats the area's role and is no longer a limitation
+    reasons = [r for r in (exp.quality.get("not_fit_reasons") or []) if "approved" not in r]
+    out = []
+    if not exp.area.is_research_dataset:
+        out.append(f"{exp.area.name} is a {exp.area.role}, not the study district: results do not describe the "
+                   "study district's research dataset")
+        reasons = [r for r in reasons if "not the study district" not in r]
+    out += reasons
+    if c is not None and c.dataset == classification_module().ESTIMATED:
+        out.append("missing building heights are drawn from an assumed height model")
+    if c is not None and c.deviations:
+        out.append("differs from the research baseline: " + "; ".join(c.deviations))
+    if c is not None and c.validation != classification_module().VALIDATED:
+        out.append("validation pending (final-scene convergence, MATLAB comparison)")
+    return out
+
+
+def classification_module():
+    from bns.analysis import classification
+    return classification
 
 
 def caveat(exp: Experiment) -> str:
@@ -277,14 +286,8 @@ def caveat(exp: Experiment) -> str:
     c = exp.classification
     if c is not None and c.validated:
         return "Validated research result: research baseline on a dataset fit for research, validation completed."
-    reasons = list(exp.quality.get("not_fit_reasons") or [])
-    if exp.overrides:
-        reasons.append(f"{c.configuration if c else 'custom experiment'} ("
-                       + ", ".join(f"{k} = {v}" for k, v in exp.overrides.items()) + ")")
-    if c is not None and c.validation != "Validated":
-        reasons.append("validation pending (final-scene convergence, MATLAB comparison)")
     return f"**{c.result if c else 'Preliminary Simulation'}, not a validated finding about Baghdad**: " \
-        + "; ".join(reasons) + "."
+        + "; ".join(limitations(exp)) + "."
 
 
 def place_sites(exp: Experiment, building_ids: list[str]) -> list[sites.Candidate]:
@@ -360,8 +363,6 @@ def rate_mapping(exp: Experiment, scenario: dict):
         return None
     if scenario["id"] not in models:
         raise ExperimentError(f"No rate mapping is assigned to scenario {scenario['id']} (scenario_rate_mapping).")
-    if exp.mode == "research" and rate_models.approval(path)[0] != "approved":
-        raise ExperimentError("The rate mappings (B3) are not approved.")
     return models[scenario["id"]]
 
 

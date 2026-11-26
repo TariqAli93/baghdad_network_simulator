@@ -49,12 +49,10 @@ def quality_report(buildings: list[Building], area: StudyArea, parse_report: dic
     placeholder_share = _shares(dict(count_by_category), CATEGORIES)[PLACEHOLDER]
 
     reasons = []
-    if area.role != "study district":
+    if area.role != "study district" or not area.approved:
         reasons.append(f"the area is a {area.role}, not the study district")
-    if not area.approved:
-        reasons.append("the area has not been approved by the supervisor")
     if not height_method_approved:
-        reasons.append("the building-height methodology has not been approved")
+        reasons.append("no building-height methodology is configured (configs/study_area.yaml, height_policy)")
     notes = []
     complete = (worklist is not None and worklist.get("listed", 0) > 0
                 and worklist.get("observed") == worklist.get("listed") and not worklist.get("unmatched"))

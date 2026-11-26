@@ -89,8 +89,9 @@ changes.
 - **Development** (preliminary simulations, custom experiments, sensitivity analyses): any
   valid value may be used; every output carries its classification (configuration, dataset,
   validation; `bns.analysis.classification`).
-- **Research** (research-baseline runs): the approved baseline unchanged, on the study district
-  with a dataset fit for research and the final-scene convergence. Only research-baseline runs on
-  complete data, after the MATLAB comparison meets B1, are Validated Research Results.
+- No run is refused for scientific reasons: every technically valid simulation executes and is
+  classified. Only research-baseline runs (approved values, standard profile, CPU, site rule) on
+  the study district's complete data, after the final-scene convergence and a MATLAB comparison
+  meeting B1, are Validated Research Results.
 - *(Before 2026-11-27 development outputs carried the label "DEVELOPMENT — NOT APPROVED FOR
   RESEARCH"; those files keep it and are shown as Preliminary Simulations.)*

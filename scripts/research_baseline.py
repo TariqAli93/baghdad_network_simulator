@@ -4,7 +4,7 @@
     uv run python scripts/research_baseline.py --record --note "why the baseline changed" --recorded-on 2026-11-27
 
 Without --record: lists every baseline item as baseline / modified / not recorded. Modified
-items do not block anything except research-baseline runs; other runs are custom experiments.
+items never block a run; runs with them are classified as custom experiments.
 --record makes the current configuration the research baseline: use it only for a deliberate,
 documented change of the baseline (e.g. a candidate-threshold refinement within the approved
 method), and describe it in docs/approval-record.md.

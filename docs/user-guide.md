@@ -47,12 +47,13 @@ Simulation (Run simulation, Coverage analysis, Comparison, Site planning), Evide
 
 On **Run simulation**:
 
-1. Choose area, dataset variant, profile (preview for exploring, standard for final runs) and
-   mode. Research mode refuses until the supervisor has approved the area, the radio
-   parameters and the profile.
-2. Choose the backend: CPU (production), Auto (GPU if one works) or GPU (development only).
-3. Choose the sites: the tallest buildings with an observed height (number, minimum height,
-   spacing) or named buildings (`way/...` ids from the Study area page).
+1. Choose area (the study district by default; `tahrir_bab_al_sharqi_v2` and others stay
+   available for comparison), dataset variant and profile (preview for exploring, standard =
+   research baseline). There is no mode to choose: every technically valid run executes.
+2. Choose the backend: CPU (research baseline), Auto (GPU if one works) or GPU.
+3. Choose the sites: candidate rooftops under the site rule (number of sites) or named buildings
+   (`way/...` ids from the Study area page). Change any parameter under *Experiment parameters*;
+   *Reset to research baseline* restores the approved values.
 4. Press **Check sites and workload**: the sites, how many traces are already cached and how
    many are new, and an estimate from traces measured on this machine (or none if nothing
    comparable was measured yet).
@@ -91,7 +92,7 @@ are stored in `outputs/roadmap/student_recommendations.json` and never generated
 
 | Symptom | What to do |
 |---|---|
-| "This run cannot start: …" | The message names the reason (research mode, missing dataset, no site satisfies the rule). |
+| "This run cannot start: …" | A technical problem, named in the message (missing dataset or scene, invalid value, GPU not available). Scientific limitations never stop a run; they are listed under *Scientific limitations of this run*. |
 | Snapshot SHA-256 mismatch (doctor) | Git converted line endings; check out `data/raw` again (`.gitattributes` prevents it in this repository). |
 | A run says "Failed" | Open its log on the Run page; Python errors stop immediately, native crashes are retried up to 8 times. |
 | Traces much slower than the estimate | Workers opt out of Windows power throttling; keep the laptop on AC power and in a performance power mode (`docs/benchmarks.md` §11). |

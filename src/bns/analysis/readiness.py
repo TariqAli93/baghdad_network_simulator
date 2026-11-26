@@ -11,11 +11,9 @@
     laptop         target-laptop acceptance
 
 States: "Ready", "Completed", "Incomplete data", "Validation Pending", "Research Baseline",
-"Custom experiment". Nothing here asks for an approval, and none of it blocks development,
-preview, custom or sensitivity runs. A research-baseline run (mode "research") needs the
-baseline configuration, a dataset fit for research (heights and observations) and the
-convergence on the final scene (`require_research_ready`). MATLAB and the laptop are validation
-and delivery requirements. A state is never "Completed" without the evidence behind it.
+"Custom Experiment". These are information: none of them blocks a simulation. Whether a result
+is a validated research result is decided per run by bns.analysis.classification. A state is
+never "Completed" without the evidence behind it.
 """
 
 from __future__ import annotations
@@ -32,14 +30,6 @@ from bns.analysis import research_baseline
 
 READY, COMPLETED, INCOMPLETE, PENDING = "Ready", "Completed", "Incomplete data", "Validation Pending"
 BASELINE, CUSTOM = "Research Baseline", "Custom Experiment"
-RESEARCH_REQUIREMENTS = ("configuration", "dataset", "heights", "observations", "convergence")
-PASSING = (READY, COMPLETED, BASELINE)
-
-
-class NotReady(RuntimeError):
-    """A research-baseline run was requested before its scientific requirements are met."""
-
-
 @dataclass
 class Indicator:
     id: str
@@ -285,13 +275,3 @@ def indicators(root: Path) -> list[Indicator]:
     areas = research_areas(root)
     return [_dataset(root, areas), _heights(root, areas), _observations(root, areas), _candidates(root, areas),
             _configuration(root), _convergence(root), _validation(root), _matlab(root), _laptop(root)]
-
-
-def require_research_ready(root: Path) -> None:
-    """A research-baseline run needs the baseline configuration, a dataset fit for research and the
-    convergence on the final scene. Other runs never call this."""
-    failing = [i for i in indicators(root) if i.id in RESEARCH_REQUIREMENTS and i.state not in PASSING]
-    if failing:
-        raise NotReady("A research-baseline run needs: " + "; ".join(f"{i.title}: {i.state} ({i.detail})"
-                                                                   for i in failing)
-                       + ". Run it as a development or custom experiment meanwhile.")

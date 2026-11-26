@@ -1,6 +1,6 @@
 """Multi-site experiment: several rooftop sites with sectors on one carrier, all five scenarios.
 
-    uv run python scripts/run_multi_site.py --area tahrir_bab_al_sharqi_v2 --mode development ^
+    uv run python scripts/run_multi_site.py --area tahrir_bab_al_sharqi_study ^
         [--profile preview] [--sites 4 --min-height 10 --min-spacing 100] [--buildings way/1 way/2]
 
 Sites stand on the named buildings (in that order) or, by default, on the tallest
@@ -130,7 +130,9 @@ def main() -> int:
     parser.add_argument("--area", required=True)
     parser.add_argument("--variant", default="osm")
     parser.add_argument("--profile", default="preview")
-    parser.add_argument("--mode", choices=("development", "research"), required=True)
+    parser.add_argument("--mode", choices=("development", "research"), default="development",
+                        help="kept for older commands; it no longer restricts anything (the result is "
+                             "classified automatically)")
     parser.add_argument("--buildings", nargs="+", help="OSM ids of the host buildings, in order")
     parser.add_argument("--sites", type=int, default=4, help="number of candidate-rule sites (default 4)")
     parser.add_argument("--min-height", type=float, help="minimum roof height [m] (default: configs/site_rule.yaml)")
@@ -141,6 +143,7 @@ def main() -> int:
                         help="ray-tracing backend (default cpu; gpu needs an NVIDIA driver)")
     parser.add_argument("--cancel-file", type=Path, help="stop cleanly when this file appears")
     args = parser.parse_args()
+    args.mode = "development"       # no approval checks on parameter values; classification is automatic
     started = time.perf_counter()
 
     try:
@@ -159,8 +162,9 @@ def main() -> int:
     print(f"SITES {len(placed)}: " + ", ".join(f"{s.candidate_id} on {s.building_id} ({s.roof_height_m:g} m "
                                                 f"{s.height_category})" for s in placed), flush=True)
     print(f"BACKEND {exp.backend}: {exp.backend_note}", flush=True)
-    print(f"CLASS {exp.run_class}" + (": " + ", ".join(f"{k}={v}" for k, v in exp.overrides.items())
-                                      if exp.overrides else ""), flush=True)
+    print(f"CLASS {exp.classification.label}", flush=True)
+    for note in ex.limitations(exp):
+        print(f"LIMITATION {note}", flush=True)
     target = exp.system.require("coverage_target", mode=args.mode)
     jobs = ex.jobs_for(exp, placed)
     all_jobs = [j for js in jobs.values() for _, j in js]

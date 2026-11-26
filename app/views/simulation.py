@@ -15,8 +15,6 @@ ui.page_header("Run simulation", "Single- or multi-site coverage for all five sc
 areas = ui.study_areas()
 profiles = yaml.safe_load((ui.ROOT / "configs" / "simulation.yaml").read_text(encoding="utf-8"))["profiles"]
 usable = [k for k, v in profiles.items() if v.get("rays_per_site") is not None]
-RUN_TYPES = {"development": "Preliminary simulation / custom experiment / sensitivity analysis",
-             "research": "Research baseline (final research run)"}
 # parameter -> (label, step, number format); ranges come from bns.simulation.experiment.OVERRIDES
 PARAMS = {
     "Radio": {"tx_power_dbm": ("Transmit power [dBm, conducted]", 1.0, "%.1f"),
@@ -38,8 +36,8 @@ PARAMS = {
 
 
 @st.cache_resource(show_spinner="Preparing the dataset...")
-def experiment(area, variant, profile, mode, backend, overrides_json):
-    return ex.load(ui.ROOT, area, variant, profile, mode, backend=backend, overrides=json.loads(overrides_json))
+def experiment(area, variant, profile, backend, overrides_json):
+    return ex.load(ui.ROOT, area, variant, profile, backend=backend, overrides=json.loads(overrides_json))
 
 
 @st.cache_resource(show_spinner="Checking for a GPU...")
@@ -51,9 +49,12 @@ def gpu_probe():
 gpu_ok, gpu_message = gpu_probe()
 backends = yaml.safe_load((ui.ROOT / "configs" / "simulation.yaml").read_text(encoding="utf-8")).get("backends", {})
 
-c1, c2, c3, c4 = st.columns(4)
+c1, c2, c3 = st.columns(3)
 study = [k for k, v in areas.items() if v.get("approved")]
-area = c1.selectbox("Area", list(areas), index=list(areas).index(study[0]) if study else 0)
+area = c1.selectbox("Area", list(areas), index=list(areas).index(study[0]) if study else 0,
+                    format_func=lambda a: f"{a} ({areas[a]['role']})",
+                    help="Every area with a built dataset can be simulated; only the study district can give "
+                         "complete data. Other areas are for comparison and experimentation.")
 variants = ui.variants(area) or ["osm"]
 variant = c2.selectbox("Dataset variant", variants)
 profile = c3.selectbox("Profile", usable, index=usable.index("standard") if "standard" in usable else 0,
@@ -61,10 +62,6 @@ profile = c3.selectbox("Profile", usable, index=usable.index("standard") if "sta
                             + "; ".join(f"{k}: {v.get('status', '')}" for k, v in profiles.items()),
                        format_func=lambda p: f"{p} — {profiles[p]['cell_size_m']} m, "
                        f"{float(profiles[p]['rays_per_site']):.0e} rays")
-mode = c4.selectbox("Run type", list(RUN_TYPES), format_func=RUN_TYPES.get,
-                    help="A research-baseline run uses the approved configuration unchanged and needs a dataset fit "
-                         "for research and the final-scene convergence. Everything else runs as a preliminary "
-                         "simulation, custom experiment or sensitivity analysis and is classified so.")
 baseline = ex.baseline_values(ui.ROOT, profile)
 
 if st.button("Reset to research baseline", help="Restore every parameter below to the research-baseline values."):
@@ -108,19 +105,15 @@ if overrides:
             + ". The run records the values it used.")
 else:
     st.success("**Research Baseline** values.")
-if overrides and mode == "research":
-    st.error("A research-baseline run uses the baseline values: reset them, or choose "
-             "'Preliminary simulation / custom experiment / sensitivity analysis'.")
-    st.stop()
 
-request = {"area": area, "variant": variant, "profile": profile, "mode": mode, "backend": backend,
+request = {"area": area, "variant": variant, "profile": profile, "backend": backend,
            "buildings": chosen.split() if rule == "chosen buildings" else [], "sites": int(count),
            "overrides": overrides}
 
 if estimate or st.session_state.get("checked_request") == request:
     st.session_state["checked_request"] = request
     try:
-        exp = experiment(area, variant, profile, mode, backend, json.dumps(overrides, sort_keys=True))
+        exp = experiment(area, variant, profile, backend, json.dumps(overrides, sort_keys=True))
         placed = ex.place_sites(exp, request["buildings"]) if request["buildings"] else ex.observed_sites(exp, int(count))
     except Exception as exc:
         st.error(f"This run cannot start: {exc}")
@@ -131,8 +124,13 @@ if estimate or st.session_state.get("checked_request") == request:
                    f"≥ {r['min_roof_area_m2']:g} m², ≥ {r['min_spacing_m']:g} m apart, heights "
                    f"{', '.join(r['categories'])}). Choose buildings, or change the candidate criteria.")
         st.stop()
+    st.markdown("**Execution:** Ready — the result will be classified as:")
     ui.result_banner(exp.classification)
-    st.markdown(f"**Run:** {exp.run_class} · **Backend:** {exp.backend.upper()} — {exp.backend_note}")
+    notes = ex.limitations(exp)
+    if notes:
+        st.warning("**Scientific limitations of this run** (they do not prevent it):\n\n"
+                   + "\n".join(f"- {n}" for n in notes))
+    st.markdown(f"**Backend:** {exp.backend.upper()} — {exp.backend_note}")
     st.dataframe([{"site": s.candidate_id, "building": s.building_id, "roof [m]": s.roof_height_m,
                    "roof height": s.height_category, "antenna [m]": s.z, "x [m]": round(s.x), "y [m]": round(s.y)}
                   for s in placed], hide_index=True, use_container_width=True)
@@ -174,7 +172,7 @@ def render(folder):
              + (" · custom: " + ", ".join(f"{k}={v:g}" for k, v in req["overrides"].items())
                 if req.get("overrides") else (" · research-baseline values" if "overrides" in req else "")))
     with st.container(border=True):
-        st.markdown(f"**{title}** · started {req['started_utc'][:19].replace('T', ' ')} UTC")
+        st.markdown(f"**{s.execution}** · {title} · started {req['started_utc'][:19].replace('T', ' ')} UTC")
         if s.running:
             if s.progress:
                 done, total = s.progress

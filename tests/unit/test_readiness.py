@@ -70,8 +70,7 @@ def test_nothing_is_completed_without_evidence(repo):
         assert g[i].state == rd.INCOMPLETE
     for i in ("convergence", "validation", "matlab", "laptop"):
         assert g[i].state == rd.PENDING
-    with pytest.raises(rd.NotReady):
-        rd.require_research_ready(repo)
+    assert not hasattr(rd, "require_research_ready")                # information only, never a gate
 
 
 def test_observation_progress_has_separate_groups_with_the_p2_fallback(repo):
@@ -98,8 +97,7 @@ def test_a_fit_dataset_completes_heights_and_observations(repo):
     _dataset(repo, "osm+fp+observations-1234abcd", fit=True, missing=[])
     g = _ind(repo)
     assert (g["dataset"].state, g["heights"].state, g["observations"].state) == (rd.READY, rd.READY, rd.COMPLETED)
-    with pytest.raises(rd.NotReady, match="convergence"):            # still needs the final-scene convergence
-        rd.require_research_ready(repo)
+    assert g["convergence"].state == rd.PENDING                     # still to be measured on the final scene
 
 
 def test_a_changed_configuration_is_a_custom_experiment_not_an_approval_problem(repo):
@@ -118,5 +116,3 @@ def test_the_repository_state():
     assert g["validation"].state == rd.COMPLETED                     # TR 38.901 comparison saved
     assert g["convergence"].state == rd.PENDING
     assert g["observations"].state == rd.INCOMPLETE
-    with pytest.raises(rd.NotReady):
-        rd.require_research_ready(ROOT)

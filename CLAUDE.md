@@ -84,8 +84,8 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 
 - Engine: Sionna RT 2.2.0 (`mitsuba` 3.9.1, `drjit` 1.5.0) on the CPU variant
   `llvm_ad_mono_polarized` (production). Optional GPU backend `cuda_ad_mono_polarized` (same wheel, NVIDIA
-  driver only): status "validated for development" in `configs/simulation.yaml`; research runs
-  refuse it. The variant is in every cache key, so CPU and GPU maps are never mixed. LLVM 18.1.8 must be installed
+  driver only): status "validated for development" in `configs/simulation.yaml`; a GPU run is a
+  custom experiment (not the research baseline). The variant is in every cache key, so CPU and GPU maps are never mixed. LLVM 18.1.8 must be installed
   (`winget install --id LLVM.LLVM -e --version 18.1.8`).
 - Always call `bns.runtime.init()` before anything imports `mitsuba` or `sionna.rt`.
   `bns.propagation.sionna_engine` refuses to import otherwise.
@@ -131,13 +131,17 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   estimated; P0-P1 need measured/documented, P2 prefers them (storey-count fallback), S a storey
   count (`method_requirements`); mandatory buildings come from the configured worklist (study_area.yaml), never from
   the submitted file. Monuments, memorials and artworks are never transmitter candidates.
-- Research runs refuse unless area, radio parameters, profile (status `approved`) and backend
-  (status `production`) are approved.
+- Execution is never restricted for scientific or approval reasons: any technically valid run
+  executes (any area with a scene, any profile, backend, value). Only technical problems stop a
+  run (`ExperimentError`: unknown area/profile, missing scene, invalid value, no GPU). `--mode` is
+  kept for old commands and has no effect. Scientific standing is the run's classification.
 - All supervisor decisions are approved (final 2026-11-27, `docs/approval-record.md`): do not ask
   for further approvals. The approved values are the research baseline
   (`configs/research_baseline.yaml`). Other values run as custom experiments (`--overrides`, Run
-  simulation page) and are recorded in the manifest; research-baseline runs need the baseline,
-  a dataset fit for research and the final-scene convergence (`bns.analysis.readiness`).
+  simulation page) and are recorded in the manifest. Configuration (baseline / custom /
+  sensitivity, with deviations: values, profile, backend, placement), dataset (complete /
+  estimated / incomplete; only the study district can be complete) and validation are recorded
+  separately; execution state (Running / Completed / Cancelled / Failed) is separate again.
 - Sectors face compass bearings 0/120/240° (0 = north, clockwise); the ray tracer's yaw is
   counter-clockwise from east, yaw = 90° − bearing (`setup.bearing_to_scene_azimuth_rad`). Runs
   before 2026-11-27 used yaw 0/120/240°; never reinterpret their manifests.

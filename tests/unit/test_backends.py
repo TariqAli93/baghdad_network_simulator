@@ -1,4 +1,4 @@
-"""CPU/GPU backends: separate cache identity, explicit selection, research runs stay on CPU."""
+"""CPU/GPU backends: separate cache identity, explicit selection; the GPU runs whenever it exists."""
 
 import dataclasses
 
@@ -50,27 +50,23 @@ def test_explicit_gpu_fails_with_the_diagnostic_instead_of_falling_back(monkeypa
         ex.resolve_backend("gpu", config(), "development")
 
 
-def test_research_runs_refuse_a_backend_that_is_not_production(monkeypatch):
+def test_an_available_gpu_is_never_refused_and_an_unavailable_one_always_is(monkeypatch):
     monkeypatch.setattr(runtime, "probe_gpu", lambda: (True, "GPU available: test"))
-    with pytest.raises(ex.ExperimentError, match="not approved for research"):
-        ex.resolve_backend("gpu", config(), "research")
-    assert ex.resolve_backend("auto", config(), "research")[0] == "cpu"
-    approved = dataclasses.replace(config(), backends={**BACKENDS, "gpu": {"status": "production"}})
-    assert ex.resolve_backend("gpu", approved, "research")[0] == "gpu"
+    for mode in ("development", "research"):                       # mode no longer restricts anything
+        assert ex.resolve_backend("gpu", config(), mode)[0] == "gpu"
+        assert ex.resolve_backend("auto", config(), mode)[0] == "gpu"
+    monkeypatch.setattr(runtime, "probe_gpu", lambda: (False, "No NVIDIA driver."))
+    with pytest.raises(ex.ExperimentError, match="No NVIDIA driver"):
+        ex.resolve_backend("gpu", config(), "development")         # a technical problem still stops the run
+    assert ex.resolve_backend("auto", config(), "development")[0] == "cpu"
 
 
-def test_research_runs_require_a_profile_accepted_for_research():
+def test_profile_and_backend_departures_from_the_baseline_are_recorded():
+    from pathlib import Path
+
     from bns.simulation.setup import Profile
 
-    with pytest.raises(ex.ExperimentError, match="not accepted for research"):
-        ex.require_research_profile(Profile("standard", 10.0, 10**9, "borderline convergence"), "research")
-    ex.require_research_profile(Profile("standard", 10.0, 10**9, "borderline convergence"), "development")
-    ex.require_research_profile(Profile("standard", 10.0, 10**9, "approved"), "research")
-
-
-def test_research_runs_refuse_a_dataset_that_is_not_fit_for_research():
-    unfit = {"fit_for_research": False, "not_fit_reasons": ["98.8 % of buildings have placeholder heights"]}
-    with pytest.raises(ex.ExperimentError, match="placeholder heights"):
-        ex.require_research_dataset(unfit, "research")
-    ex.require_research_dataset(unfit, "development")
-    ex.require_research_dataset({"fit_for_research": True, "not_fit_reasons": []}, "research")
+    root = Path(__file__).resolve().parents[2]
+    assert ex.baseline_deviations(root, Profile("standard", 10.0, 10**9, "approved"), "cpu") == []
+    devs = ex.baseline_deviations(root, Profile("preview", 25.0, 10**8, "validated for development"), "gpu")
+    assert any(d.startswith("preview profile") for d in devs) and any(d.startswith("GPU backend") for d in devs)

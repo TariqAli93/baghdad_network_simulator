@@ -19,6 +19,11 @@
   research mode refuses until the five pre-experiment gates pass. Shown on the Overview, Radio and
   Study area pages.
 - Fix: `run_single_site.py --mode research` now applies the shared research guards.
+- Execution no longer depends on approvals or research mode: any technically valid simulation
+  runs (provisional areas, incomplete observations, modified values, preview profile, GPU);
+  only technical problems stop a run. Scientific limitations are listed before and during the run,
+  and the result is classified (dataset now Complete / Estimated / Incomplete; deviations from the
+  baseline recorded). Run control reports the execution state separately.
 - Results are labelled with a scientific classification (`bns.analysis.classification`) instead of
   "DEVELOPMENT — NOT APPROVED FOR RESEARCH": configuration, dataset and validation are separate
   states; only validated research-baseline runs on complete data are Validated Research Results. A

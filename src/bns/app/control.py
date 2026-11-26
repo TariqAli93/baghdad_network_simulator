@@ -36,11 +36,24 @@ class RunState:
     cancelled: bool
     log_tail: list[str]
 
+    @property
+    def execution(self) -> str:
+        """Execution state, separate from the scientific classification of the result."""
+        if self.running:
+            return "Running"
+        if self.output:
+            return "Completed"
+        return "Cancelled" if self.cancelled else "Failed"
+
+    @property
+    def limitations(self) -> list[str]:
+        """Scientific limitations the run reported (LIMITATION lines); they never stop it."""
+        return [line[len("LIMITATION "):] for line in self.log_tail if line.startswith("LIMITATION ")]
+
 
 def build_argv(root: Path, request: dict) -> list[str]:
     argv = [sys.executable, str(Path(root) / SCRIPT), "--area", request["area"], "--variant", request["variant"],
-            "--profile", request["profile"], "--mode", request["mode"],
-            "--backend", request.get("backend", "cpu")]
+            "--profile", request["profile"], "--backend", request.get("backend", "cpu")]
     if request.get("buildings"):
         argv += ["--buildings", *request["buildings"]]
     else:

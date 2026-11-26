@@ -32,13 +32,24 @@ def test_page_runs_without_exception_and_shows_its_title(app, page):
     assert at.title, "every page starts with a title"
 
 
-def test_research_mode_is_refused_with_its_reason(app):
+@pytest.mark.parametrize("area", ["tahrir_bab_al_sharqi_study", "tahrir_bab_al_sharqi_v2"])
+def test_both_datasets_are_ready_to_run_with_their_limitations_shown(app, area):
+    if not (ROOT / "data" / "scenes" / area).exists():
+        pytest.skip(f"no scene of {area} on this computer")
     at = app.switch_page("views/simulation.py").run()
-    mode = next(s for s in at.selectbox if s.label == "Run type")
-    mode.set_value("research")
+    assert not any(s.label == "Run type" for s in at.selectbox)          # no mode to choose
+    next(s for s in at.selectbox if s.label == "Area").set_value(area)
+    at.run()
     next(b for b in at.button if b.label == "Check sites and workload").click()
     at.run()
-    assert any("cannot start" in e.value and "research-baseline run needs" in e.value for e in at.error)
+    assert not at.exception, [e.message for e in at.exception]
+    assert not any("cannot start" in e.value for e in at.error)
+    assert any("Execution:** Ready" in m.value for m in at.markdown)
+    assert any(b.label == "Start run" for b in at.button)
+    warnings = " ".join(w.value for w in at.warning)
+    assert "Scientific limitations" in warnings and "validation pending" in warnings
+    if area.endswith("_v2"):
+        assert "not the study district" in warnings
 
 
 def test_reports_offer_csv_json_zip_and_html_exports(app):

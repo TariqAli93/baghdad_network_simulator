@@ -19,9 +19,9 @@ for col, sc in zip(cols, scen, strict=True):
                     f'<br>{sc["bandwidth_hz"] / 1e6:g} MHz · {sc["status"]}</div>', unsafe_allow_html=True)
 
 st.subheader("Research readiness")
-st.caption("Scientific and technical status, computed from the data, configuration and saved evidence. Preliminary "
-           "simulations, custom experiments and sensitivity analyses are always available; a research-baseline run needs the baseline "
-           "configuration, a dataset fit for research and the convergence on the final scene.")
+st.caption("Scientific and technical status, computed from the data, configuration and saved evidence. It informs; "
+           "it never blocks a simulation. Each run's result is classified from its own configuration, dataset and "
+           "validation status.")
 indicators = readiness.indicators(ui.ROOT)
 MARK = {readiness.READY: "✅ Ready", readiness.COMPLETED: "✅ Completed", readiness.INCOMPLETE: "🟠 Incomplete data",
         readiness.PENDING: "⏳ Validation pending", readiness.BASELINE: "🔷 Research baseline",
@@ -36,7 +36,7 @@ for grp in obs.get("groups") or []:
                     text=f"{', '.join(grp['priorities'])} — {' or '.join(grp['accepted']).replace('_', ' ')}{pref}: "
                          f"{grp['observed']} of {grp['required']} buildings")
 st.caption("Results are classified by configuration (Research Baseline, Custom Experiment, Sensitivity Analysis), "
-           "dataset (complete or incomplete) and validation; only research-baseline runs on complete data after "
+           "dataset (complete, estimated or incomplete) and validation; only research-baseline runs on complete data after "
            "validation are Validated Research Results.")
 
 st.subheader("Software status")
@@ -52,8 +52,8 @@ st.markdown("""
 | 9–10 Comparison, 6G roadmap | done | conclusions are the student's, from research results |
 | Release | v1.0.0-rc.1: software release candidate | not a research result |
 """)
-st.caption("Software that works is not a scientific result: results become research findings only from "
-           "research-baseline runs on a dataset fit for research.")
+st.caption("Software that works is not a scientific result: a result is a validated research finding only when it "
+           "is a research-baseline run on complete data with validation completed.")
 
 c1, c2, c3, c4 = st.columns(4)
 runs = ui.run_list()
@@ -68,8 +68,8 @@ c4.metric("Study areas", len(areas), help="Study district: "
 
 st.subheader("Profiles and backends")
 st.dataframe(configuration.backend_profile_rows(ui.ROOT), hide_index=True, use_container_width=True)
-st.caption("Research-baseline runs use the standard profile on the CPU; preview, custom ray counts, GPU and auto "
-           "are available for preliminary simulations and custom experiments (GPU limits: docs/validation.md §7).")
+st.caption("The research baseline uses the standard profile on the CPU. Every profile and backend can run; others "
+           "make the run a custom experiment (GPU limits: docs/validation.md §7).")
 
 if runs:
     latest = ui.run(runs[0])

@@ -1,0 +1,619 @@
+{
+  "label": "Preliminary Simulation \u00b7 Custom Experiment \u00b7 Incomplete data \u00b7 Validation Pending",
+  "run_id": "multi_site-tahrir_bab_al_sharqi_study-osm+fp_3d_globfp-standard-1sites-20261126T235539Z",
+  "kind": "multi_site",
+  "mode": "development",
+  "run_class": "Custom Experiment",
+  "overrides": {},
+  "classification": {
+    "configuration": "Custom Experiment",
+    "dataset": "Incomplete data",
+    "validation": "Validation Pending",
+    "deviations": [
+      "GPU backend (numerical limits: docs/validation.md \u00a77)"
+    ],
+    "result": "Preliminary Simulation"
+  },
+  "backend": {
+    "name": "gpu",
+    "requested": "gpu",
+    "note": "GPU available: NVIDIA GeForce RTX 3060, 610.88, 12288 MiB.",
+    "variant": "cuda_ad_mono_polarized",
+    "status": "validated for development",
+    "gpu": "NVIDIA GeForce RTX 3060, 610.88, 12288 MiB"
+  },
+  "created_utc": "2026-11-26T23:55:44+00:00",
+  "area": {
+    "name": "tahrir_bab_al_sharqi_study",
+    "role": "study district",
+    "approved": true,
+    "variant": "osm+fp_3d_globfp",
+    "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
+    "scene_fingerprint": "7230170d9314929c06a789f90c0c35ada68d3f0c1656fb0c3be88044ac7a9263",
+    "height_categories_percent": {
+      "observed": 0.3966679888932963,
+      "estimated": 0.15866719555731854,
+      "placeholder": 99.44466481554939
+    },
+    "fit_for_research": false
+  },
+  "site_rule": {
+    "min_roof_height_m": 12.0,
+    "min_roof_area_m2": 100.0,
+    "min_spacing_m": 50.0,
+    "categories": [
+      "observed",
+      "estimated"
+    ],
+    "count": 1
+  },
+  "sites": [
+    {
+      "candidate_id": "site-001",
+      "x": -177.90098845773826,
+      "y": -131.23326489986027,
+      "z": 58.0,
+      "building_id": "way/919688856",
+      "roof_height_m": 55.0,
+      "footprint_area_m2": 833.4210671361501,
+      "height_category": "observed"
+    }
+  ],
+  "sectors_per_site": [
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ]
+    },
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ]
+    },
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ]
+    }
+  ],
+  "sector_bearings_deg": [
+    0.0,
+    120.0,
+    239.99999999999997
+  ],
+  "azimuth_convention": "orientation_rad[0]: yaw counter-clockwise from east (scene x east, y north); sector_bearings_deg: compass, clockwise from north",
+  "antenna_rule": {
+    "antenna_position": "roof_edge",
+    "edge_inset_m": 1.0,
+    "radio_parameters": [
+      "antenna_height_above_roof_m",
+      "sectors_per_site",
+      "mechanical_downtilt_deg"
+    ],
+    "candidate_height_categories": [
+      "observed",
+      "estimated"
+    ],
+    "candidate_count_target": [
+      20,
+      40
+    ],
+    "excluded_structures": [
+      "monument",
+      "memorial",
+      "artwork"
+    ],
+    "site_selection": "interference-aware SINR greedy over physical sites (scripts/plan_sites.py)",
+    "candidate_thresholds": {
+      "min_roof_height_m": 12.0,
+      "min_roof_area_m2": 100.0,
+      "min_spacing_m": 50.0,
+      "adjustments": []
+    },
+    "status": "approved",
+    "approved_by": "supervisor, as reported by the project owner (2026-11-26, 2026-11-27; configs/approvals.yaml)"
+  },
+  "sector_positions_m": {
+    "site-001": [
+      [
+        -177.90098845773826,
+        -117.96247522513453,
+        58.0
+      ],
+      [
+        -159.6580858058686,
+        -141.76580965671738,
+        58.0
+      ],
+      [
+        -184.67721348666518,
+        -135.1455202444007,
+        58.0
+      ]
+    ]
+  },
+  "profile": {
+    "name": "standard",
+    "cell_size_m": 10.0,
+    "rays_per_site": 1000000000,
+    "status": "approved"
+  },
+  "grid": {
+    "center_xy": [
+      0.0,
+      0.0
+    ],
+    "size_xy": [
+      1000.0,
+      1000.0
+    ],
+    "cell_size_m": 10.0,
+    "height_m": 1.5
+  },
+  "mechanisms": {
+    "max_depth": 2,
+    "los": true,
+    "specular_reflection": true,
+    "diffraction": true,
+    "refraction": false,
+    "diffuse_reflection": false,
+    "edge_diffraction": false
+  },
+  "seeds": [
+    1
+  ],
+  "radio_parameters": {
+    "tx_power_dbm": {
+      "value": 46.0,
+      "unit": "dBm per sector carrier",
+      "status": "approved",
+      "definition": "conducted",
+      "sources": [
+        "3GPP-TR38914",
+        "3GPP-TR36942",
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "46 dBm is the macro downlink power in the 3GPP 6G coverage assumptions (TR 38.914 Table 5.1.20.1-2), the E-UTRA reference base station (TR 36.942 Table 4.6), ITU-R M.2292 macro urban (Tables 3-4) and TR 38.921 (two polarisations, 7 GHz range). The same total power in every band; the power per MHz therefore falls with bandwidth (33 dBm/MHz at 20 MHz, 26 at 100 MHz, 20 at 400 MHz)."
+    },
+    "tx_antenna_gain_dbi": {
+      "value": 0.0,
+      "unit": "dBi added after tracing",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR38901"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Zero because the traced tr38901 pattern already contains the 8 dBi peak gain; any other value would count the gain twice (refused when the file is loaded)."
+    },
+    "tx_antenna_pattern": {
+      "value": "tr38901",
+      "unit": "pattern name",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR38901",
+        "ITU-M2412"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "3GPP TR 38.901 Table 7.3-1 sector element (65 degree beamwidth, 8 dBi peak, 30 dB front-to-back), the element ITU-R M.2412 also uses. It is TRACED by the ray tracer, so its gain is part of the path gain."
+    },
+    "sectors_per_site": {
+      "value": 3,
+      "unit": "sectors",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Three sectors per site (M.2412 section 8.3: three TRxPs per site)."
+    },
+    "mechanical_downtilt_deg": {
+      "value": 10.0,
+      "unit": "degrees below horizon",
+      "status": "approved",
+      "sources": [
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Macro urban downtilt of 10 degrees (M.2292 Tables 3-4; TR 38.921 Table 8.1.2-1)."
+    },
+    "antenna_height_above_roof_m": {
+      "value": 3.0,
+      "unit": "m",
+      "status": "approved",
+      "sources": [
+        "APPROVAL-2026-11-26"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Decision A4. No primary source gives a mast height above a roof; the references give total heights (25 m in M.2412 and TR 38.901 UMa) for flat layouts. Antennas stand at the roof edge facing each sector (configs/site_rule.yaml)."
+    },
+    "rx_height_m": {
+      "value": 1.5,
+      "unit": "m above ground",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412"
+      ],
+      "approved_by": "project description, Stage 6 (the approved project baseline)",
+      "justification": "Receivers 1.5 m above street level; the outdoor UE height of M.2412 Table 5(b)."
+    },
+    "rx_antenna_gain_dbi": {
+      "value": 0.0,
+      "unit": "dBi",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR36942",
+        "ITU-M2412",
+        "3GPP-TR38830"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Isotropic user antenna, matching the isotropic receiver of the ray-traced maps (0 dBi in TR 36.942 section 4.2.2, M.2412 at 4 GHz, TR 38.830 for FR1). M.2412 and TR 38.830 give 5 dBi at 30 GHz with user-side beamforming, left to the deployment interpretation."
+    },
+    "noise_figure_db": {
+      "value": 9.0,
+      "unit": "dB",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR38914",
+        "3GPP-TR36942",
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "9 dB user noise figure in the 3GPP 6G coverage assumptions (TR 38.914 Table 5.1.20.1-2), TR 36.942 Table 4.8, M.2292 Table 1 and the TR 38.921 baseline. Per-band values (7 dB at 4 GHz, 10 dB at 30 GHz in M.2412) belong to the deployment interpretation."
+    },
+    "noise_temperature_k": {
+      "value": 290.0,
+      "unit": "K",
+      "status": "approved",
+      "sources": [
+        "ITU-P372",
+        "ITU-M2412"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Reference temperature T0 = 290 K (P.372 section 1.2.1), giving -174 dBm/Hz (M.2412 Table 5)."
+    },
+    "coverage_threshold": {
+      "value": -10.0,
+      "unit": "dB",
+      "status": "approved",
+      "definition": "snr_db",
+      "sources": [
+        "3GPP-TR38921",
+        "3GPP-TR36942"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "-10 dB is the lowest SINR at which the 3GPP link-level throughput mapping gives any data rate (TR 38.921 Table 4.2.7-1, TR 36.942 Annex A). A noise-referenced threshold is the same physical condition at every bandwidth."
+    },
+    "interference_activity": {
+      "value": 1.0,
+      "unit": "share of time other sectors transmit",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Full buffer (M.2412 Table 5): every other sector transmits all the time. M.2292 uses a 50 % average activity, a sensitivity case."
+    },
+    "coverage_target": {
+      "value": 0.95,
+      "unit": "share of outdoor cells",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR38830"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "95 % cell-area reliability for control channels (TR 38.830 Table A.3)."
+    },
+    "frequency_reuse": {
+      "value": "1",
+      "unit": "reuse factor",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Every site and sector uses the whole carrier (M.2412 evaluations; M.2292 Tables 2-4)."
+    }
+  },
+  "atmosphere": {
+    "baseline": {
+      "rain_rate_mm_h": 0.0,
+      "include_gas": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "lte_1800",
+      "label": "4G LTE",
+      "frequency_hz": 1800000000.0,
+      "bandwidth_hz": 20000000.0,
+      "status": "deployed",
+      "basis": "LTE Band 3. All three Iraqi operators launched LTE on 1800 MHz in January 2021. 20 MHz is the largest Band 3 channel and a modelling assumption: no source gives the carrier width used in Iraq. 1.8 GHz is nominal; the Band 3 downlink is 1805-1880 MHz.",
+      "sources": [
+        "3GPP-TS36101",
+        "IRQ-CMC-WP"
+      ]
+    },
+    {
+      "id": "nr_3500",
+      "label": "5G NR mid-band",
+      "frequency_hz": 3500000000.0,
+      "bandwidth_hz": 100000000.0,
+      "status": "assumed",
+      "basis": "NR band n78 (3300-3800 MHz, up to 100 MHz). The Iraqi regulator's plan names 3.4-3.8 GHz as the main 5G capacity band with 100 MHz blocks per licence holder, but no 5G spectrum had been assigned and no commercial 5G launched as of November 2026.",
+      "sources": [
+        "3GPP-TS38101-1",
+        "IRQ-CMC-WP",
+        "IRQ-NFAT"
+      ]
+    },
+    {
+      "id": "c6g_8000",
+      "label": "Candidate 6G upper mid-band",
+      "frequency_hz": 8000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "candidate",
+      "basis": "WRC-27 agenda item 1.7: in ITU Region 1 (which includes Iraq) 7.125-7.25 GHz and 7.75-8.4 GHz are under study for mobile use; the carrier occupies 7.8-8.2 GHz. 400 MHz is the maximum carrier bandwidth 3GPP agreed for the 7 GHz range in March 2026. Not identified for mobile use yet.",
+      "sources": [
+        "ITU-RES256",
+        "3GPP-RP260798",
+        "3GPP-TR38914"
+      ]
+    },
+    {
+      "id": "c6g_15000",
+      "label": "Candidate 6G 15 GHz",
+      "frequency_hz": 15000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "candidate",
+      "basis": "WRC-27 agenda item 1.7: 14.8-15.35 GHz is under study in all regions; the carrier occupies 14.8-15.2 GHz. 400 MHz is the bandwidth 3GPP assumes at 15 GHz for 6G evaluation; no carrier maximum has been agreed for this range. Used today in Iraq for fixed links and defence systems. Not identified for mobile use yet.",
+      "sources": [
+        "ITU-RES256",
+        "3GPP-TR38914",
+        "IRQ-NFAT"
+      ]
+    },
+    {
+      "id": "nr_28000",
+      "label": "5G NR mmWave",
+      "frequency_hz": 28000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "assumed",
+      "basis": "High-capacity 5G reference: NR bands n257 and n261, largest channel 400 MHz. No plan for this band in Iraq was found.",
+      "sources": [
+        "3GPP-TS38101-2"
+      ]
+    }
+  ],
+  "workload_before_run": {
+    "jobs": 15,
+    "cached": 0,
+    "to_trace": 15,
+    "estimate": null
+  },
+  "jobs": [
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "e421164c5a1449e72d889de9b3374cd9d3e92d636c7cc3121b97395a3010a85c",
+      "sector_orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 10.718,
+      "worker_peak_commit_gb": 1.093
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "99fd0a9a41849d0881963404f606f6fbac8b3fa95dea7f5905aebbe46a922cf0",
+      "sector_orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 9.115,
+      "worker_peak_commit_gb": 1.093
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "7c77aa5cf74e1bc56e760aff243e7e94e991a32913a8a301cb3bac294f2783a7",
+      "sector_orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.076,
+      "worker_peak_commit_gb": 1.093
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "099d49cd95e6074a1e91bd119752824d290f46cfca2fbb7a454b31b93b41fb0c",
+      "sector_orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.306,
+      "worker_peak_commit_gb": 1.083
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "49bcfddac3811e174935b7fa695be08e34ee06fa40adb35137f8556e965b9826",
+      "sector_orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.921,
+      "worker_peak_commit_gb": 1.086
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "e2fd47107fcfbcc40dd97b76658ea7b12d9fcb7e4953bface8e29ccd8266b9e3",
+      "sector_orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.422,
+      "worker_peak_commit_gb": 1.091
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "3b1a33a640830b249ea156e17cbb320ff656c7fcc0b9f36b547cf8d5895bbf09",
+      "sector_orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.819,
+      "worker_peak_commit_gb": 1.105
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "0935f0d9a8f7a1b9c7ef44a093b8d524b45e4542f6ec61ab201644b2b1de2bf6",
+      "sector_orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.955,
+      "worker_peak_commit_gb": 1.105
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "72b9a8b28e5ff150398c8ee5bdb0f6014521aa70815d0239b7dec9cd50ac16aa",
+      "sector_orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.341,
+      "worker_peak_commit_gb": 1.105
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "ce1322fb455c730f8031bb6ac4059e2e45550fd10f9b6cfd893286419cce506b",
+      "sector_orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.701,
+      "worker_peak_commit_gb": 1.08
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "3bf57a599963df493bb20c487885ffb448b6c90f862c98b2b9e08eb443ce4c2b",
+      "sector_orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 9.008,
+      "worker_peak_commit_gb": 1.086
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "8493d1b89f9e2b880c2d10f2a1c0a85112518db9b5c66079062ebc92f04b799e",
+      "sector_orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.071,
+      "worker_peak_commit_gb": 1.091
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "bef4d40ee0803d90378dc0c32de06041a110ff12b874c235f4fca001d193bc2c",
+      "sector_orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.593,
+      "worker_peak_commit_gb": 1.103
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "878716faca3467511de2f43b7df58d9a1119f2c79a00d375b7c1b7630aacd2b0",
+      "sector_orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 9.137,
+      "worker_peak_commit_gb": 1.103
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "aeb2d995f89e8bf4ea08ab28fb550cdb53f81f432821bf809049d3789a3d0ef5",
+      "sector_orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 8.299,
+      "worker_peak_commit_gb": 1.103
+    }
+  ],
+  "timing": {
+    "trace_wall_seconds": 142.7,
+    "total_wall_seconds": 148.8
+  },
+  "memory": {
+    "script_peak_commit_gb": 0.612,
+    "max_worker_peak_commit_gb": 1.105
+  },
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "figures": [
+    "network_sinr_db.png",
+    "network_interference_dbm.png",
+    "serving_site.png",
+    "network_cdf.png"
+  ]
+}

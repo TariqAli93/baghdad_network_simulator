@@ -15,12 +15,14 @@ Exact commands for the approved district:
 
 ```
 uv run python scripts/build_dataset.py --area tahrir_bab_al_sharqi_study --add-footprints 3d_globfp --observations <filled height_worklist.csv>
-uv run python scripts/plan_sites.py --area tahrir_bab_al_sharqi_study --variant "osm+observations+fp_3d_globfp" --mode research --profile preview --min-height <A4> --min-spacing <A4> --heights observed,estimated
+uv run python scripts/plan_sites.py --area tahrir_bab_al_sharqi_study --variant "osm+observations+fp_3d_globfp" --profile preview --min-height <A4> --min-spacing <A4> --heights observed,estimated
 ```
 
-All supervisor decisions are approved (`docs/approval-record.md`). Every command below runs in
-research mode only with the research baseline on a dataset fit for research and after the
-final-scene convergence; until then results are classified as Preliminary Simulations.
+All supervisor decisions are approved (`docs/approval-record.md`). Every command below runs at
+any time; its result is classified automatically (`bns.analysis.classification`). Results become
+Validated Research Results only with the research baseline on a dataset fit for research after
+the final-scene convergence and the MATLAB comparison; until then they are Preliminary
+Simulations. The `--mode` option is kept for old commands and has no effect.
 Run on the machine whose times were accepted (laptop gate, `docs/laptop-acceptance.md`), on
 the CPU backend unless decision C6 approves the GPU. Times are development-PC measurements.
 
@@ -30,12 +32,12 @@ the CPU backend unless decision C6 approves the GPU. Times are development-PC me
 | 2 | Resolve footprints and heights | Add the approved footprint source (A2); record field observations in a CSV (`scripts/height_worklist.py --area <name> ...` gives the list; see its `--help` for the required distance and site settings); rebuild: `uv run python scripts/build_dataset.py --area <name> --observations <file.csv> [--height-dataset <approved dataset>]` | Every height has a provenance record; conflicts listed in the quality report are resolved or explained |
 | 3 | Validate geographic data quality | Read `outputs/datasets/<name>/<variant>/quality_report.md`; Study area page | `fit_for_research: true`; placeholder share and missing footprints within what A2 accepted |
 | 4 | Apply approved radio parameters | Set `status: approved`, `approved_by` for every parameter in `configs/radio_system.yaml` (A3); the threshold and load exactly as approved | Radio scenarios page shows all parameters approved; `doctor.ps1` reports the count |
-| 5 | Generate the approved candidate sites | Implement the A4 placement if it is the roof edge (one change in the candidate generator, with a test); `uv run python scripts/plan_sites.py --area <name> --mode research --profile preview --min-height <A4> --min-spacing <A4> --heights observed,estimated` (first run traces) | 20-40 candidates on roofs with observed or storey-based heights |
+| 5 | Generate the approved candidate sites | Implement the A4 placement if it is the roof edge (one change in the candidate generator, with a test); `uv run python scripts/plan_sites.py --area <name> --profile preview --min-height <A4> --min-spacing <A4> --heights observed,estimated` (first run traces) | 20-40 candidates on roofs with observed or storey-based heights |
 | 6 | Preview experiments | Site plan above at preview; single-site and multi-site preview runs on the Run page | Plausible maps; no candidate on a placeholder roof; workload estimate recorded |
 | 7 | Confirm convergence | `uv run python scripts/run_convergence.py --area <name>` on the approved dataset; accept the profile only if its criterion holds, then set its `status: approved` | Profile criterion met on the final district (not just the development area) |
-| 8 | Final five-band simulations | `uv run python scripts/run_multi_site.py --area <name> --mode research --profile standard --buildings <selected sites>` | Run completes; manifest shows `APPROVED RESEARCH CONFIGURATION`, backend CPU |
+| 8 | Final five-band simulations | `uv run python scripts/run_multi_site.py --area <name> --profile standard --buildings <selected sites>` | Run completes; manifest `classification`: Research Baseline, Complete data; backend CPU |
 | 9 | Single- and multi-site comparisons | The same script with one building (single site) and with the plan's sites; Comparison page | Runs are comparable (no warning on the Across runs tab) |
-| 10 | Interference-aware site planning | `uv run python scripts/plan_sites.py --area <name> --mode research --profile standard ...` (traces cached candidates once at standard) | Stop reason per band reported; no minimum claimed |
+| 10 | Interference-aware site planning | `uv run python scripts/plan_sites.py --area <name> --profile standard ...` (traces cached candidates once at standard) | Stop reason per band reported; no minimum claimed |
 | 11 | 3GPP model comparisons | `uv run python scripts/validate_tr38901.py --area <name> --profile <accepted profile>` | Report LOS within σ or not; do not claim the NLOS difference is explained without further evidence |
 | 12 | MATLAB cross-check | `uv run python scripts/export_matlab_case.py <validation run>`; run `run_case.m` on the laptop; `uv run python scripts/compare_matlab.py validation/matlab/<case>` | Criterion agreed under B1 |
 | 13 | Export research results | Reports and exports page: HTML report, CSVs, figures, manifest per run; `scripts/make_distribution.py` for a clean archive | Label reads APPROVED RESEARCH CONFIGURATION; licences per `docs/licensing.md` |

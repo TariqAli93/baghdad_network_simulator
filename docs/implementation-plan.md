@@ -940,3 +940,19 @@ Under the feature freeze, configuration and guards only; no simulation was run.
   it. Historical files are unchanged; displays and new reports show their class (Preliminary
   Simulation) and caption their saved figures.
 - Tests run: see the commit message.
+
+### Addendum: execution independent of classification (2026-11-27)
+
+- Removed at the source every remaining approval/research-mode restriction: `experiment.load`
+  (non-study area, readiness guard, profile status, dataset fitness, site-rule status, overrides),
+  `resolve_backend` (GPU in research), `rate_mapping` (approval status), `readiness.require_research_ready`,
+  `research_baseline.require_baseline`, `run_single_site.py` (five refusals), `plan_sites.py`
+  (overrides, height categories), required `--mode` in the run scripts, and the Run simulation
+  page's run-type selector and stop. `--mode` remains accepted and has no effect.
+- Kept technical checks: unknown area/profile, missing scene or quality report, invalid values,
+  empty outdoor grid, unavailable GPU, radio double counting.
+- Classification: deviations from the baseline (values, preview profile, GPU backend, interior
+  placement) make a custom experiment; dataset Complete (study district fit for research) /
+  Estimated (height model) / Incomplete; validation Pending / Completed. Run control reports
+  execution (Running / Completed / Cancelled / Failed) and the run's LIMITATION lines.
+- Verified through the real pipeline: see the commit message.

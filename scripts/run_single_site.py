@@ -1,15 +1,16 @@
 """Single-site experiment: one rooftop site, all five scenarios, identical receiver grid.
 
     uv run python scripts/run_single_site.py --area tahrir_bab_al_sharqi_v2 --variant osm ^
-        --profile standard --mode development [--building way/919688856]
+        --profile standard [--building way/919688856]
 
 The site stands on the given building (default: the tallest building in the receiver area
 whose height is observed). Propagation comes from the cached path-gain maps (traced if
-missing); the radio system from configs/radio_system.yaml in the chosen mode; the weather is
+missing); the radio system from configs/radio_system.yaml; the weather is
 the clear-sky baseline of configs/atmosphere.yaml.
 
-Every output carries its scientific classification (bns.analysis.classification).
-Research mode stops unless every parameter used is approved.
+Every output carries its scientific classification (bns.analysis.classification). This Phase 4
+tool places all sectors at one interior roof point, which departs from the site rule (roof edge),
+so its results are custom experiments; run_multi_site.py applies the site rule.
 
 Writes outputs/runs/<mode>/<run id>/: manifest.json, summary.json, summary.md, figures
 (PNG) and per-band arrays (bands.npz; git-ignored).
@@ -122,7 +123,9 @@ def main() -> int:
     parser.add_argument("--area", required=True)
     parser.add_argument("--variant", default="osm")
     parser.add_argument("--profile", default="standard")
-    parser.add_argument("--mode", choices=("development", "research"), required=True)
+    parser.add_argument("--mode", choices=("development", "research"), default="development",
+                        help="kept for older commands; it no longer restricts anything (the result is "
+                             "classified automatically)")
     parser.add_argument("--building", help="OSM id of the host building")
     parser.add_argument("--replot", type=Path, help="redraw the figures of an existing run folder")
     args = parser.parse_args()
@@ -144,17 +147,12 @@ def main() -> int:
         print(f"Redrew {names} in {args.replot}")
         return 0
 
-    area = load_study_areas(ROOT / "configs" / "study_area.yaml")[args.area]
-    if args.mode == "research" and not area.is_research_dataset:
-        print(f"Research mode needs an approved study district; {area.name} is a {area.role}.")
+    areas = load_study_areas(ROOT / "configs" / "study_area.yaml")
+    if args.area not in areas:
+        print(f"Unknown study area '{args.area}'.")
         return 1
-    try:                    # the same research guards as every other experiment (bns.simulation.experiment)
-        ex.require_research_ready(ROOT, args.mode)
-        ex.require_research_profile(SimulationConfig.load(ROOT / "configs" / "simulation.yaml").profile(args.profile),
-                                    args.mode)
-    except ex.ExperimentError as exc:
-        print(exc)
-        return 1
+    area = areas[args.area]
+    args.mode = "development"           # no approval checks on parameter values; classification is automatic
     system = RadioSystem.load(ROOT / "configs" / "radio_system.yaml")
     config = SimulationConfig.load(ROOT / "configs" / "simulation.yaml")
     profile = config.profile(args.profile)
@@ -169,19 +167,11 @@ def main() -> int:
         print(f"No dataset {scene_dir}; run scripts/build_dataset.py first.")
         return 1
     quality = json.loads((scene_dir / "quality_report.json").read_text(encoding="utf-8"))
-    classes = classification.classify(ROOT, {}, quality)
+    classes = classification.classify(
+        ROOT, {}, quality, study_district=area.is_research_dataset,
+        deviations=["interior antenna placement (single-site tool; the site rule puts antennas at the roof edge)"]
+        + ex.baseline_deviations(ROOT, profile, "cpu"))
     label = classes.label
-    try:
-        ex.require_research_dataset(quality, args.mode)
-    except ex.ExperimentError as exc:
-        print(exc)
-        return 1
-    if args.mode == "research":
-        # this Phase 4 script puts every sector at one interior roof point; the approved site rule
-        # (roof edge, configs/site_rule.yaml) is applied by run_multi_site.py (--sites 1 / --buildings)
-        print("Research single-site runs use scripts/run_multi_site.py, which applies the approved site rule "
-              "(roof-edge antennas); this script places the sectors at an interior roof point.")
-        return 1
     buildings = pipeline.load_buildings(scene_dir, area)
     inside = [b for b in buildings if area.receiver_box().contains(b.polygon.representative_point())]
     mast = system.require("antenna_height_above_roof_m", mode=args.mode)

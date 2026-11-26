@@ -1,6 +1,6 @@
 """Phase 8 site planning: SINR-based greedy selection of physical sites among rooftop candidates.
 
-    uv run python scripts/plan_sites.py --area tahrir_bab_al_sharqi_v2 --mode development ^
+    uv run python scripts/plan_sites.py --area tahrir_bab_al_sharqi_study ^
         [--profile preview] [--backend cpu|gpu|auto] [--max-candidates 20] [--min-height 9] ^
         [--min-spacing 150] [--heights observed,estimated,placeholder] ^
         [--threshold DB] [--target SHARE] [--load ACTIVITY]
@@ -16,7 +16,7 @@ with ALL candidates transmitting is reported for reference. The result is what t
 heuristic found, not a minimum.
 
 --threshold/--target/--load override the radio configuration for a sensitivity case in
-development mode only (recorded in the manifest); research mode refuses overrides.
+sensitivity values (recorded in the manifest; the plan is then classified as a sensitivity analysis).
 Writes outputs/runs/<mode>/site_plan-.../ (manifest, summary, history CSV, maps, figures).
 """
 
@@ -52,7 +52,9 @@ def main() -> int:
     parser.add_argument("--area", required=True)
     parser.add_argument("--variant", default="osm")
     parser.add_argument("--profile", default="preview")
-    parser.add_argument("--mode", choices=("development", "research"), required=True)
+    parser.add_argument("--mode", choices=("development", "research"), default="development",
+                        help="kept for older commands; it no longer restricts anything (the result is "
+                             "classified automatically)")
     parser.add_argument("--backend", choices=("cpu", "gpu", "auto"), default="cpu")
     parser.add_argument("--max-candidates", type=int, default=20)
     parser.add_argument("--min-height", type=float, help="minimum roof height [m] (default: configs/site_rule.yaml)")
@@ -65,16 +67,13 @@ def main() -> int:
     parser.add_argument("--load", type=float, help="interference activity override (development only)")
     parser.add_argument("--cancel-file", type=Path)
     args = parser.parse_args()
+    args.mode = "development"       # no approval checks on parameter values; classification is automatic
     started = time.perf_counter()
     overrides = {k: v for k, v in (("coverage_threshold", args.threshold), ("coverage_target", args.target),
                                    ("interference_activity", args.load)) if v is not None}
     try:
-        if overrides and args.mode == "research":
-            raise ex.ExperimentError("Research mode does not accept overrides of the radio configuration.")
         criteria = {k: v for k, v in (("min_roof_height_m", args.min_height), ("min_roof_area_m2", args.min_area),
                                       ("min_spacing_m", args.min_spacing)) if v is not None}
-        if args.heights and args.mode == "research":
-            raise ex.ExperimentError("Research-baseline site plans use the site rule's height categories.")
         exp = ex.load(ROOT, args.area, args.variant, args.profile, args.mode, backend=args.backend,
                       overrides=criteria)
         rule = exp.candidate_rule
@@ -236,10 +235,10 @@ def main() -> int:
         "label": exp.label, "run_id": run_id, "kind": "site_plan", "mode": args.mode,
         "run_class": ex.run_class({**exp.overrides, **overrides,
                                    **({"heights": args.heights} if args.heights else {})}),
-        "classification": classification.Classification(
-            classification.configuration_class({**exp.overrides, **overrides})
-            if not args.heights else classification.CUSTOM,
-            exp.classification.dataset, exp.classification.validation).as_dict(),
+        "classification": classification.classify(
+            ROOT, {**exp.overrides, **overrides}, exp.quality, study_district=exp.area.is_research_dataset,
+            deviations=ex.baseline_deviations(ROOT, exp.profile, exp.backend)
+            + ([f"height categories {args.heights}"] if args.heights else [])).as_dict(),
         "overrides": {**exp.overrides, **overrides, **({"heights": args.heights} if args.heights else {})},
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,

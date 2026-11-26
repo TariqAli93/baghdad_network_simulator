@@ -37,8 +37,7 @@ def test_the_repository_configuration_is_the_recorded_research_baseline():
 def test_changing_a_value_marks_only_that_item_modified(repo):
     _edit(repo, "radio_system.yaml", lambda d: d["parameters"]["tx_power_dbm"].update(value=43.0))
     assert {i.name: i.state for i in rb.modified(repo)} == {"radio.tx_power_dbm": "modified"}
-    with pytest.raises(rb.BaselineModified, match="custom experiment"):
-        rb.require_baseline(repo)
+    assert not hasattr(rb, "require_baseline")                     # a modified file is classified, never blocked
 
 
 def test_wording_changes_do_not_modify_the_baseline(repo):

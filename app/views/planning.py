@@ -13,7 +13,7 @@ run = ui.pick_run("planning-run", kinds=("site_plan", "multi_site"))
 if run is None:
     st.stop()
 ui.result_banner(run.classification)
-st.caption("Create a new plan with `uv run python scripts/plan_sites.py --area NAME --mode development "
+st.caption("Create a new plan with `uv run python scripts/plan_sites.py --area NAME "
            "[--backend gpu] [--threshold DB --load X]` (traces only what is not cached).")
 scen = run.scenarios
 

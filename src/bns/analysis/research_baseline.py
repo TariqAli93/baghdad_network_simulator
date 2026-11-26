@@ -7,9 +7,8 @@ value of the approved configuration. `check` compares the configuration files wi
     modified      the file now holds another value: runs with it are custom experiments
     not recorded  a new configuration item that is not part of the recorded baseline
 
-Nothing here asks for an approval. Research-baseline runs (mode "research") need the baseline
-configuration unchanged; every other run is allowed and is classified and recorded as a custom
-experiment. Only scientific content is fingerprinted (values, units, definitions, constants);
+Nothing here asks for an approval or blocks a run: a configuration that differs from the
+baseline is simply classified and recorded as a custom experiment. Only scientific content is fingerprinted (values, units, definitions, constants);
 comments and wording can be edited freely. A deliberate update of the baseline (e.g. a
 documented candidate-threshold refinement) is recorded with
 `scripts/research_baseline.py --record` and described in docs/approval-record.md.
@@ -27,10 +26,6 @@ import yaml
 FILE = Path("configs") / "research_baseline.yaml"
 _RADIO_FIELDS = ("value", "unit", "definition")
 _SKIP = ("status", "approved_by")
-
-
-class BaselineModified(RuntimeError):
-    """A research-baseline run was requested with a configuration that differs from the baseline."""
 
 
 @dataclass(frozen=True)
@@ -100,16 +95,6 @@ def check(root: Path) -> list[Item]:
 
 def modified(root: Path) -> list[Item]:
     return [i for i in check(root) if i.state != "baseline"]
-
-
-def require_baseline(root: Path) -> None:
-    """Research-baseline runs need the configuration files to hold the baseline."""
-    bad = modified(root)
-    if bad:
-        raise BaselineModified(
-            "The configuration files differ from the research baseline in: "
-            + ", ".join(f"{i.name} ({i.state})" for i in bad)
-            + ". Run this as a custom experiment (development mode), or restore the baseline values.")
 
 
 def record(root: Path, *, note: str, recorded_on: str) -> Path:
