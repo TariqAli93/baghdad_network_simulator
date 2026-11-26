@@ -33,7 +33,7 @@ def result_block(metric: str) -> None:
             return
         run = networks[0]
         st.caption(f"From `{run.run_id}` — {run.label}")
-        st.dataframe([{"band": f"{r['scenario']} {r['frequency_ghz']:g} GHz", "status": r["status"],
+        st.dataframe([{"band": ui.band_name(r['scenario'], r['frequency_ghz']), "status": r["status"],
                        "coverage": ui.fmt(r["coverage"], ".1%"), "median SINR": ui.fmt(r["sinr_median_db"], ".1f", " dB"),
                        "5th-pct Shannon rate": ui.fmt(r["rate_p5_mbps"], ".0f", " Mbit/s")}
                       for r in evidence.band_table(run)], hide_index=True, use_container_width=True)
@@ -41,7 +41,7 @@ def result_block(metric: str) -> None:
         if not plans:
             st.caption("No saved site plan yet (scripts/plan_sites.py).")
             return
-        st.dataframe([{"band": f"{p['scenario']} {p['frequency_ghz']:g} GHz", "threshold": f"{p['threshold_db']:g} dB",
+        st.dataframe([{"band": ui.band_name(p['scenario'], p['frequency_ghz']), "threshold": f"{p['threshold_db']:g} dB",
                        "load": p["load"], "sites": p["sites"], "sites/km²": round(p["site_density_per_km2"], 1),
                        "coverage": ui.fmt(p["coverage"], ".1%"), "stop": p["stopped_because"],
                        "sensitivity case": "yes" if p["overrides"] else "no"} for p in plans],
@@ -62,7 +62,7 @@ def result_block(metric: str) -> None:
             return
         base = [p for p in plans if not p["overrides"]]
         sites = {p["scenario_id"]: p["sites"] for p in (base or plans)}
-        st.dataframe([{"band": f"{r['scenario']} {r['frequency_ghz']:g} GHz", "bandwidth": f"{r['bandwidth_mhz']:g} MHz",
+        st.dataframe([{"band": ui.band_name(r['scenario'], r['frequency_ghz']), "bandwidth": f"{r['bandwidth_mhz']:g} MHz",
                        "median Shannon rate": ui.fmt(r["rate_median_mbps"], ".0f", " Mbit/s"),
                        "sites selected (candidate assumptions)": sites.get(r["scenario_id"], "—")}
                       for r in evidence.band_table(networks[0])], hide_index=True, use_container_width=True)

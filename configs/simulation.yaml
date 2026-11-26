@@ -3,7 +3,8 @@
 # Profiles: provisional, from the convergence check on the full 1 km2 provisional area
 # (docs/convergence.md: 3 sites, 2 bands, 2 height variants, 8 cases). They describe
 # measured agreement, not accuracy guarantees. A profile with rays_per_site: null has not
-# been validated and cannot be selected.
+# been validated and cannot be selected. Research runs also require status "approved" (the
+# supervisor's acceptance of the convergence, decision in docs/supervisor-checklist.md).
 profiles:
   preview:
     cell_size_m: 25

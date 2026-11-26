@@ -25,12 +25,16 @@ st.markdown("""
 | 2 Geospatial pipeline | done | district, building data and height method **not approved** |
 | 3–4 Radio configuration, production pipeline | done | radio parameters are **proposals** awaiting approval |
 | 5 Single-site coverage | done | blocked by the approvals above; development results only |
-| 6 Multi-site network | done (first version) | development results only |
-| 7+ Validation against 3GPP/MATLAB, site density, roadmap | not started | — |
+| 6 Multi-site network | done | development results only |
+| 7 Validation | done (TR 38.901, CPU/GPU, analytical); MATLAB package prepared | MATLAB **not executed**; no field measurements; agreement criterion open (B1) |
+| 8 Site planning | done (SINR greedy) | site count depends on unapproved threshold and load (A3) and site rule (A4) |
+| 9 Comparison | done | development results only |
+| 10 6G roadmap | workspace done | conclusions are the student's, from approved results |
+| Release | **v1.0.0-rc.1: software release candidate** | **not scientifically approved**; see `docs/supervisor-checklist.md` |
 """)
 st.caption("Software that works is not a scientific result: no phase is scientifically complete until the "
            "supervisor approves the district, building heights, radio parameters and site rule "
-           "(`docs/supervisor-decisions.md`).")
+           "(`docs/supervisor-checklist.md`).")
 
 c1, c2, c3, c4 = st.columns(4)
 runs = ui.run_list()

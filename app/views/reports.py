@@ -14,6 +14,9 @@ if run is None:
     st.stop()
 ui.development_banner(run.label)
 m = run.manifest
+if "gba" in str(m["area"].get("variant", "")).lower():
+    st.warning("This run uses GlobalBuildingAtlas heights (CC BY-NC 4.0, non-commercial). Do not redistribute its "
+               "exports without checking the licence (docs/licensing.md).")
 
 c1, c2 = st.columns(2)
 with c1:

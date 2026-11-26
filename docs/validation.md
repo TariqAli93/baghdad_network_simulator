@@ -115,6 +115,13 @@ Only one cell was below −140 dB (weak-signal check therefore thin). The −10 
 saturates coverage, so the classification test is weak too; the differences are, however, an
 order of magnitude below the preview convergence floor (2.9 dB).
 
+**Second case, release cycle (harder).** One low site (roof 3 m from one storey, antenna 6 m, way/1178630153),
+preview, CPU vs GPU: median |Δ| path gain 0.00-0.02 dB, 95th percentile 1.0-1.2 dB, but up to
+26 dB in single diffraction-dominated cells; 40-98 cells below -140 dB (median |Δ| 0.6-1.3 dB);
+0-4 of 808 cells change coverage class; 5th-percentile rate 4.8 vs 5.6 Mbit/s at 1.8 GHz (a
+near-threshold quantity). Conclusion: statistically equivalent, **not interchangeable cell by
+cell**; the GPU stays *validated for development* (decision C6).
+
 **Original single-job check:**
 
 The same two cached jobs traced with the CUDA variant on the RTX 3060 matched the CPU maps:
@@ -134,7 +141,7 @@ including breakpoint table, continuity and hand values).
 (UMa) and 10 m (UMi); users 1.5 m; all five bands; project mechanisms; LOS/NLOS from a
 line-of-sight-only trace; cells closer than 10 m excluded. **Preview profile** (25 m, 1e8): the
 standard profile was attempted but its isotropic traces ran 5-12 minutes each with only about
-4 of 16 cores busy (`docs/benchmarks.md` §10); the preview profile is validated for development and its
+4 of 16 cores busy (cause found later: Windows power throttling, fixed, `docs/benchmarks.md` §11); the preview profile is validated for development and its
 2.9 dB convergence floor is small against the models' 4-8 dB shadow-fading σ.
 
 | | UMa LOS | UMa NLOS | UMi LOS | UMi NLOS |

@@ -30,3 +30,6 @@ outputs/**/near_site_*.json
 data/raw/heights/gba/
 outputs/datasets/**/gba_buildings.csv
 outputs/validation/**/cells.csv
+
+# Distribution archives (scripts/make_distribution.py) and acceptance records of other machines
+dist/

@@ -5,7 +5,9 @@ isolated worker, like every simulation) and checks the physics it reports.
 """
 
 import json
+import os
 import subprocess
+import tempfile
 import sys
 from pathlib import Path
 
@@ -15,9 +17,13 @@ ROOT = Path(__file__).resolve().parents[2]
 pytestmark = pytest.mark.engine
 
 
+OUT = Path(tempfile.mkdtemp(prefix="bns-engine-tests-"))     # never the committed Phase 0 records
+
+
 def run_experiment(name: str) -> dict:
-    subprocess.run([sys.executable, str(ROOT / "scripts" / "poc_validate.py"), name], cwd=ROOT)
-    return json.loads((ROOT / "outputs" / "runs" / "phase0" / name / "result.json").read_text())
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "poc_validate.py"), name], cwd=ROOT,
+                   env={**os.environ, "BNS_PHASE0_OUT": str(OUT)})
+    return json.loads((OUT / name / "result.json").read_text())
 
 
 def test_free_space_matches_friis_at_every_band():

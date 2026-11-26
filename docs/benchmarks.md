@@ -333,7 +333,7 @@ worker commit 0.86 GB.
   site plan traced 240 new maps at a median 0.5-0.6 s each (about 2-3 minutes; the wall time of
   that run was not kept because its folder was regenerated from the cache). Agreement:
   `docs/validation.md` §7.
-- **Anomaly, not explained.** Isotropic transmitters near the ground-level centre of the area
+- **Anomaly** (explained in §11: Windows power throttling). Isotropic transmitters near the ground-level centre of the area
   (TR 38.901 validation) traced slowly and erratically on the CPU: at the standard profile one
   3.5 GHz job took 306 s, then 752 s on a retry, then over 10 minutes, with the worker using
   only about 4 of 16 cores; at the preview profile the first jobs took 98-112 s (1.8 GHz) and
@@ -344,3 +344,33 @@ worker commit 0.86 GB.
   on rooftops did not show it (57-66 s per standard trace). To be re-measured on the laptop.
 - **Concurrency defect fixed.** Two runs started together shared `data/cache/work/batch-*.json`
   and one deleted the other's batch file; every runner call now uses its own sub-folder.
+
+## 11. Root cause of the slow traces: Windows power throttling (release cycle, 2026-11-26)
+
+Bounded investigation with `scripts/diagnose_trace_time.py` (one job traced repeatedly in one
+worker; busy cores = process CPU time / wall time), isotropic antenna at 25 m, 3.5 GHz,
+standard profile (10 m, 1e9 rays), development PC (i5-14400F: 6 performance + 4 efficiency
+cores, 16 threads):
+
+| Condition | Call 1 | Call 2 | Call 3 |
+|---|---|---|---|
+| Default scheduling (before the fix) | 86.6 s, 13.6 cores | **391.6 s, 4.8 cores** | — |
+| Power throttling disabled for the worker (the fix) | 79.6 s, 14.8 cores | 80.1 s, 14.7 cores | 76.0 s, 15.5 cores |
+| EcoQoS forced on the worker (reverse test) | **1,086.5 s, 3.8 cores** | — | — |
+
+- Not compilation: the slow call was the warm second call in the same process.
+- Not the ray count, scene or propagation settings: the identical job ran at full speed in
+  every call once throttling was disabled, and needed about 1,180 CPU-seconds whenever it
+  ran on the performance cores.
+- Cause: Windows 11 power throttling (EcoQoS). A worker launched from a background window can
+  be treated as background work and confined to the four efficiency cores at low clocks;
+  forcing EcoQoS reproduces the slowdown and the ~4 busy cores exactly.
+- Fix: `runtime.init` calls `runtime.disable_power_throttling()` (Win32
+  `SetProcessInformation`, ProcessPowerThrottling, execution speed not throttled) in every
+  worker. Scheduling only; numerical results are unchanged. `BNS_ALLOW_POWER_THROTTLING=1`
+  restores the default for comparison. Unit test added.
+- Probably the same cause: the Phase 4 outliers (216 s and 248 s among 57-66 s traces) and the
+  Phase 7 standard-profile validation stalls; those measurements are kept as recorded.
+- Operational guidance: keep the laptop on AC power in a balanced or performance power mode;
+  the laptop's i7-13620H is also hybrid (6 performance + 4 efficiency cores), so the fix
+  matters there. Re-measure with `benchmark.ps1`.

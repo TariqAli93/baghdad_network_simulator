@@ -30,7 +30,8 @@ packages = ["src/bns"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["engine: runs the real Sionna RT engine on the CPU (slow)"]
-addopts = "-m 'not engine'"
+markers = ["engine: runs the real Sionna RT engine on the CPU (slow)",
+           "app: runs every application page headless on the saved development data"]
+addopts = "-m 'not engine and not app'"
 # pyshp warns about the size field of files written by its own writer in the tests.
 filterwarnings = ["ignore::shapefile.PossiblyCorruptFileHeader"]

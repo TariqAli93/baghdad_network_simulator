@@ -68,3 +68,11 @@ def test_an_existing_result_is_replaced_only_by_a_clean_run(tmp_path):
     with pytest.raises(RuntimeError):
         runtime.run_isolated(argv, staging, final)
     assert (final / "result.txt").read_text() == "earlier good result"
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows power throttling only")
+def test_workers_opt_out_of_windows_power_throttling_unless_asked_not_to(monkeypatch):
+    # EcoQoS confined workers to the efficiency cores: 78 s became 1086 s (docs/benchmarks.md §11)
+    assert runtime.disable_power_throttling() is True
+    monkeypatch.setenv("BNS_ALLOW_POWER_THROTTLING", "1")
+    assert runtime.disable_power_throttling() is False

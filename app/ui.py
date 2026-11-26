@@ -48,6 +48,7 @@ def development_banner(label: str | None = DEV_LABEL) -> None:
 def inject_css() -> None:
     st.markdown("""
 <style>
+div.block-container, [data-testid="stMainBlockContainer"] {padding-top: 2.2rem;}
 .dev-banner {border-left: 4px solid #c96a12; background: #fff4e5; color: #6b3a06; padding: .45rem .8rem;
              font-weight: 600; letter-spacing: .02em; border-radius: 4px; margin: .2rem 0 .8rem 0;}
 div[data-testid="stMetricValue"] {font-variant-numeric: tabular-nums;}
@@ -193,3 +194,8 @@ def markdown_file(path) -> None:
         development_banner(lines[0][2:].strip())
         lines = lines[1:]
     st.markdown("\n".join("##" + ln if ln.startswith("#") else ln for ln in lines))
+
+
+def band_name(label: str, frequency_ghz: float) -> str:
+    """'4G LTE 1.8 GHz'; labels that already name their frequency are not repeated."""
+    return label if "GHz" in label else f"{label} {frequency_ghz:g} GHz"

@@ -36,6 +36,10 @@ uv run python scripts/validate_tr38901.py --area NAME   # ray tracing vs 3GPP UM
 uv run python scripts/export_matlab_case.py VALIDATION_DIR   # MATLAB cross-check package (laptop)
 uv run python scripts/compare_backends.py CPU_RUN GPU_RUN    # CPU/GPU agreement at radio level
 uv run python scripts/experiment_antenna_placement.py SINGLE_SITE_RUN   # interior vs roof-edge sectors
+.\setup.ps1 / .\doctor.ps1 / .\run.ps1 / .\benchmark.ps1   # install, diagnose, start, laptop acceptance
+uv run pytest -m app                                   # every page headless (AppTest)
+uv run python scripts/diagnose_trace_time.py           # one job timed repeatedly: compile vs trace, busy cores
+uv run python scripts/make_distribution.py             # clean archive: current commit, restricted paths removed
 uv run python scripts/import_height_dataset.py / evaluate_height_dataset.py / height_worklist.py
 uv run python scripts/run_height_sensitivity.py ...  # compare height models (see its --help)
 uv run python scripts/atmosphere_table.py            # rain and gas loss per band
@@ -89,6 +93,8 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   never combined with a reflection. Gas and rain loss are not built in.
 - Do not revert the enlarged wedge table in `sionna_engine.py`: with Sionna's default of
   10,000 slots a city scene loses more than 1 dB of diffracted power (benchmarks, E4).
+- Workers opt out of Windows power throttling (EcoQoS) in `runtime.init`; without it a worker
+  can be confined to the efficiency cores (78 s became 1,086 s, benchmarks §11). Keep it.
 - Ray counts follow the cell size (benchmarks, E5): finer cells need more rays. Time grows
   with rays, not with cells; memory stays under 1 GB either way.
 
@@ -111,6 +117,10 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 - Runs started at the same time each get a private work folder (`bns.simulation.propagation`).
 - Site planning is the SINR greedy over physical sites (`scripts/plan_sites.py`); threshold/load
   overrides are sensitivity cases (development only, recorded). Never claim a minimum site count.
+- Feature freeze since v1.0.0-rc.1: only defect fixes and approved research execution.
+- Research runs refuse unless area, radio parameters, profile (status `approved`) and backend
+  (status `production`) are approved.
+- Distribute `scripts/make_distribution.py` archives, never the repository (GBA values in history).
 - Validation categories stay separate: analytical, model-to-model (TR 38.901), MATLAB (prepared,
   not executed), field measurements (none).
 - The app (`app/`) holds UI code only; anything computed lives in `bns` (`bns.app` for run

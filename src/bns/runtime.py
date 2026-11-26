@@ -179,6 +179,34 @@ def performance_cpus(one_thread_per_core: bool = False) -> list[int]:
     return [c["cpu"] for c in fast]
 
 
+# --- Windows power throttling (EcoQoS) --------------------------------------------
+
+_PROCESS_POWER_THROTTLING = 4                    # PROCESS_INFORMATION_CLASS.ProcessPowerThrottling
+_THROTTLE_EXECUTION_SPEED = 0x1                  # PROCESS_POWER_THROTTLING_EXECUTION_SPEED
+
+
+def disable_power_throttling() -> bool:
+    """Ask Windows never to run this process with EcoQoS (efficiency cores, low clocks).
+
+    Windows 11 may treat a worker started from a background window as background work and
+    confine it to the efficiency cores of a hybrid CPU; ray tracing then ran 4-5x slower on
+    about 4 busy cores (docs/benchmarks.md, section 11). This changes scheduling only, never
+    results. Set BNS_ALLOW_POWER_THROTTLING=1 to keep the system default (for comparison).
+    """
+    if sys.platform != "win32" or os.environ.get("BNS_ALLOW_POWER_THROTTLING") == "1":
+        return False
+
+    class _State(ctypes.Structure):
+        _fields_ = [("Version", ctypes.c_ulong), ("ControlMask", ctypes.c_ulong), ("StateMask", ctypes.c_ulong)]
+
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.GetCurrentProcess.restype = ctypes.c_void_p
+    state = _State(1, _THROTTLE_EXECUTION_SPEED, 0)    # control execution speed: never throttle
+    ok = k32.SetProcessInformation(ctypes.c_void_p(k32.GetCurrentProcess()), _PROCESS_POWER_THROTTLING,
+                                   ctypes.byref(state), ctypes.sizeof(state))
+    return bool(ok)
+
+
 # --- Entry point ----------------------------------------------------------------
 
 
@@ -192,6 +220,7 @@ def init(threads: int | None = None, mem_cap_gb: float | None = None,
     Raises if mitsuba was already imported with another variant, because
     Sionna RT does not support switching variants after import.
     """
+    throttling_disabled = disable_power_throttling()
     if mem_cap_gb is not None:
         cap_memory(mem_cap_gb)
     if cpus is not None:
@@ -233,6 +262,7 @@ def init(threads: int | None = None, mem_cap_gb: float | None = None,
     return {
         "backend": backend,
         "variant": mi.variant(),
+        "power_throttling_disabled": throttling_disabled,
         "gpu": gpu_description() if backend == "gpu" else None,
         "llvm_library": None if llvm is None else str(llvm),
         "kernel_cache_dir": os.environ[CACHE_ENV],

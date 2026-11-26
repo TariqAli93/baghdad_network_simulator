@@ -35,8 +35,9 @@ with st.form("run_form"):
                         if "tahrir_bab_al_sharqi_v2" in areas else 0)
     variants = ui.variants(area) or ["osm"]
     variant = c2.selectbox("Dataset variant", variants, index=variants.index("osm") if "osm" in variants else 0)
-    profile = c3.selectbox("Profile", usable, format_func=lambda p: f"{p} — {profiles[p]['cell_size_m']} m, "
-                           f"{float(profiles[p]['rays_per_site']):.0e} rays ({profiles[p].get('status', '')})")
+    profile = c3.selectbox("Profile", usable, help="; ".join(f"{k}: {v.get('status', '')}" for k, v in profiles.items()),
+                           format_func=lambda p: f"{p} — {profiles[p]['cell_size_m']} m, "
+                           f"{float(profiles[p]['rays_per_site']):.0e} rays")
     mode = c4.selectbox("Mode", ["development", "research"],
                         help="Research mode refuses any unapproved parameter or dataset.")
     b1, b2 = st.columns([1, 3])

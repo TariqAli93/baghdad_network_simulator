@@ -94,6 +94,13 @@ def resolve_backend(requested: str, config: SimulationConfig, mode: str) -> tupl
     return ("gpu", message) if available else ("cpu", message)
 
 
+def require_research_profile(profile: Profile, mode: str) -> None:
+    """Research runs need a profile whose convergence the supervisor accepted (status 'approved')."""
+    if mode == "research" and profile.status != "approved":
+        raise ExperimentError(f"Profile '{profile.name}' is '{profile.status or 'not assessed'}', not accepted for research "
+                              "(set its status to 'approved' in configs/simulation.yaml after the supervisor's decision).")
+
+
 def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
          backend: str = "cpu") -> Experiment:
     root = Path(root)
@@ -109,6 +116,7 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
         profile = config.profile(profile_name)
     except KeyError as exc:
         raise ExperimentError(str(exc)) from exc
+    require_research_profile(profile, mode)
     label = system.label(USED, mode=mode)             # refuses unapproved values in research mode
     baseline, _ = atm.load_conditions(root / "configs" / "atmosphere.yaml")
     scene_dir = root / "data" / "scenes" / area.name / variant

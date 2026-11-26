@@ -18,7 +18,7 @@ st.caption(f"Backend: {run.backend.upper()} · profile {run.manifest['profile'][
 scen = run.scenarios
 c1, c2, c3 = st.columns([2, 2, 1])
 sid = c1.radio("Scenario", [s["id"] for s in scen], horizontal=True,
-               format_func=lambda i: next(f"{s['label']} {s['frequency_hz'] / 1e9:g} GHz" for s in scen if s["id"] == i))
+               format_func=lambda i: next(ui.band_name(s['label'], s['frequency_hz'] / 1e9) for s in scen if s["id"] == i))
 available = [k for k in ui.LAYERS if k in run.layers()]
 if not available:
     st.warning("This run has no map layers for display.")

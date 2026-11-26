@@ -1,0 +1,15 @@
+# Paths left out of the clean distribution archive (scripts/make_distribution.py).
+# Reason per entry; see docs/licensing.md. Globs are matched against repository paths.
+restricted:
+  - pattern: "outputs/datasets/*/gba_evaluation.*"
+    reason: individual GlobalBuildingAtlas heights (CC BY-NC 4.0)
+  - pattern: "outputs/datasets/*/osm+gba/*"
+    reason: height-conflict lists quoting individual GlobalBuildingAtlas heights
+  - pattern: "outputs/datasets/propagation_*osm+gba*"
+    reason: results of the GlobalBuildingAtlas dataset variant
+  - pattern: "data/raw/heights/gba/*"
+    reason: GlobalBuildingAtlas extract (never tracked since Phase 7; listed as a safeguard)
+  - pattern: "outputs/datasets/*/gba_buildings.csv"
+    reason: per-building GlobalBuildingAtlas values (safeguard)
+  - pattern: ".claude/*"
+    reason: development-tool configuration, not part of the application

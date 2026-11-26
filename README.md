@@ -6,7 +6,7 @@ SINR and Shannon rate of five scenarios (1.8, 3.5, 28 GHz and candidate 6G at 8 
 multi-site networks, site planning, validation against 3GPP TR 38.901, and a roadmap
 workspace, in a local Streamlit application.
 
-> **Status.** Software: release candidate. Science: **not approved**. The study district,
+> **Status.** Software: release candidate **v1.0.0-rc.1**. Science: **not approved**. The study district,
 > building data, radio parameters and site rule await the supervisor's decisions
 > (`docs/supervisor-decisions.md`); every result is labelled
 > **DEVELOPMENT — NOT APPROVED FOR RESEARCH**.
@@ -21,21 +21,29 @@ workspace, in a local Streamlit application.
   installed for it; without a GPU everything runs on the CPU.
 - No internet connection is needed after installation (maps use local scene coordinates).
 
-## Install
+## Install (Windows PowerShell)
+
+Unpack the release archive (or clone the repository) and, in that folder:
 
 ```
-git clone <repository> baghdad_network_simulator
-cd baghdad_network_simulator
-uv sync
-uv run pytest                    # unit tests, about 20 s
-uv run pytest -m engine          # engine tests through the real ray tracer, a few minutes
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
-The development dataset is rebuilt from the committed OpenStreetMap snapshot:
+`setup.ps1` checks for uv and LLVM (and prints the install command if one is missing; it
+installs nothing system-wide), creates the environment exactly from `uv.lock`
+(`uv sync --frozen`), builds the development dataset from the committed OpenStreetMap
+snapshot and runs the diagnostics. **Internet** is needed the first time (Python 3.13 and
+about 1 GB of packages); afterwards everything runs offline. **Administrator approval** may be
+needed only for installing LLVM through winget.
 
 ```
-uv run python scripts/build_dataset.py --area tahrir_bab_al_sharqi_v2
+.\doctor.ps1                     # environment diagnostics (PASS / WARN / FAIL), changes nothing
+.\run.ps1                        # start the application and open the browser
+.\benchmark.ps1                  # target-laptop acceptance measurements (docs/laptop-acceptance.md)
 ```
+
+Tests: `uv run pytest` (unit, about 10 s), `uv run pytest -m engine` (real ray tracer, about a
+minute), `uv run pytest -m app` (every page headless on the saved development data).
 
 (`git` must not convert line endings in `data/raw/`; `.gitattributes` takes care of it.
 If a snapshot reports a SHA-256 mismatch, check out `data/raw` again.)
@@ -43,7 +51,7 @@ If a snapshot reports a SHA-256 mismatch, check out `data/raw` again.)
 ## Run the application
 
 ```
-uv run streamlit run app/main.py
+.\run.ps1                        # or: uv run streamlit run app/main.py
 ```
 
 Open http://localhost:8501. Pages:
@@ -98,9 +106,19 @@ traces. Times on the target laptop are not yet measured (Phase 0 laptop gate).
 
 ## Where to read more
 
+For operating the tool: `docs/user-guide.md`. For the supervisor: `docs/supervisor-checklist.md`.
+For the final study: `docs/research-execution-plan.md`. For the laptop: `docs/laptop-acceptance.md`.
+Release notes and known issues: `docs/release-notes.md`. Data licences: `docs/licensing.md`.
+
 `docs/implementation-plan.md` (status per phase), `docs/architecture.md`,
 `docs/validation.md`, `docs/supervisor-decisions.md`, `docs/assumptions.md`,
 `docs/references.md` (every source, with how it was checked).
+
+## Distribution
+
+Distribute the clean archive, not the git repository: `uv run python scripts/make_distribution.py`
+writes `dist/baghdad-network-simulator-<version>.zip` from the current commit only (no history),
+without the restricted paths listed in `configs/distribution.yaml` (`docs/licensing.md`).
 
 ## Data licences
 

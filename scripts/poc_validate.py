@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -22,7 +23,9 @@ from bns import runtime
 from bns.core.units import free_space_path_gain, linear_to_db, wavelength
 
 ROOT = runtime.PROJECT_ROOT
-OUT = ROOT / "outputs" / "runs" / "phase0"
+# BNS_PHASE0_OUT redirects the records (the engine tests use a temporary folder so the
+# committed Phase 0 records are never overwritten).
+OUT = Path(os.environ["BNS_PHASE0_OUT"]) if os.environ.get("BNS_PHASE0_OUT") else ROOT / "outputs" / "runs" / "phase0"
 SCENES = ROOT / "data" / "scenes"
 
 # Provisional acceptance tolerances (to be approved by the supervisor).

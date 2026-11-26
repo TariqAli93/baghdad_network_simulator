@@ -1,0 +1,25 @@
+{
+ "type": "FeatureCollection",
+ "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.408625888557054,
+     33.32415345002664
+    ]
+   },
+   "properties": {
+    "site_id": "site-001",
+    "building_id": "way/1178630153",
+    "x_m": 11.721481905771046,
+    "y_m": -426.62190221085376,
+    "antenna_height_m": 6.0,
+    "roof_height_m": 3.0,
+    "roof_height_category": "estimated"
+   }
+  }
+ ]
+}

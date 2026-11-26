@@ -128,7 +128,7 @@ with tab_sites:
         fig.update_layout(height=380, title="Sites selected by the SINR greedy vs frequency",
                           xaxis=dict(title="frequency [GHz]", type="log"), yaxis=dict(title="sites", dtick=1), **LAYOUT)
         st.plotly_chart(fig, use_container_width=True)
-        st.dataframe([{"band": f"{p['scenario']} {p['frequency_ghz']:g} GHz", "threshold [dB]": p["threshold_db"],
+        st.dataframe([{"band": ui.band_name(p['scenario'], p['frequency_ghz']), "threshold [dB]": p["threshold_db"],
                        "load": p["load"], "sites": p["sites"], "sites per km²": round(p["site_density_per_km2"], 2),
                        "coverage": ui.fmt(p["coverage"], ".1%"), "target": ui.fmt(p["target"], ".0%"),
                        "stop": p["stopped_because"], "candidates": p["candidates"], "profile": p["profile"],
@@ -142,7 +142,7 @@ with tab_model:
         st.info("No TR 38.901 comparison saved yet (scripts/validate_tr38901.py).")
     else:
         st.caption(f"`{v['folder'].name}` — model-to-model comparison (category 2), not a validation against measurements.")
-        names = {s["id"]: f"{s['label']} {s['frequency_hz'] / 1e9:g} GHz" for s in ui.scenarios()}
+        names = {s["id"]: ui.band_name(s['label'], s['frequency_hz'] / 1e9) for s in ui.scenarios()}
         fig = go.Figure()
         for model, dash in (("UMa", "solid"), ("UMi", "dash")):
             for cls, symbol in (("LOS", "circle"), ("NLOS", "square")):

@@ -708,3 +708,54 @@ research), Phase 0 laptop gate, final convergence acceptance, MATLAB execution.
 3. Rebuild the approved district dataset; run site planning at preview, final runs at
    standard on the CPU; regenerate comparison, sensitivity and validation outputs.
 4. Write conclusions and roadmap recommendations from the approved results.
+
+---
+
+## Release candidate v1.0.0-rc.1: stabilisation and delivery readiness (2026-11-26)
+
+**Status.** Software: release candidate (feature freeze). Science: **not approved**. Laptop:
+**not tested**. Phase 7-10 was already committed as `0fb4052` (tag `v0.6.0`) with a different
+message than requested; it was not rewritten. This cycle is on branch `release-1.0.0-rc.1`.
+
+### Defects fixed
+
+1. **Slow, erratic CPU traces — root cause found.** Windows 11 power throttling (EcoQoS)
+   confined workers to the four efficiency cores: the same trace took 87 s on 13.6 busy cores,
+   then 392 s on 4.8; forcing EcoQoS reproduced it (1,086 s on 3.8 cores); with the worker
+   opted out, three calls took 76-80 s on ~15 cores. Fix in `runtime.init` (scheduling only),
+   unit test, `docs/benchmarks.md` §11. A later uncached five-band run traced in 114 s against
+   an estimate of 119 s (previously 70 % overhead).
+2. **Research-mode gap:** research runs now also require a profile accepted for research.
+3. **Engine tests overwrote the committed Phase 0 records:** now write to a temporary folder.
+4. **UI:** Overview status table out of date; duplicated frequencies in scenario names;
+   truncated profile labels; excessive top padding at laptop size.
+
+### Added for delivery (no new features)
+
+`setup.ps1`, `doctor.ps1` (+ `scripts/doctor.py`), `run.ps1`, `benchmark.ps1`,
+`scripts/diagnose_trace_time.py`, `scripts/make_distribution.py` with
+`configs/distribution.yaml`; headless page tests (`pytest -m app`); documents:
+`docs/licensing.md`, `docs/supervisor-checklist.md`, `docs/research-execution-plan.md`,
+`docs/laptop-acceptance.md`, `docs/user-guide.md`, `docs/release-notes.md`; a Reports-page
+warning for runs derived from non-commercial data.
+
+### Regression verification (development PC)
+
+| Check | Result |
+|---|---|
+| Unit tests | 275 passed |
+| Engine tests | 6 passed (47 s); Phase 0 records untouched |
+| Application pages (headless AppTest) | 12 passed: all 10 pages, research refusal, export controls |
+| Browser check at 1280 × 720 | Overview, Run simulation, Coverage, Site planning laid out correctly after the fixes |
+| CPU execution, uncached | 15 traces 114 s; workers recorded `power_throttling_disabled: true`, 16 threads |
+| GPU execution, uncached | 15 traces 16 s |
+| CPU vs GPU (second, harder case) | median \|Δ\| ≤ 0.02 dB, p95 1.0-1.2 dB, single cells up to 26 dB, 0-4 of 808 cells change class: not interchangeable cell by cell (GPU stays development-only) |
+| Cached execution, cancellation, concurrent isolation, comparability warnings | unit tests (runner, control, differences) and earlier UI checks; the user also cancelled a run from the app |
+| Site planning | four saved plans re-evaluated from cache in the app |
+| Exports | HTML report built for all 11 saved runs (label and limitations present); every CSV starts with the label; no run folder contains restricted data |
+| Distribution archive | see the commit report below |
+
+### Remaining before final delivery
+
+Supervisor decisions (`docs/supervisor-checklist.md`); laptop acceptance (`benchmark.ps1`);
+MATLAB case on the laptop; then `docs/research-execution-plan.md`.

@@ -57,3 +57,12 @@ def test_research_runs_refuse_a_backend_that_is_not_production(monkeypatch):
     assert ex.resolve_backend("auto", config(), "research")[0] == "cpu"
     approved = dataclasses.replace(config(), backends={**BACKENDS, "gpu": {"status": "production"}})
     assert ex.resolve_backend("gpu", approved, "research")[0] == "gpu"
+
+
+def test_research_runs_require_a_profile_accepted_for_research():
+    from bns.simulation.setup import Profile
+
+    with pytest.raises(ex.ExperimentError, match="not accepted for research"):
+        ex.require_research_profile(Profile("standard", 10.0, 10**9, "borderline convergence"), "research")
+    ex.require_research_profile(Profile("standard", 10.0, 10**9, "borderline convergence"), "development")
+    ex.require_research_profile(Profile("standard", 10.0, 10**9, "approved"), "research")
