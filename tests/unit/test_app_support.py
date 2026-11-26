@@ -82,3 +82,22 @@ def test_runs_that_differ_in_profile_or_load_override_are_flagged_as_not_compara
     b.manifest["profile"] = {"name": "standard", "cell_size_m": 10, "rays_per_site": 1e9}
     b.manifest["overrides_for_sensitivity"] = {"interference_activity": 0.5}
     assert results.differences(a, b) == ["profile", "sensitivity overrides"]
+
+
+def test_invalidated_runs_are_kept_marked_and_listed_after_valid_ones(tmp_path):
+    fake_run(tmp_path, "bad", "2026-11-03T00:00:00+00:00")
+    fake_run(tmp_path, "good", "2026-11-01T00:00:00+00:00")
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "invalidated_runs.yaml").write_text("runs:\n  bad: monument sites\n", encoding="utf-8")
+    runs = results.list_runs(tmp_path)
+    assert [r.run_id for r in runs] == ["good", "bad"]            # kept, but never the default
+    assert runs[1].invalid == "monument sites" and runs[0].invalid is None
+
+
+def test_evidence_tables_leave_invalid_runs_out(tmp_path):
+    from bns.app import evidence
+
+    fake_run(tmp_path, "bad", "2026-11-03T00:00:00+00:00", kind="multi_site")
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "invalidated_runs.yaml").write_text("runs:\n  bad: monument sites\n", encoding="utf-8")
+    assert evidence.valid_runs(tmp_path) == []

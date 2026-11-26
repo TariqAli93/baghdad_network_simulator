@@ -20,7 +20,7 @@ except ValueError:
     notes = {}
     st.error(f"{NOTES} could not be read; it will be overwritten only when you save.")
 
-runs = [ui.run(p) for p in ui.run_list()]
+runs = [ui.run(p) for p in ui.run_list() if not ui.run(p).invalid]          # invalidated runs are not evidence
 networks = [r for r in runs if r.kind in ("multi_site", "single_site")]
 plans = evidence.site_plans(ui.ROOT)
 validation = evidence.validation_summary(ui.ROOT)

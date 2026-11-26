@@ -112,6 +112,8 @@ the criterion physically equal across bandwidths.
 needed for power, noise, threshold, target or load; antenna pattern, sectors and downtilt
 are traced, so changing them re-traces.
 
+> **Invalid for research interpretation (2026-11-27).** These numbers come from runs that put sites or candidates on two monuments (Freedom Monument, Faeq Hassan mural); see `configs/invalidated_runs.yaml`. They are kept as a historical record of how the method behaves, not as evidence.
+
 **New evidence (Phase 6).** In the four-site development run every band is
 interference-limited at full load (median SINR about 4 dB) yet coverage at SINR ≥ −10 dB stays
 at 99.6-100 %: the threshold does not separate one site from four, so the SINR greedy stops
@@ -119,6 +121,8 @@ after one site in four of five bands. If the study is to find the site *count* p
 either a stricter coverage criterion (for example a rate or SINR at the cell edge) or a load
 below 1.0 must be chosen, and the choice must be the same for all bands. Both are
 re-evaluated from the cache without tracing (Site planning page).
+
+> **Invalid for research interpretation (2026-11-27).** These numbers come from runs that put sites or candidates on two monuments (Freedom Monument, Faeq Hassan mural); see `configs/invalidated_runs.yaml`. They are kept as a historical record of how the method behaves, not as evidence.
 
 **Sensitivity analysis (Phase 7, cached maps, four development sites).** Thresholds −10 to
 +6 dB × loads 1.0 / 0.5 / 0.2 (only −10 dB and loads 1.0, 0.5 are sourced; the rest is a

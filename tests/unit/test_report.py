@@ -24,3 +24,10 @@ def test_report_keeps_the_development_label_and_embeds_figures(tmp_path):
     assert page.count("DEVELOPMENT — NOT APPROVED FOR RESEARCH") == 2       # top and bottom
     assert "data:image/png;base64," in page and "candidate" in page
     assert "Scientific limitations" in page and "Shannon rates are theoretical upper bounds" in page
+
+
+def test_report_of_an_invalid_run_says_so_at_the_top(tmp_path):
+    (tmp_path / "manifest.json").write_text(json.dumps({"label": "DEVELOPMENT — NOT APPROVED FOR RESEARCH",
+                                                        "run_id": "r1"}), encoding="utf-8")
+    page = build_html(tmp_path, invalid_reason="monument sites")
+    assert page.index("INVALID FOR RESEARCH INTERPRETATION") < page.index("<h1>") and "monument sites" in page

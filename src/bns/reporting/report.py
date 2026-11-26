@@ -77,12 +77,15 @@ def markdown_to_html(md: str) -> str:
     return "\n".join(out)
 
 
-def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None) -> str:
+def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
+               invalid_reason: str | None = None) -> str:
     run_dir = Path(run_dir)
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     label = manifest.get("label", "")
     parts = [f"<!doctype html><html><head><meta charset='utf-8'><title>Report {html.escape(manifest.get('run_id', run_dir.name))}"
              f"</title><style>{_CSS}</style></head><body>",
+             (f"<div class='label' style='border-color:#b00020;background:#fde7ea;color:#7a0014'>INVALID FOR RESEARCH "
+              f"INTERPRETATION: {html.escape(invalid_reason)}</div>" if invalid_reason else ""),
              f"<div class='label'>{html.escape(label)}</div>",
              f"<h1>Baghdad Network Simulator — run report</h1><p><code>{html.escape(manifest.get('run_id', run_dir.name))}</code>"
              f" · created {html.escape(manifest.get('created_utc', ''))}</p>"]

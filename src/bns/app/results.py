@@ -34,11 +34,23 @@ COMPARABLE = {
 }
 
 
+def invalidated(root: Path) -> dict[str, str]:
+    """run id -> reason, from configs/invalidated_runs.yaml (runs kept but not to be interpreted)."""
+    import yaml
+
+    path = Path(root) / "configs" / "invalidated_runs.yaml"
+    if not path.exists():
+        return {}
+    return {str(k): str(v) for k, v in ((yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("runs")
+                                        or {}).items()}
+
+
 @dataclass
 class Run:
     path: Path
     manifest: dict
     summary: dict
+    invalid: str | None = None       # reason, when the run is invalid for research interpretation
 
     @property
     def run_id(self) -> str:
@@ -127,6 +139,7 @@ def load_run(path: Path) -> Run:
 
 def list_runs(root: Path) -> list[Run]:
     """Every complete run under outputs/runs/{development,research}, newest first."""
+    bad = invalidated(root)
     runs = []
     for mode in ("research", "development"):
         folder = Path(root) / "outputs" / "runs" / mode
@@ -140,8 +153,11 @@ def list_runs(root: Path) -> list[Run]:
             except (ValueError, KeyError):
                 continue
             if (d / ARRAYS.get(run.kind, "")).exists():
+                run.invalid = bad.get(run.run_id)
                 runs.append(run)
-    return sorted(runs, key=lambda r: r.manifest.get("created_utc", ""), reverse=True)
+    # newest first, invalid runs after every valid one (kept for reproducibility, never the default)
+    runs.sort(key=lambda r: r.manifest.get("created_utc", ""), reverse=True)
+    return [r for r in runs if not r.invalid] + [r for r in runs if r.invalid]
 
 
 def differences(a: Run, b: Run) -> list[str]:

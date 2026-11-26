@@ -110,7 +110,7 @@ def run(path: str) -> results.Run:
 def run_title(r: results.Run) -> str:
     m = r.manifest
     sites = len(r.sites)
-    return (f"{m.get('created_utc', '')[:16].replace('T', ' ')} · {'multi' if r.kind == 'multi_site' else 'single'}-site "
+    return (('INVALID · ' if r.invalid else '') + f"{m.get('created_utc', '')[:16].replace('T', ' ')} · {'multi' if r.kind == 'multi_site' else 'single'}-site "
             f"({sites} site{'s' if sites != 1 else ''}) · {m['profile']['name']} · {m['area']['name']}/{m['area'].get('variant', '')}")
 
 
@@ -121,6 +121,8 @@ def pick_run(key: str, *, kinds: tuple[str, ...] = ("single_site", "multi_site")
                 "(or with `scripts/run_multi_site.py`).")
         return None
     chosen = st.selectbox("Saved run", paths, format_func=lambda p: run_title(run(p)), key=key)
+    if run(chosen).invalid:
+        st.error(f"INVALID FOR RESEARCH INTERPRETATION: {run(chosen).invalid} Kept for reproducibility only.")
     return run(chosen)
 
 

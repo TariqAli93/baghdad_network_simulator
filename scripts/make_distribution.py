@@ -43,6 +43,11 @@ def main() -> int:
     describe = subprocess.run(["git", "describe", "--tags", "--always", args.ref], cwd=ROOT, capture_output=True,
                               text=True).stdout.strip() or commit
     patterns = yaml.safe_load((ROOT / "configs" / "distribution.yaml").read_text(encoding="utf-8"))["restricted"]
+    # invalidated runs are not demonstration results: leave them out of the archive
+    bad = (yaml.safe_load((ROOT / "configs" / "invalidated_runs.yaml").read_text(encoding="utf-8")) or {}).get("runs") \
+        if (ROOT / "configs" / "invalidated_runs.yaml").exists() else {}
+    patterns = patterns + [{"pattern": f"outputs/runs/*/{rid}/*", "reason": "invalidated run (configs/invalidated_runs.yaml)"}
+                           for rid in (bad or {})]
     raw = subprocess.run(["git", "archive", "--format=zip", args.ref], cwd=ROOT, capture_output=True, check=True).stdout
     source = zipfile.ZipFile(io.BytesIO(raw))
     out_dir = ROOT / "dist"

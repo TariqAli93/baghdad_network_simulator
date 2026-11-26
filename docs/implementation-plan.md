@@ -532,6 +532,8 @@ labelled DEVELOPMENT — NOT APPROVED FOR RESEARCH.
 
 ### Multi-site development experiment
 
+> **Invalid for research interpretation (2026-11-27).** These numbers come from runs that put sites or candidates on two monuments (Freedom Monument, Faeq Hassan mural); see `configs/invalidated_runs.yaml`. They are kept as a historical record of how the method behaves, not as evidence.
+
 `outputs/runs/development/multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T113044Z/`
 — **DEVELOPMENT — NOT APPROVED FOR RESEARCH.** Four sites on the four receiver-area roofs
 with observed heights of at least 10 m (55, 15, 12, 10 m; 3 m masts), three sectors each,
@@ -623,6 +625,8 @@ saved-run loading, plot style.
    change, 5th-percentile rate within 1.2 %; 16× faster (`docs/validation.md` §7).
 2. **Defect fixed:** concurrent runs shared batch files in `data/cache/work`; each call now
    has a private folder (regression test added).
+> **Invalid for research interpretation (2026-11-27).** These numbers come from runs that put sites or candidates on two monuments (Freedom Monument, Faeq Hassan mural); see `configs/invalidated_runs.yaml`. They are kept as a historical record of how the method behaves, not as evidence.
+
 3. **Sensitivity** (`scripts/run_sensitivity.py`, cached maps): thresholds −10…+6 dB × loads
    1.0/0.5/0.2. At full load and 0 dB four sites cover less than one (1.8 GHz 82 % vs 100 %);
    only at 28 GHz do more sites raise coverage at thresholds up to 0 dB. An *illustrative*
@@ -851,3 +855,15 @@ Remaining gates: field observations (stage 1, then stage 2), supervisor confirma
 items), written approval, laptop acceptance, MATLAB on the final scene (the current package uses
 the development scene and must be regenerated with `scripts/export_matlab_case.py` from a
 TR 38.901 run on the final dataset), then the research execution plan.
+
+### Addendum: invalidated runs (2026-11-27)
+
+The confirmed monument defect invalidates eight saved runs for research interpretation
+(`configs/invalidated_runs.yaml`): the three four-site development runs, the four-site
+rehearsal on the study dataset, and the four site plans. Their files are unchanged; the
+application lists them after valid runs, marks them INVALID with the reason, leaves them out of
+the roadmap and sensitivity evidence, and states the reason at the top of their printable
+report; the clean distribution leaves them out of the demonstration results. Still valid as
+development demonstrations: the standard single-site run (tower), the three one-site runs, the
+antenna-placement experiment and the TR 38.901 comparison. The CPU/GPU agreement measured in an
+invalidated run remains valid as an engine comparison only.

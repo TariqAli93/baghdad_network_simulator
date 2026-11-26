@@ -52,6 +52,8 @@ Status key: ☐ open · ☑ approved (write the decision and date).
 | **Network load** | 1.0 (full buffer) | ITU-R M.2412; M.2292 uses 0.5 | **decides the site count** with the threshold | ☐ |
 | Interference | reuse 1, co-located sectors interfere, strongest sector serves, no scheduler | M.2412, M.2292 | worst case | ☐ |
 
+> **Invalid for research interpretation (2026-11-27).** These numbers come from runs that put sites or candidates on two monuments (Freedom Monument, Faeq Hassan mural); see `configs/invalidated_runs.yaml`. They are kept as a historical record of how the method behaves, not as evidence.
+
 Sensitivity (development): site counts 1/1/1/1/2 (1.8/3.5/8/15/28 GHz) at −10 dB and full load;
 1/1/1/2/3 at 0 dB. Choose threshold and load **on their merits before seeing final results**.
 

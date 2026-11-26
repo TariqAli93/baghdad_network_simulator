@@ -115,7 +115,7 @@ with e3:
     st.markdown("**Printable report**")
     extra = {"Latest TR 38.901 comparison": (validation["folder"] / "summary.md").read_text(encoding="utf-8")} \
         if validation else {}
-    html = build_html(run.path, extra_markdown=extra)
+    html = build_html(run.path, extra_markdown=extra, invalid_reason=run.invalid)
     st.download_button("Report (HTML, print to PDF)", html.encode("utf-8"), file_name=f"report-{run.run_id}.html",
                        mime="text/html")
     st.caption("Self-contained; keeps the label, provenance and the limitations below.")

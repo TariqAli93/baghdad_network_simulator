@@ -157,7 +157,7 @@ with tab_model:
                      hide_index=True, use_container_width=True)
 
 with tab_sens:
-    candidates = [ui.run(p) for p in ui.run_list() if (ui.run(p).path / "sensitivity.json").exists()]
+    candidates = [ui.run(p) for p in ui.run_list() if (ui.run(p).path / "sensitivity.json").exists() and not ui.run(p).invalid]
     if not candidates:
         st.info("No sensitivity analysis saved (scripts/run_sensitivity.py RUN_DIR).")
     else:

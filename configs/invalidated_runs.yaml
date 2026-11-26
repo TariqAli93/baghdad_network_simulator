@@ -1,0 +1,23 @@
+# Saved runs that must not be used for research interpretation. Their files are kept unchanged
+# for reproducibility; the application marks them INVALID, leaves them out of evidence tables
+# and default selections, the printable report states the reason, and the clean distribution
+# (scripts/make_distribution.py) leaves them out of the demonstration results.
+#
+# Defect confirmed 2026-11-27 (docs/fieldwork-prioritisation.md): two "candidate rooftops" were
+# monuments mapped as buildings -- the Freedom Monument (way/1154123513) and the Faeq Hassan
+# mural (way/939812415). Every run that placed a site or a candidate on them is invalid.
+# The CPU/GPU numerical agreement measured in one of them remains valid as an engine
+# comparison (it does not depend on where the sites are), but not as a coverage result.
+reason_monument_sites: &monument >-
+  Sites or candidates on monuments (Freedom Monument way/1154123513, Faeq Hassan mural
+  way/939812415) mapped as buildings; invalid for research interpretation (defect confirmed
+  2026-11-27).
+runs:
+  multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T113044Z: *monument
+  multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T115405Z: *monument
+  multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T121714Z: *monument
+  multi_site-tahrir_bab_al_sharqi_study-osm+fp_3d_globfp-preview-4sites-20261126T150702Z: *monument
+  site_plan-tahrir_bab_al_sharqi_v2-osm-preview-20cand-gpu-20261126T120641Z: *monument
+  site_plan-tahrir_bab_al_sharqi_v2-osm-preview-20cand-gpu-20261126T120649Z: *monument
+  site_plan-tahrir_bab_al_sharqi_v2-osm-preview-20cand-gpu-20261126T120657Z: *monument
+  site_plan-tahrir_bab_al_sharqi_v2-osm-preview-20cand-gpu-20261126T120705Z: *monument

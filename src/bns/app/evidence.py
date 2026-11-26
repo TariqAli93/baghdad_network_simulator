@@ -12,6 +12,11 @@ from pathlib import Path
 from bns.app import results
 
 
+def valid_runs(root: Path) -> list[results.Run]:
+    """Saved runs that may be used as evidence (invalidated runs left out)."""
+    return [r for r in results.list_runs(root) if not r.invalid]
+
+
 def band_table(run: results.Run) -> list[dict]:
     rows = []
     for sc in run.scenarios:
@@ -32,7 +37,7 @@ def band_table(run: results.Run) -> list[dict]:
 def site_plans(root: Path) -> list[dict]:
     """One row per saved site plan and scenario: sites selected, density, stop reason, assumptions."""
     rows = []
-    for run in results.list_runs(root):
+    for run in valid_runs(root):
         if run.kind != "site_plan":
             continue
         m = run.manifest
