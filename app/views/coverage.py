@@ -11,12 +11,18 @@ run = ui.pick_run("coverage-run")
 if run is None:
     st.stop()
 ui.development_banner(run.label)
+st.caption(f"Backend: {run.backend.upper()} · profile {run.manifest['profile']['name']} · "
+           + ("site plan: maps show the final selection of each scenario" if run.kind == "site_plan" else
+              f"{len(run.sites)} site(s)"))
 
 scen = run.scenarios
 c1, c2, c3 = st.columns([2, 2, 1])
 sid = c1.radio("Scenario", [s["id"] for s in scen], horizontal=True,
                format_func=lambda i: next(f"{s['label']} {s['frequency_hz'] / 1e9:g} GHz" for s in scen if s["id"] == i))
 available = [k for k in ui.LAYERS if k in run.layers()]
+if not available:
+    st.warning("This run has no map layers for display.")
+    st.stop()
 layer = c2.selectbox("Layer", available, format_func=lambda k: ui.LAYERS[k][0],
                      index=available.index("sinr_db") if "sinr_db" in available else 0)
 show_buildings = c3.toggle("Buildings", value=True)
@@ -35,13 +41,16 @@ if show_buildings:
 
 left, right = st.columns([3, 1])
 with left:
-    st.plotly_chart(ui.map_figure(grid, z, outdoor, layer=layer, sites=run.sites, azimuths=run.sector_azimuths_rad,
+    st.plotly_chart(ui.map_figure(grid, z, outdoor, layer=layer, sites=run.sites_for(sid), azimuths=run.sector_azimuths_rad,
                                   footprints=footprints), use_container_width=True)
 with right:
     s = run.scenario_summary(sid)
     sc = next(x for x in scen if x["id"] == sid)
     st.markdown(f"#### {sc['label']}")
     st.caption(f"{sc['frequency_hz'] / 1e9:g} GHz · {sc['bandwidth_hz'] / 1e6:g} MHz · {sc['status']}")
+    if not s:
+        st.warning("No site was selected for this scenario.")
+        st.stop()
     st.metric("Coverage", ui.fmt(s["coverage_fraction"], ".1%"),
               help=f"Outdoor cells with {s['coverage_definition']} ≥ {s['coverage_threshold']:g}")
     st.metric("Median SINR", ui.fmt(s["sinr_db_median"], ".1f", " dB"))
@@ -66,5 +75,5 @@ if layer not in ("covered", "serving_site", "serving_sector"):
     st.plotly_chart(fig, use_container_width=True)
     st.caption(f"Cells without any path ({int((~np.isfinite(values)).sum())}) are left out of this curve.")
 
-with st.expander("Sites"):
-    st.dataframe(run.sites, hide_index=True, use_container_width=True)
+with st.expander("Sites" + (" (selected for this scenario)" if run.kind == "site_plan" else "")):
+    st.dataframe(run.sites_for(sid), hide_index=True, use_container_width=True)

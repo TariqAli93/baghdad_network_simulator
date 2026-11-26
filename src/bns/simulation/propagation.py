@@ -45,8 +45,20 @@ def compute(jobs: list[PropagationJob], cache: PathGainCache, *, work_dir: Path,
     on_progress(done, total, info) is called after each traced job; total counts
     only the jobs that were not cached.
     """
-    work_dir = Path(work_dir)
-    work_dir.mkdir(parents=True, exist_ok=True)
+    # A private folder per call: runs started at the same time never share batch files.
+    import uuid
+
+    work_dir = Path(work_dir) / f"run-{os.getpid()}-{uuid.uuid4().hex[:8]}"
+    work_dir.mkdir(parents=True, exist_ok=False)
+    try:
+        return _compute(jobs, cache, work_dir, on_progress, should_cancel, max_attempts, batch_size, threads,
+                        worker_module)
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+def _compute(jobs, cache, work_dir, on_progress, should_cancel, max_attempts, batch_size, threads,
+             worker_module) -> dict[str, np.ndarray]:
     unique = {job.key(): job for job in jobs}
     missing = [job for key, job in unique.items() if not cache.has(key)]
     done = 0

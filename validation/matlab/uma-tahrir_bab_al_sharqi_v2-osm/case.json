@@ -1,0 +1,56 @@
+{
+  "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+  "case": "uma-tahrir_bab_al_sharqi_v2-osm",
+  "source_run": "outputs\\validation\\tr38901-tahrir_bab_al_sharqi_v2-osm-preview-20261126T130157Z",
+  "coordinates": "scene metres: x east, y north, z up; origin at the study-area centre (33.328, 44.4085), local transverse Mercator",
+  "transmitter": {
+    "position_m": [
+      0.0,
+      0.0,
+      25.0
+    ],
+    "antenna": "isotropic",
+    "polarization": "V",
+    "power_w": 1
+  },
+  "frequencies_hz": [
+    3500000000.0,
+    28000000000.0
+  ],
+  "bands": [
+    "nr_3500",
+    "nr_28000"
+  ],
+  "receivers": {
+    "count": 200,
+    "height_m": 1.5,
+    "antenna": "isotropic",
+    "selection": "up to 100 LOS and 100 NLOS outdoor cell centres, seed 0"
+  },
+  "materials": {
+    "buildings": "ITU-R P.2040 concrete, 0.2 m slab in Sionna",
+    "ground": "ITU-R P.2040 concrete, 1.0 m slab in Sionna"
+  },
+  "mechanisms": {
+    "max_depth": 2,
+    "los": true,
+    "specular_reflection": true,
+    "diffraction": true,
+    "refraction": false,
+    "diffuse_reflection": false,
+    "edge_diffraction": false
+  },
+  "sionna": {
+    "profile": {
+      "name": "preview",
+      "cell_size_m": 25.0,
+      "rays_per_site": 100000000,
+      "status": "validated for development"
+    },
+    "engine": "Sionna RT 2.2.0, RadioMapSolver"
+  },
+  "expected_metrics": [
+    "mean, median and RMSE of MATLAB minus Sionna path loss, per band and LOS class",
+    "share of receivers reached by one engine only"
+  ]
+}

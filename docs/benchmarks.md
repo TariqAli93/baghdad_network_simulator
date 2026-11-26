@@ -325,3 +325,22 @@ it is a scope decision for the supervisor, not taken here.
 (median 8.0 s), 808 s wall in total; worker start-up, scene loading and first-compilation
 retries add 70 % on top of the trace times (44 % in the standard single-site run). Peak
 worker commit 0.86 GB.
+
+## 10. Phase 7 timings and an open performance anomaly
+
+- **GPU backend in production code** (`--backend gpu`): the four-site preview experiment (60
+  traces) took 50 s of tracing on the RTX 3060 against 808 s on the CPU (16×); the 20-candidate
+  site plan traced 240 new maps at a median 0.5-0.6 s each (about 2-3 minutes; the wall time of
+  that run was not kept because its folder was regenerated from the cache). Agreement:
+  `docs/validation.md` §7.
+- **Anomaly, not explained.** Isotropic transmitters near the ground-level centre of the area
+  (TR 38.901 validation) traced slowly and erratically on the CPU: at the standard profile one
+  3.5 GHz job took 306 s, then 752 s on a retry, then over 10 minutes, with the worker using
+  only about 4 of 16 cores; at the preview profile the first jobs took 98-112 s (1.8 GHz) and
+  47 s (3.5 GHz at 25 m), all later ones 1-8 s. A worker crash in that batch also forced each
+  retry to repeat the slow first job; the validation script now traces one job per worker.
+  Possible causes (not verified): kernel compilation for a new antenna/mechanism combination,
+  or contention when many rays land in few cells around an isotropic source. Sector antennas
+  on rooftops did not show it (57-66 s per standard trace). To be re-measured on the laptop.
+- **Concurrency defect fixed.** Two runs started together shared `data/cache/work/batch-*.json`
+  and one deleted the other's batch file; every runner call now uses its own sub-folder.

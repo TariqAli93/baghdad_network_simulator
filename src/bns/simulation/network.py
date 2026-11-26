@@ -101,3 +101,20 @@ def sites_alone(path_gain_stack, sector_site, outdoor, inputs: RadioInputs, extr
         own = sector_site == s
         results.append(network(stack[own], np.zeros(int(own.sum()), dtype=int), outdoor, inputs, loss[own]))
     return results
+
+
+def equal_share_rate_bps(rate_bps, serving_sector, outdoor) -> np.ndarray:
+    """ILLUSTRATIVE ONLY: one user per served outdoor cell, each sector shared equally in time.
+
+    The Shannon rate of a cell divided by the number of outdoor cells its sector serves.
+    Not a scheduler, traffic or capacity model; it only shows that adding sites splits
+    the users among more sectors, which the full-carrier Shannon bound cannot show.
+    Unserved cells get 0.
+    """
+    rate = np.asarray(rate_bps, dtype=float)
+    serving = np.asarray(serving_sector)
+    served = np.asarray(outdoor, dtype=bool) & (serving >= 0)
+    counts = np.bincount(serving[served], minlength=int(serving.max()) + 1 if served.any() else 1)
+    out = np.zeros_like(rate)
+    out[served] = rate[served] / counts[serving[served]]
+    return out

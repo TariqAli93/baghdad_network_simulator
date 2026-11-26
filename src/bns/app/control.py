@@ -39,7 +39,8 @@ class RunState:
 
 def build_argv(root: Path, request: dict) -> list[str]:
     argv = [sys.executable, str(Path(root) / SCRIPT), "--area", request["area"], "--variant", request["variant"],
-            "--profile", request["profile"], "--mode", request["mode"]]
+            "--profile", request["profile"], "--mode", request["mode"],
+            "--backend", request.get("backend", "cpu")]
     if request.get("buildings"):
         argv += ["--buildings", *request["buildings"]]
     else:

@@ -32,6 +32,7 @@ class SimulationConfig:
     mechanisms: Mechanisms
     seeds: tuple[int, ...]
     polarization: str
+    backends: dict | None = None        # name -> {status, basis}
 
     @classmethod
     def load(cls, path: Path) -> "SimulationConfig":
@@ -43,7 +44,7 @@ class SimulationConfig:
             profiles[name] = Profile(name, float(p["cell_size_m"]), int(float(p["rays_per_site"])),
                                      str(p.get("status", "")))
         return cls(profiles, Mechanisms(**data["mechanisms"]), tuple(data["seeds"]),
-                   data["polarization"])
+                   data["polarization"], data.get("backends") or {"cpu": {"status": "production"}})
 
     def profile(self, name: str) -> Profile:
         if name not in self.profiles:
@@ -63,10 +64,11 @@ def sector_antennas(system: RadioSystem, *, mode: str, polarization: str) -> lis
 
 
 def site_jobs(scene_dir: Path | None, frequency_hz: float, position_m, antennas: list[Antenna],
-              grid: Grid, config: SimulationConfig, rays_per_site: int) -> list[PropagationJob]:
+              grid: Grid, config: SimulationConfig, rays_per_site: int,
+              backend: str = "cpu") -> list[PropagationJob]:
     """One propagation job per antenna (sector) of one site at one frequency."""
     fingerprint = scene_fingerprint(scene_dir)
-    engine = engine_fingerprint()
+    engine = engine_fingerprint(backend)
     return [PropagationJob(fingerprint, None if scene_dir is None else str(scene_dir),
                            float(frequency_hz), tuple(float(v) for v in position_m), antenna, grid,
                            config.mechanisms, int(rays_per_site), config.seeds, engine)

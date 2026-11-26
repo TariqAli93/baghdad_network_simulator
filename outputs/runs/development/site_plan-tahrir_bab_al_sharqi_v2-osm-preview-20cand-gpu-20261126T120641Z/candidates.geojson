@@ -1,0 +1,386 @@
+{
+ "type": "FeatureCollection",
+ "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.406589287667806,
+     33.32681674742637
+    ]
+   },
+   "properties": {
+    "site_id": "site-001",
+    "building_id": "way/919688856",
+    "x_m": -177.90098845773826,
+    "y_m": -131.23326489986027,
+    "antenna_height_m": 58.0,
+    "roof_height_m": 55.0,
+    "roof_height_category": "observed"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.40919286631677,
+     33.32824820027207
+    ]
+   },
+   "properties": {
+    "site_id": "site-002",
+    "building_id": "way/1154123513",
+    "x_m": 64.50975641723304,
+    "y_m": 27.52818343388453,
+    "antenna_height_m": 18.0,
+    "roof_height_m": 15.0,
+    "roof_height_category": "observed"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.40665933833432,
+     33.33058270000501
+    ]
+   },
+   "properties": {
+    "site_id": "site-003",
+    "building_id": "way/645196998",
+    "x_m": -171.37139764122523,
+    "y_m": 286.449624723827,
+    "antenna_height_m": 15.0,
+    "roof_height_m": 12.0,
+    "roof_height_category": "observed"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.41202100000623,
+     33.330462050003376
+    ]
+   },
+   "properties": {
+    "site_id": "site-004",
+    "building_id": "way/939812415",
+    "x_m": 327.81664072830665,
+    "y_m": 273.07231253455836,
+    "antenna_height_m": 13.0,
+    "roof_height_m": 10.0,
+    "roof_height_category": "observed"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.40679267878299,
+     33.32855340110703
+    ]
+   },
+   "properties": {
+    "site_id": "site-005",
+    "building_id": "way/901843512",
+    "x_m": -158.96066699446712,
+    "y_m": 61.379191149184976,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.40404593202806,
+     33.33235579120009
+    ]
+   },
+   "properties": {
+    "site_id": "site-006",
+    "building_id": "way/1177380354",
+    "x_m": -414.6793547461202,
+    "y_m": 483.1111693057575,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.40445165905769,
+     33.32927395059809
+    ]
+   },
+   "properties": {
+    "site_id": "site-007",
+    "building_id": "way/1177122281",
+    "x_m": -376.91892608424837,
+    "y_m": 141.30158394000202,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.408259538742044,
+     33.326474350604464
+    ]
+   },
+   "properties": {
+    "site_id": "site-008",
+    "building_id": "way/863860517",
+    "x_m": -22.388751074534625,
+    "y_m": -169.21019745704768,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.40586343297857,
+     33.33183825225985
+    ]
+   },
+   "properties": {
+    "site_id": "site-009",
+    "building_id": "way/763390920",
+    "x_m": -245.46917166486543,
+    "y_m": 425.70497477054164,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.40861627976929,
+     33.329933700392324
+    ]
+   },
+   "properties": {
+    "site_id": "site-010",
+    "building_id": "way/901843571",
+    "x_m": 10.826092973284512,
+    "y_m": 214.46734520955152,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.41366111292733,
+     33.33039440473327
+    ]
+   },
+   "properties": {
+    "site_id": "site-011",
+    "building_id": "way/1239352072",
+    "x_m": 480.51690066480114,
+    "y_m": 265.57610886985054,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.41015699572419,
+     33.33224465059562
+    ]
+   },
+   "properties": {
+    "site_id": "site-012",
+    "building_id": "way/903940623",
+    "x_m": 154.2685909410004,
+    "y_m": 470.7768910073782,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.405101842742994,
+     33.32752715026916
+    ]
+   },
+   "properties": {
+    "site_id": "site-013",
+    "building_id": "way/901843501",
+    "x_m": -316.39018559704346,
+    "y_m": -52.438752281887716,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.411790002737185,
+     33.32533135019436
+    ]
+   },
+   "properties": {
+    "site_id": "site-014",
+    "building_id": "way/903940609",
+    "x_m": 306.32799075890944,
+    "y_m": -295.97587587921544,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.41111017873762,
+     33.32886930023694
+    ]
+   },
+   "properties": {
+    "site_id": "site-015",
+    "building_id": "way/903940647",
+    "x_m": 243.02061716519705,
+    "y_m": 96.41740509497295,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.407381708704555,
+     33.332365401921265
+    ]
+   },
+   "properties": {
+    "site_id": "site-016",
+    "building_id": "way/903940627",
+    "x_m": -104.1143208050641,
+    "y_m": 484.1687995437021,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.40364609089937,
+     33.3307479500828
+    ]
+   },
+   "properties": {
+    "site_id": "site-017",
+    "building_id": "way/1177122203",
+    "x_m": -451.9133701129035,
+    "y_m": 304.78657521612155,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.4126694707922,
+     33.33232110160969
+    ]
+   },
+   "properties": {
+    "site_id": "site-018",
+    "building_id": "way/1537448669",
+    "x_m": 388.18315162850377,
+    "y_m": 479.26263778455734,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.410211337333706,
+     33.32648484805527
+    ]
+   },
+   "properties": {
+    "site_id": "site-019",
+    "building_id": "way/903940603",
+    "x_m": 159.33835372697382,
+    "y_m": -168.04464068148414,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.410118039458474,
+     33.33076665006678
+    ]
+   },
+   "properties": {
+    "site_id": "site-020",
+    "building_id": "way/1537432734",
+    "x_m": 150.64425249348926,
+    "y_m": 306.85124775536246,
+    "antenna_height_m": 12.0,
+    "roof_height_m": 9.0,
+    "roof_height_category": "placeholder"
+   }
+  }
+ ]
+}

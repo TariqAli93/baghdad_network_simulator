@@ -80,3 +80,12 @@ def test_adding_a_site_can_lower_coverage_when_its_interference_outweighs_its_se
     one = network(stack[:1], np.array([0]), OUTDOOR, inputs(coverage_threshold=3.0), loss[:1])
     both = network(stack, np.array([0, 1]), OUTDOOR, inputs(coverage_threshold=3.0), loss)
     assert both.radio.summary["coverage_fraction"] < one.radio.summary["coverage_fraction"]
+
+
+def test_equal_share_divides_each_sector_among_the_outdoor_cells_it_serves():
+    from bns.simulation.network import equal_share_rate_bps
+
+    rate = np.array([[100.0, 60.0, 30.0, 999.0]])
+    serving = np.array([[0, 0, 1, 1]])                 # cell 3 is indoor
+    shared = equal_share_rate_bps(rate, serving, OUTDOOR)
+    assert shared.tolist() == [[50.0, 30.0, 30.0, 0.0]]

@@ -1,0 +1,177 @@
+{
+  "runs": [
+    "multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T113044Z",
+    "multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T115405Z"
+  ],
+  "backends": [
+    "cpu",
+    "gpu"
+  ],
+  "results": {
+    "lte_1800": {
+      "outdoor_cells": 808,
+      "reached_by_one_backend_only": 0,
+      "path_gain_abs_diff_db": {
+        "median": 0.026900602742081503,
+        "p95": 0.44759256757011984,
+        "max": 2.7879853930571556
+      },
+      "weak_cells": 0,
+      "weak_cells_abs_diff_db_median": null,
+      "coverage_class_changed_cells": 0,
+      "coverage_fraction": [
+        1.0,
+        1.0
+      ],
+      "sinr_abs_diff_db": {
+        "median": 0.1620062355784081,
+        "p95": 1.1118301967272297
+      },
+      "sinr_median_db": [
+        3.500847876908319,
+        3.4246710651776664
+      ],
+      "rate_p5_mbps": [
+        14.747174745686761,
+        14.816612239870292
+      ],
+      "rate_p5_relative_diff": 0.004708528608426381,
+      "rate_median_mbps": [
+        33.912389745831234,
+        33.56346737887979
+      ]
+    },
+    "nr_3500": {
+      "outdoor_cells": 808,
+      "reached_by_one_backend_only": 0,
+      "path_gain_abs_diff_db": {
+        "median": 0.022311145094597862,
+        "p95": 0.412839467805701,
+        "max": 2.790612816131784
+      },
+      "weak_cells": 0,
+      "weak_cells_abs_diff_db_median": null,
+      "coverage_class_changed_cells": 0,
+      "coverage_fraction": [
+        1.0,
+        1.0
+      ],
+      "sinr_abs_diff_db": {
+        "median": 0.14429212659158153,
+        "p95": 1.0560775571119763
+      },
+      "sinr_median_db": [
+        3.945037492801389,
+        4.018697497439559
+      ],
+      "rate_p5_mbps": [
+        74.92293086383935,
+        75.00069000376516
+      ],
+      "rate_p5_relative_diff": 0.0010378550202088039,
+      "rate_median_mbps": [
+        179.92115925054262,
+        181.66925305103914
+      ]
+    },
+    "c6g_8000": {
+      "outdoor_cells": 808,
+      "reached_by_one_backend_only": 0,
+      "path_gain_abs_diff_db": {
+        "median": 0.01437700417743315,
+        "p95": 0.39417821543402515,
+        "max": 3.201761078152259
+      },
+      "weak_cells": 0,
+      "weak_cells_abs_diff_db_median": null,
+      "coverage_class_changed_cells": 0,
+      "coverage_fraction": [
+        1.0,
+        1.0
+      ],
+      "sinr_abs_diff_db": {
+        "median": 0.11434537653145296,
+        "p95": 0.9367227286445612
+      },
+      "sinr_median_db": [
+        4.264349256529773,
+        4.357785909293552
+      ],
+      "rate_p5_mbps": [
+        302.7718030562084,
+        301.57380438958813
+      ],
+      "rate_p5_relative_diff": 0.003956770922944402,
+      "rate_median_mbps": [
+        750.2383064910197,
+        759.2968257361914
+      ]
+    },
+    "c6g_15000": {
+      "outdoor_cells": 808,
+      "reached_by_one_backend_only": 0,
+      "path_gain_abs_diff_db": {
+        "median": 0.009667305838270579,
+        "p95": 0.33095820158884204,
+        "max": 3.5800922406828164
+      },
+      "weak_cells": 0,
+      "weak_cells_abs_diff_db_median": null,
+      "coverage_class_changed_cells": 0,
+      "coverage_fraction": [
+        0.9987623762376238,
+        0.9987623762376238
+      ],
+      "sinr_abs_diff_db": {
+        "median": 0.09164973471605009,
+        "p95": 0.8623259251964277
+      },
+      "sinr_median_db": [
+        4.473826269320851,
+        4.4675169355032125
+      ],
+      "rate_p5_mbps": [
+        297.4870360538687,
+        300.05091778645635
+      ],
+      "rate_p5_relative_diff": 0.008618465418181887,
+      "rate_median_mbps": [
+        770.6198958211049,
+        770.0019802631168
+      ]
+    },
+    "nr_28000": {
+      "outdoor_cells": 808,
+      "reached_by_one_backend_only": 0,
+      "path_gain_abs_diff_db": {
+        "median": 0.007752158379517482,
+        "p95": 0.283036779560057,
+        "max": 3.98550838738727
+      },
+      "weak_cells": 1,
+      "weak_cells_abs_diff_db_median": 0.05016443189879283,
+      "coverage_class_changed_cells": 0,
+      "coverage_fraction": [
+        0.9962871287128713,
+        0.9962871287128713
+      ],
+      "sinr_abs_diff_db": {
+        "median": 0.06238033451212538,
+        "p95": 0.7471206466559002
+      },
+      "sinr_median_db": [
+        4.271948982535127,
+        4.195605698942287
+      ],
+      "rate_p5_mbps": [
+        290.4597542758063,
+        293.99540523580055
+      ],
+      "rate_p5_relative_diff": 0.012172601911096351,
+      "rate_median_mbps": [
+        750.9730444403157,
+        743.6089070428825
+      ]
+    }
+  }
+}

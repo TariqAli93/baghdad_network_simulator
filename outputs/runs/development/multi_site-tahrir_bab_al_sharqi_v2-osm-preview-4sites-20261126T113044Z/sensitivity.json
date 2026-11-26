@@ -1,0 +1,2944 @@
+{
+ "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+ "run": "multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T113044Z",
+ "thresholds_db": [
+  -10.0,
+  -6.0,
+  -3.0,
+  0.0,
+  3.0,
+  6.0
+ ],
+ "loads": [
+  1.0,
+  0.5,
+  0.2
+ ],
+ "sourced": {
+  "threshold": [
+   -10.0
+  ],
+  "load": [
+   1.0,
+   0.5
+  ]
+ },
+ "results": {
+  "lte_1800": [
+   {
+    "load": 1.0,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 20.332380636772825,
+     "sinr_p5_db": 2.9805378529037507,
+     "rate_p5_mbps": 31.568974466984457,
+     "illustrative_equal_share_rate_p5_mbps": 0.09408361431960874,
+     "illustrative_equal_share_rate_median_mbps": 0.32518069059330623
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 3.500847876908319,
+     "sinr_p5_db": -1.7579545432708672,
+     "rate_p5_mbps": 14.747174745686761,
+     "illustrative_equal_share_rate_p5_mbps": 0.09006145197317608,
+     "illustrative_equal_share_rate_median_mbps": 0.2309409435875009
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 20.332380636772825,
+     "sinr_p5_db": 2.9805378529037507,
+     "rate_p5_mbps": 31.568974466984457,
+     "illustrative_equal_share_rate_p5_mbps": 0.09408361431960874,
+     "illustrative_equal_share_rate_median_mbps": 0.32518069059330623
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 3.500847876908319,
+     "sinr_p5_db": -1.7579545432708672,
+     "rate_p5_mbps": 14.747174745686761,
+     "illustrative_equal_share_rate_p5_mbps": 0.09006145197317608,
+     "illustrative_equal_share_rate_median_mbps": 0.2309409435875009
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 20.332380636772825,
+     "sinr_p5_db": 2.9805378529037507,
+     "rate_p5_mbps": 31.568974466984457,
+     "illustrative_equal_share_rate_p5_mbps": 0.09408361431960874,
+     "illustrative_equal_share_rate_median_mbps": 0.32518069059330623
+    },
+    "all_sites": {
+     "coverage": 0.9938118811881188,
+     "sinr_median_db": 3.500847876908319,
+     "sinr_p5_db": -1.7579545432708672,
+     "rate_p5_mbps": 14.747174745686761,
+     "illustrative_equal_share_rate_p5_mbps": 0.09006145197317608,
+     "illustrative_equal_share_rate_median_mbps": 0.2309409435875009
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 20.332380636772825,
+     "sinr_p5_db": 2.9805378529037507,
+     "rate_p5_mbps": 31.568974466984457,
+     "illustrative_equal_share_rate_p5_mbps": 0.09408361431960874,
+     "illustrative_equal_share_rate_median_mbps": 0.32518069059330623
+    },
+    "all_sites": {
+     "coverage": 0.818069306930693,
+     "sinr_median_db": 3.500847876908319,
+     "sinr_p5_db": -1.7579545432708672,
+     "rate_p5_mbps": 14.747174745686761,
+     "illustrative_equal_share_rate_p5_mbps": 0.09006145197317608,
+     "illustrative_equal_share_rate_median_mbps": 0.2309409435875009
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9492574257425742,
+     "sinr_median_db": 20.332380636772825,
+     "sinr_p5_db": 2.9805378529037507,
+     "rate_p5_mbps": 31.568974466984457,
+     "illustrative_equal_share_rate_p5_mbps": 0.09408361431960874,
+     "illustrative_equal_share_rate_median_mbps": 0.32518069059330623
+    },
+    "all_sites": {
+     "coverage": 0.5396039603960396,
+     "sinr_median_db": 3.500847876908319,
+     "sinr_p5_db": -1.7579545432708672,
+     "rate_p5_mbps": 14.747174745686761,
+     "illustrative_equal_share_rate_p5_mbps": 0.09006145197317608,
+     "illustrative_equal_share_rate_median_mbps": 0.2309409435875009
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      4
+     ],
+     "coverage": 0.9579207920792079,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8972772277227723,
+     "sinr_median_db": 20.332380636772825,
+     "sinr_p5_db": 2.9805378529037507,
+     "rate_p5_mbps": 31.568974466984457,
+     "illustrative_equal_share_rate_p5_mbps": 0.09408361431960874,
+     "illustrative_equal_share_rate_median_mbps": 0.32518069059330623
+    },
+    "all_sites": {
+     "coverage": 0.3155940594059406,
+     "sinr_median_db": 3.500847876908319,
+     "sinr_p5_db": -1.7579545432708672,
+     "rate_p5_mbps": 14.747174745686761,
+     "illustrative_equal_share_rate_p5_mbps": 0.09006145197317608,
+     "illustrative_equal_share_rate_median_mbps": 0.2309409435875009
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      4
+     ],
+     "coverage": 0.905940594059406,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 23.31594651400153,
+     "sinr_p5_db": 5.9874183815622555,
+     "rate_p5_mbps": 46.263388584243415,
+     "illustrative_equal_share_rate_p5_mbps": 0.1291025169874609,
+     "illustrative_equal_share_rate_median_mbps": 0.36836499219706387
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 6.5110936716740415,
+     "sinr_p5_db": 1.2523362887037752,
+     "rate_p5_mbps": 24.459045731283286,
+     "illustrative_equal_share_rate_p5_mbps": 0.14564130379893517,
+     "illustrative_equal_share_rate_median_mbps": 0.3187049023221185
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 23.31594651400153,
+     "sinr_p5_db": 5.9874183815622555,
+     "rate_p5_mbps": 46.263388584243415,
+     "illustrative_equal_share_rate_p5_mbps": 0.1291025169874609,
+     "illustrative_equal_share_rate_median_mbps": 0.36836499219706387
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 6.5110936716740415,
+     "sinr_p5_db": 1.2523362887037752,
+     "rate_p5_mbps": 24.459045731283286,
+     "illustrative_equal_share_rate_p5_mbps": 0.14564130379893517,
+     "illustrative_equal_share_rate_median_mbps": 0.3187049023221185
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 23.31594651400153,
+     "sinr_p5_db": 5.9874183815622555,
+     "rate_p5_mbps": 46.263388584243415,
+     "illustrative_equal_share_rate_p5_mbps": 0.1291025169874609,
+     "illustrative_equal_share_rate_median_mbps": 0.36836499219706387
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 6.5110936716740415,
+     "sinr_p5_db": 1.2523362887037752,
+     "rate_p5_mbps": 24.459045731283286,
+     "illustrative_equal_share_rate_p5_mbps": 0.14564130379893517,
+     "illustrative_equal_share_rate_median_mbps": 0.3187049023221185
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 23.31594651400153,
+     "sinr_p5_db": 5.9874183815622555,
+     "rate_p5_mbps": 46.263388584243415,
+     "illustrative_equal_share_rate_p5_mbps": 0.1291025169874609,
+     "illustrative_equal_share_rate_median_mbps": 0.36836499219706387
+    },
+    "all_sites": {
+     "coverage": 0.9938118811881188,
+     "sinr_median_db": 6.5110936716740415,
+     "sinr_p5_db": 1.2523362887037752,
+     "rate_p5_mbps": 24.459045731283286,
+     "illustrative_equal_share_rate_p5_mbps": 0.14564130379893517,
+     "illustrative_equal_share_rate_median_mbps": 0.3187049023221185
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 23.31594651400153,
+     "sinr_p5_db": 5.9874183815622555,
+     "rate_p5_mbps": 46.263388584243415,
+     "illustrative_equal_share_rate_p5_mbps": 0.1291025169874609,
+     "illustrative_equal_share_rate_median_mbps": 0.36836499219706387
+    },
+    "all_sites": {
+     "coverage": 0.8193069306930693,
+     "sinr_median_db": 6.5110936716740415,
+     "sinr_p5_db": 1.2523362887037752,
+     "rate_p5_mbps": 24.459045731283286,
+     "illustrative_equal_share_rate_p5_mbps": 0.14564130379893517,
+     "illustrative_equal_share_rate_median_mbps": 0.3187049023221185
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9492574257425742,
+     "sinr_median_db": 23.31594651400153,
+     "sinr_p5_db": 5.9874183815622555,
+     "rate_p5_mbps": 46.263388584243415,
+     "illustrative_equal_share_rate_p5_mbps": 0.1291025169874609,
+     "illustrative_equal_share_rate_median_mbps": 0.36836499219706387
+    },
+    "all_sites": {
+     "coverage": 0.5396039603960396,
+     "sinr_median_db": 6.5110936716740415,
+     "sinr_p5_db": 1.2523362887037752,
+     "rate_p5_mbps": 24.459045731283286,
+     "illustrative_equal_share_rate_p5_mbps": 0.14564130379893517,
+     "illustrative_equal_share_rate_median_mbps": 0.3187049023221185
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      4
+     ],
+     "coverage": 0.9579207920792079,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -10.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 27.25482064210198,
+     "sinr_p5_db": 9.956582398211145,
+     "rate_p5_mbps": 68.9271378234822,
+     "illustrative_equal_share_rate_p5_mbps": 0.17722838433694635,
+     "illustrative_equal_share_rate_median_mbps": 0.42717285828789814
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.490331278323591,
+     "sinr_p5_db": 5.231709001547369,
+     "rate_p5_mbps": 42.32447663536324,
+     "illustrative_equal_share_rate_p5_mbps": 0.23863602314633875,
+     "illustrative_equal_share_rate_median_mbps": 0.45938684120095197
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 27.25482064210198,
+     "sinr_p5_db": 9.956582398211145,
+     "rate_p5_mbps": 68.9271378234822,
+     "illustrative_equal_share_rate_p5_mbps": 0.17722838433694635,
+     "illustrative_equal_share_rate_median_mbps": 0.42717285828789814
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.490331278323591,
+     "sinr_p5_db": 5.231709001547369,
+     "rate_p5_mbps": 42.32447663536324,
+     "illustrative_equal_share_rate_p5_mbps": 0.23863602314633875,
+     "illustrative_equal_share_rate_median_mbps": 0.45938684120095197
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 27.25482064210198,
+     "sinr_p5_db": 9.956582398211145,
+     "rate_p5_mbps": 68.9271378234822,
+     "illustrative_equal_share_rate_p5_mbps": 0.17722838433694635,
+     "illustrative_equal_share_rate_median_mbps": 0.42717285828789814
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.490331278323591,
+     "sinr_p5_db": 5.231709001547369,
+     "rate_p5_mbps": 42.32447663536324,
+     "illustrative_equal_share_rate_p5_mbps": 0.23863602314633875,
+     "illustrative_equal_share_rate_median_mbps": 0.45938684120095197
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 27.25482064210198,
+     "sinr_p5_db": 9.956582398211145,
+     "rate_p5_mbps": 68.9271378234822,
+     "illustrative_equal_share_rate_p5_mbps": 0.17722838433694635,
+     "illustrative_equal_share_rate_median_mbps": 0.42717285828789814
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.490331278323591,
+     "sinr_p5_db": 5.231709001547369,
+     "rate_p5_mbps": 42.32447663536324,
+     "illustrative_equal_share_rate_p5_mbps": 0.23863602314633875,
+     "illustrative_equal_share_rate_median_mbps": 0.45938684120095197
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 27.25482064210198,
+     "sinr_p5_db": 9.956582398211145,
+     "rate_p5_mbps": 68.9271378234822,
+     "illustrative_equal_share_rate_p5_mbps": 0.17722838433694635,
+     "illustrative_equal_share_rate_median_mbps": 0.42717285828789814
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.490331278323591,
+     "sinr_p5_db": 5.231709001547369,
+     "rate_p5_mbps": 42.32447663536324,
+     "illustrative_equal_share_rate_p5_mbps": 0.23863602314633875,
+     "illustrative_equal_share_rate_median_mbps": 0.45938684120095197
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 27.25482064210198,
+     "sinr_p5_db": 9.956582398211145,
+     "rate_p5_mbps": 68.9271378234822,
+     "illustrative_equal_share_rate_p5_mbps": 0.17722838433694635,
+     "illustrative_equal_share_rate_median_mbps": 0.42717285828789814
+    },
+    "all_sites": {
+     "coverage": 0.9108910891089109,
+     "sinr_median_db": 10.490331278323591,
+     "sinr_p5_db": 5.231709001547369,
+     "rate_p5_mbps": 42.32447663536324,
+     "illustrative_equal_share_rate_p5_mbps": 0.23863602314633875,
+     "illustrative_equal_share_rate_median_mbps": 0.45938684120095197
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   }
+  ],
+  "nr_3500": [
+   {
+    "load": 1.0,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 19.995163431052013,
+     "sinr_p5_db": 2.812504773894362,
+     "rate_p5_mbps": 154.14926076711617,
+     "illustrative_equal_share_rate_p5_mbps": 0.4642411754588271,
+     "illustrative_equal_share_rate_median_mbps": 1.5989125598184128
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 3.945037492801389,
+     "sinr_p5_db": -1.669202780831751,
+     "rate_p5_mbps": 74.92293086383935,
+     "illustrative_equal_share_rate_p5_mbps": 0.462678329950789,
+     "illustrative_equal_share_rate_median_mbps": 1.2384368507292451
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 19.995163431052013,
+     "sinr_p5_db": 2.812504773894362,
+     "rate_p5_mbps": 154.14926076711617,
+     "illustrative_equal_share_rate_p5_mbps": 0.4642411754588271,
+     "illustrative_equal_share_rate_median_mbps": 1.5989125598184128
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 3.945037492801389,
+     "sinr_p5_db": -1.669202780831751,
+     "rate_p5_mbps": 74.92293086383935,
+     "illustrative_equal_share_rate_p5_mbps": 0.462678329950789,
+     "illustrative_equal_share_rate_median_mbps": 1.2384368507292451
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 19.995163431052013,
+     "sinr_p5_db": 2.812504773894362,
+     "rate_p5_mbps": 154.14926076711617,
+     "illustrative_equal_share_rate_p5_mbps": 0.4642411754588271,
+     "illustrative_equal_share_rate_median_mbps": 1.5989125598184128
+    },
+    "all_sites": {
+     "coverage": 0.9962871287128713,
+     "sinr_median_db": 3.945037492801389,
+     "sinr_p5_db": -1.669202780831751,
+     "rate_p5_mbps": 74.92293086383935,
+     "illustrative_equal_share_rate_p5_mbps": 0.462678329950789,
+     "illustrative_equal_share_rate_median_mbps": 1.2384368507292451
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 19.995163431052013,
+     "sinr_p5_db": 2.812504773894362,
+     "rate_p5_mbps": 154.14926076711617,
+     "illustrative_equal_share_rate_p5_mbps": 0.4642411754588271,
+     "illustrative_equal_share_rate_median_mbps": 1.5989125598184128
+    },
+    "all_sites": {
+     "coverage": 0.8316831683168316,
+     "sinr_median_db": 3.945037492801389,
+     "sinr_p5_db": -1.669202780831751,
+     "rate_p5_mbps": 74.92293086383935,
+     "illustrative_equal_share_rate_p5_mbps": 0.462678329950789,
+     "illustrative_equal_share_rate_median_mbps": 1.2384368507292451
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.948019801980198,
+     "sinr_median_db": 19.995163431052013,
+     "sinr_p5_db": 2.812504773894362,
+     "rate_p5_mbps": 154.14926076711617,
+     "illustrative_equal_share_rate_p5_mbps": 0.4642411754588271,
+     "illustrative_equal_share_rate_median_mbps": 1.5989125598184128
+    },
+    "all_sites": {
+     "coverage": 0.573019801980198,
+     "sinr_median_db": 3.945037492801389,
+     "sinr_p5_db": -1.669202780831751,
+     "rate_p5_mbps": 74.92293086383935,
+     "illustrative_equal_share_rate_p5_mbps": 0.462678329950789,
+     "illustrative_equal_share_rate_median_mbps": 1.2384368507292451
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      4
+     ],
+     "coverage": 0.9529702970297029,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8935643564356436,
+     "sinr_median_db": 19.995163431052013,
+     "sinr_p5_db": 2.812504773894362,
+     "rate_p5_mbps": 154.14926076711617,
+     "illustrative_equal_share_rate_p5_mbps": 0.4642411754588271,
+     "illustrative_equal_share_rate_median_mbps": 1.5989125598184128
+    },
+    "all_sites": {
+     "coverage": 0.36014851485148514,
+     "sinr_median_db": 3.945037492801389,
+     "sinr_p5_db": -1.669202780831751,
+     "rate_p5_mbps": 74.92293086383935,
+     "illustrative_equal_share_rate_p5_mbps": 0.462678329950789,
+     "illustrative_equal_share_rate_median_mbps": 1.2384368507292451
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      4
+     ],
+     "coverage": 0.9022277227722773,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 22.745415418484214,
+     "sinr_p5_db": 5.739711274098007,
+     "rate_p5_mbps": 224.77697954818117,
+     "illustrative_equal_share_rate_p5_mbps": 0.62759051860619,
+     "illustrative_equal_share_rate_median_mbps": 1.8012411760691036
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 6.9522250424707455,
+     "sinr_p5_db": 1.3409424007717579,
+     "rate_p5_mbps": 123.9850512676208,
+     "illustrative_equal_share_rate_p5_mbps": 0.7394710995570984,
+     "illustrative_equal_share_rate_median_mbps": 1.6985686075733073
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 22.745415418484214,
+     "sinr_p5_db": 5.739711274098007,
+     "rate_p5_mbps": 224.77697954818117,
+     "illustrative_equal_share_rate_p5_mbps": 0.62759051860619,
+     "illustrative_equal_share_rate_median_mbps": 1.8012411760691036
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 6.9522250424707455,
+     "sinr_p5_db": 1.3409424007717579,
+     "rate_p5_mbps": 123.9850512676208,
+     "illustrative_equal_share_rate_p5_mbps": 0.7394710995570984,
+     "illustrative_equal_share_rate_median_mbps": 1.6985686075733073
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 22.745415418484214,
+     "sinr_p5_db": 5.739711274098007,
+     "rate_p5_mbps": 224.77697954818117,
+     "illustrative_equal_share_rate_p5_mbps": 0.62759051860619,
+     "illustrative_equal_share_rate_median_mbps": 1.8012411760691036
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 6.9522250424707455,
+     "sinr_p5_db": 1.3409424007717579,
+     "rate_p5_mbps": 123.9850512676208,
+     "illustrative_equal_share_rate_p5_mbps": 0.7394710995570984,
+     "illustrative_equal_share_rate_median_mbps": 1.6985686075733073
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 22.745415418484214,
+     "sinr_p5_db": 5.739711274098007,
+     "rate_p5_mbps": 224.77697954818117,
+     "illustrative_equal_share_rate_p5_mbps": 0.62759051860619,
+     "illustrative_equal_share_rate_median_mbps": 1.8012411760691036
+    },
+    "all_sites": {
+     "coverage": 0.9975247524752475,
+     "sinr_median_db": 6.9522250424707455,
+     "sinr_p5_db": 1.3409424007717579,
+     "rate_p5_mbps": 123.9850512676208,
+     "illustrative_equal_share_rate_p5_mbps": 0.7394710995570984,
+     "illustrative_equal_share_rate_median_mbps": 1.6985686075733073
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 22.745415418484214,
+     "sinr_p5_db": 5.739711274098007,
+     "rate_p5_mbps": 224.77697954818117,
+     "illustrative_equal_share_rate_p5_mbps": 0.62759051860619,
+     "illustrative_equal_share_rate_median_mbps": 1.8012411760691036
+    },
+    "all_sites": {
+     "coverage": 0.8316831683168316,
+     "sinr_median_db": 6.9522250424707455,
+     "sinr_p5_db": 1.3409424007717579,
+     "rate_p5_mbps": 123.9850512676208,
+     "illustrative_equal_share_rate_p5_mbps": 0.7394710995570984,
+     "illustrative_equal_share_rate_median_mbps": 1.6985686075733073
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9455445544554455,
+     "sinr_median_db": 22.745415418484214,
+     "sinr_p5_db": 5.739711274098007,
+     "rate_p5_mbps": 224.77697954818117,
+     "illustrative_equal_share_rate_p5_mbps": 0.62759051860619,
+     "illustrative_equal_share_rate_median_mbps": 1.8012411760691036
+    },
+    "all_sites": {
+     "coverage": 0.573019801980198,
+     "sinr_median_db": 6.9522250424707455,
+     "sinr_p5_db": 1.3409424007717579,
+     "rate_p5_mbps": 123.9850512676208,
+     "illustrative_equal_share_rate_p5_mbps": 0.7394710995570984,
+     "illustrative_equal_share_rate_median_mbps": 1.6985686075733073
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      4
+     ],
+     "coverage": 0.9492574257425742,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -10.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 25.95673455648255,
+     "sinr_p5_db": 9.553066402624175,
+     "rate_p5_mbps": 332.51111058632546,
+     "illustrative_equal_share_rate_p5_mbps": 0.8457414554914355,
+     "illustrative_equal_share_rate_median_mbps": 2.0572789469353703
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.922309213796703,
+     "sinr_p5_db": 5.319878195813265,
+     "rate_p5_mbps": 213.88102241461542,
+     "illustrative_equal_share_rate_p5_mbps": 1.2149906396843484,
+     "illustrative_equal_share_rate_median_mbps": 2.3927388709338104
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 25.95673455648255,
+     "sinr_p5_db": 9.553066402624175,
+     "rate_p5_mbps": 332.51111058632546,
+     "illustrative_equal_share_rate_p5_mbps": 0.8457414554914355,
+     "illustrative_equal_share_rate_median_mbps": 2.0572789469353703
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.922309213796703,
+     "sinr_p5_db": 5.319878195813265,
+     "rate_p5_mbps": 213.88102241461542,
+     "illustrative_equal_share_rate_p5_mbps": 1.2149906396843484,
+     "illustrative_equal_share_rate_median_mbps": 2.3927388709338104
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 25.95673455648255,
+     "sinr_p5_db": 9.553066402624175,
+     "rate_p5_mbps": 332.51111058632546,
+     "illustrative_equal_share_rate_p5_mbps": 0.8457414554914355,
+     "illustrative_equal_share_rate_median_mbps": 2.0572789469353703
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.922309213796703,
+     "sinr_p5_db": 5.319878195813265,
+     "rate_p5_mbps": 213.88102241461542,
+     "illustrative_equal_share_rate_p5_mbps": 1.2149906396843484,
+     "illustrative_equal_share_rate_median_mbps": 2.3927388709338104
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 25.95673455648255,
+     "sinr_p5_db": 9.553066402624175,
+     "rate_p5_mbps": 332.51111058632546,
+     "illustrative_equal_share_rate_p5_mbps": 0.8457414554914355,
+     "illustrative_equal_share_rate_median_mbps": 2.0572789469353703
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.922309213796703,
+     "sinr_p5_db": 5.319878195813265,
+     "rate_p5_mbps": 213.88102241461542,
+     "illustrative_equal_share_rate_p5_mbps": 1.2149906396843484,
+     "illustrative_equal_share_rate_median_mbps": 2.3927388709338104
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 1.0,
+     "sinr_median_db": 25.95673455648255,
+     "sinr_p5_db": 9.553066402624175,
+     "rate_p5_mbps": 332.51111058632546,
+     "illustrative_equal_share_rate_p5_mbps": 0.8457414554914355,
+     "illustrative_equal_share_rate_median_mbps": 2.0572789469353703
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.922309213796703,
+     "sinr_p5_db": 5.319878195813265,
+     "rate_p5_mbps": 213.88102241461542,
+     "illustrative_equal_share_rate_p5_mbps": 1.2149906396843484,
+     "illustrative_equal_share_rate_median_mbps": 2.3927388709338104
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 25.95673455648255,
+     "sinr_p5_db": 9.553066402624175,
+     "rate_p5_mbps": 332.51111058632546,
+     "illustrative_equal_share_rate_p5_mbps": 0.8457414554914355,
+     "illustrative_equal_share_rate_median_mbps": 2.0572789469353703
+    },
+    "all_sites": {
+     "coverage": 0.9170792079207921,
+     "sinr_median_db": 10.922309213796703,
+     "sinr_p5_db": 5.319878195813265,
+     "rate_p5_mbps": 213.88102241461542,
+     "illustrative_equal_share_rate_p5_mbps": 1.2149906396843484,
+     "illustrative_equal_share_rate_median_mbps": 2.3927388709338104
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9987623762376238,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   }
+  ],
+  "c6g_8000": [
+   {
+    "load": 1.0,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 16.16443171564695,
+     "sinr_p5_db": 0.8572559176358064,
+     "rate_p5_mbps": 459.7649793978629,
+     "illustrative_equal_share_rate_p5_mbps": 1.2075237267699015,
+     "illustrative_equal_share_rate_median_mbps": 5.4942990069687925
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 4.264349256529773,
+     "sinr_p5_db": -1.6122019601979485,
+     "rate_p5_mbps": 302.7718030562084,
+     "illustrative_equal_share_rate_p5_mbps": 1.8579920663213791,
+     "illustrative_equal_share_rate_median_mbps": 5.306465475021129
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      2
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.995049504950495,
+     "sinr_median_db": 16.16443171564695,
+     "sinr_p5_db": 0.8572559176358064,
+     "rate_p5_mbps": 459.7649793978629,
+     "illustrative_equal_share_rate_p5_mbps": 1.2075237267699015,
+     "illustrative_equal_share_rate_median_mbps": 5.4942990069687925
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 4.264349256529773,
+     "sinr_p5_db": -1.6122019601979485,
+     "rate_p5_mbps": 302.7718030562084,
+     "illustrative_equal_share_rate_p5_mbps": 1.8579920663213791,
+     "illustrative_equal_share_rate_median_mbps": 5.306465475021129
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      3
+     ],
+     "coverage": 0.9962871287128713,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9876237623762376,
+     "sinr_median_db": 16.16443171564695,
+     "sinr_p5_db": 0.8572559176358064,
+     "rate_p5_mbps": 459.7649793978629,
+     "illustrative_equal_share_rate_p5_mbps": 1.2075237267699015,
+     "illustrative_equal_share_rate_median_mbps": 5.4942990069687925
+    },
+    "all_sites": {
+     "coverage": 0.9962871287128713,
+     "sinr_median_db": 4.264349256529773,
+     "sinr_p5_db": -1.6122019601979485,
+     "rate_p5_mbps": 302.7718030562084,
+     "illustrative_equal_share_rate_p5_mbps": 1.8579920663213791,
+     "illustrative_equal_share_rate_median_mbps": 5.306465475021129
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9876237623762376,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9653465346534653,
+     "sinr_median_db": 16.16443171564695,
+     "sinr_p5_db": 0.8572559176358064,
+     "rate_p5_mbps": 459.7649793978629,
+     "illustrative_equal_share_rate_p5_mbps": 1.2075237267699015,
+     "illustrative_equal_share_rate_median_mbps": 5.4942990069687925
+    },
+    "all_sites": {
+     "coverage": 0.8378712871287128,
+     "sinr_median_db": 4.264349256529773,
+     "sinr_p5_db": -1.6122019601979485,
+     "rate_p5_mbps": 302.7718030562084,
+     "illustrative_equal_share_rate_p5_mbps": 1.8579920663213791,
+     "illustrative_equal_share_rate_median_mbps": 5.306465475021129
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9653465346534653,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9047029702970297,
+     "sinr_median_db": 16.16443171564695,
+     "sinr_p5_db": 0.8572559176358064,
+     "rate_p5_mbps": 459.7649793978629,
+     "illustrative_equal_share_rate_p5_mbps": 1.2075237267699015,
+     "illustrative_equal_share_rate_median_mbps": 5.4942990069687925
+    },
+    "all_sites": {
+     "coverage": 0.5977722772277227,
+     "sinr_median_db": 4.264349256529773,
+     "sinr_p5_db": -1.6122019601979485,
+     "rate_p5_mbps": 302.7718030562084,
+     "illustrative_equal_share_rate_p5_mbps": 1.8579920663213791,
+     "illustrative_equal_share_rate_median_mbps": 5.306465475021129
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9047029702970297,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8391089108910891,
+     "sinr_median_db": 16.16443171564695,
+     "sinr_p5_db": 0.8572559176358064,
+     "rate_p5_mbps": 459.7649793978629,
+     "illustrative_equal_share_rate_p5_mbps": 1.2075237267699015,
+     "illustrative_equal_share_rate_median_mbps": 5.4942990069687925
+    },
+    "all_sites": {
+     "coverage": 0.3997524752475248,
+     "sinr_median_db": 4.264349256529773,
+     "sinr_p5_db": -1.6122019601979485,
+     "rate_p5_mbps": 302.7718030562084,
+     "illustrative_equal_share_rate_p5_mbps": 1.8579920663213791,
+     "illustrative_equal_share_rate_median_mbps": 5.306465475021129
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.8391089108910891,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 18.26386894181241,
+     "sinr_p5_db": 2.691780225823322,
+     "rate_p5_mbps": 606.1330682456551,
+     "illustrative_equal_share_rate_p5_mbps": 1.4428929337924312,
+     "illustrative_equal_share_rate_median_mbps": 6.001088593499018
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 7.1965943017887035,
+     "sinr_p5_db": 1.3734810890375848,
+     "rate_p5_mbps": 498.437180880231,
+     "illustrative_equal_share_rate_p5_mbps": 2.975298522103739,
+     "illustrative_equal_share_rate_median_mbps": 7.268204379850161
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      2
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.995049504950495,
+     "sinr_median_db": 18.26386894181241,
+     "sinr_p5_db": 2.691780225823322,
+     "rate_p5_mbps": 606.1330682456551,
+     "illustrative_equal_share_rate_p5_mbps": 1.4428929337924312,
+     "illustrative_equal_share_rate_median_mbps": 6.001088593499018
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 7.1965943017887035,
+     "sinr_p5_db": 1.3734810890375848,
+     "rate_p5_mbps": 498.437180880231,
+     "illustrative_equal_share_rate_p5_mbps": 2.975298522103739,
+     "illustrative_equal_share_rate_median_mbps": 7.268204379850161
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      3
+     ],
+     "coverage": 0.9962871287128713,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9876237623762376,
+     "sinr_median_db": 18.26386894181241,
+     "sinr_p5_db": 2.691780225823322,
+     "rate_p5_mbps": 606.1330682456551,
+     "illustrative_equal_share_rate_p5_mbps": 1.4428929337924312,
+     "illustrative_equal_share_rate_median_mbps": 6.001088593499018
+    },
+    "all_sites": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 7.1965943017887035,
+     "sinr_p5_db": 1.3734810890375848,
+     "rate_p5_mbps": 498.437180880231,
+     "illustrative_equal_share_rate_p5_mbps": 2.975298522103739,
+     "illustrative_equal_share_rate_median_mbps": 7.268204379850161
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9876237623762376,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9789603960396039,
+     "sinr_median_db": 18.26386894181241,
+     "sinr_p5_db": 2.691780225823322,
+     "rate_p5_mbps": 606.1330682456551,
+     "illustrative_equal_share_rate_p5_mbps": 1.4428929337924312,
+     "illustrative_equal_share_rate_median_mbps": 6.001088593499018
+    },
+    "all_sites": {
+     "coverage": 0.9962871287128713,
+     "sinr_median_db": 7.1965943017887035,
+     "sinr_p5_db": 1.3734810890375848,
+     "rate_p5_mbps": 498.437180880231,
+     "illustrative_equal_share_rate_p5_mbps": 2.975298522103739,
+     "illustrative_equal_share_rate_median_mbps": 7.268204379850161
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9789603960396039,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9418316831683168,
+     "sinr_median_db": 18.26386894181241,
+     "sinr_p5_db": 2.691780225823322,
+     "rate_p5_mbps": 606.1330682456551,
+     "illustrative_equal_share_rate_p5_mbps": 1.4428929337924312,
+     "illustrative_equal_share_rate_median_mbps": 6.001088593499018
+    },
+    "all_sites": {
+     "coverage": 0.8403465346534653,
+     "sinr_median_db": 7.1965943017887035,
+     "sinr_p5_db": 1.3734810890375848,
+     "rate_p5_mbps": 498.437180880231,
+     "illustrative_equal_share_rate_p5_mbps": 2.975298522103739,
+     "illustrative_equal_share_rate_median_mbps": 7.268204379850161
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9702970297029703,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 2
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8762376237623762,
+     "sinr_median_db": 18.26386894181241,
+     "sinr_p5_db": 2.691780225823322,
+     "rate_p5_mbps": 606.1330682456551,
+     "illustrative_equal_share_rate_p5_mbps": 1.4428929337924312,
+     "illustrative_equal_share_rate_median_mbps": 6.001088593499018
+    },
+    "all_sites": {
+     "coverage": 0.5952970297029703,
+     "sinr_median_db": 7.1965943017887035,
+     "sinr_p5_db": 1.3734810890375848,
+     "rate_p5_mbps": 498.437180880231,
+     "illustrative_equal_share_rate_p5_mbps": 2.975298522103739,
+     "illustrative_equal_share_rate_median_mbps": 7.268204379850161
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.8762376237623762,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -10.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 20.37608600757006,
+     "sinr_p5_db": 3.784326820798862,
+     "rate_p5_mbps": 704.735545973277,
+     "illustrative_equal_share_rate_p5_mbps": 1.6512779030055134,
+     "illustrative_equal_share_rate_median_mbps": 6.492293293122529
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 11.081007767585952,
+     "sinr_p5_db": 5.273550636562286,
+     "rate_p5_mbps": 850.7717098269608,
+     "illustrative_equal_share_rate_p5_mbps": 4.815500067930766,
+     "illustrative_equal_share_rate_median_mbps": 9.990425772595112
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      2
+     ],
+     "coverage": 1.0,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.995049504950495,
+     "sinr_median_db": 20.37608600757006,
+     "sinr_p5_db": 3.784326820798862,
+     "rate_p5_mbps": 704.735545973277,
+     "illustrative_equal_share_rate_p5_mbps": 1.6512779030055134,
+     "illustrative_equal_share_rate_median_mbps": 6.492293293122529
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 11.081007767585952,
+     "sinr_p5_db": 5.273550636562286,
+     "rate_p5_mbps": 850.7717098269608,
+     "illustrative_equal_share_rate_p5_mbps": 4.815500067930766,
+     "illustrative_equal_share_rate_median_mbps": 9.990425772595112
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      3
+     ],
+     "coverage": 0.9962871287128713,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9888613861386139,
+     "sinr_median_db": 20.37608600757006,
+     "sinr_p5_db": 3.784326820798862,
+     "rate_p5_mbps": 704.735545973277,
+     "illustrative_equal_share_rate_p5_mbps": 1.6512779030055134,
+     "illustrative_equal_share_rate_median_mbps": 6.492293293122529
+    },
+    "all_sites": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 11.081007767585952,
+     "sinr_p5_db": 5.273550636562286,
+     "rate_p5_mbps": 850.7717098269608,
+     "illustrative_equal_share_rate_p5_mbps": 4.815500067930766,
+     "illustrative_equal_share_rate_median_mbps": 9.990425772595112
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9888613861386139,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9801980198019802,
+     "sinr_median_db": 20.37608600757006,
+     "sinr_p5_db": 3.784326820798862,
+     "rate_p5_mbps": 704.735545973277,
+     "illustrative_equal_share_rate_p5_mbps": 1.6512779030055134,
+     "illustrative_equal_share_rate_median_mbps": 6.492293293122529
+    },
+    "all_sites": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 11.081007767585952,
+     "sinr_p5_db": 5.273550636562286,
+     "rate_p5_mbps": 850.7717098269608,
+     "illustrative_equal_share_rate_p5_mbps": 4.815500067930766,
+     "illustrative_equal_share_rate_median_mbps": 9.990425772595112
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9801980198019802,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9616336633663366,
+     "sinr_median_db": 20.37608600757006,
+     "sinr_p5_db": 3.784326820798862,
+     "rate_p5_mbps": 704.735545973277,
+     "illustrative_equal_share_rate_p5_mbps": 1.6512779030055134,
+     "illustrative_equal_share_rate_median_mbps": 6.492293293122529
+    },
+    "all_sites": {
+     "coverage": 0.9975247524752475,
+     "sinr_median_db": 11.081007767585952,
+     "sinr_p5_db": 5.273550636562286,
+     "rate_p5_mbps": 850.7717098269608,
+     "illustrative_equal_share_rate_p5_mbps": 4.815500067930766,
+     "illustrative_equal_share_rate_median_mbps": 9.990425772595112
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.9616336633663366,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9183168316831684,
+     "sinr_median_db": 20.37608600757006,
+     "sinr_p5_db": 3.784326820798862,
+     "rate_p5_mbps": 704.735545973277,
+     "illustrative_equal_share_rate_p5_mbps": 1.6512779030055134,
+     "illustrative_equal_share_rate_median_mbps": 6.492293293122529
+    },
+    "all_sites": {
+     "coverage": 0.9133663366336634,
+     "sinr_median_db": 11.081007767585952,
+     "sinr_p5_db": 5.273550636562286,
+     "rate_p5_mbps": 850.7717098269608,
+     "illustrative_equal_share_rate_p5_mbps": 4.815500067930766,
+     "illustrative_equal_share_rate_median_mbps": 9.990425772595112
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9814356435643564,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 1
+    }
+   }
+  ],
+  "c6g_15000": [
+   {
+    "load": 1.0,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 0.9876237623762376,
+     "sinr_median_db": 14.001759490860943,
+     "sinr_p5_db": -4.243183875451827,
+     "rate_p5_mbps": 184.371580130129,
+     "illustrative_equal_share_rate_p5_mbps": 0.44295010043297445,
+     "illustrative_equal_share_rate_median_mbps": 4.528963357874765
+    },
+    "all_sites": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 4.473826269320851,
+     "sinr_p5_db": -1.7102800149048614,
+     "rate_p5_mbps": 297.4870360538687,
+     "illustrative_equal_share_rate_p5_mbps": 1.8345236727504997,
+     "illustrative_equal_share_rate_median_mbps": 5.477157935533857
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      3
+     ],
+     "coverage": 0.9888613861386139,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.969059405940594,
+     "sinr_median_db": 14.001759490860943,
+     "sinr_p5_db": -4.243183875451827,
+     "rate_p5_mbps": 184.371580130129,
+     "illustrative_equal_share_rate_p5_mbps": 0.44295010043297445,
+     "illustrative_equal_share_rate_median_mbps": 4.528963357874765
+    },
+    "all_sites": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 4.473826269320851,
+     "sinr_p5_db": -1.7102800149048614,
+     "rate_p5_mbps": 297.4870360538687,
+     "illustrative_equal_share_rate_p5_mbps": 1.8345236727504997,
+     "illustrative_equal_share_rate_median_mbps": 5.477157935533857
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.969059405940594,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.931930693069307,
+     "sinr_median_db": 14.001759490860943,
+     "sinr_p5_db": -4.243183875451827,
+     "rate_p5_mbps": 184.371580130129,
+     "illustrative_equal_share_rate_p5_mbps": 0.44295010043297445,
+     "illustrative_equal_share_rate_median_mbps": 4.528963357874765
+    },
+    "all_sites": {
+     "coverage": 0.9913366336633663,
+     "sinr_median_db": 4.473826269320851,
+     "sinr_p5_db": -1.7102800149048614,
+     "rate_p5_mbps": 297.4870360538687,
+     "illustrative_equal_share_rate_p5_mbps": 1.8345236727504997,
+     "illustrative_equal_share_rate_median_mbps": 5.477157935533857
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9925742574257426,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8886138613861386,
+     "sinr_median_db": 14.001759490860943,
+     "sinr_p5_db": -4.243183875451827,
+     "rate_p5_mbps": 184.371580130129,
+     "illustrative_equal_share_rate_p5_mbps": 0.44295010043297445,
+     "illustrative_equal_share_rate_median_mbps": 4.528963357874765
+    },
+    "all_sites": {
+     "coverage": 0.8329207920792079,
+     "sinr_median_db": 4.473826269320851,
+     "sinr_p5_db": -1.7102800149048614,
+     "rate_p5_mbps": 297.4870360538687,
+     "illustrative_equal_share_rate_p5_mbps": 1.8345236727504997,
+     "illustrative_equal_share_rate_median_mbps": 5.477157935533857
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9628712871287128,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 1
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.801980198019802,
+     "sinr_median_db": 14.001759490860943,
+     "sinr_p5_db": -4.243183875451827,
+     "rate_p5_mbps": 184.371580130129,
+     "illustrative_equal_share_rate_p5_mbps": 0.44295010043297445,
+     "illustrative_equal_share_rate_median_mbps": 4.528963357874765
+    },
+    "all_sites": {
+     "coverage": 0.599009900990099,
+     "sinr_median_db": 4.473826269320851,
+     "sinr_p5_db": -1.7102800149048614,
+     "rate_p5_mbps": 297.4870360538687,
+     "illustrative_equal_share_rate_p5_mbps": 1.8345236727504997,
+     "illustrative_equal_share_rate_median_mbps": 5.477157935533857
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.801980198019802,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.719059405940594,
+     "sinr_median_db": 14.001759490860943,
+     "sinr_p5_db": -4.243183875451827,
+     "rate_p5_mbps": 184.371580130129,
+     "illustrative_equal_share_rate_p5_mbps": 0.44295010043297445,
+     "illustrative_equal_share_rate_median_mbps": 4.528963357874765
+    },
+    "all_sites": {
+     "coverage": 0.4146039603960396,
+     "sinr_median_db": 4.473826269320851,
+     "sinr_p5_db": -1.7102800149048614,
+     "rate_p5_mbps": 297.4870360538687,
+     "illustrative_equal_share_rate_p5_mbps": 1.8345236727504997,
+     "illustrative_equal_share_rate_median_mbps": 5.477157935533857
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      2
+     ],
+     "coverage": 0.7363861386138614,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 0.9876237623762376,
+     "sinr_median_db": 15.54473660354769,
+     "sinr_p5_db": -4.086392639089699,
+     "rate_p5_mbps": 190.15220878920493,
+     "illustrative_equal_share_rate_p5_mbps": 0.4688317757743011,
+     "illustrative_equal_share_rate_median_mbps": 4.867379903429618
+    },
+    "all_sites": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 7.372083934104121,
+     "sinr_p5_db": 1.273078427076195,
+     "rate_p5_mbps": 490.75794859323275,
+     "illustrative_equal_share_rate_p5_mbps": 2.9418527884355603,
+     "illustrative_equal_share_rate_median_mbps": 7.434336736800972
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      3
+     ],
+     "coverage": 0.9900990099009901,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.969059405940594,
+     "sinr_median_db": 15.54473660354769,
+     "sinr_p5_db": -4.086392639089699,
+     "rate_p5_mbps": 190.15220878920493,
+     "illustrative_equal_share_rate_p5_mbps": 0.4688317757743011,
+     "illustrative_equal_share_rate_median_mbps": 4.867379903429618
+    },
+    "all_sites": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 7.372083934104121,
+     "sinr_p5_db": 1.273078427076195,
+     "rate_p5_mbps": 490.75794859323275,
+     "illustrative_equal_share_rate_p5_mbps": 2.9418527884355603,
+     "illustrative_equal_share_rate_median_mbps": 7.434336736800972
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.969059405940594,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9356435643564357,
+     "sinr_median_db": 15.54473660354769,
+     "sinr_p5_db": -4.086392639089699,
+     "rate_p5_mbps": 190.15220878920493,
+     "illustrative_equal_share_rate_p5_mbps": 0.4688317757743011,
+     "illustrative_equal_share_rate_median_mbps": 4.867379903429618
+    },
+    "all_sites": {
+     "coverage": 0.9962871287128713,
+     "sinr_median_db": 7.372083934104121,
+     "sinr_p5_db": 1.273078427076195,
+     "rate_p5_mbps": 490.75794859323275,
+     "illustrative_equal_share_rate_p5_mbps": 2.9418527884355603,
+     "illustrative_equal_share_rate_median_mbps": 7.434336736800972
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9962871287128713,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8935643564356436,
+     "sinr_median_db": 15.54473660354769,
+     "sinr_p5_db": -4.086392639089699,
+     "rate_p5_mbps": 190.15220878920493,
+     "illustrative_equal_share_rate_p5_mbps": 0.4688317757743011,
+     "illustrative_equal_share_rate_median_mbps": 4.867379903429618
+    },
+    "all_sites": {
+     "coverage": 0.9888613861386139,
+     "sinr_median_db": 7.372083934104121,
+     "sinr_p5_db": 1.273078427076195,
+     "rate_p5_mbps": 490.75794859323275,
+     "illustrative_equal_share_rate_p5_mbps": 2.9418527884355603,
+     "illustrative_equal_share_rate_median_mbps": 7.434336736800972
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9863861386138614,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8329207920792079,
+     "sinr_median_db": 15.54473660354769,
+     "sinr_p5_db": -4.086392639089699,
+     "rate_p5_mbps": 190.15220878920493,
+     "illustrative_equal_share_rate_p5_mbps": 0.4688317757743011,
+     "illustrative_equal_share_rate_median_mbps": 4.867379903429618
+    },
+    "all_sites": {
+     "coverage": 0.8292079207920792,
+     "sinr_median_db": 7.372083934104121,
+     "sinr_p5_db": 1.273078427076195,
+     "rate_p5_mbps": 490.75794859323275,
+     "illustrative_equal_share_rate_p5_mbps": 2.9418527884355603,
+     "illustrative_equal_share_rate_median_mbps": 7.434336736800972
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9554455445544554,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 1
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.7425742574257426,
+     "sinr_median_db": 15.54473660354769,
+     "sinr_p5_db": -4.086392639089699,
+     "rate_p5_mbps": 190.15220878920493,
+     "illustrative_equal_share_rate_p5_mbps": 0.4688317757743011,
+     "illustrative_equal_share_rate_median_mbps": 4.867379903429618
+    },
+    "all_sites": {
+     "coverage": 0.5903465346534653,
+     "sinr_median_db": 7.372083934104121,
+     "sinr_p5_db": 1.273078427076195,
+     "rate_p5_mbps": 490.75794859323275,
+     "illustrative_equal_share_rate_p5_mbps": 2.9418527884355603,
+     "illustrative_equal_share_rate_median_mbps": 7.434336736800972
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      2
+     ],
+     "coverage": 0.7698019801980198,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -10.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9876237623762376,
+     "sinr_median_db": 17.254008800878808,
+     "sinr_p5_db": -3.8902332795700607,
+     "rate_p5_mbps": 197.58158645707354,
+     "illustrative_equal_share_rate_p5_mbps": 0.48173114740911305,
+     "illustrative_equal_share_rate_median_mbps": 5.152564574202189
+    },
+    "all_sites": {
+     "coverage": 1.0,
+     "sinr_median_db": 10.963299406818109,
+     "sinr_p5_db": 5.1092527113206225,
+     "rate_p5_mbps": 834.0119918966565,
+     "illustrative_equal_share_rate_p5_mbps": 4.590352765561494,
+     "illustrative_equal_share_rate_median_mbps": 10.010590316472522
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      3
+     ],
+     "coverage": 0.9900990099009901,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.969059405940594,
+     "sinr_median_db": 17.254008800878808,
+     "sinr_p5_db": -3.8902332795700607,
+     "rate_p5_mbps": 197.58158645707354,
+     "illustrative_equal_share_rate_p5_mbps": 0.48173114740911305,
+     "illustrative_equal_share_rate_median_mbps": 5.152564574202189
+    },
+    "all_sites": {
+     "coverage": 0.9987623762376238,
+     "sinr_median_db": 10.963299406818109,
+     "sinr_p5_db": 5.1092527113206225,
+     "rate_p5_mbps": 834.0119918966565,
+     "illustrative_equal_share_rate_p5_mbps": 4.590352765561494,
+     "illustrative_equal_share_rate_median_mbps": 10.010590316472522
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      1
+     ],
+     "coverage": 0.969059405940594,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9393564356435643,
+     "sinr_median_db": 17.254008800878808,
+     "sinr_p5_db": -3.8902332795700607,
+     "rate_p5_mbps": 197.58158645707354,
+     "illustrative_equal_share_rate_p5_mbps": 0.48173114740911305,
+     "illustrative_equal_share_rate_median_mbps": 5.152564574202189
+    },
+    "all_sites": {
+     "coverage": 0.9962871287128713,
+     "sinr_median_db": 10.963299406818109,
+     "sinr_p5_db": 5.1092527113206225,
+     "rate_p5_mbps": 834.0119918966565,
+     "illustrative_equal_share_rate_p5_mbps": 4.590352765561494,
+     "illustrative_equal_share_rate_median_mbps": 10.010590316472522
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9962871287128713,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8997524752475248,
+     "sinr_median_db": 17.254008800878808,
+     "sinr_p5_db": -3.8902332795700607,
+     "rate_p5_mbps": 197.58158645707354,
+     "illustrative_equal_share_rate_p5_mbps": 0.48173114740911305,
+     "illustrative_equal_share_rate_median_mbps": 5.152564574202189
+    },
+    "all_sites": {
+     "coverage": 0.9938118811881188,
+     "sinr_median_db": 10.963299406818109,
+     "sinr_p5_db": 5.1092527113206225,
+     "rate_p5_mbps": 834.0119918966565,
+     "illustrative_equal_share_rate_p5_mbps": 4.590352765561494,
+     "illustrative_equal_share_rate_median_mbps": 10.010590316472522
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.9900990099009901,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.844059405940594,
+     "sinr_median_db": 17.254008800878808,
+     "sinr_p5_db": -3.8902332795700607,
+     "rate_p5_mbps": 197.58158645707354,
+     "illustrative_equal_share_rate_p5_mbps": 0.48173114740911305,
+     "illustrative_equal_share_rate_median_mbps": 5.152564574202189
+    },
+    "all_sites": {
+     "coverage": 0.9888613861386139,
+     "sinr_median_db": 10.963299406818109,
+     "sinr_p5_db": 5.1092527113206225,
+     "rate_p5_mbps": 834.0119918966565,
+     "illustrative_equal_share_rate_p5_mbps": 4.590352765561494,
+     "illustrative_equal_share_rate_median_mbps": 10.010590316472522
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9826732673267327,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.7698019801980198,
+     "sinr_median_db": 17.254008800878808,
+     "sinr_p5_db": -3.8902332795700607,
+     "rate_p5_mbps": 197.58158645707354,
+     "illustrative_equal_share_rate_p5_mbps": 0.48173114740911305,
+     "illustrative_equal_share_rate_median_mbps": 5.152564574202189
+    },
+    "all_sites": {
+     "coverage": 0.8960396039603961,
+     "sinr_median_db": 10.963299406818109,
+     "sinr_p5_db": 5.1092527113206225,
+     "rate_p5_mbps": 834.0119918966565,
+     "illustrative_equal_share_rate_p5_mbps": 4.590352765561494,
+     "illustrative_equal_share_rate_median_mbps": 10.010590316472522
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9653465346534653,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   }
+  ],
+  "nr_28000": [
+   {
+    "load": 1.0,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 0.9294554455445545,
+     "sinr_median_db": 11.11102747413148,
+     "sinr_p5_db": -11.837675703770051,
+     "rate_p5_mbps": 36.61151303239846,
+     "illustrative_equal_share_rate_p5_mbps": 0.10345700350007844,
+     "illustrative_equal_share_rate_median_mbps": 3.4914490286687037
+    },
+    "all_sites": {
+     "coverage": 0.9962871287128713,
+     "sinr_median_db": 4.271948982535127,
+     "sinr_p5_db": -1.842804086816852,
+     "rate_p5_mbps": 290.4597542758063,
+     "illustrative_equal_share_rate_p5_mbps": 1.7008336779761901,
+     "illustrative_equal_share_rate_median_mbps": 5.496106185196746
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.995049504950495,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8638613861386139,
+     "sinr_median_db": 11.11102747413148,
+     "sinr_p5_db": -11.837675703770051,
+     "rate_p5_mbps": 36.61151303239846,
+     "illustrative_equal_share_rate_p5_mbps": 0.10345700350007844,
+     "illustrative_equal_share_rate_median_mbps": 3.4914490286687037
+    },
+    "all_sites": {
+     "coverage": 0.9925742574257426,
+     "sinr_median_db": 4.271948982535127,
+     "sinr_p5_db": -1.842804086816852,
+     "rate_p5_mbps": 290.4597542758063,
+     "illustrative_equal_share_rate_p5_mbps": 1.7008336779761901,
+     "illustrative_equal_share_rate_median_mbps": 5.496106185196746
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9888613861386139,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.801980198019802,
+     "sinr_median_db": 11.11102747413148,
+     "sinr_p5_db": -11.837675703770051,
+     "rate_p5_mbps": 36.61151303239846,
+     "illustrative_equal_share_rate_p5_mbps": 0.10345700350007844,
+     "illustrative_equal_share_rate_median_mbps": 3.4914490286687037
+    },
+    "all_sites": {
+     "coverage": 0.9814356435643564,
+     "sinr_median_db": 4.271948982535127,
+     "sinr_p5_db": -1.842804086816852,
+     "rate_p5_mbps": 290.4597542758063,
+     "illustrative_equal_share_rate_p5_mbps": 1.7008336779761901,
+     "illustrative_equal_share_rate_median_mbps": 5.496106185196746
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9777227722772277,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.7462871287128713,
+     "sinr_median_db": 11.11102747413148,
+     "sinr_p5_db": -11.837675703770051,
+     "rate_p5_mbps": 36.61151303239846,
+     "illustrative_equal_share_rate_p5_mbps": 0.10345700350007844,
+     "illustrative_equal_share_rate_median_mbps": 3.4914490286687037
+    },
+    "all_sites": {
+     "coverage": 0.8205445544554455,
+     "sinr_median_db": 4.271948982535127,
+     "sinr_p5_db": -1.842804086816852,
+     "rate_p5_mbps": 290.4597542758063,
+     "illustrative_equal_share_rate_p5_mbps": 1.7008336779761901,
+     "illustrative_equal_share_rate_median_mbps": 5.496106185196746
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9405940594059405,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.6844059405940595,
+     "sinr_median_db": 11.11102747413148,
+     "sinr_p5_db": -11.837675703770051,
+     "rate_p5_mbps": 36.61151303239846,
+     "illustrative_equal_share_rate_p5_mbps": 0.10345700350007844,
+     "illustrative_equal_share_rate_median_mbps": 3.4914490286687037
+    },
+    "all_sites": {
+     "coverage": 0.5779702970297029,
+     "sinr_median_db": 4.271948982535127,
+     "sinr_p5_db": -1.842804086816852,
+     "rate_p5_mbps": 290.4597542758063,
+     "illustrative_equal_share_rate_p5_mbps": 1.7008336779761901,
+     "illustrative_equal_share_rate_median_mbps": 5.496106185196746
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      2
+     ],
+     "coverage": 0.7512376237623762,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 1.0,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.6361386138613861,
+     "sinr_median_db": 11.11102747413148,
+     "sinr_p5_db": -11.837675703770051,
+     "rate_p5_mbps": 36.61151303239846,
+     "illustrative_equal_share_rate_p5_mbps": 0.10345700350007844,
+     "illustrative_equal_share_rate_median_mbps": 3.4914490286687037
+    },
+    "all_sites": {
+     "coverage": 0.40470297029702973,
+     "sinr_median_db": 4.271948982535127,
+     "sinr_p5_db": -1.842804086816852,
+     "rate_p5_mbps": 290.4597542758063,
+     "illustrative_equal_share_rate_p5_mbps": 1.7008336779761901,
+     "illustrative_equal_share_rate_median_mbps": 5.496106185196746
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      2
+     ],
+     "coverage": 0.6794554455445545,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -10.0,
+    "sourced": true,
+    "site_1_alone": {
+     "coverage": 0.9306930693069307,
+     "sinr_median_db": 12.233280970359663,
+     "sinr_p5_db": -11.81238784802041,
+     "rate_p5_mbps": 36.81947278872552,
+     "illustrative_equal_share_rate_p5_mbps": 0.10386729036201434,
+     "illustrative_equal_share_rate_median_mbps": 3.651432148401291
+    },
+    "all_sites": {
+     "coverage": 0.9962871287128713,
+     "sinr_median_db": 6.8532138791947235,
+     "sinr_p5_db": 0.8535149157409824,
+     "rate_p5_mbps": 459.488601100117,
+     "illustrative_equal_share_rate_p5_mbps": 2.541317802786176,
+     "illustrative_equal_share_rate_median_mbps": 7.201329420085458
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.995049504950495,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8638613861386139,
+     "sinr_median_db": 12.233280970359663,
+     "sinr_p5_db": -11.81238784802041,
+     "rate_p5_mbps": 36.81947278872552,
+     "illustrative_equal_share_rate_p5_mbps": 0.10386729036201434,
+     "illustrative_equal_share_rate_median_mbps": 3.651432148401291
+    },
+    "all_sites": {
+     "coverage": 0.9925742574257426,
+     "sinr_median_db": 6.8532138791947235,
+     "sinr_p5_db": 0.8535149157409824,
+     "rate_p5_mbps": 459.488601100117,
+     "illustrative_equal_share_rate_p5_mbps": 2.541317802786176,
+     "illustrative_equal_share_rate_median_mbps": 7.201329420085458
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9900990099009901,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8056930693069307,
+     "sinr_median_db": 12.233280970359663,
+     "sinr_p5_db": -11.81238784802041,
+     "rate_p5_mbps": 36.81947278872552,
+     "illustrative_equal_share_rate_p5_mbps": 0.10386729036201434,
+     "illustrative_equal_share_rate_median_mbps": 3.651432148401291
+    },
+    "all_sites": {
+     "coverage": 0.9876237623762376,
+     "sinr_median_db": 6.8532138791947235,
+     "sinr_p5_db": 0.8535149157409824,
+     "rate_p5_mbps": 459.488601100117,
+     "illustrative_equal_share_rate_p5_mbps": 2.541317802786176,
+     "illustrative_equal_share_rate_median_mbps": 7.201329420085458
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9826732673267327,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.75,
+     "sinr_median_db": 12.233280970359663,
+     "sinr_p5_db": -11.81238784802041,
+     "rate_p5_mbps": 36.81947278872552,
+     "illustrative_equal_share_rate_p5_mbps": 0.10386729036201434,
+     "illustrative_equal_share_rate_median_mbps": 3.651432148401291
+    },
+    "all_sites": {
+     "coverage": 0.9702970297029703,
+     "sinr_median_db": 6.8532138791947235,
+     "sinr_p5_db": 0.8535149157409824,
+     "rate_p5_mbps": 459.488601100117,
+     "illustrative_equal_share_rate_p5_mbps": 2.541317802786176,
+     "illustrative_equal_share_rate_median_mbps": 7.201329420085458
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9653465346534653,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.7029702970297029,
+     "sinr_median_db": 12.233280970359663,
+     "sinr_p5_db": -11.81238784802041,
+     "rate_p5_mbps": 36.81947278872552,
+     "illustrative_equal_share_rate_p5_mbps": 0.10386729036201434,
+     "illustrative_equal_share_rate_median_mbps": 3.651432148401291
+    },
+    "all_sites": {
+     "coverage": 0.806930693069307,
+     "sinr_median_db": 6.8532138791947235,
+     "sinr_p5_db": 0.8535149157409824,
+     "rate_p5_mbps": 459.488601100117,
+     "illustrative_equal_share_rate_p5_mbps": 2.541317802786176,
+     "illustrative_equal_share_rate_median_mbps": 7.201329420085458
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9220297029702971,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.5,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.650990099009901,
+     "sinr_median_db": 12.233280970359663,
+     "sinr_p5_db": -11.81238784802041,
+     "rate_p5_mbps": 36.81947278872552,
+     "illustrative_equal_share_rate_p5_mbps": 0.10386729036201434,
+     "illustrative_equal_share_rate_median_mbps": 3.651432148401291
+    },
+    "all_sites": {
+     "coverage": 0.5581683168316832,
+     "sinr_median_db": 6.8532138791947235,
+     "sinr_p5_db": 0.8535149157409824,
+     "rate_p5_mbps": 459.488601100117,
+     "illustrative_equal_share_rate_p5_mbps": 2.541317802786176,
+     "illustrative_equal_share_rate_median_mbps": 7.201329420085458
+    },
+    "greedy": {
+     "sites": 1,
+     "selected": [
+      2
+     ],
+     "coverage": 0.7103960396039604,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -10.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.9306930693069307,
+     "sinr_median_db": 13.16974953245316,
+     "sinr_p5_db": -11.797272529472123,
+     "rate_p5_mbps": 36.94518639182567,
+     "illustrative_equal_share_rate_p5_mbps": 0.10411502938922479,
+     "illustrative_equal_share_rate_median_mbps": 3.8288688934036608
+    },
+    "all_sites": {
+     "coverage": 0.9975247524752475,
+     "sinr_median_db": 9.989626271848213,
+     "sinr_p5_db": 4.1359823815073025,
+     "rate_p5_mbps": 737.8853844597421,
+     "illustrative_equal_share_rate_p5_mbps": 3.7175236319007103,
+     "illustrative_equal_share_rate_median_mbps": 9.25021661697161
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      1,
+      2
+     ],
+     "coverage": 0.995049504950495,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.8638613861386139,
+     "sinr_median_db": 13.16974953245316,
+     "sinr_p5_db": -11.797272529472123,
+     "rate_p5_mbps": 36.94518639182567,
+     "illustrative_equal_share_rate_p5_mbps": 0.10411502938922479,
+     "illustrative_equal_share_rate_median_mbps": 3.8288688934036608
+    },
+    "all_sites": {
+     "coverage": 0.9925742574257426,
+     "sinr_median_db": 9.989626271848213,
+     "sinr_p5_db": 4.1359823815073025,
+     "rate_p5_mbps": 737.8853844597421,
+     "illustrative_equal_share_rate_p5_mbps": 3.7175236319007103,
+     "illustrative_equal_share_rate_median_mbps": 9.25021661697161
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9900990099009901,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": -3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.806930693069307,
+     "sinr_median_db": 13.16974953245316,
+     "sinr_p5_db": -11.797272529472123,
+     "rate_p5_mbps": 36.94518639182567,
+     "illustrative_equal_share_rate_p5_mbps": 0.10411502938922479,
+     "illustrative_equal_share_rate_median_mbps": 3.8288688934036608
+    },
+    "all_sites": {
+     "coverage": 0.9876237623762376,
+     "sinr_median_db": 9.989626271848213,
+     "sinr_p5_db": 4.1359823815073025,
+     "rate_p5_mbps": 737.8853844597421,
+     "illustrative_equal_share_rate_p5_mbps": 3.7175236319007103,
+     "illustrative_equal_share_rate_median_mbps": 9.25021661697161
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9826732673267327,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 0.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.7524752475247525,
+     "sinr_median_db": 13.16974953245316,
+     "sinr_p5_db": -11.797272529472123,
+     "rate_p5_mbps": 36.94518639182567,
+     "illustrative_equal_share_rate_p5_mbps": 0.10411502938922479,
+     "illustrative_equal_share_rate_median_mbps": 3.8288688934036608
+    },
+    "all_sites": {
+     "coverage": 0.9764851485148515,
+     "sinr_median_db": 9.989626271848213,
+     "sinr_p5_db": 4.1359823815073025,
+     "rate_p5_mbps": 737.8853844597421,
+     "illustrative_equal_share_rate_p5_mbps": 3.7175236319007103,
+     "illustrative_equal_share_rate_median_mbps": 9.25021661697161
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9678217821782178,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 3.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.7128712871287128,
+     "sinr_median_db": 13.16974953245316,
+     "sinr_p5_db": -11.797272529472123,
+     "rate_p5_mbps": 36.94518639182567,
+     "illustrative_equal_share_rate_p5_mbps": 0.10411502938922479,
+     "illustrative_equal_share_rate_median_mbps": 3.8288688934036608
+    },
+    "all_sites": {
+     "coverage": 0.9702970297029703,
+     "sinr_median_db": 9.989626271848213,
+     "sinr_p5_db": 4.1359823815073025,
+     "rate_p5_mbps": 737.8853844597421,
+     "illustrative_equal_share_rate_p5_mbps": 3.7175236319007103,
+     "illustrative_equal_share_rate_median_mbps": 9.25021661697161
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9542079207920792,
+     "target": 0.95,
+     "target_reached": true,
+     "stopped_because": "target reached",
+     "degrading_additions": 0
+    }
+   },
+   {
+    "load": 0.2,
+    "threshold_db": 6.0,
+    "sourced": false,
+    "site_1_alone": {
+     "coverage": 0.6707920792079208,
+     "sinr_median_db": 13.16974953245316,
+     "sinr_p5_db": -11.797272529472123,
+     "rate_p5_mbps": 36.94518639182567,
+     "illustrative_equal_share_rate_p5_mbps": 0.10411502938922479,
+     "illustrative_equal_share_rate_median_mbps": 3.8288688934036608
+    },
+    "all_sites": {
+     "coverage": 0.8452970297029703,
+     "sinr_median_db": 9.989626271848213,
+     "sinr_p5_db": 4.1359823815073025,
+     "rate_p5_mbps": 737.8853844597421,
+     "illustrative_equal_share_rate_p5_mbps": 3.7175236319007103,
+     "illustrative_equal_share_rate_median_mbps": 9.25021661697161
+    },
+    "greedy": {
+     "sites": 2,
+     "selected": [
+      2,
+      1
+     ],
+     "coverage": 0.9170792079207921,
+     "target": 0.95,
+     "target_reached": false,
+     "stopped_because": "no candidate raises coverage",
+     "degrading_additions": 3
+    }
+   }
+  ]
+ }
+}

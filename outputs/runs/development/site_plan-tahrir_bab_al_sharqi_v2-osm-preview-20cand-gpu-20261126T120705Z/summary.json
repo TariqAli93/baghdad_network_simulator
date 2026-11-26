@@ -1,0 +1,679 @@
+{
+  "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+  "results": {
+    "lte_1800": {
+      "selected": [
+        "site-003"
+      ],
+      "selected_building_ids": [
+        "way/645196998"
+      ],
+      "coverage_after": [
+        1.0
+      ],
+      "target": 0.95,
+      "target_reached": true,
+      "stopped_because": "target reached",
+      "stop_explanation": "the coverage target was met",
+      "degrading_additions": [],
+      "sites": 1,
+      "site_density_per_km2": 1.0,
+      "final": {
+        "transmitters": 3,
+        "outdoor_cells": 808,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": 3.0,
+        "coverage_fraction": 1.0,
+        "noise_dbm": -91.9648872375883,
+        "rx_power_dbm_median": -50.37387893815153,
+        "rx_power_dbm_p5": -59.57666522914662,
+        "sinr_db_median": 20.99756620286936,
+        "sinr_db_p5": 5.66509835422443,
+        "rate_median_bps": 139733229.0546226,
+        "rate_p5_bps": 44564780.18128218,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 1,
+        "sectors": 3,
+        "served_share_per_site": [
+          1.0
+        ],
+        "interference_over_noise_db_median": 20.01120827018998,
+        "interference_limited_share": 1.0,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 0.5
+        }
+      },
+      "uncovered_outdoor_cells": 0,
+      "all_candidates_reference": {
+        "coverage_fraction": 0.46782178217821785,
+        "sinr_db_median": 2.6158605123687986,
+        "rate_p5_bps": 12574663.630339319
+      },
+      "selection_seconds": 0.04,
+      "evaluations": 20
+    },
+    "nr_3500": {
+      "selected": [
+        "site-001"
+      ],
+      "selected_building_ids": [
+        "way/919688856"
+      ],
+      "coverage_after": [
+        0.9987623762376238
+      ],
+      "target": 0.95,
+      "target_reached": true,
+      "stopped_because": "target reached",
+      "stop_explanation": "the coverage target was met",
+      "degrading_additions": [],
+      "sites": 1,
+      "site_density_per_km2": 1.0,
+      "final": {
+        "transmitters": 3,
+        "outdoor_cells": 808,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": 3.0,
+        "coverage_fraction": 0.9987623762376238,
+        "noise_dbm": -84.97518719422811,
+        "rx_power_dbm_median": -46.63225064139577,
+        "rx_power_dbm_p5": -64.31555695064043,
+        "sinr_db_median": 22.69870647650533,
+        "sinr_db_p5": 5.7863180737104765,
+        "rate_median_bps": 754807638.9883482,
+        "rate_p5_bps": 226001097.84233612,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 1,
+        "sectors": 3,
+        "served_share_per_site": [
+          1.0
+        ],
+        "interference_over_noise_db_median": 14.06709424443827,
+        "interference_limited_share": 0.9616336633663366,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 0.5
+        }
+      },
+      "uncovered_outdoor_cells": 1,
+      "all_candidates_reference": {
+        "coverage_fraction": 0.4938118811881188,
+        "sinr_db_median": 2.9011487463792203,
+        "rate_p5_bps": 64417028.54120671
+      },
+      "selection_seconds": 0.02,
+      "evaluations": 20
+    },
+    "c6g_8000": {
+      "selected": [
+        "site-001",
+        "site-002"
+      ],
+      "selected_building_ids": [
+        "way/919688856",
+        "way/1154123513"
+      ],
+      "coverage_after": [
+        0.943069306930693,
+        0.9702970297029703
+      ],
+      "target": 0.95,
+      "target_reached": true,
+      "stopped_because": "target reached",
+      "stop_explanation": "the coverage target was met",
+      "degrading_additions": [
+        {
+          "step": 2,
+          "candidate": "site-003",
+          "change": -0.0482673267326732
+        },
+        {
+          "step": 2,
+          "candidate": "site-005",
+          "change": -0.021039603960395947
+        },
+        {
+          "step": 2,
+          "candidate": "site-006",
+          "change": -0.013613861386138515
+        },
+        {
+          "step": 2,
+          "candidate": "site-007",
+          "change": -0.06683168316831678
+        },
+        {
+          "step": 2,
+          "candidate": "site-009",
+          "change": -0.03589108910891081
+        },
+        {
+          "step": 2,
+          "candidate": "site-010",
+          "change": -0.02846534653465338
+        },
+        {
+          "step": 2,
+          "candidate": "site-012",
+          "change": -0.014851485148514754
+        },
+        {
+          "step": 2,
+          "candidate": "site-013",
+          "change": -0.01732673267326723
+        },
+        {
+          "step": 2,
+          "candidate": "site-014",
+          "change": -0.05445544554455439
+        },
+        {
+          "step": 2,
+          "candidate": "site-015",
+          "change": -0.05940594059405935
+        },
+        {
+          "step": 2,
+          "candidate": "site-016",
+          "change": -0.01732673267326723
+        },
+        {
+          "step": 2,
+          "candidate": "site-017",
+          "change": -0.02722772277227714
+        },
+        {
+          "step": 2,
+          "candidate": "site-018",
+          "change": -0.011138613861386037
+        },
+        {
+          "step": 2,
+          "candidate": "site-019",
+          "change": -0.05569306930693063
+        },
+        {
+          "step": 2,
+          "candidate": "site-020",
+          "change": -0.013613861386138515
+        }
+      ],
+      "sites": 2,
+      "site_density_per_km2": 2.0,
+      "final": {
+        "transmitters": 6,
+        "outdoor_cells": 808,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": 3.0,
+        "coverage_fraction": 0.9702970297029703,
+        "noise_dbm": -78.95458728094849,
+        "rx_power_dbm_median": -49.726067054703236,
+        "rx_power_dbm_p5": -62.71144860194743,
+        "sinr_db_median": 9.294148686735284,
+        "sinr_db_p5": 3.304871765127201,
+        "rate_median_bps": 1299166215.3700466,
+        "rate_p5_bps": 660375894.5285665,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 2,
+        "sectors": 6,
+        "served_share_per_site": [
+          0.3650990099009901,
+          0.6349009900990099
+        ],
+        "interference_over_noise_db_median": 17.909861767130742,
+        "interference_limited_share": 0.9826732673267327,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 0.5
+        }
+      },
+      "uncovered_outdoor_cells": 24,
+      "all_candidates_reference": {
+        "coverage_fraction": 0.504950495049505,
+        "sinr_db_median": 3.075130551947219,
+        "rate_p5_bps": 265345757.61946422
+      },
+      "selection_seconds": 0.07,
+      "evaluations": 39
+    },
+    "c6g_15000": {
+      "selected": [
+        "site-008",
+        "site-001"
+      ],
+      "selected_building_ids": [
+        "way/863860517",
+        "way/919688856"
+      ],
+      "coverage_after": [
+        0.8378712871287128,
+        0.9331683168316832
+      ],
+      "target": 0.95,
+      "target_reached": false,
+      "stopped_because": "no candidate raises coverage",
+      "stop_explanation": "no single remaining candidate raises coverage (local stall; not a proof that the target is unreachable)",
+      "degrading_additions": [
+        {
+          "step": 2,
+          "candidate": "site-006",
+          "change": -0.0012376237623762387
+        },
+        {
+          "step": 2,
+          "candidate": "site-010",
+          "change": -0.032178217821782096
+        },
+        {
+          "step": 2,
+          "candidate": "site-012",
+          "change": -0.01980198019801982
+        },
+        {
+          "step": 2,
+          "candidate": "site-014",
+          "change": -0.05569306930693063
+        },
+        {
+          "step": 2,
+          "candidate": "site-019",
+          "change": -0.07797029702970293
+        },
+        {
+          "step": 2,
+          "candidate": "site-020",
+          "change": -0.023514851485148536
+        },
+        {
+          "step": 3,
+          "candidate": "site-002",
+          "change": -0.11386138613861396
+        },
+        {
+          "step": 3,
+          "candidate": "site-003",
+          "change": -0.03589108910891092
+        },
+        {
+          "step": 3,
+          "candidate": "site-004",
+          "change": -0.09034653465346543
+        },
+        {
+          "step": 3,
+          "candidate": "site-005",
+          "change": -0.05569306930693074
+        },
+        {
+          "step": 3,
+          "candidate": "site-006",
+          "change": -0.007425742574257432
+        },
+        {
+          "step": 3,
+          "candidate": "site-007",
+          "change": -0.06930693069306937
+        },
+        {
+          "step": 3,
+          "candidate": "site-009",
+          "change": -0.003712871287128716
+        },
+        {
+          "step": 3,
+          "candidate": "site-010",
+          "change": -0.04084158415841588
+        },
+        {
+          "step": 3,
+          "candidate": "site-011",
+          "change": -0.051980198019802026
+        },
+        {
+          "step": 3,
+          "candidate": "site-012",
+          "change": -0.004950495049504955
+        },
+        {
+          "step": 3,
+          "candidate": "site-013",
+          "change": -0.07054455445544561
+        },
+        {
+          "step": 3,
+          "candidate": "site-014",
+          "change": -0.12747524752475248
+        },
+        {
+          "step": 3,
+          "candidate": "site-015",
+          "change": -0.09405940594059414
+        },
+        {
+          "step": 3,
+          "candidate": "site-016",
+          "change": -0.006188118811881194
+        },
+        {
+          "step": 3,
+          "candidate": "site-017",
+          "change": -0.007425742574257432
+        },
+        {
+          "step": 3,
+          "candidate": "site-018",
+          "change": -0.05569306930693074
+        },
+        {
+          "step": 3,
+          "candidate": "site-019",
+          "change": -0.15594059405940597
+        },
+        {
+          "step": 3,
+          "candidate": "site-020",
+          "change": -0.04950495049504955
+        }
+      ],
+      "sites": 2,
+      "site_density_per_km2": 2.0,
+      "final": {
+        "transmitters": 6,
+        "outdoor_cells": 808,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": 3.0,
+        "coverage_fraction": 0.9331683168316832,
+        "noise_dbm": -78.95458728094849,
+        "rx_power_dbm_median": -55.85138875261504,
+        "rx_power_dbm_p5": -68.83742881561493,
+        "sinr_db_median": 8.845292014986505,
+        "sinr_db_p5": 2.738554381549639,
+        "rate_median_bps": 1246100018.7619321,
+        "rate_p5_bps": 610165273.9365621,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 2,
+        "sectors": 6,
+        "served_share_per_site": [
+          0.4962871287128713,
+          0.5037128712871287
+        ],
+        "interference_over_noise_db_median": 14.298777525866162,
+        "interference_limited_share": 0.9393564356435643,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 0.5
+        }
+      },
+      "uncovered_outdoor_cells": 54,
+      "all_candidates_reference": {
+        "coverage_fraction": 0.5061881188118812,
+        "sinr_db_median": 3.156415068136768,
+        "rate_p5_bps": 270931394.8441931
+      },
+      "selection_seconds": 0.11,
+      "evaluations": 57
+    },
+    "nr_28000": {
+      "selected": [
+        "site-002",
+        "site-001",
+        "site-006"
+      ],
+      "selected_building_ids": [
+        "way/1154123513",
+        "way/919688856",
+        "way/1177380354"
+      ],
+      "coverage_after": [
+        0.7710396039603961,
+        0.9232673267326733,
+        0.9257425742574258
+      ],
+      "target": 0.95,
+      "target_reached": false,
+      "stopped_because": "no candidate raises coverage",
+      "stop_explanation": "no single remaining candidate raises coverage (local stall; not a proof that the target is unreachable)",
+      "degrading_additions": [
+        {
+          "step": 2,
+          "candidate": "site-003",
+          "change": -0.00990099009900991
+        },
+        {
+          "step": 2,
+          "candidate": "site-009",
+          "change": -0.008663366336633671
+        },
+        {
+          "step": 2,
+          "candidate": "site-015",
+          "change": -0.05074257425742579
+        },
+        {
+          "step": 2,
+          "candidate": "site-018",
+          "change": -0.003712871287128716
+        },
+        {
+          "step": 3,
+          "candidate": "site-003",
+          "change": -0.022277227722772297
+        },
+        {
+          "step": 3,
+          "candidate": "site-004",
+          "change": -0.09529702970297038
+        },
+        {
+          "step": 3,
+          "candidate": "site-005",
+          "change": -0.022277227722772297
+        },
+        {
+          "step": 3,
+          "candidate": "site-007",
+          "change": -0.02103960396039606
+        },
+        {
+          "step": 3,
+          "candidate": "site-008",
+          "change": -0.12871287128712872
+        },
+        {
+          "step": 3,
+          "candidate": "site-010",
+          "change": -0.024752475247524774
+        },
+        {
+          "step": 3,
+          "candidate": "site-011",
+          "change": -0.16089108910891092
+        },
+        {
+          "step": 3,
+          "candidate": "site-012",
+          "change": -0.003712871287128716
+        },
+        {
+          "step": 3,
+          "candidate": "site-013",
+          "change": -0.06559405940594065
+        },
+        {
+          "step": 3,
+          "candidate": "site-014",
+          "change": -0.10643564356435653
+        },
+        {
+          "step": 3,
+          "candidate": "site-015",
+          "change": -0.17202970297029707
+        },
+        {
+          "step": 3,
+          "candidate": "site-017",
+          "change": -0.003712871287128716
+        },
+        {
+          "step": 3,
+          "candidate": "site-018",
+          "change": -0.014851485148514865
+        },
+        {
+          "step": 3,
+          "candidate": "site-019",
+          "change": -0.19678217821782185
+        },
+        {
+          "step": 3,
+          "candidate": "site-020",
+          "change": -0.0024752475247524774
+        },
+        {
+          "step": 4,
+          "candidate": "site-003",
+          "change": -0.024752475247524774
+        },
+        {
+          "step": 4,
+          "candidate": "site-004",
+          "change": -0.09529702970297038
+        },
+        {
+          "step": 4,
+          "candidate": "site-005",
+          "change": -0.024752475247524774
+        },
+        {
+          "step": 4,
+          "candidate": "site-007",
+          "change": -0.02103960396039606
+        },
+        {
+          "step": 4,
+          "candidate": "site-008",
+          "change": -0.12871287128712872
+        },
+        {
+          "step": 4,
+          "candidate": "site-009",
+          "change": -0.0024752475247524774
+        },
+        {
+          "step": 4,
+          "candidate": "site-010",
+          "change": -0.024752475247524774
+        },
+        {
+          "step": 4,
+          "candidate": "site-011",
+          "change": -0.16212871287128716
+        },
+        {
+          "step": 4,
+          "candidate": "site-012",
+          "change": -0.006188118811881194
+        },
+        {
+          "step": 4,
+          "candidate": "site-013",
+          "change": -0.06806930693069313
+        },
+        {
+          "step": 4,
+          "candidate": "site-014",
+          "change": -0.10643564356435653
+        },
+        {
+          "step": 4,
+          "candidate": "site-015",
+          "change": -0.1732673267326733
+        },
+        {
+          "step": 4,
+          "candidate": "site-017",
+          "change": -0.003712871287128716
+        },
+        {
+          "step": 4,
+          "candidate": "site-018",
+          "change": -0.014851485148514865
+        },
+        {
+          "step": 4,
+          "candidate": "site-019",
+          "change": -0.19678217821782185
+        },
+        {
+          "step": 4,
+          "candidate": "site-020",
+          "change": -0.006188118811881194
+        }
+      ],
+      "sites": 3,
+      "site_density_per_km2": 3.0,
+      "final": {
+        "transmitters": 9,
+        "outdoor_cells": 808,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": 3.0,
+        "coverage_fraction": 0.9257425742574258,
+        "noise_dbm": -78.95458728094849,
+        "rx_power_dbm_median": -60.65049604279058,
+        "rx_power_dbm_p5": -74.84176796359725,
+        "sinr_db_median": 8.348185175028497,
+        "sinr_db_p5": 2.3172251874859837,
+        "rate_median_bps": 1188066044.5844855,
+        "rate_p5_bps": 574249986.5465325,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 3,
+        "sectors": 9,
+        "served_share_per_site": [
+          0.3527227722772277,
+          0.6373762376237624,
+          0.009900990099009901
+        ],
+        "interference_over_noise_db_median": 6.089211782167531,
+        "interference_limited_share": 0.676980198019802,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 0.5
+        }
+      },
+      "uncovered_outdoor_cells": 60,
+      "all_candidates_reference": {
+        "coverage_fraction": 0.5111386138613861,
+        "sinr_db_median": 3.1933034079450255,
+        "rate_p5_bps": 274942087.0899343
+      },
+      "selection_seconds": 0.15,
+      "evaluations": 74
+    }
+  }
+}

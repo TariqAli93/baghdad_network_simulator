@@ -30,6 +30,12 @@ uv run python scripts/run_multi_site.py --area NAME --mode development [--profil
 uv run python scripts/evaluate_gba.py --area NAME       # GlobalBuildingAtlas heights vs OSM and 3D-GloBFP
 uv run python scripts/diagnose_near_site.py RUN_DIR     # pattern vs own-roof shadow near a site
 uv run streamlit run app/main.py                       # the application (reads saved runs)
+uv run python scripts/plan_sites.py --area NAME --mode development [--backend gpu] [--threshold DB --load X]
+uv run python scripts/run_sensitivity.py RUN_DIR        # threshold x load sweep from cached maps
+uv run python scripts/validate_tr38901.py --area NAME   # ray tracing vs 3GPP UMa/UMi (CPU, standard)
+uv run python scripts/export_matlab_case.py VALIDATION_DIR   # MATLAB cross-check package (laptop)
+uv run python scripts/compare_backends.py CPU_RUN GPU_RUN    # CPU/GPU agreement at radio level
+uv run python scripts/experiment_antenna_placement.py SINGLE_SITE_RUN   # interior vs roof-edge sectors
 uv run python scripts/import_height_dataset.py / evaluate_height_dataset.py / height_worklist.py
 uv run python scripts/run_height_sensitivity.py ...  # compare height models (see its --help)
 uv run python scripts/atmosphere_table.py            # rain and gas loss per band
@@ -64,7 +70,9 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 ## Engine facts you must respect
 
 - Engine: Sionna RT 2.2.0 (`mitsuba` 3.9.1, `drjit` 1.5.0) on the CPU variant
-  `llvm_ad_mono_polarized`. LLVM 18.1.8 must be installed
+  `llvm_ad_mono_polarized` (production). Optional GPU backend `cuda_ad_mono_polarized` (same wheel, NVIDIA
+  driver only): status "validated for development" in `configs/simulation.yaml`; research runs
+  refuse it. The variant is in every cache key, so CPU and GPU maps are never mixed. LLVM 18.1.8 must be installed
   (`winget install --id LLVM.LLVM -e --version 18.1.8`).
 - Always call `bns.runtime.init()` before anything imports `mitsuba` or `sionna.rt`.
   `bns.propagation.sionna_engine` refuses to import otherwise.
@@ -98,6 +106,13 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   run outputs are regenerated and git-ignored.
 - Charts use `bns.reporting.plotstyle` (one colour per scenario, everywhere).
 - `data/raw/**` is binary for git (`.gitattributes`): never let git convert hashed raw files.
+- GlobalBuildingAtlas (CC BY-NC 4.0) per-building values stay local (git-ignored); only aggregate
+  evaluation results are in the repository.
+- Runs started at the same time each get a private work folder (`bns.simulation.propagation`).
+- Site planning is the SINR greedy over physical sites (`scripts/plan_sites.py`); threshold/load
+  overrides are sensitivity cases (development only, recorded). Never claim a minimum site count.
+- Validation categories stay separate: analytical, model-to-model (TR 38.901), MATLAB (prepared,
+  not executed), field measurements (none).
 - The app (`app/`) holds UI code only; anything computed lives in `bns` (`bns.app` for run
   discovery, run control and re-evaluation from the cache). The app never re-traces to show a run.
 - Multi-site: sectors are traced transmitters, sites group them; every non-serving sector
@@ -122,7 +137,12 @@ src/bns/optimization/greedy.py  greedy site selection (coverage masks; and on ne
 src/bns/simulation/network.py   multi-site network: serving sector/site, interference
 src/bns/simulation/experiment.py  shared experiment set-up (scripts and app)
 src/bns/app/                    saved runs, run control, re-evaluation (no UI code)
-app/                            Streamlit application (main.py, ui.py, views/)
+app/                            Streamlit application (main.py, ui.py, views/: 10 pages)
+src/bns/validation/tr38901.py   3GPP UMa/UMi path loss, LOS probability, applicability
+src/bns/validation/matlab_case.py  STL export and receiver sampling for the MATLAB package
+src/bns/reporting/report.py     printable HTML report of a run
+configs/roadmap.yaml            6G roadmap evidence (every claim cites a registry ID)
+validation/matlab/              MATLAB cross-check cases (prepared, run on the laptop)
 src/bns/validation/analytic.py  closed-form references (Friis, Fresnel slab, knife edge)
 src/bns/geospatial/             study_area, osm_source (snapshots, parsing), heights (provenance,
                                 height models), sites (rooftop candidates), grid (receivers,

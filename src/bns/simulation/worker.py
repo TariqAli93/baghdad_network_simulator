@@ -24,17 +24,22 @@ def main() -> int:
     args = parser.parse_args()
 
     from bns import runtime
+    from bns.propagation.engine_settings import backend_of, engine_fingerprint
 
-    info = runtime.init(threads=args.threads)
+    specs = json.loads(args.jobs.read_text(encoding="utf-8"))
+    backends = {backend_of(d["engine"]) for d in specs}
+    if len(backends) != 1:
+        raise RuntimeError(f"A batch must use one backend, got {sorted(backends)}.")
+    backend = backends.pop()
+    info = runtime.init(threads=args.threads, backend=backend)
     import psutil
 
-    from bns.propagation.engine_settings import engine_fingerprint
     from bns.propagation.sionna_engine import Propagation, open_scene, path_gain_map
     from bns.simulation.cache import PathGainCache
     from bns.simulation.jobs import PropagationJob
 
-    jobs = [PropagationJob.from_dict(d) for d in json.loads(args.jobs.read_text(encoding="utf-8"))]
-    engine = engine_fingerprint()
+    jobs = [PropagationJob.from_dict(d) for d in specs]
+    engine = engine_fingerprint(backend)
     scenes = {}
     for index, job in enumerate(jobs):
         if job.engine != engine:

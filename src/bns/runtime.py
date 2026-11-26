@@ -183,8 +183,11 @@ def performance_cpus(one_thread_per_core: bool = False) -> list[int]:
 
 
 def init(threads: int | None = None, mem_cap_gb: float | None = None,
-         cpus: list[int] | None = None) -> dict:
-    """Prepare this process for CPU ray tracing and return what was applied.
+         cpus: list[int] | None = None, backend: str = "cpu") -> dict:
+    """Prepare this process for ray tracing on `backend` ("cpu" or "gpu"); return what was applied.
+
+    CPU is the default and the production path. "gpu" selects the CUDA variant of the
+    installed Mitsuba wheel and needs only an NVIDIA driver; it fails loudly otherwise.
 
     Raises if mitsuba was already imported with another variant, because
     Sionna RT does not support switching variants after import.
@@ -195,10 +198,17 @@ def init(threads: int | None = None, mem_cap_gb: float | None = None,
         import psutil
         psutil.Process().cpu_affinity(cpus)
 
-    # Keep any CUDA runtime out of the picture; this project is CPU-first.
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
-    llvm = find_llvm()
-    os.environ[LLVM_ENV] = str(llvm)
+    from bns.propagation.engine_settings import VARIANTS
+
+    if backend not in VARIANTS:
+        raise ValueError(f"backend must be one of {sorted(VARIANTS)}, not {backend!r}.")
+    variant = VARIANTS[backend]
+    if backend == "cpu":
+        # Keep any CUDA runtime out of the picture on the CPU path.
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    llvm = find_llvm() if backend == "cpu" else _find_llvm_optional()
+    if llvm is not None:
+        os.environ[LLVM_ENV] = str(llvm)
     if CACHE_ENV not in os.environ:
         KERNEL_CACHE_DIR.mkdir(parents=True, exist_ok=True)
         os.environ[CACHE_ENV] = str(KERNEL_CACHE_DIR)
@@ -206,25 +216,76 @@ def init(threads: int | None = None, mem_cap_gb: float | None = None,
     import mitsuba as mi
 
     current = mi.variant()
-    if current is not None and current != CPU_VARIANT:
+    if current is not None and current != variant:
         raise RuntimeError(f"mitsuba already uses variant {current!r}; call init() first.")
-    mi.set_variant(CPU_VARIANT)
+    try:
+        mi.set_variant(variant)
+    except Exception as exc:                        # no driver, no CUDA-capable GPU
+        raise RuntimeError(f"Backend {backend!r} ({variant}) is not available here: {exc}") from exc
 
     import drjit as dr
 
     if threads is not None:
         dr.set_thread_count(threads)
-    if mi.variant() != CPU_VARIANT:
-        raise RuntimeError(f"CPU variant not active (got {mi.variant()!r}).")
+    if mi.variant() != variant:
+        raise RuntimeError(f"Variant {variant} not active (got {mi.variant()!r}).")
 
     return {
+        "backend": backend,
         "variant": mi.variant(),
-        "llvm_library": str(llvm),
+        "gpu": gpu_description() if backend == "gpu" else None,
+        "llvm_library": None if llvm is None else str(llvm),
         "kernel_cache_dir": os.environ[CACHE_ENV],
         "threads": dr.thread_count(),
         "cpu_affinity": cpus,
         "mem_cap_gb": mem_cap_gb,
     }
+
+
+def _find_llvm_optional():
+    try:
+        return find_llvm()
+    except Exception:
+        return None
+
+
+def gpu_description() -> str | None:
+    """Name, driver and memory of the first NVIDIA GPU (nvidia-smi), or None."""
+    import subprocess
+    try:
+        out = subprocess.run(["nvidia-smi", "--query-gpu=name,driver_version,memory.total",
+                              "--format=csv,noheader"], capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    lines = out.stdout.strip().splitlines() if out.returncode == 0 else []
+    return lines[0].strip() if lines else None
+
+
+_PROBE = ("import mitsuba as mi\n"
+          "mi.set_variant('cuda_ad_mono_polarized')\n"
+          "import drjit as dr\n"
+          "x = dr.cuda.Float([1.0, 2.0, 3.0])\n"
+          "dr.eval(x)\n"
+          "print('GPU-OK', x.numpy().sum())\n")
+
+
+def probe_gpu(timeout_s: float = 180.0) -> tuple[bool, str]:
+    """Can this machine run the CUDA variant? Checked in a separate process.
+
+    Returns (available, diagnostic). Nothing is installed or changed.
+    """
+    import subprocess
+    desc = gpu_description()
+    if desc is None:
+        return False, "No NVIDIA GPU or driver found (nvidia-smi unavailable); the CPU backend is used."
+    try:
+        out = subprocess.run([sys.executable, "-c", _PROBE], capture_output=True, text=True, timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        return False, f"GPU found ({desc}) but the CUDA probe timed out after {timeout_s:.0f} s."
+    if out.returncode == 0 and "GPU-OK" in out.stdout:
+        return True, f"GPU available: {desc}."
+    tail = [ln for ln in (out.stderr or out.stdout).strip().splitlines() if ln.strip()][-1:] or ["no output"]
+    return False, f"GPU found ({desc}) but the CUDA variant failed: {tail[0][:300]}"
 
 
 class Cancelled(RuntimeError):

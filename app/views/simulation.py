@@ -15,8 +15,18 @@ usable = [k for k, v in profiles.items() if v.get("rays_per_site") is not None]
 
 
 @st.cache_resource(show_spinner="Preparing the dataset...")
-def experiment(area, variant, profile, mode):
-    return ex.load(ui.ROOT, area, variant, profile, mode)
+def experiment(area, variant, profile, mode, backend):
+    return ex.load(ui.ROOT, area, variant, profile, mode, backend=backend)
+
+
+@st.cache_resource(show_spinner="Checking for a GPU...")
+def gpu_probe():
+    from bns import runtime
+    return runtime.probe_gpu()
+
+
+gpu_ok, gpu_message = gpu_probe()
+backends = yaml.safe_load((ui.ROOT / "configs" / "simulation.yaml").read_text(encoding="utf-8")).get("backends", {})
 
 
 with st.form("run_form"):
@@ -29,6 +39,14 @@ with st.form("run_form"):
                            f"{float(profiles[p]['rays_per_site']):.0e} rays ({profiles[p].get('status', '')})")
     mode = c4.selectbox("Mode", ["development", "research"],
                         help="Research mode refuses any unapproved parameter or dataset.")
+    b1, b2 = st.columns([1, 3])
+    backend = b1.selectbox("Ray-tracing backend", ["cpu", "auto", "gpu"] if gpu_ok else ["cpu", "auto"],
+                           format_func=lambda b: {"cpu": "CPU (production)", "auto": "Auto (GPU if available)",
+                                                  "gpu": "GPU"}[b],
+                           help="CPU is the production backend. GPU is "
+                                f"'{backends.get('gpu', {}).get('status', 'not configured')}': research runs refuse it. "
+                                "CPU and GPU maps are cached separately.")
+    b2.caption(gpu_message)
     rule = st.radio("Sites", ["tallest buildings with an observed height", "chosen buildings"], horizontal=True)
     d1, d2, d3 = st.columns(3)
     count = d1.number_input("Number of sites (1 = single site)", 1, 8, 4)
@@ -37,14 +55,14 @@ with st.form("run_form"):
     chosen = st.text_input("Building ids, in order (for 'chosen buildings')", placeholder="way/919688856 way/645196998")
     estimate = st.form_submit_button("Check sites and workload", type="secondary")
 
-request = {"area": area, "variant": variant, "profile": profile, "mode": mode,
+request = {"area": area, "variant": variant, "profile": profile, "mode": mode, "backend": backend,
            "buildings": chosen.split() if rule == "chosen buildings" else [],
            "sites": int(count), "min_height_m": float(min_height), "min_spacing_m": float(spacing)}
 
 if estimate or st.session_state.get("checked_request") == request:
     st.session_state["checked_request"] = request
     try:
-        exp = experiment(area, variant, profile, mode)
+        exp = experiment(area, variant, profile, mode, backend)
         placed = (ex.place_sites(exp, request["buildings"]) if request["buildings"] else
                   ex.observed_sites(exp, int(count), min_height_m=float(min_height), min_spacing_m=float(spacing)))
     except Exception as exc:
@@ -54,6 +72,7 @@ if estimate or st.session_state.get("checked_request") == request:
         st.warning("No building satisfies these site rules.")
         st.stop()
     ui.development_banner(exp.label)
+    st.markdown(f"**Backend:** {exp.backend.upper()} — {exp.backend_note}")
     st.dataframe([{"site": s.candidate_id, "building": s.building_id, "roof [m]": s.roof_height_m,
                    "roof height": s.height_category, "antenna [m]": s.z, "x [m]": round(s.x), "y [m]": round(s.y)}
                   for s in placed], hide_index=True, use_container_width=True)
@@ -69,9 +88,10 @@ if estimate or st.session_state.get("checked_request") == request:
     est = work["estimate"]
     w[3].metric("Estimated trace time", "—" if est is None else f"{est['estimated_seconds'] / 60:.1f} min",
                 help=None if est is None else f"median {est['median_seconds_per_job']} s per trace over "
-                f"{est['measurements']} measured traces with this profile. {est['note']}")
+                f"{est['measurements']} measured traces with this profile and backend. {est['note']}")
     if est is None and work["to_trace"]:
-        st.caption("No trace with this profile has been measured on this PC yet, so there is no time estimate.")
+        st.caption("No trace with this profile and backend has been measured on this PC yet, so there is no "
+                   "time estimate.")
     running = [f for f in control.history(ui.ROOT) if control.state(f).running]
     if running:
         st.info("A run is already in progress; wait for it or cancel it below.")
@@ -89,7 +109,7 @@ if not history:
 def render(folder):
     s = control.state(folder)
     req = s.request
-    title = (f"{req['area']}/{req['variant']} · {req['profile']} · "
+    title = (f"{req['area']}/{req['variant']} · {req['profile']} · {req.get('backend', 'cpu').upper()} · "
              + (" ".join(req["buildings"]) if req["buildings"] else f"{req['sites']} site(s)"))
     with st.container(border=True):
         st.markdown(f"**{title}** · started {req['started_utc'][:19].replace('T', ' ')} UTC")

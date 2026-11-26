@@ -70,3 +70,15 @@ def test_state_is_read_from_the_log_of_a_finished_run(tmp_path):
     control.cancel(folder)
     assert (folder / "cancel").exists()
 
+
+
+def test_runs_that_differ_in_profile_or_load_override_are_flagged_as_not_comparable(tmp_path):
+    a = results.load_run(fake_run(tmp_path, "a", "2026-11-01T00:00:00+00:00"))
+    b = results.load_run(fake_run(tmp_path, "b", "2026-11-02T00:00:00+00:00"))
+    for r in (a, b):
+        r.manifest.update(area={"name": "x", "variant": "osm"}, profile={"name": "preview", "cell_size_m": 25,
+                                                                        "rays_per_site": 1e8})
+    assert results.differences(a, b) == []
+    b.manifest["profile"] = {"name": "standard", "cell_size_m": 10, "rays_per_site": 1e9}
+    b.manifest["overrides_for_sensitivity"] = {"interference_activity": 0.5}
+    assert results.differences(a, b) == ["profile", "sensitivity overrides"]

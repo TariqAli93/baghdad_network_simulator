@@ -4,6 +4,7 @@ The application shows results from these folders only; it never recomputes
 propagation to display a run. Two kinds exist:
   single_site  scripts/run_single_site.py  (bands.npz)
   multi_site   scripts/run_multi_site.py   (network.npz; one site is the single-site case)
+  site_plan    scripts/plan_sites.py       (plan.npz; final network of the selected sites per scenario)
 """
 
 from __future__ import annotations
@@ -17,7 +18,20 @@ import numpy as np
 
 from bns.geospatial.grid import Grid
 
-ARRAYS = {"single_site": "bands.npz", "multi_site": "network.npz"}
+ARRAYS = {"single_site": "bands.npz", "multi_site": "network.npz", "site_plan": "plan.npz"}
+
+# Fields that must match before two runs are compared as the same experiment.
+COMPARABLE = {
+    "area": lambda m: (m["area"]["name"], m["area"].get("variant"), m["area"].get("scene_fingerprint")),
+    "receiver grid": lambda m: json.dumps(m["grid"], sort_keys=True),
+    "profile": lambda m: (m["profile"]["name"], m["profile"]["cell_size_m"], m["profile"]["rays_per_site"]),
+    "propagation mechanisms": lambda m: json.dumps(m.get("mechanisms"), sort_keys=True),
+    "antennas": lambda m: json.dumps(m.get("sectors_per_site") or m.get("site", {}).get("sectors"), sort_keys=True),
+    "radio parameters": lambda m: json.dumps(m.get("radio_parameters"), sort_keys=True),
+    "sensitivity overrides": lambda m: json.dumps(m.get("overrides_for_sensitivity") or {}, sort_keys=True),
+    "backend": lambda m: (m.get("backend") or {}).get("name", "cpu"),
+    "mode": lambda m: m.get("mode"),
+}
 
 
 @dataclass
@@ -53,11 +67,22 @@ class Run:
 
     @property
     def sites(self) -> list[dict]:
-        """[{candidate_id, x, y, z, building_id, roof_height_m, height_category}, ...]"""
-        if self.kind == "multi_site":
+        """[{candidate_id, x, y, z, building_id, roof_height_m, height_category}, ...] (candidates for a plan)"""
+        if self.kind in ("multi_site", "site_plan"):
             return self.manifest["sites"]
         c = dict(self.manifest["site"]["candidate"])
         return [c]
+
+    def sites_for(self, scenario_id: str) -> list[dict]:
+        """Sites transmitting in this scenario's maps (a plan's selection, in selection order)."""
+        if self.kind != "site_plan":
+            return self.sites
+        by_id = {s["candidate_id"]: s for s in self.sites}
+        return [by_id[i] for i in self.summary["results"][scenario_id]["selected"]]
+
+    @property
+    def backend(self) -> str:
+        return (self.manifest.get("backend") or {}).get("name", "cpu")
 
     @property
     def sector_azimuths_rad(self) -> list[float]:
@@ -81,9 +106,13 @@ class Run:
         return [k[len(sid) + 1:] for k in self.arrays.files if k.startswith(sid + "_") and "_alone" not in k]
 
     def scenario_summary(self, scenario_id: str) -> dict:
-        """The radio summary of the whole configuration (all sites)."""
+        """The radio summary of the whole configuration (all sites; a plan's final selection)."""
         r = self.summary["results"][scenario_id]
-        return r["network"] if self.kind == "multi_site" else r
+        if self.kind == "multi_site":
+            return r["network"]
+        if self.kind == "site_plan":
+            return r["final"] or {}
+        return r
 
     def site_alone_sinr(self, scenario_id: str, site_index: int) -> np.ndarray | None:
         return self.layer(scenario_id, f"alone{site_index}_sinr_db")
@@ -113,6 +142,25 @@ def list_runs(root: Path) -> list[Run]:
             if (d / ARRAYS.get(run.kind, "")).exists():
                 runs.append(run)
     return sorted(runs, key=lambda r: r.manifest.get("created_utc", ""), reverse=True)
+
+
+def differences(a: Run, b: Run) -> list[str]:
+    """Material configuration differences between two runs (empty: comparable as one experiment)."""
+    out = []
+    for name, key in COMPARABLE.items():
+        try:
+            if key(a.manifest) != key(b.manifest):
+                out.append(name)
+        except (KeyError, TypeError):
+            out.append(f"{name} (not recorded)")
+    return out
+
+
+def list_validations(root: Path) -> list[Path]:
+    """TR 38.901 comparison folders under outputs/validation, newest first."""
+    folder = Path(root) / "outputs" / "validation"
+    return sorted((d for d in folder.glob("tr38901-*") if (d / "summary.json").exists()), reverse=True) \
+        if folder.exists() else []
 
 
 def cdf(values: np.ndarray, floor: float | None = None) -> tuple[np.ndarray, np.ndarray]:

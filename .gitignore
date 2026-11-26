@@ -25,3 +25,8 @@ outputs/**/*.png
 outputs/app_runs/
 outputs/**/cells_*.csv
 outputs/**/near_site_*.json
+
+# GlobalBuildingAtlas is CC BY-NC 4.0: per-building values stay local, never in the repository
+data/raw/heights/gba/
+outputs/datasets/**/gba_buildings.csv
+outputs/validation/**/cells.csv

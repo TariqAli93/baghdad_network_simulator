@@ -1,0 +1,2045 @@
+{
+  "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+  "run_id": "site_plan-tahrir_bab_al_sharqi_v2-osm-preview-20cand-gpu-20261126T120657Z",
+  "kind": "site_plan",
+  "mode": "development",
+  "created_utc": "2026-11-26T12:06:59+00:00",
+  "backend": {
+    "name": "gpu",
+    "requested": "gpu",
+    "note": "GPU available: NVIDIA GeForce RTX 3060, 610.88, 12288 MiB.",
+    "variant": "cuda_ad_mono_polarized",
+    "status": "validated for development"
+  },
+  "area": {
+    "name": "tahrir_bab_al_sharqi_v2",
+    "role": "provisional study area",
+    "approved": false,
+    "variant": "osm",
+    "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
+    "scene_fingerprint": "7f025e01f61b3e56ac1a5358556c1d8f56ca16fdeeb2e7c5fe16064cc0b01810",
+    "height_categories_percent": {
+      "observed": 0.8375209380234506,
+      "estimated": 0.33500837520938026,
+      "placeholder": 98.82747068676717
+    },
+    "fit_for_research": false,
+    "receiver_area_km2": 1.0
+  },
+  "candidate_rule": {
+    "min_height_m": 9.0,
+    "min_spacing_m": 150.0,
+    "max_candidates": 20,
+    "height_categories": [
+      "observed",
+      "estimated",
+      "placeholder"
+    ],
+    "mast_height_m": 3.0,
+    "antenna_position": "interior point of the roof"
+  },
+  "sites": [
+    {
+      "candidate_id": "site-001",
+      "x": -177.90098845773826,
+      "y": -131.23326489986027,
+      "z": 58.0,
+      "building_id": "way/919688856",
+      "roof_height_m": 55.0,
+      "footprint_area_m2": 833.4210671361501,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-002",
+      "x": 64.50975641723304,
+      "y": 27.52818343388453,
+      "z": 18.0,
+      "building_id": "way/1154123513",
+      "roof_height_m": 15.0,
+      "footprint_area_m2": 96.25100965947877,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-003",
+      "x": -171.37139764122523,
+      "y": 286.449624723827,
+      "z": 15.0,
+      "building_id": "way/645196998",
+      "roof_height_m": 12.0,
+      "footprint_area_m2": 31.247614509277412,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-004",
+      "x": 327.81664072830665,
+      "y": 273.07231253455836,
+      "z": 13.0,
+      "building_id": "way/939812415",
+      "roof_height_m": 10.0,
+      "footprint_area_m2": 5.986256721092422,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-005",
+      "x": -158.96066699446712,
+      "y": 61.379191149184976,
+      "z": 12.0,
+      "building_id": "way/901843512",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 3414.3892016782133,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-006",
+      "x": -414.6793547461202,
+      "y": 483.1111693057575,
+      "z": 12.0,
+      "building_id": "way/1177380354",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 2663.946827182547,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-007",
+      "x": -376.91892608424837,
+      "y": 141.30158394000202,
+      "z": 12.0,
+      "building_id": "way/1177122281",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 2296.3455384841745,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-008",
+      "x": -22.388751074534625,
+      "y": -169.21019745704768,
+      "z": 12.0,
+      "building_id": "way/863860517",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 1735.5246711663349,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-009",
+      "x": -245.46917166486543,
+      "y": 425.70497477054164,
+      "z": 12.0,
+      "building_id": "way/763390920",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 1311.9248286819807,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-010",
+      "x": 10.826092973284512,
+      "y": 214.46734520955152,
+      "z": 12.0,
+      "building_id": "way/901843571",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 1262.0636291100725,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-011",
+      "x": 480.51690066480114,
+      "y": 265.57610886985054,
+      "z": 12.0,
+      "building_id": "way/1239352072",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 1143.769261936881,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-012",
+      "x": 154.2685909410004,
+      "y": 470.7768910073782,
+      "z": 12.0,
+      "building_id": "way/903940623",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 1133.225765695276,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-013",
+      "x": -316.39018559704346,
+      "y": -52.438752281887716,
+      "z": 12.0,
+      "building_id": "way/901843501",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 1071.267177795804,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-014",
+      "x": 306.32799075890944,
+      "y": -295.97587587921544,
+      "z": 12.0,
+      "building_id": "way/903940609",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 1015.4538992849951,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-015",
+      "x": 243.02061716519705,
+      "y": 96.41740509497295,
+      "z": 12.0,
+      "building_id": "way/903940647",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 985.1140652025422,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-016",
+      "x": -104.1143208050641,
+      "y": 484.1687995437021,
+      "z": 12.0,
+      "building_id": "way/903940627",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 678.4863344087639,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-017",
+      "x": -451.9133701129035,
+      "y": 304.78657521612155,
+      "z": 12.0,
+      "building_id": "way/1177122203",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 668.8762703135196,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-018",
+      "x": 388.18315162850377,
+      "y": 479.26263778455734,
+      "z": 12.0,
+      "building_id": "way/1537448669",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 644.5128234790344,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-019",
+      "x": 159.33835372697382,
+      "y": -168.04464068148414,
+      "z": 12.0,
+      "building_id": "way/903940603",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 436.1507974083847,
+      "height_category": "placeholder"
+    },
+    {
+      "candidate_id": "site-020",
+      "x": 150.64425249348926,
+      "y": 306.85124775536246,
+      "z": 12.0,
+      "building_id": "way/1537432734",
+      "roof_height_m": 9.0,
+      "footprint_area_m2": 427.84953128089,
+      "height_category": "placeholder"
+    }
+  ],
+  "sectors_per_site": [
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ]
+    },
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ]
+    },
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ]
+    }
+  ],
+  "profile": {
+    "name": "preview",
+    "cell_size_m": 25.0,
+    "rays_per_site": 100000000,
+    "status": "validated for development"
+  },
+  "grid": {
+    "center_xy": [
+      0.0,
+      0.0
+    ],
+    "size_xy": [
+      1000.0,
+      1000.0
+    ],
+    "cell_size_m": 25.0,
+    "height_m": 1.5
+  },
+  "mechanisms": {
+    "max_depth": 2,
+    "los": true,
+    "specular_reflection": true,
+    "diffraction": true,
+    "refraction": false,
+    "diffuse_reflection": false,
+    "edge_diffraction": false
+  },
+  "seeds": [
+    1
+  ],
+  "radio_parameters": {
+    "tx_power_dbm": {
+      "value": 46.0,
+      "unit": "dBm per sector carrier",
+      "status": "candidate",
+      "definition": "conducted",
+      "sources": [
+        "3GPP-TR38914",
+        "3GPP-TR36942",
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "justification": "46 dBm is the macro downlink power in the 3GPP 6G coverage assumptions (TR 38.914 Table 5.1.20.1-2), the E-UTRA reference base station (TR 36.942 Table 4.6), ITU-R M.2292 macro urban (Tables 3-4) and TR 38.921 (two polarisations, 7 GHz range). The same total power in every band; the power per MHz therefore falls with bandwidth (33 dBm/MHz at 20 MHz, 26 at 100 MHz, 20 at 400 MHz)."
+    },
+    "tx_antenna_gain_dbi": {
+      "value": 0.0,
+      "unit": "dBi added after tracing",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR38901"
+      ],
+      "justification": "Zero because the traced tr38901 pattern already contains the 8 dBi peak gain; any other value would count the gain twice (refused when the file is loaded)."
+    },
+    "tx_antenna_pattern": {
+      "value": "tr38901",
+      "unit": "pattern name",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR38901",
+        "ITU-M2412"
+      ],
+      "justification": "3GPP TR 38.901 Table 7.3-1 sector element (65 degree beamwidth, 8 dBi peak, 30 dB front-to-back), the element ITU-R M.2412 also uses. It is TRACED by the ray tracer, so its gain is part of the path gain."
+    },
+    "sectors_per_site": {
+      "value": 3,
+      "unit": "sectors",
+      "status": "candidate",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "justification": "Three sectors per site (M.2412 section 8.3: three TRxPs per site)."
+    },
+    "mechanical_downtilt_deg": {
+      "value": 10.0,
+      "unit": "degrees below horizon",
+      "status": "candidate",
+      "sources": [
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "justification": "Macro urban downtilt of 10 degrees (M.2292 Tables 3-4; TR 38.921 Table 8.1.2-1)."
+    },
+    "antenna_height_above_roof_m": {
+      "value": 3.0,
+      "unit": "m",
+      "status": "development",
+      "justification": "Software testing only. No primary source gives a mast height above a roof; the references give total heights (25 m in M.2412 and TR 38.901 UMa) for flat layouts. Decision D4."
+    },
+    "rx_height_m": {
+      "value": 1.5,
+      "unit": "m above ground",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412"
+      ],
+      "approved_by": "project description, Stage 6 (the approved project baseline)",
+      "justification": "Receivers 1.5 m above street level; the outdoor UE height of M.2412 Table 5(b)."
+    },
+    "rx_antenna_gain_dbi": {
+      "value": 0.0,
+      "unit": "dBi",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR36942",
+        "ITU-M2412",
+        "3GPP-TR38830"
+      ],
+      "justification": "Isotropic user antenna, matching the isotropic receiver of the ray-traced maps (0 dBi in TR 36.942 section 4.2.2, M.2412 at 4 GHz, TR 38.830 for FR1). M.2412 and TR 38.830 give 5 dBi at 30 GHz with user-side beamforming, left to the deployment interpretation."
+    },
+    "noise_figure_db": {
+      "value": 9.0,
+      "unit": "dB",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR38914",
+        "3GPP-TR36942",
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "justification": "9 dB user noise figure in the 3GPP 6G coverage assumptions (TR 38.914 Table 5.1.20.1-2), TR 36.942 Table 4.8, M.2292 Table 1 and the TR 38.921 baseline. Per-band values (7 dB at 4 GHz, 10 dB at 30 GHz in M.2412) belong to the deployment interpretation."
+    },
+    "noise_temperature_k": {
+      "value": 290.0,
+      "unit": "K",
+      "status": "candidate",
+      "sources": [
+        "ITU-P372",
+        "ITU-M2412"
+      ],
+      "justification": "Reference temperature T0 = 290 K (P.372 section 1.2.1), giving -174 dBm/Hz (M.2412 Table 5)."
+    },
+    "coverage_threshold": {
+      "value": -10.0,
+      "unit": "dB",
+      "status": "candidate",
+      "definition": "snr_db",
+      "sources": [
+        "3GPP-TR38921",
+        "3GPP-TR36942"
+      ],
+      "justification": "-10 dB is the lowest SINR at which the 3GPP link-level throughput mapping gives any data rate (TR 38.921 Table 4.2.7-1, TR 36.942 Annex A). A noise-referenced threshold is the same physical condition at every bandwidth."
+    },
+    "interference_activity": {
+      "value": 1.0,
+      "unit": "share of time other sectors transmit",
+      "status": "candidate",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "justification": "Full buffer (M.2412 Table 5): every other sector transmits all the time. M.2292 uses a 50 % average activity, a sensitivity case."
+    },
+    "coverage_target": {
+      "value": 0.95,
+      "unit": "share of outdoor cells",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR38830"
+      ],
+      "justification": "95 % cell-area reliability for control channels (TR 38.830 Table A.3)."
+    },
+    "frequency_reuse": {
+      "value": "1",
+      "unit": "reuse factor",
+      "status": "candidate",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "justification": "Every site and sector uses the whole carrier (M.2412 evaluations; M.2292 Tables 2-4)."
+    }
+  },
+  "overrides_for_sensitivity": {
+    "coverage_threshold": 0.0,
+    "interference_activity": 0.5
+  },
+  "objective": "share of outdoor cells with SINR at or above the threshold, whole network, all selected sectors interfering",
+  "scenarios": [
+    {
+      "id": "lte_1800",
+      "label": "4G LTE",
+      "frequency_hz": 1800000000.0,
+      "bandwidth_hz": 20000000.0,
+      "status": "deployed",
+      "basis": "LTE Band 3. All three Iraqi operators launched LTE on 1800 MHz in January 2021. 20 MHz is the largest Band 3 channel and a modelling assumption: no source gives the carrier width used in Iraq. 1.8 GHz is nominal; the Band 3 downlink is 1805-1880 MHz.",
+      "sources": [
+        "3GPP-TS36101",
+        "IRQ-CMC-WP"
+      ]
+    },
+    {
+      "id": "nr_3500",
+      "label": "5G NR mid-band",
+      "frequency_hz": 3500000000.0,
+      "bandwidth_hz": 100000000.0,
+      "status": "assumed",
+      "basis": "NR band n78 (3300-3800 MHz, up to 100 MHz). The Iraqi regulator's plan names 3.4-3.8 GHz as the main 5G capacity band with 100 MHz blocks per licence holder, but no 5G spectrum had been assigned and no commercial 5G launched as of November 2026.",
+      "sources": [
+        "3GPP-TS38101-1",
+        "IRQ-CMC-WP",
+        "IRQ-NFAT"
+      ]
+    },
+    {
+      "id": "c6g_8000",
+      "label": "Candidate 6G upper mid-band",
+      "frequency_hz": 8000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "candidate",
+      "basis": "WRC-27 agenda item 1.7: in ITU Region 1 (which includes Iraq) 7.125-7.25 GHz and 7.75-8.4 GHz are under study for mobile use; the carrier occupies 7.8-8.2 GHz. 400 MHz is the maximum carrier bandwidth 3GPP agreed for the 7 GHz range in March 2026. Not identified for mobile use yet.",
+      "sources": [
+        "ITU-RES256",
+        "3GPP-RP260798",
+        "3GPP-TR38914"
+      ]
+    },
+    {
+      "id": "c6g_15000",
+      "label": "Candidate 6G 15 GHz",
+      "frequency_hz": 15000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "candidate",
+      "basis": "WRC-27 agenda item 1.7: 14.8-15.35 GHz is under study in all regions; the carrier occupies 14.8-15.2 GHz. 400 MHz is the bandwidth 3GPP assumes at 15 GHz for 6G evaluation; no carrier maximum has been agreed for this range. Used today in Iraq for fixed links and defence systems. Not identified for mobile use yet.",
+      "sources": [
+        "ITU-RES256",
+        "3GPP-TR38914",
+        "IRQ-NFAT"
+      ]
+    },
+    {
+      "id": "nr_28000",
+      "label": "5G NR mmWave",
+      "frequency_hz": 28000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "assumed",
+      "basis": "High-capacity 5G reference: NR bands n257 and n261, largest channel 400 MHz. No plan for this band in Iraq was found.",
+      "sources": [
+        "3GPP-TS38101-2"
+      ]
+    }
+  ],
+  "workload_before_run": {
+    "jobs": 300,
+    "cached": 300,
+    "to_trace": 0,
+    "estimate": {
+      "median_seconds_per_job": 0.5,
+      "max_seconds_per_job": 1.0,
+      "measurements": 300,
+      "estimated_seconds": 0.0,
+      "variant": "cuda_ad_mono_polarized",
+      "note": "Trace time only, measured on this PC with this backend. Worker start-up, scene loading and kernel-compilation retries added 44 % (standard run) and 70 % (preview run) on CPU. Not a laptop estimate."
+    }
+  },
+  "jobs": [
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "117b0f2150ebb7181d29001b05468cc5cd2868d0cdbab6b5b9f404b162594eed"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "4cf28874499bf46d5a0f88ff308564627e29959a16da706759ebfa2897da1c1e"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "cf93d6fbaa4586afa9a6ae44b0b93e2975a1127eb5cbecf9d85c5b1c9a4869d0"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-002",
+      "key": "ebaec6f3a0c0473c8e225d09bccafe8a29a472b7d38f5e8c5b243b17cda7df63"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-002",
+      "key": "e56aab3bbca26f4c5ca6aa334a61f651f245b57c918b4110d0c542fce9636ed0"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-002",
+      "key": "fbf6d44b252240225ccfb9522d7e2a54b01fccb327d5cff045d3cfb6ecb4725a"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-003",
+      "key": "e1b0b8db295df2e3a49bd6f6bc81ddaf94db3832afbc73ee0643197585e17f78"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-003",
+      "key": "c46b4d6b9c70253e6c855a67044bae62e69480407886ba95458bd2aa022c46c3"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-003",
+      "key": "6677149b4e4f3e6b434976e0980e96a1ddd6c48a14cd8d5421e803fd4c81b9cf"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-004",
+      "key": "2e0a8c1f0e7da6b3cf8e135e9721188be4bcd9dff0f8a76e43babe5f41c14334"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-004",
+      "key": "beea3bbd8e044b2a20a88b17d6ff927d96f8ae9244340f7f92e4c966f1dfe56e"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-004",
+      "key": "e2722d09e9b2a62cbb67483a3605bbc12fed1268850a34214f62182fd8c5bd70"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-005",
+      "key": "11b6d5a39ae9a1f84fc05da7bcf578d77ffccea5686cacad9a0c8b90cb422b5e"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-005",
+      "key": "200996bbe94bb8c6e5860fbafd077a7c914df1a1e7314ab9250fd11a07276826"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-005",
+      "key": "9c5e3a206a9ad33a75a83e0e71ca9019dacb3138715e890c3abef6ab100d90a7"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-006",
+      "key": "5099ec59de8ef0f6af5d3f9e3008b4c068cf001373b236064dc492b90b9647b8"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-006",
+      "key": "dac73f940578b8b361e3c6b1b51c44c8d92689eb1cf7286ace4b77dce03b8a16"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-006",
+      "key": "2e4457e8c44926f7ffc89709204642ded154c3edb89f39c7c774b914d40ab888"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-007",
+      "key": "d3d2689e86e7b556420acda55d76e6ea070baed2aafd4dddf885ba34f5c437f2"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-007",
+      "key": "1920a0ecc0767aa5b31c983da6af014d143778bc847a6df8b1ce2cf9c40e3621"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-007",
+      "key": "9b120c1ea460f3abb0f13c58b67d9a2480e1d6448a40814c4e467440715378c4"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-008",
+      "key": "d26bde54e5a1c65f49b6e9698cb7f40006de60fd45c7bd0ba2f40386200db410"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-008",
+      "key": "e6a8ef4709eb74639c6e2d7cec8b39adc98072d007e13080a850a3cf9d1d60af"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-008",
+      "key": "ed649bbc15dd38f90d15121f8fc5469840fa1441e910343f1dc55e56e3d6d75c"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-009",
+      "key": "cb983494edbb423cef1a1da03fd786d002858e69c059b9614577617f0a0a9dbb"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-009",
+      "key": "ff27839d2501b5584bf12cc067049f78e1964d5a92cfcfb6d280f3e8228d600e"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-009",
+      "key": "4e52bb2ba43a018147338e037ed31fb4ef5dddefc7cac8d517b8e448130d4cbf"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-010",
+      "key": "48ee0b8af98e0d59eaa28664f72a194e6e665e5c86efd1948100bf6b806d7b53"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-010",
+      "key": "22c53721f66a306a631aa162169c61e8e33977b7299a66351bf046a9b3558608"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-010",
+      "key": "252bdcb8afb79fbcc079359862de38bd889315bdc3551809bd148bc4a7a6025e"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-011",
+      "key": "98bbe3c2e3fe09ae20abcb9664f6708ea98c0c1dc1e0e31112f602ba080d9387"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-011",
+      "key": "4130a41be6fb1d2965152a8609dda33bd6b6bd26dbdc5ad816df345bfdaba5cf"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-011",
+      "key": "935bbc0a8e7f9e1d08134bb11c5369c3c4623509989e71c87dfc1ad15bbebee2"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-012",
+      "key": "1104bbe6199be0c821a2a57dc17a2e16c87771898930748038459868a27cacf5"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-012",
+      "key": "4a1a96008b74ae856554120ef5f66ee1b51cbff7c049ebfb7197162b2cb5c4b2"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-012",
+      "key": "cad7ee571aeb73a68709d634901e7538c934045106c4b60b644fba80c577319b"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-013",
+      "key": "fc4b9ae34e42777bc62bb1768d5f49dca54d550514fa05d9013e2247a6e73149"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-013",
+      "key": "c6a0b92b26fcc89971b17ddb3228b21cdcb5e9bbc4762f047d67c5efc05cebce"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-013",
+      "key": "6b742bc664b7a6731ff392d0b3105711a6fe2ed6843bd1ac70554b1692371ad7"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-014",
+      "key": "0a4472f429747e7d479640fcc01395b301f2fcaa9b76b632d85e9fd86221e8f4"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-014",
+      "key": "265aaada333d3d4a292e5a7e14845b4c671a8d28e3ae8f4bf18eeb4334e68baa"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-014",
+      "key": "cca56d2595df7ca7e2694b71640d4932cdb011d89d0ed4ade0130f539ffcb23f"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-015",
+      "key": "1aac0601b6057412c3c44700ae240b5922cdf0cb3cfcf8e81ea990dcfa7a2692"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-015",
+      "key": "49642f7d46fac2cb37bde2d368fada5879c92e3ff773469769092b66e49fc89e"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-015",
+      "key": "e40e37c1e64901aee062d495ca4fa2d4dea105930ab42d52428996ffca52dacc"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-016",
+      "key": "bbb98ce1c6adcbb5419be8acf04e207a2091f7a11476b7c03a6abf6354df62b4"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-016",
+      "key": "6f867c0dd9b4e33c8bfbad070a0c524696a3a435a179929f4fb3b87db54bcf1d"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-016",
+      "key": "75ddd00657565efc6a6b674455f013ce74cb82cccfcaab29cc01b0329688ce46"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-017",
+      "key": "b560dfdc4d8d139306d883512b2c315193ab965ebbe4de87468cc6485c014c0f"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-017",
+      "key": "4d57befb3679d36191b547cd003ed9cff35184d3fc057c1f1da8d376baac33a4"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-017",
+      "key": "0dca153ad390829f3f3babf232a40e2c57a213c4691e4e971c4b51df45b1f796"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-018",
+      "key": "7569d8378166fc64604ab8cee7dc7256e61c05f3e0578be35a02ef05829eca92"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-018",
+      "key": "5dfef5103aea3df0c9aca056b0c4bd203f7a977bf6fd5832df2e1ae9dc0d31ab"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-018",
+      "key": "8bf9530c844bb62fb29a5a3180351797a6318d798eb189fe345087a9572430cf"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-019",
+      "key": "6eecf8152257c1174528eb4fbe341c2de916d02bc65bce5a648b1ee3303d747b"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-019",
+      "key": "bf9ea4744a7202e9513321aed73f2b33bbcc33e31e98ac8538d4dcab5fcb641c"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-019",
+      "key": "8555618203c980240c1513fdf7994c5022848bfd7b394cf138075b42b87fad91"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-020",
+      "key": "39938ebd37804f622b61acd3081867269cb2bbf3a336c7c2cc529519e929a8d4"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-020",
+      "key": "edd4921f6aadb2b129da9cb50e38d7dc436c4314d79710ce5aa840425addfd0e"
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-020",
+      "key": "e1570231f5f46c8e937a9e6646d3899719e8c783c7f53082cd628fa05923d81b"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "3aafcf85d993fee8d456c98c2e254c43cbeb1df347e60119253dcb5986dca90d"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "b27ec3748e54926c8dfb87814b6a06286cf9e72543ab36905ff383b83433ed7a"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "e132a03378cc6e8f44785382f021d018a0bf092878df60fecb24257020517fea"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-002",
+      "key": "dcec9d2403ae4f58668bd3b9b506bbae0ba548353dc30506d44be37a51474138"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-002",
+      "key": "1bbc39e1db772affa8a1eaec872576fe45954bc35e0e760e9eb6681541c9a154"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-002",
+      "key": "427d288f916ccfb5767fa2f9a120b0329a42179ff043784b91e549d52bca574b"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-003",
+      "key": "bcdae3d2bb51d1f57d09619f3468aea25b4e0b10a034589e8d4df3739e1220e5"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-003",
+      "key": "8938ddf50b44c50fe4e33f105c489062687faeb3ac0d5f3a3abdf36ece849cd3"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-003",
+      "key": "ebba7e370cd187ea1c9375a07d8e7287eea936dc66f31d5685688de2d94793d5"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-004",
+      "key": "4cacc85e1f7199b07675ab7ad653d8cf7733c467a908af65057aae05ee46b26e"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-004",
+      "key": "5dcbb444fed0ac8aa88e1315f8ae9d343d992b876ac15bfc86a280c2582f225f"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-004",
+      "key": "f3896e3b9964bdc3a0e1ca24d5c790f3732304759c59e4bd19c4ccbb1e5b0dac"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-005",
+      "key": "633513c6c1547c848f33cd5cb2a308baaff02277b172a95fcbd74af53fb1b77f"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-005",
+      "key": "f78ed4699200b76171576c1b84619ef97f87c390df05414070d15caf903ee499"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-005",
+      "key": "4e47db9a467148fef55fad69e8e4d1c3f66c5ed9f184f1a67be3cb4cf081c4f0"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-006",
+      "key": "820ab907b9ec228f83325d893b46225bf679ba4dff63e67526146162873bc090"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-006",
+      "key": "0eeaf124f4d41caaa7688ad965afc8682ab90b8d26cc7c2dbd5369bc7faec959"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-006",
+      "key": "79b057e20aabde6341fe90aec1f9cc61cff760a78b657e11885f2978b835debe"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-007",
+      "key": "0f513fa2a5e66f37712d57f7db80ff4804dda6594b278bef3e7f36e8c82fd566"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-007",
+      "key": "3d94407ab05b9606d6778f3a7acbb8e3d9d2704f6fb331bc0e487aefbaa42072"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-007",
+      "key": "6817ecf3329ef3bfea4cc95317549b5aafe5821a1dde1cff19fc2ef9bedb901c"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-008",
+      "key": "6f9a43b735a8d9185da06effcb71c00d3e1ac511b2bfb95a4f571e048e135b92"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-008",
+      "key": "8e3d93cc2e71e97aee9bed0a722e4ca7ef9d4a700600b1e6b784612076572a50"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-008",
+      "key": "dfbd33ac62db331be69e69cb6770f0d304c747a5cc2a995a4917e5e6d0ae414e"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-009",
+      "key": "0427c8abebee9713b58ac7625b2f6da38cf261e37b8a4f1af1da18ef755d2358"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-009",
+      "key": "7aef0075d0ccb342b3efd2325b08b723f5a93096b5bc410fbe94a945a8655c97"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-009",
+      "key": "a42990ea653da50a1631289c925be54f2c3425e227aac782203dd885ed53612c"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-010",
+      "key": "46d331ebff3c3aa44c4147af507c51b688b6fae0fc7dd854040c2140fd534627"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-010",
+      "key": "68093a0fc3fbd0ffdbea6770d874edbdbac7427e4875115b0d49f661548f214b"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-010",
+      "key": "b629b356d83a9bd220b8dc1261830d8652eda40702194f98561990fd54b33ba6"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-011",
+      "key": "62a1356ffe555e3c8987f90b53d16cb96cedfa889b70cab61ff7aaf52b8dd88e"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-011",
+      "key": "8f350ad52c580e9b815386e9029f9f8fe5c41e784d7ffbcae7827ce772c5de3f"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-011",
+      "key": "0ac3275ee5e048ee675aef2ce600d2d006cc0aaf56eaf1a28ea77fb1c01c61fd"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-012",
+      "key": "8cf02c80f583bbce183073314166b79b5069b97912492869c8ba1198177b01cc"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-012",
+      "key": "89a8d30b5395bacdf678ef6113a98b1503ae5e4c3f49dd07c1001d1d9065b5c3"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-012",
+      "key": "6bfb3c5397e2c50bfa001b7b2425f79a30b0971df6819fa91ecfae68e8b56e3a"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-013",
+      "key": "f64e3353975460493746dd84fa984dbc7bd5d471717b1a5e5e172eab94232248"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-013",
+      "key": "ef1457dbeea7517fc62a176e6c85e10e7cb02315975ff66625b0aaa3819f650a"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-013",
+      "key": "6dc961d05b044f7e659c5612b133f7a96a710c5de22d6739ea6a49caa4e6ba56"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-014",
+      "key": "97b9fdf4b63af70217b45679378bab1a3251d794711162dd7defca9a3a5f3efa"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-014",
+      "key": "abb472f570b0e72e1ceee8da6707c558d584a69e84beb7a7867825e6c3a9e52b"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-014",
+      "key": "faac6d295745d2ea347c936d334ff0d1851292013fa2fd6dbb0d352967540524"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-015",
+      "key": "c0e03b8afbba88931a7c79de16df7fa02363f6cfc74c23e7da8a858891a036c7"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-015",
+      "key": "ade01abdf0591d0d009251cbbe08ea26b9ec9431e98a11c7065b80505267d0c6"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-015",
+      "key": "185fd92726e5b9a7e46137a09685eea881af94a6213d9434ac21f758f31ca4cc"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-016",
+      "key": "2796179beacf3a1067246ce8673138beb627479ad937af00a22af901d372c0f4"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-016",
+      "key": "824990904bb1eb7b7e7d40e98894fcd26b07d49d6424b11b425baf155317b8e6"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-016",
+      "key": "553bfdeaf02dc1b184601a0e6412fd435cc8de0c57722d2232751a6f0ff86bee"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-017",
+      "key": "eb7e5e9b65c28082a7810c89f21e4b36760a4db9068340e61fd4f88d16f369a3"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-017",
+      "key": "3ecfca42aac6fce09daecf5e01fcb918b471e7d2bb7cd7df3e1d5274d35fcaf5"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-017",
+      "key": "9f3f4a413ee5b4b41151c85166fc70cc316f3d230f0fe7ce826315a24fba54ff"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-018",
+      "key": "957149d886bfd2977afa3ed927c61fa8acee4100d11ec4ed9dc169bcda0d6b45"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-018",
+      "key": "6a983ce0f13c0b23350a895177933624ff093578fce53c61dbfb65897f0aadca"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-018",
+      "key": "9b31a7a87666f20a1d00aa6a8d83a657d7219c7566447c6b26f9791c1bd30cec"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-019",
+      "key": "0411fe7a7d9d66028b15d504bf3f9363fddd2bc57eec526150e3ca948bb1db42"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-019",
+      "key": "e5c33d8fdecd929b3b43251bb70f0ec0a77cc794cfcd7f9064d0f571db47151c"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-019",
+      "key": "e691f4485293c8bd22b28b7dbc2f65a3d883f75549d284c1b84144bd7d6a2a2f"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-020",
+      "key": "d68a00bc001b51b366b6706bb7f4fc5923d70c55fa7e375ab75b9b1ddcb36722"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-020",
+      "key": "ed0a1e02a30f533ee960a361dcf216af384fd246362bd02920825464e9847752"
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-020",
+      "key": "50f5b9a6ee0259aaad190e97842d256b161120a15761cc1351ec13e5b8052332"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "eb2c3ed74ddd0e7f47816823ff13693b6b56935df0188a8365278e67fe9747dc"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "3d0ec0767c5a90d3e1787611ef6b519641c7c0ba2696ecf02172f1137d1df0b5"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "fc21f8e79bfcc0569255420266b4c5f293fb3d361a50613562804f49f74d7e6a"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-002",
+      "key": "6a9e1e5dafdd1ceaada370cb52ef942ad679e110d91102b93b49d6b9177a601e"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-002",
+      "key": "37f100af0b33fb76adce88a9974e478e395a35882b90c79a8ec4909ec29344fe"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-002",
+      "key": "71ae234d4fb5ef5bdc759c0f37be8dce5dd175077805b0c0ec8be76d70a3fe67"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-003",
+      "key": "ab4ff087c5cd7794c7255c176bbe3db773569b357d3a89458bb9d6ed8bf0404a"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-003",
+      "key": "be33b5e3fe321d0007970309f02112388fb89c57b855cd4d82e07fa319efdb29"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-003",
+      "key": "7793195070f370d59e22957d065d29ca1e81b94b14f20b6571cf562ca3d1fac5"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-004",
+      "key": "9e3561bb84726d15355fde92e5311f5789ff58bafb960d0744c0fd1350383a8e"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-004",
+      "key": "802c9aca9f63ba16ced8294114b98f33575a0b4f8a7daeacee488dd8227f4a20"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-004",
+      "key": "d0d1cec4fb1516acef06d97e5ba3648d9f4490e1f8f9b62750efd944222d59ca"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-005",
+      "key": "f7b6b84f0cf0a6179afa17fe239b088dda31fa4bd7a7b51be6dffce85c85dc22"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-005",
+      "key": "70e67ae6647e31fd4dfb2045d16a4bd1df2b1f7b9bb4ec50d094d337b9c74234"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-005",
+      "key": "f91bdf342918a87d237bc9e75e3d6c98861d7e90bdea3a3b9016c1aa6759cdf8"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-006",
+      "key": "dc28668e11525a5012ccef60b953c6138e743e1b83e7c075b95ed19c4c0b6c1f"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-006",
+      "key": "500b57ca7fcf6acd138bf9e1a25a5c2a87a57fbb53a3b56d06680ed04ed7f92a"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-006",
+      "key": "90f50b9415439be24c6cbb8ca4a8dfc39e03c793a4e5e70159338fed45557b25"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-007",
+      "key": "53c98bbc079bf4911c4c4354469a589546b88172961a4be9a6f4e2e52d707293"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-007",
+      "key": "1f4826264d1d04dfb82b59d70af567460b6e032dde453055db5f68d5af6d14e2"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-007",
+      "key": "947a8ae1488aebca19eb8544d1b625813920c5e7f46a1b9f76fe9c03bdabc865"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-008",
+      "key": "59584c01346d9aad41a4703d541a389993c3f195fc88e2d61659e9dc31f37784"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-008",
+      "key": "04d9b2f37c6e1edb0a0dcd002d7b0d460b6bfaa0a21f5151ff91e48ef0221a68"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-008",
+      "key": "17f25b19d0727d370dbda1894db341a36f0060404c50cbf77137065d634523df"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-009",
+      "key": "231be73efe5fb759b17a873eab92814d088e91fdabc8a8cde1bfc356ef6bcf53"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-009",
+      "key": "5cdc03bd207e124cdd9571152eac0961c9f0f9434190a04595ddc33bc5b9c775"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-009",
+      "key": "066d8b75632c0c51f9ed6603e8e11a81e87e0fee064c84254e20865a74c58039"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-010",
+      "key": "5cd76855bf548e3544346ec03e4748ba7c2f31367e63a20d70f1e558af99f5df"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-010",
+      "key": "7273c8ee67bc556a9cb35cc535950b10b00465fedcb8a1de09593c5684d8692a"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-010",
+      "key": "3209efb223f37e2446693d279747c1a9b6fd64356ba68e3066b6ed9468aadc6e"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-011",
+      "key": "019aa8efd7a41f1b05c71a722dfae37a751214ad0ca2a94611759294ea2cfc88"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-011",
+      "key": "2e54bf8fdd691fa97ce8f4002e48bd14d931b77b6a1b840628d7897bbfa34eb5"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-011",
+      "key": "0b0bcf8247e790b610a43c2f8133ed3a841248e9d22da751aa4f9772ed53c9c5"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-012",
+      "key": "8b55d6aa50e5b30e13c60957950345bc5b0c348f210a56c592284f1d8fd56bc1"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-012",
+      "key": "8a02bbf88d2e7f7a11021d92b7d2ea073e581b7ca241b2f85aecce7249224249"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-012",
+      "key": "ba9eaa2df49b06fb1ea5c46c61602da6f6321e9d10e3fbd218b9de5b92d2c9ef"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-013",
+      "key": "f03ba7f808dcc1d48932e572673a75e0602c9926245e825431b247c69675074b"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-013",
+      "key": "dbf0d36bdd10324955c480f6fbf9063941d2010a535f51c47de5822bdd945255"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-013",
+      "key": "bbe061d73e6ea3e09b24e2f95d96de886e8aa54b5f2e490fd11e7e3874222d47"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-014",
+      "key": "a017b5f18f1f14c557d7ae5345f254962a4a555dcbd635265d5652c3ec5c7a08"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-014",
+      "key": "3c9b3145e58f0a8bf34c5ddab0ff189cbee3ac0c00fb4fa5df7e47264b31213a"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-014",
+      "key": "fe58c1b11a0183f4fb0587e24b1658d1bff79f25b50c8936f1de8989477cdc45"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-015",
+      "key": "3c0162749a0733fce669ea00c4db02810bc79f49059544239acaf81736184892"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-015",
+      "key": "df371ba99c2997b5d849c1a7c9af06b978069749b945741887d40bc675653fe0"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-015",
+      "key": "aaa4193d766819c2e6e719749b5fe289674e45cffc25744d67a5a5b4b4aa52dd"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-016",
+      "key": "eb3e0331388265ace5fe8a974ff1c4e0044496e0d6c8292ddc38d14c04d698b0"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-016",
+      "key": "a2d11ed3825e723088941dd58c49e8031b0bf354e7ba2be531ed7f4a2d8ef906"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-016",
+      "key": "98586dd98ff2a6ab85521603e398162353174f74eb1ee691a7dc50839834606f"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-017",
+      "key": "f99b427f2a3736b9d5c422f387e1bb31e62e3042c92b311d7e74bf39eaa9530d"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-017",
+      "key": "00a507b602b3e9478d8c7bac1f02f59b31bf68c8d1d6a5b91fa40d5f1b203a0e"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-017",
+      "key": "3f51d12aa9084b2ce2a6118d5794a480177ff84401793070b0ae38b3dd333175"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-018",
+      "key": "2af9f2c839f8b1dc190d4e7cb1550702a484204a239772e2ba0fac3535e3cde5"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-018",
+      "key": "2e06a4e555a81f45cf63ba274aa052c8037001f29f3bbb348c60244dc86690ca"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-018",
+      "key": "4af25857a759c9845edb02b3f6f0c6e8b9990d84bc4c0985558f68edacbbf4ec"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-019",
+      "key": "2f51cf7c3e1c8766d5d10876a48fa611d82c43fed148012b6c3242ddbffdb21a"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-019",
+      "key": "56ed00d9f2156bc931ee85cf37dc33be9ca3ec32d6ade98f535a0c3260f70637"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-019",
+      "key": "52ac3f5f22333192c84576a4593d30dceb7dca63a7dfe9a284d8352d35dd5561"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-020",
+      "key": "e5e8adcd631c0179094f809fbd9dfa9d8a0a1331ccf1e3c45a093ae102eeb987"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-020",
+      "key": "dc6d090e816d3ce292f3d5e9ead87e8746019df5dae4db0cafd451deff5133cd"
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-020",
+      "key": "825102284ae81ad1e5e4626410b390d8529a629c5e5631473b2ce842fc51cd7d"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "f5f25612c3a3731f81b1a6a89d8e4b1ea8666666df9a79bb53ae7e5be625842d"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "3b0e863c99504e3682ab8167072ffff362e25a7d1b4a3e784e2e0e0d75f8ada0"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "8de1178cb1ec1285e088becd88ed0c0e5c52008f83e822d5c3a178c4753c8fa2"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-002",
+      "key": "c069975c6f633da4aa78e03492b86230dccd7e9b8bd8ffc33488908a7aa712ed"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-002",
+      "key": "ac5df2a337f57700c5819554c26e6b398a06b9f64f96dfa2ada2c5f6fe7dcc99"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-002",
+      "key": "84b8e7d7b7dac35df628ad878ee9e68ff367745047ed477db7362ab682c9e750"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-003",
+      "key": "5b85265571daae15de0ed467ad97aafc1ed9e8ee7a6c8f2e02eab592db5fc99d"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-003",
+      "key": "13465cab5e6478214e4d2fe2b7a3e514a10dc63540e5f032e0b4fc76f01381a3"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-003",
+      "key": "abaa740f4507439354f0b45b90fda9d0913709739bb2cdb82e04bc34894136d6"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-004",
+      "key": "09fa5a9c26fb9ca3654391ff4dba0a1cabcc827c3f7ac40ec85f51bc6bdfe8e7"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-004",
+      "key": "6bdfac2424b188bbb6e1f43f599d359794fde2ae6fce9613fb782e57ce399500"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-004",
+      "key": "f4dc82f001b45bcee72a442a2863640810e523470cc15bd3af5754fdcfd8c78b"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-005",
+      "key": "7d00db00ac81273af6f59b46a82f68b6e5f979c8bd94176d984e576cbbdbf7f4"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-005",
+      "key": "45a0711b4706c127263c66e67493dc6bc2d5372278833532bee8bc2369cdf999"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-005",
+      "key": "3426967a147fac505f6b550f688e4077e223790711d546dea99b6606beac7978"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-006",
+      "key": "a8c3d74e3ec5f052b260336ce49910b52eeb44036b6a7eb74494d1d10ea58579"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-006",
+      "key": "0b0c4f73ff5fc61c87327d7122ecacfb4f1dc9e92a3895ff18eb4799e5fa724b"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-006",
+      "key": "54f88932d8df6067f3272c9b2f8461e03e47737a1d21f6b7712103ae96d778cb"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-007",
+      "key": "c65bf66aab45cdd35fa119b001b41e803bfe7a7549a714ab0883e755dbfabf00"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-007",
+      "key": "810a9ec81b2ce311e9565ccf65df8980a77807506b5c0fce33a41b07f044ed50"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-007",
+      "key": "1a60306edf5e33ae82cb912eebf9d0e4d24949846bcc8ea9e32889eb3487e6f7"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-008",
+      "key": "d36195914b8878b9c6ebc6eb78da76177328116c439b7ca8f6ae0093e8f0d280"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-008",
+      "key": "0bae8a64a4ffc8400324d8215bad1c0e100aad3621c673a6cbc2a8c8bca57cd4"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-008",
+      "key": "c8507f949cd41bf6aa174daa6cd5d0b709b11557c3a92416e0852d20bf1cd015"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-009",
+      "key": "9ebe16aa952aa37b6321cc1cbebf1480a5d3bce595611a04f38a4591f336369e"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-009",
+      "key": "9aa7b74aeb825129308680553374f9eb371de5126e73f25bc3eed681d392f16f"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-009",
+      "key": "db6a32fb66adda8a4eeca512ca8f65120f2cce79a8e580c3360c7bb2da68deca"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-010",
+      "key": "f70f7661e0664049416e67fc9276d2435d87643aa98aedaf144c2733076777b5"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-010",
+      "key": "be569312ecfe2a523efb80f31c8fbb02fcea997cf31c4d2992472d2a0889a2fe"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-010",
+      "key": "34c570ad8977de51e2241e0604aead4148460192a207ebe0d459cd2f908bfb7a"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-011",
+      "key": "2989a8e829d235aa40da302eadc2f9f46c0294485fe0a8b845c35c1138a705c8"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-011",
+      "key": "301e5674dd6744782ea7c6557908a2c646385aef6d1ce78b68b0e4dab122d77b"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-011",
+      "key": "aee0345668200fe9b1364416d4ea8531fc03e9096774e6e1e908d87d56a93188"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-012",
+      "key": "bbdd692095899badeac06c6c2a37840ab10a56637b8dab45f36de6ee2cfc41fc"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-012",
+      "key": "15feacf7d0b836a62204e3d17d65ab2858459136267b3b13dc98cf3f22f9837a"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-012",
+      "key": "31c1c084a26373d219ad29430844823caaa6498e562ab7db55240914126ec6e5"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-013",
+      "key": "d6b164d65c0d1166757fade792a50842f92045bdfe1e576c5f688e94315c12b4"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-013",
+      "key": "5e8440b28fcefd247e5d593bd73b90a22ebc3558275b6e1e9cafef93a7bbd912"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-013",
+      "key": "77c87d171dd688bfaba1d1f06e237b84a222025a75b08fcefe692c386c14ac9f"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-014",
+      "key": "c5a2508fc73f73b96bf3d73919f700fdc7f789620a64a828418a7f558a7563f3"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-014",
+      "key": "df90fbf4567a362506d1111f835dd02e76ef57a9a7ea5c7d8977ddf548b6b12c"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-014",
+      "key": "9052fbb55e8b18e92956d2101913bd0f4f97cba88615c80c047f8f8857db3c44"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-015",
+      "key": "ab03b75b91682d4e8313df776e86c3c6f0021c1687424da32e5efd3ea4b6f432"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-015",
+      "key": "0088c8ae0f67b3e67f646971fd2f3eb9e3a9e7736babde06aa42f1482c0f8b29"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-015",
+      "key": "8526f5f4e68ad6e4c64f245c6599b2af4495f0480c8d0a278b6951bfb13792aa"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-016",
+      "key": "6149bc3962edb3d54791f59e72a2ba40e7bd854af6395a0d70f55e24294941c7"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-016",
+      "key": "6b2ec0e46874089402518031ec7daaf758aa280b6a4cf13fe7b0680c95b0ce4d"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-016",
+      "key": "3d2d1b72c36443828e23f78c6ecc470c916aaee3c1ceed68453888fbbc7e6dc6"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-017",
+      "key": "62331b73dd1a13af66e405257d28244c6397efddc5d39530879cfe1dddeb8fa9"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-017",
+      "key": "c671377cf1e49a1aa0726c686c02c58a803bc07a2d7ec2a2a59079ad0a1d9c13"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-017",
+      "key": "8c0b25b9e4dcd675c6db33c2962ff9850638d2f50503b6d149b81b8f8f9cc234"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-018",
+      "key": "54b3cd983405bde216746c7a81cae03f131335ad679fa3ea3609ec56ee04b32a"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-018",
+      "key": "13ef956a686b2f2de9d3ff0b27cf05c9fc113005b8fd426e586337b0c7880d83"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-018",
+      "key": "c4a4bf6f660fd1796fa73c066f36ab921edc64397074cd0279444d28edf23802"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-019",
+      "key": "43aeae67333ca3923134bba2825f2217cd2dffc303f1ea233675fc42c6b68a4e"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-019",
+      "key": "e058a1dd9fc046fd738f162c4e8c3dcb9720ea152df79aa7113cf3cd67a440d5"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-019",
+      "key": "7efa2c379484cae510132daa308989f94b9cc9611844bc5b1f6f2181fa3fd32a"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-020",
+      "key": "8de76e0c7472596504d425f8a671f6c6ef9614058aa9bef15f8c90c9a0e51720"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-020",
+      "key": "f214d09741755834172120d71280d2b072522c21fd9dbae956894d4e160799cc"
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-020",
+      "key": "9fa01425070a64f8ae0f2c08d1531ce5e5faf5d00af21d3d8ab30269169a5ca3"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "e0d3e4514985d276af256c8b2d4ea5021e0ddf115494f1d45f08185be31fe351"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "6e081a673464461eafc81a4840daaafae76edde0dff4d3cba733e62209bb99f1"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "6cbd180e1d90636e8beb748d9afac39c0ee837129ee28bf62d183fab3196f40f"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-002",
+      "key": "f1158a02ef5f298ea2e12b7baa2aff54c8efb664b0a666edd7c13b386eae0e7f"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-002",
+      "key": "0f0a93063200a8acd036e4c9f2bc4654ebe01765f2644640bfd3ed30e3ac4e9a"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-002",
+      "key": "b3db891a01079d3670a538aa843d90fdbce381d2b153695cd107a9e170188c9d"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-003",
+      "key": "f418b109b3ccc8af159b6784014c0327bf0fb83d94691364b8462a8b01375890"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-003",
+      "key": "ba2640e54dff1b3e81562dfc76dcc8b72ef175193eaa8ea5e0dcc37fb85559fb"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-003",
+      "key": "450bfbb60397066a3c5dcdb2a344102fc5c96efd45ff17c12fb7c108c06e9f4a"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-004",
+      "key": "8f20414f1f4e2c225a3ff179c51b33c0adef8f5b57cd060ee74ee3c723d0217c"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-004",
+      "key": "a9a8c74af59dd4031a526e29b6113075ec3b7806c9a59e10ced30aecc4199cc7"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-004",
+      "key": "82d8975b2ba6864edb8358db1f979d602eb593151ca2f298945cf8b90cec14f9"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-005",
+      "key": "93347cd0482450afd9263b50ed357107ebc318fdc50d5a17e13ea0dc9e249b78"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-005",
+      "key": "2151f98648ac7eec823885124504b67b9091514ff0778f8117373beecf5e30e1"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-005",
+      "key": "6725b25c417778809aec2219d8d27679a700a6f66e980b3347b90faf691959d4"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-006",
+      "key": "4e45f4f2c0cf5745eea1bb9f8b447e7c3337a63fa7d49c8fa00991ac1038cdcc"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-006",
+      "key": "277918be2f39184803caf2cb98b8d8ac8fbc18923c9f41dc0b68629d2909688e"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-006",
+      "key": "9b7efa4469314d14b4034e0fa8240b7ab5579c058e80814d7b78bf3b3255fcfb"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-007",
+      "key": "7c3006559fa55b375af68ca1ae3fed07cce2382f2fd3a9dea0ccff1017899a0f"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-007",
+      "key": "7d3ad53d692d24f6865cea294bfebb7ea413c1c391dda341232904c4d0e931d2"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-007",
+      "key": "b16ab12060e10657a82d63abdff5f91a1a2e88450b23ef07bc9d7f79973d5a85"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-008",
+      "key": "5e175897d8f65e081e9e59075d9e8a8b3808bbe13643a58b510ef2b61c682ca5"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-008",
+      "key": "33c8249399b9914f31002382e48dffdc08958609af7dc3f3d850b6a3b7997eb1"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-008",
+      "key": "df854971f56ca4fe1f22c6a3f80323ad369fef21d10486848f5a94cad527ec70"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-009",
+      "key": "0c0e81a4a58832a4df8217434d469c897f1ff0028d32c5a75859940c267bffeb"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-009",
+      "key": "ff609d152c92d8c85abeb24ff44f2509c872102135df539f5c2d0bd47b210692"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-009",
+      "key": "7ede2d189eb8f7c87f7167c9cfa685428ba833c1aba015aee0565a63ef377b90"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-010",
+      "key": "3c28dc90f77c63c1335ffd51ac474a45b335ab9f2d9f3273e50dd7acb6afe068"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-010",
+      "key": "6466e1a982532386ca9ae529bfff17019aece43d8d1248d2690beb547a6b8b06"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-010",
+      "key": "9c18972f47c1fdea04f9b8f36b0e3658531046b59e40f23dce529a96d378df69"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-011",
+      "key": "be8513335653f5d9f009d5255df1ac3d5c51c6e4ac722ac5197eb5f869e71899"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-011",
+      "key": "3b7d5e4e802d909344d6fd62923115ca6a469c64b9ecaf34750951635430b693"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-011",
+      "key": "d52111e1b8365ee8a80e93cf34cb7b69af5fda3fb1e38e60b930db76a1fe220e"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-012",
+      "key": "5fdf2d1b3f211e9faacc9e939966318bf6cdc1e9605bee338d93c090cad6320e"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-012",
+      "key": "1d18a9243a0433e8d9e9c8d3dffb6908f72e01052f3209822140aacd7601de70"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-012",
+      "key": "f575606e0bcb3f23fa7f83b4fc5f5a0c9dc3ae0e4029c552f997136ce81fb938"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-013",
+      "key": "c8639c8c910665a14a51e60f30535745074cc881de42e3a6219c4007c89f8525"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-013",
+      "key": "f8bf118653ebca63e754c2373ff4e60ccdd1cf60c11703f797d9967e3fcedc71"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-013",
+      "key": "4bbc2e87d06d214d26212449170be186045541c50a2ebc01c08562ed80d42399"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-014",
+      "key": "c52d8c293e5a7ed07ab6acb993ed1382faea7b212992828585be80bae5693959"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-014",
+      "key": "d525375c180977fa1996d73a424c656bf7263d3f894cad60e5598a6a07db53ec"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-014",
+      "key": "6da29edd42af25c8c5a42c487a8701837ae5478697321b19241ae5974a7bdfc5"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-015",
+      "key": "fc18df284795fb4f136c2ab03abb3364067143149424852fed6c22408889c190"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-015",
+      "key": "eef84f448f9ac4cca61bbad19e164b57e5755fa51e08882baa528f336bf681fa"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-015",
+      "key": "fa507229e8f49a36d906fd9b83d7947ce8df5c46deafdf4610757131d7e2e1b4"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-016",
+      "key": "965972d011582bc185ce8abdc86b636d9b92c2b2ab08be34e414cda707c76686"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-016",
+      "key": "a8e7b0ea9a40fdf9fdc46041013afca9788e41e09d5c22c902c9446cb3e29215"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-016",
+      "key": "519c3f7c1be287af935320e8963074f3de03e625c94784247357af1988dedab4"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-017",
+      "key": "da52039390a42865e3226b712f5cc96aa9e157cf1bb951ecd11c359c33f165ed"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-017",
+      "key": "7af162ce0f88d9b5d57dd75557253bf7ad6b1d5daa666eb6440b3fbbe1e91169"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-017",
+      "key": "d7ad24574ad9f2df0b00fa0898558feb9a9f61519218e27fc75eff41c5239e1a"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-018",
+      "key": "fba33d10e6b9c1bc6c35cb436819d0f7ce3f5af45513366b5f351425d43d284f"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-018",
+      "key": "88253ef2e73406a9f8eeec8bfc0b6acefa33117b2093aeaa23ba79be1686d101"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-018",
+      "key": "7a71adceb8681eec77b23e2f0a7436aa192360e8da506d8daa6eafbdff0ec7b1"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-019",
+      "key": "52665caf809cb6502a4ce67456ea975af402c4c831355316786a58fe224b4a4a"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-019",
+      "key": "6a84bbe4e42f632582597746d72d487a3b86f19866e31f66a6b4f7f79de08ab9"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-019",
+      "key": "9e75e5d8e2abc08e35d4b6ca337cb1d0cc25e45f8ab5b66f64b8a6bb505c8ef8"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-020",
+      "key": "68ed4b3390f5a75b5221e7a6b2d41ac6f71f97379f85bf2879698b28abb36feb"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-020",
+      "key": "89792b1b04b10e1e83889208f5afcafa13122493932284ac7232c8ff1ebd2598"
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-020",
+      "key": "6908819f078c5f9cb5c1631923f61981209d16f1b2ca175788cf1129b58b980c"
+    }
+  ],
+  "timing": {
+    "trace_wall_seconds": 0.6,
+    "selection_seconds": 0.3,
+    "total_wall_seconds": 5.5
+  },
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  }
+}

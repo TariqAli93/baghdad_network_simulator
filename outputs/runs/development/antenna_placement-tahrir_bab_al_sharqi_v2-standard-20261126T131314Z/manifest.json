@@ -1,0 +1,126 @@
+{
+  "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+  "kind": "antenna_placement",
+  "source_run": "single_site-tahrir_bab_al_sharqi_v2-osm-standard-20261126T105044Z",
+  "site": {
+    "candidate_id": "site-001",
+    "x": -177.90098845773826,
+    "y": -131.23326489986027,
+    "z": 58.0,
+    "building_id": "way/919688856",
+    "roof_height_m": 55.0,
+    "footprint_area_m2": 833.4210671361501,
+    "height_category": "observed"
+  },
+  "mast_height_m": 3.0,
+  "roof_area_m2": 833.4210671361501,
+  "roof_bounds_m": [
+    -192.48062214957787,
+    -153.65358902082454,
+    -153.24512863333555,
+    -113.31557137106178
+  ],
+  "interior_point_m": [
+    -177.90098845773826,
+    -131.23326489986027,
+    58.0
+  ],
+  "placements": {
+    "0": {
+      "azimuth_deg": 0.0,
+      "interior_to_edge_m": 11.005777977849249,
+      "edge_position_m": [
+        -167.89521047988902,
+        -131.23326489986027,
+        58.0
+      ]
+    },
+    "1": {
+      "azimuth_deg": 119.99999999999999,
+      "interior_to_edge_m": 12.355938245389272,
+      "edge_position_m": [
+        -183.5789575804329,
+        -121.39873389554587,
+        58.0
+      ]
+    },
+    "2": {
+      "azimuth_deg": 239.99999999999997,
+      "interior_to_edge_m": 19.24547356568123,
+      "edge_position_m": [
+        -187.0237252405789,
+        -147.03430851181767,
+        58.0
+      ]
+    }
+  },
+  "inset_m": 1.0,
+  "profile": {
+    "name": "standard",
+    "cell_size_m": 10.0,
+    "rays_per_site": 1000000000
+  },
+  "backend": "cpu",
+  "edge_jobs": {
+    "nr_3500": [
+      "cde36a9eb6b348223faa5c9a1224bc3a2ff436e59eda16d84b4bb9036a0abbdd",
+      "fba7b6b4235a01bd7271eb20f2512dc1d40fe10f20d97df3c6844d54903159a0",
+      "f250fa57334c330aac091b401d43145838237634b97da25e60c4bd31da9f73cc"
+    ],
+    "nr_28000": [
+      "d4c0c593a67676a133d5a4424914834da2e13640870216581d465a3a14e996ef",
+      "42610b530ec22468ab62e23a8e25c982f3823e91249ef4011ac04922969ab4ec",
+      "3f2734ffb44c72579749efd3f19cf3d323630d924a8100eeaa25c90130183722"
+    ]
+  },
+  "results": {
+    "nr_3500": {
+      "interior": {
+        "coverage": 0.9983747765317731,
+        "near_site_uncovered_share": 0.003915426781519186,
+        "sinr_median_db": 19.201671679245845,
+        "sinr_p5_db": 2.430683217898331,
+        "rate_p5_mbps": 145.9495673328328,
+        "rate_median_mbps": 639.4309092997024
+      },
+      "edge": {
+        "coverage": 0.9998374776531773,
+        "near_site_uncovered_share": 0.0007830853563038371,
+        "sinr_median_db": 22.731604790433334,
+        "sinr_p5_db": 3.5299619562422238,
+        "rate_p5_mbps": 170.2311576978215,
+        "rate_median_mbps": 755.8946782220215
+      }
+    },
+    "nr_28000": {
+      "interior": {
+        "coverage": 0.8909475052819763,
+        "near_site_uncovered_share": 0.3241973375097886,
+        "sinr_median_db": 9.674540116332059,
+        "sinr_p5_db": -15.81029280312112,
+        "rate_p5_mbps": 14.947515130353594,
+        "rate_median_mbps": 1344.1534985975238
+      },
+      "edge": {
+        "coverage": 0.9665203965545263,
+        "near_site_uncovered_share": 0.022709475332811275,
+        "sinr_median_db": 14.526564913878712,
+        "sinr_p5_db": -4.824398245871648,
+        "rate_p5_mbps": 164.25673543357706,
+        "rate_median_mbps": 1950.2481896567624
+      }
+    }
+  },
+  "seconds": 671.5,
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  }
+}

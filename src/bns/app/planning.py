@@ -34,10 +34,11 @@ class Stacks:
 
 
 def load_stacks(root, run, scenario_id: str) -> Stacks:
-    if run.kind != "multi_site":
-        raise PlanningError("Site planning needs a multi-site run (scripts/run_multi_site.py).")
+    if run.kind not in ("multi_site", "site_plan"):
+        raise PlanningError("Re-evaluation needs a multi-site run or a site plan.")
     m = run.manifest
-    exp = ex.load(root, m["area"]["name"], m["area"]["variant"], m["profile"]["name"], m["mode"])
+    exp = ex.load(root, m["area"]["name"], m["area"]["variant"], m["profile"]["name"], m["mode"],
+                  backend="cpu")                    # nothing is traced here; cached maps carry their backend
     if exp.grid.__dict__ != {**m["grid"], "center_xy": tuple(m["grid"]["center_xy"]),
                              "size_xy": tuple(m["grid"]["size_xy"])}:
         raise PlanningError("The receiver grid of the current configuration differs from the run's.")
@@ -60,12 +61,15 @@ def load_stacks(root, run, scenario_id: str) -> Stacks:
     return Stacks(exp, scenario, np.stack(maps), sector_site, loss, changed)
 
 
-def evaluate(s: Stacks, selection: tuple[int, ...], *, interference_activity: float | None = None) -> NetworkResult:
+def evaluate(s: Stacks, selection: tuple[int, ...], *, interference_activity: float | None = None,
+             coverage_threshold: float | None = None) -> NetworkResult:
     if not selection:
         raise PlanningError("Select at least one site.")
     inputs = ex.radio_inputs(s.experiment, s.scenario)
     if interference_activity is not None:
         inputs = replace(inputs, interference_activity=float(interference_activity))
+    if coverage_threshold is not None:
+        inputs = replace(inputs, coverage_threshold=float(coverage_threshold))
     keep = np.isin(s.sector_site, selection)
     remap = {site: k for k, site in enumerate(sorted(selection))}
     return network(s.stack[keep], np.array([remap[i] for i in s.sector_site[keep]]), s.experiment.outdoor,
@@ -73,8 +77,9 @@ def evaluate(s: Stacks, selection: tuple[int, ...], *, interference_activity: fl
 
 
 def greedy(s: Stacks, target: float, *, interference_activity: float | None = None,
-           max_sites: int | None = None) -> SinrGreedyResult:
+           coverage_threshold: float | None = None, max_sites: int | None = None) -> SinrGreedyResult:
     n_sites = int(s.sector_site.max()) + 1
     return greedy_sinr_site_selection(
-        lambda sel: evaluate(s, sel, interference_activity=interference_activity).radio.summary["coverage_fraction"],
+        lambda sel: evaluate(s, sel, interference_activity=interference_activity,
+                             coverage_threshold=coverage_threshold).radio.summary["coverage_fraction"],
         n_sites, target, max_sites)

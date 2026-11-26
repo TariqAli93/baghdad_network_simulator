@@ -133,12 +133,14 @@ def main() -> int:
     parser.add_argument("--sites", type=int, default=4, help="number of observed-height sites (default 4)")
     parser.add_argument("--min-height", type=float, default=10.0, help="minimum observed roof height [m]")
     parser.add_argument("--min-spacing", type=float, default=100.0, help="minimum distance between sites [m]")
+    parser.add_argument("--backend", choices=("cpu", "gpu", "auto"), default="cpu",
+                        help="ray-tracing backend (default cpu; gpu needs an NVIDIA driver)")
     parser.add_argument("--cancel-file", type=Path, help="stop cleanly when this file appears")
     args = parser.parse_args()
     started = time.perf_counter()
 
     try:
-        exp = ex.load(ROOT, args.area, args.variant, args.profile, args.mode)
+        exp = ex.load(ROOT, args.area, args.variant, args.profile, args.mode, backend=args.backend)
         placed = (ex.place_sites(exp, args.buildings) if args.buildings else
                   ex.observed_sites(exp, args.sites, min_height_m=args.min_height, min_spacing_m=args.min_spacing))
     except Exception as exc:                        # research refusals, missing data
@@ -149,6 +151,7 @@ def main() -> int:
         return 1
     print(f"SITES {len(placed)}: " + ", ".join(f"{s.candidate_id} on {s.building_id} ({s.roof_height_m:g} m "
                                                 f"{s.height_category})" for s in placed), flush=True)
+    print(f"BACKEND {exp.backend}: {exp.backend_note}", flush=True)
     target = exp.system.require("coverage_target", mode=args.mode)
     jobs = ex.jobs_for(exp, placed)
     all_jobs = [j for js in jobs.values() for _, j in js]
@@ -231,6 +234,10 @@ def main() -> int:
     memory = psutil.Process().memory_info()
     manifest = {
         "label": exp.label, "run_id": run_id, "kind": "multi_site", "mode": args.mode,
+        "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,
+                    "variant": all_jobs[0].engine["variant"],
+                    "status": (exp.config.backends or {}).get(exp.backend, {}).get("status"),
+                    "gpu": runtime.gpu_description() if exp.backend == "gpu" else None},
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "area": {"name": exp.area.name, "role": exp.area.role, "approved": exp.area.approved, "variant": exp.variant,
                  "osm_snapshot_sha256": exp.quality["osm_snapshot_sha256"],

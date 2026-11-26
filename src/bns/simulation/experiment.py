@@ -56,6 +56,8 @@ class Experiment:
     outdoor: np.ndarray
     antennas: list[Antenna]
     mast_height_m: float
+    backend: str = "cpu"
+    backend_note: str = ""
     extra: dict = field(default_factory=dict)
 
     @property
@@ -71,7 +73,29 @@ def load_scenarios(root: Path) -> list[dict]:
     return sorted(scenarios, key=lambda s: s["frequency_hz"])
 
 
-def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str) -> Experiment:
+def resolve_backend(requested: str, config: SimulationConfig, mode: str) -> tuple[str, str]:
+    """'cpu', 'gpu' or 'auto' -> the backend to use and why. GPU never silently replaces a refusal."""
+    from bns import runtime
+
+    if requested not in ("cpu", "gpu", "auto"):
+        raise ExperimentError(f"backend must be cpu, gpu or auto, not {requested!r}.")
+    statuses = {k: (v or {}).get("status", "") for k, v in (config.backends or {}).items()}
+    if requested == "cpu":
+        return "cpu", "CPU selected."
+    if requested == "auto" and mode == "research":
+        return "cpu", "Auto in research mode: CPU, the only production backend."
+    available, message = runtime.probe_gpu()
+    if requested == "gpu":
+        if not available:
+            raise ExperimentError(message)
+        if mode == "research" and statuses.get("gpu") != "production":
+            raise ExperimentError(f"The GPU backend is '{statuses.get('gpu')}', not approved for research runs.")
+        return "gpu", message
+    return ("gpu", message) if available else ("cpu", message)
+
+
+def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
+         backend: str = "cpu") -> Experiment:
     root = Path(root)
     areas = load_study_areas(root / "configs" / "study_area.yaml")
     if area_name not in areas:
@@ -97,8 +121,9 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str)
     outdoor = outdoor_mask(grid, [b.polygon for b in buildings])
     antennas = sector_antennas(system, mode=mode, polarization=config.polarization)
     mast = system.require("antenna_height_above_roof_m", mode=mode)
+    chosen, note = resolve_backend(backend, config, mode)
     return Experiment(root, area, variant, mode, profile, system, config, load_scenarios(root), baseline,
-                      label, scene_dir, quality, buildings, grid, outdoor, antennas, mast)
+                      label, scene_dir, quality, buildings, grid, outdoor, antennas, mast, chosen, note)
 
 
 def place_sites(exp: Experiment, building_ids: list[str]) -> list[sites.Candidate]:
@@ -130,7 +155,7 @@ def jobs_for(exp: Experiment, placed: list[sites.Candidate]) -> dict[str, list[t
     for sc in exp.scenarios:
         out[sc["id"]] = [(i, job) for i, s in enumerate(placed)
                          for job in site_jobs(exp.scene_dir, sc["frequency_hz"], (s.x, s.y, s.z), exp.antennas,
-                                              exp.grid, exp.config, exp.profile.rays_per_site)]
+                                              exp.grid, exp.config, exp.profile.rays_per_site, exp.backend)]
     return out
 
 
@@ -152,14 +177,17 @@ def gas_loss_db(exp: Experiment, scenario: dict, position_m) -> np.ndarray:
     return atm.attenuation_map_db(position_m, exp.grid, gamma)
 
 
-def measured_trace_seconds(cache: PathGainCache, rays_per_site: int, cell_size_m: float) -> list[float]:
-    """Trace times recorded in the cache for jobs with this ray count and cell size (this PC)."""
+def measured_trace_seconds(cache: PathGainCache, rays_per_site: int, cell_size_m: float,
+                           variant: str | None = None) -> list[float]:
+    """Trace times recorded in the cache for jobs with this ray count, cell size and variant (this PC)."""
     seconds = []
     for meta in cache.root.glob("*/*.json"):
         try:
             m = json.loads(meta.read_text(encoding="utf-8"))
             job = m["job"]
-            if int(job["rays_per_site"]) == int(rays_per_site) and float(job["grid"]["cell_size_m"]) == float(cell_size_m):
+            if (int(job["rays_per_site"]) == int(rays_per_site)
+                    and float(job["grid"]["cell_size_m"]) == float(cell_size_m)
+                    and (variant is None or job["engine"]["variant"] == variant)):
                 seconds.append(float(m["seconds"]))
         except (KeyError, ValueError, TypeError):
             continue
@@ -171,14 +199,16 @@ def workload(jobs: list[PropagationJob], cache: PathGainCache, rays_per_site: in
     unique = {j.key(): j for j in jobs}
     cached = sum(1 for k in unique if cache.has(k))
     to_trace = len(unique) - cached
-    measured = measured_trace_seconds(cache, rays_per_site, cell_size_m)
+    variant = jobs[0].engine["variant"] if jobs else None
+    measured = measured_trace_seconds(cache, rays_per_site, cell_size_m, variant)
     estimate = None
     if measured:
         median = statistics.median(measured)
         estimate = {"median_seconds_per_job": round(median, 1), "max_seconds_per_job": round(max(measured), 1),
                     "measurements": len(measured),
                     "estimated_seconds": round(median * to_trace, 0),
-                    "note": "Trace time only, measured on this PC. Worker start-up, scene loading and "
-                            "kernel-compilation retries added 44 % (standard run) and 70 % (preview run) "
-                            "on top. Not a laptop estimate."}
+                    "variant": variant,
+                    "note": "Trace time only, measured on this PC with this backend. Worker start-up, scene "
+                            "loading and kernel-compilation retries added 44 % (standard run) and 70 % "
+                            "(preview run) on CPU. Not a laptop estimate."}
     return {"jobs": len(unique), "cached": cached, "to_trace": to_trace, "estimate": estimate}

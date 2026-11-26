@@ -1,6 +1,6 @@
 # Decisions for the supervisor
 
-Updated 2026-11-26 (Phases 3-4). Related questions are merged so that there are **four
+Updated 2026-11-26 (Phases 3-4; evidence added in Phases 5-10). Related questions are merged so that there are **four
 decisions needed before final experiments**, three before conclusions, and a short list of
 optional refinements. Nothing here is assumed approved. The software runs in development
 mode on proposed values meanwhile; research runs refuse unapproved values.
@@ -14,7 +14,7 @@ mode on proposed values meanwhile; research runs refuse unapproved values.
 | B1 | Validation scope and what counts as agreement | Scientific conclusions | No |
 | B2 | Accepting the engine's limitations | Scientific conclusions | No |
 | B3 | Data-rate reporting | Scientific conclusions | No |
-| C1-C5 | Optional refinements | — | No |
+| C1-C6 | Optional refinements (C6: GPU backend for research runs) | — | No |
 
 ---
 
@@ -82,6 +82,10 @@ the observation file.
 - *Missing footprints.* Recovering the 577 footprints OSM lacks needs a footprint download:
   the GBA ODbL polygon tile (2.09 GB) or Microsoft footprints directly. Approve one, or accept
   the incompleteness and choose a district with complete OSM footprints (A1).
+- *Licence handling now in place.* GBA per-building values are kept out of the repository
+  (git-ignored since Phase 7); only aggregate evaluation results are committed. They were
+  committed once, in `e0d8a8e` (Phase 5-6); history was not rewritten. If the licence is
+  judged incompatible with the project's use, that commit's GBA files need a decision too.
 
 ### A3. Radio-system parameters
 
@@ -115,6 +119,16 @@ after one site in four of five bands. If the study is to find the site *count* p
 either a stricter coverage criterion (for example a rate or SINR at the cell edge) or a load
 below 1.0 must be chosen, and the choice must be the same for all bands. Both are
 re-evaluated from the cache without tracing (Site planning page).
+
+**Sensitivity analysis (Phase 7, cached maps, four development sites).** Thresholds −10 to
++6 dB × loads 1.0 / 0.5 / 0.2 (only −10 dB and loads 1.0, 0.5 are sourced; the rest is a
+sweep). At full load and 0 dB, four sites cover *less* than one (1.8 GHz: 82 % vs 100 %);
+the greedy then keeps one site. At 28 GHz more sites raise coverage at thresholds up to 0 dB.
+With 20 rooftop candidates the greedy needs 1/1/1/1/2 sites (1.8/3.5/8/15/28 GHz) at the
+candidate values, 1/1/1/2/3 at 0 dB and full load (28 GHz stalls at 91 %), 1/1/2/2/3 at
++3 dB and half load. The required site count is therefore set by the threshold and load
+more than by anything else: they must be chosen on their own merits, before results are
+known, and kept equal for all bands (`outputs/runs/development/*/sensitivity.md`).
 
 ### A4. Base-station sites
 
@@ -154,6 +168,13 @@ RMSE and path-loss exponents beside published measured exponents (1.8-2.3 line o
 **Evidence.** Published comparisons of ray tracers with measurements show errors of 8-21 dB
 (`docs/related-studies.md`, R7, R8).
 
+**Done (Phase 7).** (i) Controlled comparison with TR 38.901 UMa/UMi at exactly 25 m and
+10 m, LOS/NLOS from a line-of-sight trace, RMSE and fitted exponents
+(`docs/validation.md` §8, `outputs/validation/`). (ii) The MATLAB package is prepared
+(`validation/matlab/`) but not executed. Still needed: the criterion for "agreement" with
+MATLAB (suggestion: median |difference| in LOS cells within the profile's convergence floor,
+reported with RMSE, not as pass/fail).
+
 ### B2. Accepting the engine's limitations
 
 **Question.** Are these acceptable as documented limitations? Diffraction is first-order and
@@ -183,6 +204,17 @@ studies use such a form.
 | C5 | Deployment illustration with array gain per band | Discussion only, by link-budget arithmetic | None |
 
 ---
+
+### C6. GPU backend for research runs
+
+**Question.** May final runs use the GPU backend on the development PC?
+
+**Recommendation.** No for the thesis results; yes for exploration. The GPU agrees with the
+CPU within 0.03 dB (median) and 0.45 dB (95th percentile) of path gain, with no change in
+coverage class and 5th-percentile rates within 1.2 % (`docs/validation.md` §7), and is
+13-16× faster. But the laptop has no NVIDIA GPU, and the Phase 0 gate and all validation
+are on the CPU path. Research mode therefore refuses the GPU until this is approved
+(`configs/simulation.yaml`, `backends.gpu.status`).
 
 ## D. Technical decisions taken without the supervisor
 

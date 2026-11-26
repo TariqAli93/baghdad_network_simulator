@@ -182,3 +182,14 @@ def fmt(value, spec: str, unit: str = "", scale: float = 1.0) -> str:
     if value is None or (isinstance(value, float) and not np.isfinite(value)):
         return "—"
     return f"{value * scale:{spec}}{unit}"
+
+
+def markdown_file(path) -> None:
+    """Show a saved Markdown note: its label line as the banner, headings two levels smaller."""
+    from pathlib import Path as _P
+
+    lines = _P(path).read_text(encoding="utf-8").splitlines()
+    if lines and lines[0].startswith("# ") and "APPROVED" in lines[0]:
+        development_banner(lines[0][2:].strip())
+        lines = lines[1:]
+    st.markdown("\n".join("##" + ln if ln.startswith("#") else ln for ln in lines))

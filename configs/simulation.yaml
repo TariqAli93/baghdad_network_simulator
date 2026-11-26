@@ -44,3 +44,18 @@ mechanisms:
 # do not depend on it (docs/benchmarks.md, E1 and E4).
 seeds: [1]
 polarization: V
+
+# Execution backends (same scene, settings and cache-key fields; the variant differs).
+# Research runs accept only a backend whose status is "production". GPU maps are cached
+# separately from CPU maps and are not interchangeable without the recorded agreement.
+backends:
+  cpu:
+    status: production
+    basis: >-
+      Phase 0 validation (E1-E5), convergence and every run so far; the target laptop has
+      no NVIDIA GPU, so the CPU path is mandatory.
+  gpu:
+    status: validated for development
+    basis: >-
+      RTX 3060, CUDA variant of the installed Mitsuba wheel: path gain within 0.1 dB
+      (median) of CPU maps; radio-level agreement in docs/validation.md section 7.

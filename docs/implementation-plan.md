@@ -596,3 +596,115 @@ height and antenna placement at the roof edge; B1-B3. Phase 0 laptop gate.
 2. Phase 7: TR 38.901 and MATLAB cross-checks on the laptop; close the laptop gate.
 3. Site planning at scale (A4 candidates) with the preview profile, final runs at standard.
 4. Application: Reports and Roadmap pages once results exist.
+
+---
+
+## Phases 7-10 report: validation, site planning, comparison, roadmap, application (2026-11-26)
+
+**Status.** Phase 5-6 checkpoint: `e0d8a8e`, tags `v0.5.0` and `v0.5.0-multisite-application`
+(the requested message differs from the commit's; history not rewritten). Work on branch
+`phase-7-10-validation-planning-roadmap`. **Software: release candidate. Science: blocked**
+(A1-A4, B1-B3, laptop gate, convergence acceptance, MATLAB execution). Every run is labelled
+DEVELOPMENT — NOT APPROVED FOR RESEARCH.
+
+### Reused, not rebuilt
+
+Geospatial pipeline, height provenance, Sionna RT engine and worker isolation, path-gain
+cache, radio configuration states, single- and multi-site network, SINR greedy, run control,
+saved-run loading, plot style.
+
+### New
+
+1. **Optional GPU backend** (straightforward: the CUDA variant ships in the installed wheel).
+   `--backend cpu|gpu|auto` in the scripts and the Run page; GPU probe in a separate process
+   with a diagnostic; backend in every cache key and manifest; research runs refuse a
+   non-production backend (GPU status: *validated for development*). Radio-level agreement on
+   the four-site experiment: path gain |Δ| median ≤ 0.03 dB, p95 ≤ 0.45 dB, no coverage-class
+   change, 5th-percentile rate within 1.2 %; 16× faster (`docs/validation.md` §7).
+2. **Defect fixed:** concurrent runs shared batch files in `data/cache/work`; each call now
+   has a private folder (regression test added).
+3. **Sensitivity** (`scripts/run_sensitivity.py`, cached maps): thresholds −10…+6 dB × loads
+   1.0/0.5/0.2. At full load and 0 dB four sites cover less than one (1.8 GHz 82 % vs 100 %);
+   only at 28 GHz do more sites raise coverage at thresholds up to 0 dB. An *illustrative*
+   equal-share rate is reported separately from the Shannon bound.
+4. **Phase 7 validation** (`docs/validation.md` §8-10): TR 38.901 UMa/UMi formulas with tests;
+   controlled comparison (isotropic, 25 m / 10 m, five bands, LOS/NLOS from a LOS-only trace,
+   preview profile). UMa LOS within σ (RMSE 3.6-3.9 dB, 3.5-28 GHz); NLOS 10-18 dB less loss
+   than 3GPP because the open, placeholder-height district is far more line-of-sight (85 %)
+   than the model's layout. MATLAB package prepared (`validation/matlab/`), not executed.
+5. **28 GHz near-site gap, controlled experiment** (`scripts/experiment_antenna_placement.py`):
+   only the sector positions moved from the roof's interior point to the roof edge (11-19 m
+   away, same 3 m mast, tilt, profile, backend). Uncovered cells within 250 m: 32.4 % → 2.3 %
+   at 28 GHz, 0.4 % → 0.1 % at 3.5 GHz; 28 GHz 5th-percentile rate 15 → 164 Mbit/s. Evidence
+   for the roof-shadow mechanism on one building; placement stays decision A4.
+6. **Phase 8 site planning** (`scripts/plan_sites.py`, Site planning page): 20 rooftop
+   candidates, SINR greedy on whole-network coverage, selection history, final maps,
+   uncovered cells, all-candidates reference, stop reasons distinguished, overrides only as
+   recorded sensitivity cases.
+
+   | Case | 1.8 | 3.5 | 8 | 15 | 28 GHz | All 20 candidates on |
+   |---|---|---|---|---|---|---|
+   | −10 dB, load 1.0 (candidate) | 1 | 1 | 1 | 1 | 2 | 100 % |
+   | 0 dB, load 1.0 | 1 | 1 | 1 | 2 | 3 (stall at 91.3 %) | 47-51 % |
+   | 0 dB, load 0.5 | 1 | 1 | 1 | 2 | 2 | 76-80 % |
+   | +3 dB, load 0.5 | 1 | 1 | 2 | 2 (stall 93.3 %) | 3 (stall 92.6 %) | 47-51 % |
+
+   Sites selected (greedy, target 95 %, preview, GPU backend, placeholder-height candidates):
+   not a minimum, and with a 55 m tower among the candidates. Switching all candidates on lowers
+   coverage sharply: adding sites is not assumed to help, and up to 40 degrading additions were
+   recorded per run.
+7. **Phase 9 comparison** (Comparison page): scenarios in one run (coverage vs frequency,
+   received power, median SINR, SINR and rate CDFs, single vs network, coverage vs number of
+   sites), across runs with a comparability check (area, grid, profile, mechanisms, antennas,
+   radio parameters, overrides, backend, mode) and a warning naming every difference, site
+   counts and density, TR 38.901 RMSE, sensitivity, limitations.
+8. **Phase 10 roadmap** (6G roadmap page, `configs/roadmap.yaml`): four stages; each item is
+   verified (registry ID required, unit-tested), a provisional result read from saved runs, or
+   an open question; student recommendations are typed and saved locally; no generated
+   conclusions and no deployment dates.
+9. **Reports and exports** page: configuration, approval status, provenance, statistics,
+   plan results, validation, notes, figures (PNG download), CSV, manifest/summary JSON, run
+   folder ZIP, printable HTML report keeping label and limitations.
+10. **Application**: 10 pages; backend selection; site plans shown on Coverage and Site
+    planning; a defect on the Site planning page (KeyError for plans) fixed.
+11. **Licensing**: GBA per-building values untracked and git-ignored (they are in `e0d8a8e`).
+12. **README** with installation and operation.
+
+### Tests and runs executed
+
+- `uv run pytest`: **273 passed** (19 new: backends 5, TR 38.901 6, MATLAB case 2, report 2,
+  network 1, propagation concurrency 1, app comparability 1, roadmap references 1).
+- `uv run pytest -m engine`: **6 passed** in 53 s (full regression of the engine path; the
+  Phase 0 records they rewrite were restored afterwards).
+- `uvx ruff check --isolated --select F,E9`: all checks passed.
+- Application: all 10 pages opened without errors after a server restart; research mode refused
+  with its reason; plans shown on Coverage and Site planning; report HTML generated. The user
+  also started a run (standard, cancelled after one trace) and an auto-backend run (served from
+  the GPU cache) from the Run page; both ended as reported.
+- Runs: four-site experiment on GPU; CPU/GPU comparison; sensitivity sweep; four site plans;
+  TR 38.901 comparison (standard attempted and stopped, preview completed); antenna-position
+  experiment (CPU, standard); MATLAB export.
+
+### Limitations
+
+- All results rest on the provisional area (99 % placeholder heights) and unapproved values.
+- TR 38.901 comparison at preview resolution; standard-profile isotropic traces showed an
+  unexplained slowdown (`docs/benchmarks.md` §10).
+- Site planning over 20 candidates on placeholder roofs; candidate rule not approved.
+- No scheduler or load model; the equal-share rate is illustrative only.
+- MATLAB cross-check not executed; no field measurements.
+
+### Remaining scientific blockers
+
+A1, A2 (incl. GBA licence and the footprint download), A3 (threshold and load decide the site
+count), A4 (mast height and roof-edge placement), B1 (agreement criterion), B2, B3, C6 (GPU for
+research), Phase 0 laptop gate, final convergence acceptance, MATLAB execution.
+
+### Steps to final delivery
+
+1. Supervisor decisions A1-A4 and B1-B3; update `configs/*.yaml` approval states.
+2. Laptop: install (README), run engine tests and the Phase 0 benchmark (closes the gate),
+   run the MATLAB case and `scripts/compare_matlab.py`.
+3. Rebuild the approved district dataset; run site planning at preview, final runs at
+   standard on the CPU; regenerate comparison, sensitivity and validation outputs.
+4. Write conclusions and roadmap recommendations from the approved results.

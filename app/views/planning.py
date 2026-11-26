@@ -9,11 +9,48 @@ ui.page_header("Site planning", "SINR-based greedy selection over the sites of a
                "nothing is traced.")
 st.caption("The greedy result is a heuristic over these candidates only, not a proven minimum. Adding a site can "
            "lower coverage; such additions are listed.")
-run = ui.pick_run("planning-run", kinds=("multi_site",))
+run = ui.pick_run("planning-run", kinds=("site_plan", "multi_site"))
 if run is None:
     st.stop()
 ui.development_banner(run.label)
+st.caption("Create a new plan with `uv run python scripts/plan_sites.py --area NAME --mode development "
+           "[--backend gpu] [--threshold DB --load X]` (traces only what is not cached).")
 scen = run.scenarios
+
+if run.kind == "site_plan":
+    m = run.manifest
+    rule = m["candidate_rule"]
+    st.markdown(f"**Saved plan** `{run.run_id}` — {len(run.sites)} candidates (roof ≥ {rule['min_height_m']:g} m, "
+                f"≥ {rule['min_spacing_m']:g} m apart, heights {', '.join(rule['height_categories'])}; mast "
+                f"{rule['mast_height_m']:g} m at an interior roof point); objective: {m['objective']}. Overrides: "
+                f"{m.get('overrides_for_sensitivity') or 'none'}. Traces {m['timing']['trace_wall_seconds']:.0f} s, "
+                f"selection {m['timing']['selection_seconds']:.1f} s ({run.backend}).")
+    st.dataframe([{"scenario": next(s['label'] for s in scen if s['id'] == sid), "selected (in order)": ", ".join(r["selected"]),
+                   "coverage after each": ", ".join(f"{100 * v:.1f}%" for v in r["coverage_after"]),
+                   "stop": r["stopped_because"], "why": r["stop_explanation"],
+                   "uncovered cells": r["uncovered_outdoor_cells"],
+                   "all candidates on": ui.fmt(r["all_candidates_reference"]["coverage_fraction"], ".1%"),
+                   "degrading additions seen": len(r["degrading_additions"])}
+                  for sid, r in run.summary["results"].items()], hide_index=True, use_container_width=True)
+    hist = run.path / "selection_history.csv"
+    if hist.exists():
+        with st.expander("Selection history (every candidate evaluated at every step)"):
+            st.download_button("selection_history.csv", hist.read_bytes(), file_name="selection_history.csv")
+    sid0 = st.radio("Final map for", [s["id"] for s in scen], horizontal=True, key="plan-map",
+                    format_func=lambda i: next(s["label"] for s in scen if s["id"] == i))
+    layer = st.radio("Layer", ["covered", "uncovered", "sinr_db", "serving_site"], horizontal=True,
+                     format_func=lambda k: {"covered": "coverage", "uncovered": "uncovered areas", "sinr_db": "SINR",
+                                            "serving_site": "serving site"}[k])
+    z = run.layer(sid0, layer)
+    if z is None:
+        st.warning("No site selected for this scenario.")
+    else:
+        if layer == "uncovered":
+            z, layer = (~z.astype(bool)).astype(float), "covered"
+        st.plotly_chart(ui.map_figure(run.grid, z, run.outdoor, layer=layer, sites=run.sites_for(sid0),
+                                      azimuths=run.sector_azimuths_rad, height=560), use_container_width=True)
+    st.divider()
+    st.subheader("Re-evaluate from the cache")
 sid = st.radio("Scenario", [s["id"] for s in scen], horizontal=True,
                format_func=lambda i: next(s["label"] for s in scen if s["id"] == i))
 
@@ -32,22 +69,36 @@ if s.config_changed:
     st.warning("These radio parameters changed since the run; results below use the current files: "
                + ", ".join(s.config_changed))
 
-saved = run.summary["results"][sid]["greedy_sinr"]
+r = run.summary["results"][sid]
+overrides = run.manifest.get("overrides_for_sensitivity") or {}
+params = run.manifest["radio_parameters"]
+if run.kind == "site_plan":
+    saved = {"target": r["target"], "selected_sites": r["selected"], "coverage_after": r["coverage_after"] or [0.0],
+             "stopped_because": r["stopped_because"]}
+    ids = [x["candidate_id"] for x in run.sites]
+    default_sel = [ids.index(c) for c in r["selected"]]
+else:
+    saved = r["greedy_sinr"]
+    default_sel = list(range(len(run.sites)))
 st.markdown(f"**Saved greedy result** (target {saved['target']:.0%}): sites {saved['selected_sites']} → "
             f"{saved['coverage_after'][-1]:.1%}; stopped because *{saved['stopped_because']}*.")
 
 st.subheader("Try a selection")
-labels = [f"{x['candidate_id']} · {x['building_id']} · roof {x['roof_height_m']:g} m" for x in run.sites]
-chosen = st.multiselect("Sites transmitting", list(range(len(labels))), default=list(range(len(labels))),
+st.caption("Sliders change assumptions for a sensitivity check only; they are not approved values.")
+labels = [f"{x['candidate_id']} · {x['building_id']} · roof {x['roof_height_m']:g} m ({x['height_category']})"
+          for x in run.sites]
+chosen = st.multiselect("Sites transmitting", list(range(len(labels))), default=default_sel,
                         format_func=lambda i: labels[i])
-c1, c2 = st.columns(2)
+c1, c2, c3 = st.columns(3)
 activity = c1.slider("Interference activity (load of non-serving sectors)", 0.0, 1.0,
-                     float(run.manifest["radio_parameters"].get("interference_activity", {}).get("value", 1.0)), 0.05,
-                     help="1.0 = every other sector always transmits (the candidate assumption). Changing it is a "
-                          "sensitivity check, not an approved value.")
-target = c2.slider("Coverage target", 0.5, 1.0, float(saved["target"]), 0.01)
+                     float(overrides.get("interference_activity", params.get("interference_activity", {}).get("value", 1.0))),
+                     0.05, help="1.0 = every other sector always transmits (candidate value, ITU-R M.2412 full buffer).")
+threshold = c2.slider("Coverage threshold, SINR [dB]", -15.0, 10.0,
+                      float(overrides.get("coverage_threshold", params.get("coverage_threshold", {}).get("value", -10.0))),
+                      0.5, help="Candidate −10 dB (lowest SINR with a non-zero rate in the 3GPP mapping).")
+target = c3.slider("Coverage target", 0.5, 1.0, float(saved["target"]), 0.01)
 if chosen:
-    net = planning.evaluate(s, tuple(chosen), interference_activity=activity)
+    net = planning.evaluate(s, tuple(chosen), interference_activity=activity, coverage_threshold=threshold)
     m = st.columns(4)
     m[0].metric("Coverage", f"{net.radio.summary['coverage_fraction']:.1%}")
     m[1].metric("Median SINR", ui.fmt(net.radio.summary["sinr_db_median"], ".1f", " dB"))
@@ -58,7 +109,7 @@ if chosen:
                                   azimuths=run.sector_azimuths_rad, height=520), use_container_width=True)
 
 st.subheader("Greedy selection with these settings")
-g = planning.greedy(s, target, interference_activity=activity)
+g = planning.greedy(s, target, interference_activity=activity, coverage_threshold=threshold)
 st.markdown(f"Selected {[run.sites[i]['candidate_id'] for i in g.selected]} → "
             f"{g.coverage_after[-1]:.1%}; target {'reached' if g.target_reached else 'not reached'} "
             f"(*{g.stopped_because}*).")

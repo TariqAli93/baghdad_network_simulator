@@ -251,7 +251,36 @@ NetworkResult               radio (power, SINR, rate, coverage), serving sector 
   never converts line endings in hashed snapshots and extracts (`core.autocrlf` once broke
   a snapshot's SHA-256).
 
-## 8. Deviations from the structure in the master brief
+## 7b. Backends, planning, validation and reporting (Phases 7-10)
+
+- **Backends.** `runtime.init(backend=...)` selects the Mitsuba variant (`llvm_ad_mono_polarized`
+  or `cuda_ad_mono_polarized`); `engine_fingerprint(backend)` puts the variant into every job
+  key, so CPU and GPU maps are cached separately. The worker reads the backend from its jobs.
+  `experiment.resolve_backend` turns cpu/gpu/auto into a concrete backend: `auto` uses the GPU
+  only if a probe in a separate process succeeds; an explicit `gpu` fails with the probe's
+  diagnostic instead of falling back; research runs accept only a backend whose status in
+  `configs/simulation.yaml` is `production` (today the CPU). Manifests record the backend,
+  variant, status and GPU model.
+- **Runner isolation.** Each `propagation.compute` call works in its own sub-folder of
+  `data/cache/work` (two concurrent runs once deleted each other's batch files).
+- **Site planning** (`scripts/plan_sites.py`): rooftop candidates → jobs → cached path gain →
+  `greedy_sinr_site_selection` on whole-network SINR coverage per scenario → selection history
+  (every candidate at every step), final maps, uncovered cells, all-candidates reference,
+  stop reason with its meaning. Saved as kind `site_plan`; the app re-evaluates plans from the
+  cache (`bns.app.planning`).
+- **Sensitivity** (`scripts/run_sensitivity.py`): threshold × load sweep from cached maps, with
+  an illustrative equal-share rate (`network.equal_share_rate_bps`) kept apart from the
+  Shannon bound.
+- **Validation** (`bns.validation.tr38901`, `scripts/validate_tr38901.py`): controlled
+  isotropic transmitters at the models' heights, LOS/NLOS from a line-of-sight-only trace,
+  applicability mask, error statistics against σ. MATLAB package exporter and comparer
+  (`scripts/export_matlab_case.py`, `scripts/compare_matlab.py`).
+- **Evidence and reports** (`bns.app.evidence`, `bns.reporting.report`): tables of saved
+  results with their run identity; a self-contained HTML report keeping label, provenance and
+  limitations. `bns.app.results.differences` lists material configuration differences before
+  runs are compared.
+
+
 
 | Brief | Here | Reason |
 |---|---|---|

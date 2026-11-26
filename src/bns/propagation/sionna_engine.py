@@ -20,9 +20,9 @@ import mitsuba as mi
 from sionna.rt import PlanarArray, RadioMapSolver, Transmitter, load_scene
 
 from bns.geospatial.grid import Grid  # noqa: F401  (re-exported for callers of this module)
-from bns.runtime import CPU_VARIANT
+from bns.propagation.engine_settings import VARIANTS as _VARIANTS
 
-if mi.variant() != CPU_VARIANT:
+if mi.variant() not in _VARIANTS.values():
     raise ImportError("Call bns.runtime.init() before importing bns.propagation.sionna_engine.")
 
 _TX_NAME = "site"

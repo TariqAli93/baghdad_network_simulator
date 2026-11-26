@@ -1,0 +1,1109 @@
+{
+  "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+  "run_id": "multi_site-tahrir_bab_al_sharqi_v2-osm-preview-4sites-20261126T121714Z",
+  "kind": "multi_site",
+  "mode": "development",
+  "backend": {
+    "name": "gpu",
+    "requested": "auto",
+    "note": "GPU available: NVIDIA GeForce RTX 3060, 610.88, 12288 MiB.",
+    "variant": "cuda_ad_mono_polarized",
+    "status": "validated for development",
+    "gpu": "NVIDIA GeForce RTX 3060, 610.88, 12288 MiB"
+  },
+  "created_utc": "2026-11-26T12:17:27+00:00",
+  "area": {
+    "name": "tahrir_bab_al_sharqi_v2",
+    "role": "provisional study area",
+    "approved": false,
+    "variant": "osm",
+    "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
+    "scene_fingerprint": "7f025e01f61b3e56ac1a5358556c1d8f56ca16fdeeb2e7c5fe16064cc0b01810",
+    "height_categories_percent": {
+      "observed": 0.8375209380234506,
+      "estimated": 0.33500837520938026,
+      "placeholder": 98.82747068676717
+    },
+    "fit_for_research": false
+  },
+  "site_rule": {
+    "observed_height_only": true,
+    "min_height_m": 10.0,
+    "min_spacing_m": 100.0,
+    "count": 4
+  },
+  "sites": [
+    {
+      "candidate_id": "site-001",
+      "x": -177.90098845773826,
+      "y": -131.23326489986027,
+      "z": 58.0,
+      "building_id": "way/919688856",
+      "roof_height_m": 55.0,
+      "footprint_area_m2": 833.4210671361501,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-002",
+      "x": 64.50975641723304,
+      "y": 27.52818343388453,
+      "z": 18.0,
+      "building_id": "way/1154123513",
+      "roof_height_m": 15.0,
+      "footprint_area_m2": 96.25100965947877,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-003",
+      "x": -171.37139764122523,
+      "y": 286.449624723827,
+      "z": 15.0,
+      "building_id": "way/645196998",
+      "roof_height_m": 12.0,
+      "footprint_area_m2": 31.247614509277412,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-004",
+      "x": 327.81664072830665,
+      "y": 273.07231253455836,
+      "z": 13.0,
+      "building_id": "way/939812415",
+      "roof_height_m": 10.0,
+      "footprint_area_m2": 5.986256721092422,
+      "height_category": "observed"
+    }
+  ],
+  "sectors_per_site": [
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ]
+    },
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ]
+    },
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ]
+    }
+  ],
+  "profile": {
+    "name": "preview",
+    "cell_size_m": 25.0,
+    "rays_per_site": 100000000,
+    "status": "validated for development"
+  },
+  "grid": {
+    "center_xy": [
+      0.0,
+      0.0
+    ],
+    "size_xy": [
+      1000.0,
+      1000.0
+    ],
+    "cell_size_m": 25.0,
+    "height_m": 1.5
+  },
+  "mechanisms": {
+    "max_depth": 2,
+    "los": true,
+    "specular_reflection": true,
+    "diffraction": true,
+    "refraction": false,
+    "diffuse_reflection": false,
+    "edge_diffraction": false
+  },
+  "seeds": [
+    1
+  ],
+  "radio_parameters": {
+    "tx_power_dbm": {
+      "value": 46.0,
+      "unit": "dBm per sector carrier",
+      "status": "candidate",
+      "definition": "conducted",
+      "sources": [
+        "3GPP-TR38914",
+        "3GPP-TR36942",
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "justification": "46 dBm is the macro downlink power in the 3GPP 6G coverage assumptions (TR 38.914 Table 5.1.20.1-2), the E-UTRA reference base station (TR 36.942 Table 4.6), ITU-R M.2292 macro urban (Tables 3-4) and TR 38.921 (two polarisations, 7 GHz range). The same total power in every band; the power per MHz therefore falls with bandwidth (33 dBm/MHz at 20 MHz, 26 at 100 MHz, 20 at 400 MHz)."
+    },
+    "tx_antenna_gain_dbi": {
+      "value": 0.0,
+      "unit": "dBi added after tracing",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR38901"
+      ],
+      "justification": "Zero because the traced tr38901 pattern already contains the 8 dBi peak gain; any other value would count the gain twice (refused when the file is loaded)."
+    },
+    "tx_antenna_pattern": {
+      "value": "tr38901",
+      "unit": "pattern name",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR38901",
+        "ITU-M2412"
+      ],
+      "justification": "3GPP TR 38.901 Table 7.3-1 sector element (65 degree beamwidth, 8 dBi peak, 30 dB front-to-back), the element ITU-R M.2412 also uses. It is TRACED by the ray tracer, so its gain is part of the path gain."
+    },
+    "sectors_per_site": {
+      "value": 3,
+      "unit": "sectors",
+      "status": "candidate",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "justification": "Three sectors per site (M.2412 section 8.3: three TRxPs per site)."
+    },
+    "mechanical_downtilt_deg": {
+      "value": 10.0,
+      "unit": "degrees below horizon",
+      "status": "candidate",
+      "sources": [
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "justification": "Macro urban downtilt of 10 degrees (M.2292 Tables 3-4; TR 38.921 Table 8.1.2-1)."
+    },
+    "antenna_height_above_roof_m": {
+      "value": 3.0,
+      "unit": "m",
+      "status": "development",
+      "justification": "Software testing only. No primary source gives a mast height above a roof; the references give total heights (25 m in M.2412 and TR 38.901 UMa) for flat layouts. Decision D4."
+    },
+    "rx_height_m": {
+      "value": 1.5,
+      "unit": "m above ground",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412"
+      ],
+      "approved_by": "project description, Stage 6 (the approved project baseline)",
+      "justification": "Receivers 1.5 m above street level; the outdoor UE height of M.2412 Table 5(b)."
+    },
+    "rx_antenna_gain_dbi": {
+      "value": 0.0,
+      "unit": "dBi",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR36942",
+        "ITU-M2412",
+        "3GPP-TR38830"
+      ],
+      "justification": "Isotropic user antenna, matching the isotropic receiver of the ray-traced maps (0 dBi in TR 36.942 section 4.2.2, M.2412 at 4 GHz, TR 38.830 for FR1). M.2412 and TR 38.830 give 5 dBi at 30 GHz with user-side beamforming, left to the deployment interpretation."
+    },
+    "noise_figure_db": {
+      "value": 9.0,
+      "unit": "dB",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR38914",
+        "3GPP-TR36942",
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "justification": "9 dB user noise figure in the 3GPP 6G coverage assumptions (TR 38.914 Table 5.1.20.1-2), TR 36.942 Table 4.8, M.2292 Table 1 and the TR 38.921 baseline. Per-band values (7 dB at 4 GHz, 10 dB at 30 GHz in M.2412) belong to the deployment interpretation."
+    },
+    "noise_temperature_k": {
+      "value": 290.0,
+      "unit": "K",
+      "status": "candidate",
+      "sources": [
+        "ITU-P372",
+        "ITU-M2412"
+      ],
+      "justification": "Reference temperature T0 = 290 K (P.372 section 1.2.1), giving -174 dBm/Hz (M.2412 Table 5)."
+    },
+    "coverage_threshold": {
+      "value": -10.0,
+      "unit": "dB",
+      "status": "candidate",
+      "definition": "snr_db",
+      "sources": [
+        "3GPP-TR38921",
+        "3GPP-TR36942"
+      ],
+      "justification": "-10 dB is the lowest SINR at which the 3GPP link-level throughput mapping gives any data rate (TR 38.921 Table 4.2.7-1, TR 36.942 Annex A). A noise-referenced threshold is the same physical condition at every bandwidth."
+    },
+    "interference_activity": {
+      "value": 1.0,
+      "unit": "share of time other sectors transmit",
+      "status": "candidate",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "justification": "Full buffer (M.2412 Table 5): every other sector transmits all the time. M.2292 uses a 50 % average activity, a sensitivity case."
+    },
+    "coverage_target": {
+      "value": 0.95,
+      "unit": "share of outdoor cells",
+      "status": "candidate",
+      "sources": [
+        "3GPP-TR38830"
+      ],
+      "justification": "95 % cell-area reliability for control channels (TR 38.830 Table A.3)."
+    },
+    "frequency_reuse": {
+      "value": "1",
+      "unit": "reuse factor",
+      "status": "candidate",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "justification": "Every site and sector uses the whole carrier (M.2412 evaluations; M.2292 Tables 2-4)."
+    }
+  },
+  "atmosphere": {
+    "baseline": {
+      "rain_rate_mm_h": 0.0,
+      "include_gas": true
+    }
+  },
+  "scenarios": [
+    {
+      "id": "lte_1800",
+      "label": "4G LTE",
+      "frequency_hz": 1800000000.0,
+      "bandwidth_hz": 20000000.0,
+      "status": "deployed",
+      "basis": "LTE Band 3. All three Iraqi operators launched LTE on 1800 MHz in January 2021. 20 MHz is the largest Band 3 channel and a modelling assumption: no source gives the carrier width used in Iraq. 1.8 GHz is nominal; the Band 3 downlink is 1805-1880 MHz.",
+      "sources": [
+        "3GPP-TS36101",
+        "IRQ-CMC-WP"
+      ]
+    },
+    {
+      "id": "nr_3500",
+      "label": "5G NR mid-band",
+      "frequency_hz": 3500000000.0,
+      "bandwidth_hz": 100000000.0,
+      "status": "assumed",
+      "basis": "NR band n78 (3300-3800 MHz, up to 100 MHz). The Iraqi regulator's plan names 3.4-3.8 GHz as the main 5G capacity band with 100 MHz blocks per licence holder, but no 5G spectrum had been assigned and no commercial 5G launched as of November 2026.",
+      "sources": [
+        "3GPP-TS38101-1",
+        "IRQ-CMC-WP",
+        "IRQ-NFAT"
+      ]
+    },
+    {
+      "id": "c6g_8000",
+      "label": "Candidate 6G upper mid-band",
+      "frequency_hz": 8000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "candidate",
+      "basis": "WRC-27 agenda item 1.7: in ITU Region 1 (which includes Iraq) 7.125-7.25 GHz and 7.75-8.4 GHz are under study for mobile use; the carrier occupies 7.8-8.2 GHz. 400 MHz is the maximum carrier bandwidth 3GPP agreed for the 7 GHz range in March 2026. Not identified for mobile use yet.",
+      "sources": [
+        "ITU-RES256",
+        "3GPP-RP260798",
+        "3GPP-TR38914"
+      ]
+    },
+    {
+      "id": "c6g_15000",
+      "label": "Candidate 6G 15 GHz",
+      "frequency_hz": 15000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "candidate",
+      "basis": "WRC-27 agenda item 1.7: 14.8-15.35 GHz is under study in all regions; the carrier occupies 14.8-15.2 GHz. 400 MHz is the bandwidth 3GPP assumes at 15 GHz for 6G evaluation; no carrier maximum has been agreed for this range. Used today in Iraq for fixed links and defence systems. Not identified for mobile use yet.",
+      "sources": [
+        "ITU-RES256",
+        "3GPP-TR38914",
+        "IRQ-NFAT"
+      ]
+    },
+    {
+      "id": "nr_28000",
+      "label": "5G NR mmWave",
+      "frequency_hz": 28000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "assumed",
+      "basis": "High-capacity 5G reference: NR bands n257 and n261, largest channel 400 MHz. No plan for this band in Iraq was found.",
+      "sources": [
+        "3GPP-TS38101-2"
+      ]
+    }
+  ],
+  "workload_before_run": {
+    "jobs": 60,
+    "cached": 60,
+    "to_trace": 0,
+    "estimate": {
+      "median_seconds_per_job": 0.5,
+      "max_seconds_per_job": 1.0,
+      "measurements": 300,
+      "estimated_seconds": 0.0,
+      "variant": "cuda_ad_mono_polarized",
+      "note": "Trace time only, measured on this PC with this backend. Worker start-up, scene loading and kernel-compilation retries added 44 % (standard run) and 70 % (preview run) on CPU. Not a laptop estimate."
+    }
+  },
+  "jobs": [
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "117b0f2150ebb7181d29001b05468cc5cd2868d0cdbab6b5b9f404b162594eed",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.973,
+      "worker_peak_commit_gb": 1.103
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "4cf28874499bf46d5a0f88ff308564627e29959a16da706759ebfa2897da1c1e",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.976,
+      "worker_peak_commit_gb": 1.111
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-001",
+      "key": "cf93d6fbaa4586afa9a6ae44b0b93e2975a1127eb5cbecf9d85c5b1c9a4869d0",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.967,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-002",
+      "key": "ebaec6f3a0c0473c8e225d09bccafe8a29a472b7d38f5e8c5b243b17cda7df63",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.57,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-002",
+      "key": "e56aab3bbca26f4c5ca6aa334a61f651f245b57c918b4110d0c542fce9636ed0",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.571,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-002",
+      "key": "fbf6d44b252240225ccfb9522d7e2a54b01fccb327d5cff045d3cfb6ecb4725a",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.564,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-003",
+      "key": "e1b0b8db295df2e3a49bd6f6bc81ddaf94db3832afbc73ee0643197585e17f78",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.54,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-003",
+      "key": "c46b4d6b9c70253e6c855a67044bae62e69480407886ba95458bd2aa022c46c3",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.557,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-003",
+      "key": "6677149b4e4f3e6b434976e0980e96a1ddd6c48a14cd8d5421e803fd4c81b9cf",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.553,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-004",
+      "key": "2e0a8c1f0e7da6b3cf8e135e9721188be4bcd9dff0f8a76e43babe5f41c14334",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.555,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-004",
+      "key": "beea3bbd8e044b2a20a88b17d6ff927d96f8ae9244340f7f92e4c966f1dfe56e",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.563,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "lte_1800",
+      "site": "site-004",
+      "key": "e2722d09e9b2a62cbb67483a3605bbc12fed1268850a34214f62182fd8c5bd70",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.56,
+      "worker_peak_commit_gb": 1.115
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "3aafcf85d993fee8d456c98c2e254c43cbeb1df347e60119253dcb5986dca90d",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.975,
+      "worker_peak_commit_gb": 1.103
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "b27ec3748e54926c8dfb87814b6a06286cf9e72543ab36905ff383b83433ed7a",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.96,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-001",
+      "key": "e132a03378cc6e8f44785382f021d018a0bf092878df60fecb24257020517fea",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.948,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-002",
+      "key": "dcec9d2403ae4f58668bd3b9b506bbae0ba548353dc30506d44be37a51474138",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.559,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-002",
+      "key": "1bbc39e1db772affa8a1eaec872576fe45954bc35e0e760e9eb6681541c9a154",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.557,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-002",
+      "key": "427d288f916ccfb5767fa2f9a120b0329a42179ff043784b91e549d52bca574b",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.557,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-003",
+      "key": "bcdae3d2bb51d1f57d09619f3468aea25b4e0b10a034589e8d4df3739e1220e5",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.546,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-003",
+      "key": "8938ddf50b44c50fe4e33f105c489062687faeb3ac0d5f3a3abdf36ece849cd3",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.547,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-003",
+      "key": "ebba7e370cd187ea1c9375a07d8e7287eea936dc66f31d5685688de2d94793d5",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.55,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-004",
+      "key": "4cacc85e1f7199b07675ab7ad653d8cf7733c467a908af65057aae05ee46b26e",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.552,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-004",
+      "key": "5dcbb444fed0ac8aa88e1315f8ae9d343d992b876ac15bfc86a280c2582f225f",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.562,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "nr_3500",
+      "site": "site-004",
+      "key": "f3896e3b9964bdc3a0e1ca24d5c790f3732304759c59e4bd19c4ccbb1e5b0dac",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.56,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "eb2c3ed74ddd0e7f47816823ff13693b6b56935df0188a8365278e67fe9747dc",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.973,
+      "worker_peak_commit_gb": 1.104
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "3d0ec0767c5a90d3e1787611ef6b519641c7c0ba2696ecf02172f1137d1df0b5",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.995,
+      "worker_peak_commit_gb": 1.11
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-001",
+      "key": "fc21f8e79bfcc0569255420266b4c5f293fb3d361a50613562804f49f74d7e6a",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.962,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-002",
+      "key": "6a9e1e5dafdd1ceaada370cb52ef942ad679e110d91102b93b49d6b9177a601e",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.55,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-002",
+      "key": "37f100af0b33fb76adce88a9974e478e395a35882b90c79a8ec4909ec29344fe",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.563,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-002",
+      "key": "71ae234d4fb5ef5bdc759c0f37be8dce5dd175077805b0c0ec8be76d70a3fe67",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.557,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-003",
+      "key": "ab4ff087c5cd7794c7255c176bbe3db773569b357d3a89458bb9d6ed8bf0404a",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.537,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-003",
+      "key": "be33b5e3fe321d0007970309f02112388fb89c57b855cd4d82e07fa319efdb29",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.549,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-003",
+      "key": "7793195070f370d59e22957d065d29ca1e81b94b14f20b6571cf562ca3d1fac5",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.546,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-004",
+      "key": "9e3561bb84726d15355fde92e5311f5789ff58bafb960d0744c0fd1350383a8e",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.545,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-004",
+      "key": "802c9aca9f63ba16ced8294114b98f33575a0b4f8a7daeacee488dd8227f4a20",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.553,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "site-004",
+      "key": "d0d1cec4fb1516acef06d97e5ba3648d9f4490e1f8f9b62750efd944222d59ca",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.555,
+      "worker_peak_commit_gb": 1.113
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "f5f25612c3a3731f81b1a6a89d8e4b1ea8666666df9a79bb53ae7e5be625842d",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.965,
+      "worker_peak_commit_gb": 1.079
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "3b0e863c99504e3682ab8167072ffff362e25a7d1b4a3e784e2e0e0d75f8ada0",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.97,
+      "worker_peak_commit_gb": 1.083
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-001",
+      "key": "8de1178cb1ec1285e088becd88ed0c0e5c52008f83e822d5c3a178c4753c8fa2",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.958,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-002",
+      "key": "c069975c6f633da4aa78e03492b86230dccd7e9b8bd8ffc33488908a7aa712ed",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.552,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-002",
+      "key": "ac5df2a337f57700c5819554c26e6b398a06b9f64f96dfa2ada2c5f6fe7dcc99",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.563,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-002",
+      "key": "84b8e7d7b7dac35df628ad878ee9e68ff367745047ed477db7362ab682c9e750",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.566,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-003",
+      "key": "5b85265571daae15de0ed467ad97aafc1ed9e8ee7a6c8f2e02eab592db5fc99d",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.554,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-003",
+      "key": "13465cab5e6478214e4d2fe2b7a3e514a10dc63540e5f032e0b4fc76f01381a3",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.555,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-003",
+      "key": "abaa740f4507439354f0b45b90fda9d0913709739bb2cdb82e04bc34894136d6",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.559,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-004",
+      "key": "09fa5a9c26fb9ca3654391ff4dba0a1cabcc827c3f7ac40ec85f51bc6bdfe8e7",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.558,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-004",
+      "key": "6bdfac2424b188bbb6e1f43f599d359794fde2ae6fce9613fb782e57ce399500",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.558,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "c6g_15000",
+      "site": "site-004",
+      "key": "f4dc82f001b45bcee72a442a2863640810e523470cc15bd3af5754fdcfd8c78b",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.562,
+      "worker_peak_commit_gb": 1.089
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "e0d3e4514985d276af256c8b2d4ea5021e0ddf115494f1d45f08185be31fe351",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.997,
+      "worker_peak_commit_gb": 1.101
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "6e081a673464461eafc81a4840daaafae76edde0dff4d3cba733e62209bb99f1",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.979,
+      "worker_peak_commit_gb": 1.107
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-001",
+      "key": "6cbd180e1d90636e8beb748d9afac39c0ee837129ee28bf62d183fab3196f40f",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.99,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-002",
+      "key": "f1158a02ef5f298ea2e12b7baa2aff54c8efb664b0a666edd7c13b386eae0e7f",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.568,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-002",
+      "key": "0f0a93063200a8acd036e4c9f2bc4654ebe01765f2644640bfd3ed30e3ac4e9a",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.585,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-002",
+      "key": "b3db891a01079d3670a538aa843d90fdbce381d2b153695cd107a9e170188c9d",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.571,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-003",
+      "key": "f418b109b3ccc8af159b6784014c0327bf0fb83d94691364b8462a8b01375890",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.568,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-003",
+      "key": "ba2640e54dff1b3e81562dfc76dcc8b72ef175193eaa8ea5e0dcc37fb85559fb",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.57,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-003",
+      "key": "450bfbb60397066a3c5dcdb2a344102fc5c96efd45ff17c12fb7c108c06e9f4a",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.565,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-004",
+      "key": "8f20414f1f4e2c225a3ff179c51b33c0adef8f5b57cd060ee74ee3c723d0217c",
+      "sector_orientation_rad": [
+        0.0,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.583,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-004",
+      "key": "a9a8c74af59dd4031a526e29b6113075ec3b7806c9a59e10ced30aecc4199cc7",
+      "sector_orientation_rad": [
+        2.0943951023931953,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.566,
+      "worker_peak_commit_gb": 1.109
+    },
+    {
+      "scenario": "nr_28000",
+      "site": "site-004",
+      "key": "82d8975b2ba6864edb8358db1f979d602eb593151ca2f298945cf8b90cec14f9",
+      "sector_orientation_rad": [
+        4.1887902047863905,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 0.569,
+      "worker_peak_commit_gb": 1.109
+    }
+  ],
+  "timing": {
+    "trace_wall_seconds": 0.5,
+    "total_wall_seconds": 19.9
+  },
+  "memory": {
+    "script_peak_commit_gb": 0.606,
+    "max_worker_peak_commit_gb": 1.115
+  },
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "figures": [
+    "network_sinr_db.png",
+    "network_interference_dbm.png",
+    "serving_site.png",
+    "network_cdf.png"
+  ]
+}

@@ -32,12 +32,14 @@ pages = {
     ],
     "Evidence": [
         st.Page(VIEWS / "validation.py", title="Validation", icon=":material/verified:"),
+        st.Page(VIEWS / "reports.py", title="Reports and exports", icon=":material/description:"),
+        st.Page(VIEWS / "roadmap.py", title="6G roadmap", icon=":material/route:"),
     ],
 }
 nav = st.navigation(pages)
 with st.sidebar:
     st.markdown("**Baghdad Network Simulator**")
-    st.markdown('<div class="sidebar-note">4G · 5G · candidate 6G coverage by ray tracing (Sionna RT, CPU).<br>'
+    st.markdown('<div class="sidebar-note">4G · 5G · candidate 6G coverage by ray tracing (Sionna RT; CPU, optional GPU).<br>'
                 "All radio parameters are unapproved proposals: every result is labelled "
                 f"<b>{ui.DEV_LABEL}</b>.</div>", unsafe_allow_html=True)
 nav.run()

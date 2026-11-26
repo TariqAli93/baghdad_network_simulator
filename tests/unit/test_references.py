@@ -62,3 +62,15 @@ def test_candidate_carriers_fit_inside_the_bands_under_study():
             low = float(s["frequency_hz"]) - float(s["bandwidth_hz"]) / 2
             high = float(s["frequency_hz"]) + float(s["bandwidth_hz"]) / 2
             assert limits[s["id"]][0] <= low and high <= limits[s["id"]][1]
+
+
+def test_roadmap_items_cite_registered_sources_and_verified_items_cite_at_least_one():
+    roadmap = yaml.safe_load((ROOT / "configs" / "roadmap.yaml").read_text(encoding="utf-8"))
+    assert [s["id"] for s in roadmap["stages"]] == ["preparation", "spectrum", "trials", "commercial"]
+    for stage in roadmap["stages"]:
+        for item in stage["items"]:
+            assert item["kind"] in ("verified", "result", "question")
+            if item["kind"] == "verified":
+                assert item.get("sources"), item["text"]
+            missing = set(item.get("sources", [])) - set(REGISTRY_IDS)
+            assert not missing, f"roadmap cites unknown sources {missing}"

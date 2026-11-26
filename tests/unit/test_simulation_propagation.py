@@ -102,3 +102,25 @@ def test_a_worker_error_is_reported_and_nothing_is_cached(fake, monkeypatch):
     with pytest.raises(RuntimeError):
         run(fake, [make_job(1.8e9)], max_attempts=2)
     assert not fake["cache"].has(make_job(1.8e9).key())
+
+
+def test_two_runs_sharing_a_work_folder_do_not_collide(fake, monkeypatch):
+    # defect seen in Phase 7: a second run deleted the first run's batch-001.json
+    import threading
+
+    monkeypatch.setenv("FAKE_SLEEP", "1")
+    errors, maps = [], {}
+
+    def go(name, freq):
+        try:
+            maps[name] = run(fake, [make_job(freq)])
+        except Exception as exc:                         # noqa: BLE001 - reported below
+            errors.append(exc)
+
+    threads = [threading.Thread(target=go, args=(n, f)) for n, f in (("a", 1.8e9), ("b", 28e9))]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert errors == [] and set(maps) == {"a", "b"}
+    assert list(fake["work"].iterdir()) == []            # each run cleans up its own folder
