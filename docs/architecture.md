@@ -122,7 +122,44 @@ A sector antenna pattern cannot be applied after tracing; it is part of the cach
   triangle, roofs face up; the wedge count is recorded.
 - Receiver cells that touch a footprint are masked as indoor and excluded from statistics.
 
-## 6. Deviations from the structure in the master brief
+## 6. Geospatial pipeline and calculation core (Phase 2)
+
+```
+configs/study_area.yaml ──► StudyArea ──► OSM snapshot (hashed, read-only)
+                                              │ parse ways and multipolygon relations
+                                              ▼
+                          buildings with a HeightRecord each
+                          (observed / estimated / placeholder; original tags kept)
+                                              │ optional: manual observations, height model
+                                              ▼
+                          repair, clip, de-overlap   ──► buildings.geojson (per building, WGS84)
+                                              │ merge equal-height neighbours
+                                              ▼
+                          meshes + scene.xml (Sionna RT) ──► quality_report.md / .json
+```
+
+- `bns.geospatial.pipeline.build_dataset` is the single entry point; it is independent of
+  the district. A new area needs one entry in `configs/study_area.yaml`.
+- **Provenance is per building, meshing is per solid.** Heights and their records live on
+  the buildings table. For ray tracing, neighbouring buildings of equal height are merged
+  into solids; the table is not affected by the merge.
+- **Variants.** The same snapshot can be built with different height sources (OSM only, a
+  height model with a seed, observations). Each variant gets its own folder and its own
+  quality report, so results always name the variant they came from.
+- **Rooftop candidates** (`bns.geospatial.sites`) and the **outdoor receiver grid**
+  (`bns.geospatial.grid`) are pure functions of the buildings table.
+- **Calculation core** (`bns.analysis`, `bns.optimization`): received power, SINR, Shannon
+  rate, coverage, percentiles, CDF, RMSE and greedy site selection are pure NumPy functions
+  with analytical tests. They take path gain and explicit radio parameters and know nothing
+  about the engine. Radio parameters come from `configs/radio_system.yaml`, where each is
+  undecided, provisional or approved; an undecided one stops the calculation.
+- **Atmosphere** (`bns.propagation.atmosphere`): rain and gas loss as a per-cell loss map
+  added in the link budget.
+
+The Phase 0 scripts (`build_poc_scene.py`, `poc_validate.py`, `poc_benchmark.py`) still use
+`osm_scene` directly and are kept so the Phase 0 evidence stays reproducible.
+
+## 7. Deviations from the structure in the master brief
 
 | Brief | Here | Reason |
 |---|---|---|

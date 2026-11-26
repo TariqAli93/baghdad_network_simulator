@@ -23,10 +23,29 @@ description). Progress and the phase gates live in `docs/implementation-plan.md`
 uv sync                                         # create/update .venv from uv.lock
 uv run pytest                                   # unit tests (fast, no ray tracing)
 uv run pytest -m engine                         # scientific tests through the real engine
-uv run python scripts/build_poc_scene.py        # OSM snapshot -> data/scenes/
+uv run python scripts/build_dataset.py --area NAME   # OSM snapshot -> scene + quality report
+uv run python scripts/run_height_sensitivity.py ...  # compare height models (see its --help)
+uv run python scripts/atmosphere_table.py            # rain and gas loss per band
+uv run python scripts/build_poc_scene.py        # Phase 0 scenes (kept for the Phase 0 experiments)
 uv run python scripts/poc_validate.py all       # experiments E1-E5 -> outputs/runs/phase0/
 uv run python scripts/poc_benchmark.py          # time and memory -> outputs/runs/phase0/benchmark/
 ```
+
+## Data and parameter rules
+
+- **The study district is not chosen.** `tahrir_bab_al_sharqi` in `configs/study_area.yaml`
+  is a development fixture: use it to build and test, never to report Baghdad results.
+- **Every building height has a provenance record** (`bns.geospatial.heights`): observed,
+  estimated or placeholder, with source, method and the untouched original values. Never
+  present a placeholder or a height-model draw as an estimate or a measurement.
+- **Radio-system parameters are undecided** (`configs/radio_system.yaml`). Do not add a
+  default power, gain, noise figure, threshold or target anywhere in code. Functions take
+  them as arguments; scripts take them from the config or the command line and record them.
+- **Baseline atmosphere is clear sky** (gas included, no rain). Rain cases in
+  `configs/atmosphere.yaml` are unapproved sensitivity cases.
+- Open decisions live in `docs/supervisor-decisions.md`; corrections to the project
+  description in `docs/project-description-corrections.md`. The PDF itself is never edited.
+- New code is written test-first (`tests/unit`), with analytical cases for anything scientific.
 
 ## Engine facts you must respect
 
@@ -65,16 +84,29 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 
 ```
 configs/scenarios.yaml          the five scenarios (single source of truth)
+configs/study_area.yaml         study areas and the OSM height policy
+configs/height_models.yaml      assumed height distributions for the sensitivity analysis
+configs/radio_system.yaml       power, gains, noise, thresholds (all undecided)
+configs/atmosphere.yaml         clear-sky baseline and rain sensitivity cases
 src/bns/runtime.py              CPU bootstrap, memory cap, isolated workers
 src/bns/core/units.py           conversions, Friis, thermal noise
+src/bns/analysis/               link_budget (received power, SINR, Shannon), metrics (coverage,
+                                percentiles, CDF, RMSE), sensitivity, radio_system
+src/bns/optimization/greedy.py  greedy site selection
 src/bns/validation/analytic.py  closed-form references (Friis, Fresnel slab, knife edge)
-src/bns/geospatial/osm_scene.py OSM footprints -> meshes -> Mitsuba scene
-src/bns/propagation/            sionna_engine.py (path-gain maps)
+src/bns/geospatial/             study_area, osm_source (snapshots, parsing), heights (provenance,
+                                height models), sites (rooftop candidates), grid (receivers,
+                                outdoor mask), quality (reports), pipeline (build_dataset),
+                                osm_scene (footprint cleaning, meshing, scene files)
+src/bns/propagation/            sionna_engine (path-gain maps), atmosphere (rain, gases)
 src/bns/reporting/plotstyle.py  chart style
-scripts/                        build_poc_scene.py, poc_validate.py, poc_benchmark.py
+scripts/                        build_dataset, run_height_sensitivity, atmosphere_table,
+                                and the Phase 0 scripts
 tests/unit, tests/scientific    pytest
 docs/                           implementation-plan, architecture, assumptions, benchmarks,
-                                references (source registry), related-studies
+                                references (source registry), related-studies,
+                                project-description-corrections, supervisor-decisions,
+                                building-height-data, atmospheric-losses
 ```
 
 Every scenario in `configs/scenarios.yaml` cites entries of `docs/references.md` by ID; a

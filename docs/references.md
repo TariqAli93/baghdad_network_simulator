@@ -266,10 +266,12 @@ Table 5 (horizontal / vertical polarisation):
 | 15 GHz | 0.04481 / 0.05008 | 1.1233 / 1.0440 |
 | 28 GHz | 0.2051 / 0.1964 | 0.9679 / 0.9277 |
 
-**The rain rate for Baghdad is not available yet.** No published value of the rate exceeded
-0.01 % of the time was found. It has to be read from the digital maps supplied with
-P.837-8 (a 361 MB download from the ITU), or supplied by the supervisor. Until then no rain
-loss can be stated for Baghdad. Rain matters mainly at 15 and 28 GHz.
+**The rain rate for Baghdad is not settled.** No published value was found. The maps of the
+edition in force, P.837-8, are a 361 MB download that has not been made. The previous
+edition, P.837-7, gives 18.6 mm/h exceeded 0.01 % of the time (read through the ITU-Rpy
+library in Phase 2; `docs/atmospheric-losses.md`). That value is a candidate for a
+sensitivity case only; the project baseline is clear sky. Rain matters mainly at 15 and
+28 GHz.
 
 ### 5.6 A second statistical model (ITU-R P.1411-13)
 

@@ -19,6 +19,7 @@ import numpy as np
 import mitsuba as mi
 from sionna.rt import PlanarArray, RadioMapSolver, Transmitter, load_scene
 
+from bns.geospatial.grid import Grid  # noqa: F401  (re-exported for callers of this module)
 from bns.runtime import CPU_VARIANT
 
 if mi.variant() != CPU_VARIANT:
@@ -42,31 +43,6 @@ def set_wedge_table_slots(slots: int) -> None:
 
 
 set_wedge_table_slots(WEDGE_TABLE_SLOTS)
-
-
-@dataclass(frozen=True)
-class Grid:
-    """Horizontal receiver grid. Arrays are indexed [y, x]."""
-
-    center_xy: tuple[float, float]
-    size_xy: tuple[float, float]
-    cell_size_m: float
-    height_m: float = 1.5
-
-    @property
-    def shape(self) -> tuple[int, int]:
-        return (int(np.ceil(self.size_xy[1] / self.cell_size_m)),
-                int(np.ceil(self.size_xy[0] / self.cell_size_m)))
-
-    @property
-    def x_centers(self) -> np.ndarray:
-        n = self.shape[1]
-        return self.center_xy[0] + (np.arange(n) - (n - 1) / 2.0) * self.cell_size_m
-
-    @property
-    def y_centers(self) -> np.ndarray:
-        n = self.shape[0]
-        return self.center_xy[1] + (np.arange(n) - (n - 1) / 2.0) * self.cell_size_m
 
 
 @dataclass(frozen=True)

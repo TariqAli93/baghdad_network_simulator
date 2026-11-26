@@ -1,0 +1,46 @@
+# Radio-system parameters. The project description does not give them, so they are decisions
+# for the supervisor (docs/supervisor-decisions.md). Nothing here is decided yet: every entry
+# is "undecided" and has no value, and calculations that need one stop with a clear error.
+#
+# status:
+#   undecided    no value
+#   provisional  a documented value, not approved; results using it must be labelled provisional
+#   approved     approved by the supervisor; "source" says by whom and when
+#
+# "value" is a number, or a mapping from scenario id to a number when it differs per band,
+# for example:   value: {lte_1800: 15.0, nr_3500: 18.0, c6g_8000: 21.0}
+#
+# Values used in related studies are listed in docs/supervisor-decisions.md as options.
+parameters:
+  tx_power_dbm:
+    value: null
+    status: undecided
+    source: ""
+  tx_antenna_gain_dbi:
+    value: null
+    status: undecided
+    source: ""
+  rx_antenna_gain_dbi:
+    value: null
+    status: undecided
+    source: ""
+  noise_figure_db:
+    value: null
+    status: undecided
+    source: ""
+  coverage_threshold_dbm:
+    value: null
+    status: undecided
+    source: ""
+  coverage_target:
+    value: null
+    status: undecided
+    source: ""
+  interference_activity:      # 1.0 = every other site transmits at full power all the time
+    value: null
+    status: undecided
+    source: ""
+  antenna_height_above_roof_m:
+    value: null
+    status: undecided
+    source: ""

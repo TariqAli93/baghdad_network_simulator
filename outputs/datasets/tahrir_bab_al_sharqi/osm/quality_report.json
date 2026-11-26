@@ -1,0 +1,97 @@
+{
+  "area": {
+    "name": "tahrir_bab_al_sharqi",
+    "role": "development fixture",
+    "approved": false
+  },
+  "buildings": 1186,
+  "missing_height_buildings": 1172,
+  "height_categories": {
+    "by_count": {
+      "observed": 10,
+      "estimated": 4,
+      "placeholder": 1172
+    },
+    "by_count_percent": {
+      "observed": 0.8431703204047217,
+      "estimated": 0.3372681281618887,
+      "placeholder": 98.8195615514334
+    },
+    "by_area_percent": {
+      "observed": 1.8330077723987848,
+      "estimated": 2.6782765311761128,
+      "placeholder": 95.4887156964251
+    }
+  },
+  "height_sources": {
+    "by_count": {
+      "osm:height": 10,
+      "osm:building:levels": 4,
+      "placeholder": 1172
+    },
+    "by_area_percent": {
+      "osm:building:levels": 2.6782765311761128,
+      "osm:height": 1.8330077723987848,
+      "placeholder": 95.4887156964251
+    }
+  },
+  "height_statistics": {
+    "observed": {
+      "min_m": 1.0,
+      "median_m": 10.75,
+      "max_m": 60.0
+    },
+    "estimated": {
+      "min_m": 3.0,
+      "median_m": 13.5,
+      "max_m": 21.0
+    },
+    "placeholder": {
+      "min_m": 9.0,
+      "median_m": 9.0,
+      "max_m": 9.0
+    }
+  },
+  "height_model": null,
+  "height_warnings": [
+    {
+      "building_id": "way/645196998",
+      "warning": "implausible building:levels='0' ignored"
+    }
+  ],
+  "footprint_area_m2": 312231.1511759359,
+  "built_share_of_receiver_area_percent": 22.649037010076725,
+  "parse": {
+    "buildings_read": 1220,
+    "relations_read": 0,
+    "skipped": {
+      "relation stored without member geometry": 8
+    }
+  },
+  "cleaning": {
+    "dropped_small": 2,
+    "overlaps_resolved": 317,
+    "buildings_outside_area_or_too_small": 35,
+    "footprints_before_merge": 1186,
+    "solids_after_merge": 453,
+    "different_height_contacts": 55
+  },
+  "mesh": {
+    "vertices": 7180,
+    "triangles": 9873,
+    "degenerate_triangles": 0,
+    "rim_edges": 3619,
+    "wedges": 7149,
+    "flat_shared_edges": 5851,
+    "non_manifold_edges": 0,
+    "roof_triangles_facing_down": 0
+  },
+  "fit_for_research": false,
+  "not_fit_reasons": [
+    "the area is a development fixture, not the study district",
+    "the area has not been approved by the supervisor",
+    "the building-height methodology has not been approved",
+    "98.8 % of buildings have placeholder heights"
+  ],
+  "osm_snapshot_sha256": "a4ee708c09e08d4fc5afba35c7d271c054c414eaa5341cfc5a36f0c2d068d983"
+}

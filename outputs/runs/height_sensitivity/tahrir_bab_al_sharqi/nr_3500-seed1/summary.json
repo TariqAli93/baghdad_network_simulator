@@ -1,0 +1,515 @@
+{
+  "arguments": {
+    "area": "tahrir_bab_al_sharqi",
+    "models": [
+      "flat_9m",
+      "low_rise_2_to_4",
+      "mixed_1_to_8",
+      "lognormal_10m"
+    ],
+    "seed": 1,
+    "band": "nr_3500",
+    "cell_m": 10.0,
+    "samples": 100000000.0,
+    "mast_height_m": 3.0,
+    "min_site_height_m": 10.0,
+    "site_spacing_m": 150.0,
+    "max_sites": 8,
+    "max_path_loss_db": [
+      110.0,
+      120.0,
+      130.0
+    ],
+    "coverage_target": 0.95
+  },
+  "osm_snapshot_sha256": "a4ee708c09e08d4fc5afba35c7d271c054c414eaa5341cfc5a36f0c2d068d983",
+  "sites": [
+    {
+      "candidate_id": "site-001",
+      "x": -177.90098845773826,
+      "y": -131.23326489986027,
+      "z": 58.0,
+      "building_id": "way/919688856",
+      "roof_height_m": 55.0,
+      "footprint_area_m2": 833.4210671361501,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-002",
+      "x": 64.50975641723304,
+      "y": 27.52818343388453,
+      "z": 18.0,
+      "building_id": "way/1154123513",
+      "roof_height_m": 15.0,
+      "footprint_area_m2": 96.25100965947877,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-003",
+      "x": -171.37139764122523,
+      "y": 286.449624723827,
+      "z": 15.0,
+      "building_id": "way/645196998",
+      "roof_height_m": 12.0,
+      "footprint_area_m2": 31.247614509277412,
+      "height_category": "observed"
+    },
+    {
+      "candidate_id": "site-004",
+      "x": 327.81664072830665,
+      "y": 273.07231253455836,
+      "z": 13.0,
+      "building_id": "way/939812415",
+      "roof_height_m": 10.0,
+      "footprint_area_m2": 5.986256721092422,
+      "height_category": "observed"
+    }
+  ],
+  "variants": [
+    {
+      "sites": 4,
+      "outdoor_cells": 6224,
+      "los_fraction_per_site": [
+        0.5644280205655527,
+        0.6050771208226221,
+        0.11503856041131105,
+        0.3068766066838046
+      ],
+      "los_fraction_any_site": 0.8555591259640103,
+      "shadow_fraction_per_site": [
+        0.004498714652956298,
+        0.0,
+        0.0,
+        0.005141388174807198
+      ],
+      "shadow_fraction_all_sites": 0.0,
+      "reflection_only_fraction": 0.11407455012853471,
+      "diffraction_only_fraction": 0.030366323907455015,
+      "best_path_loss_db": {
+        "p5": 80.4743415087205,
+        "median": 93.6413442548189,
+        "p95": 106.59931737683203,
+        "reached_cells": 6224
+      },
+      "coverage": [
+        {
+          "max_path_loss_db": 110.0,
+          "coverage_all_sites": 0.9755784061696658,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            0,
+            1
+          ],
+          "greedy_coverage_after": [
+            0.8033419023136247,
+            0.9509961439588689
+          ]
+        },
+        {
+          "max_path_loss_db": 120.0,
+          "coverage_all_sites": 0.9985539845758354,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            1,
+            0
+          ],
+          "greedy_coverage_after": [
+            0.9445694087403599,
+            0.9873071979434447
+          ]
+        },
+        {
+          "max_path_loss_db": 130.0,
+          "coverage_all_sites": 1.0,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            1
+          ],
+          "greedy_coverage_after": [
+            0.9956619537275064
+          ]
+        }
+      ],
+      "model": {
+        "name": "flat_9m",
+        "kind": "constant",
+        "params": {
+          "height_m": 9.0
+        },
+        "approved": false,
+        "seed": 1
+      },
+      "height_categories_percent": {
+        "observed": 0.8431703204047217,
+        "estimated": 0.3372681281618887,
+        "placeholder": 98.8195615514334
+      },
+      "building_height_m": {
+        "mean": 9.081365935919056,
+        "median": 9.0,
+        "max": 60.0
+      },
+      "mesh_wedges": 7149,
+      "trace_seconds": 44.6,
+      "runtime": {
+        "variant": "llvm_ad_mono_polarized",
+        "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+        "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+        "threads": 16,
+        "cpu_affinity": null,
+        "mem_cap_gb": null
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "exit_code": 0,
+          "seconds": 51.57
+        }
+      ]
+    },
+    {
+      "sites": 4,
+      "outdoor_cells": 6224,
+      "los_fraction_per_site": [
+        0.5628213367609255,
+        0.49839331619537275,
+        0.08708226221079692,
+        0.19762210796915167
+      ],
+      "los_fraction_any_site": 0.8025385604113111,
+      "shadow_fraction_per_site": [
+        0.006266066838046273,
+        0.0033740359897172236,
+        0.015584832904884318,
+        0.021529562982005142
+      ],
+      "shadow_fraction_all_sites": 0.0,
+      "reflection_only_fraction": 0.1637210796915167,
+      "diffraction_only_fraction": 0.03374035989717224,
+      "best_path_loss_db": {
+        "p5": 80.59116721376569,
+        "median": 94.16283304257209,
+        "p95": 108.40363443183723,
+        "reached_cells": 6224
+      },
+      "coverage": [
+        {
+          "max_path_loss_db": 110.0,
+          "coverage_all_sites": 0.9633676092544987,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            0,
+            1,
+            3
+          ],
+          "greedy_coverage_after": [
+            0.7969151670951157,
+            0.9338046272493573,
+            0.9583868894601543
+          ]
+        },
+        {
+          "max_path_loss_db": 120.0,
+          "coverage_all_sites": 0.9951799485861182,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            0,
+            1
+          ],
+          "greedy_coverage_after": [
+            0.9278598971722365,
+            0.9861825192802056
+          ]
+        },
+        {
+          "max_path_loss_db": 130.0,
+          "coverage_all_sites": 0.9998393316195373,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            1
+          ],
+          "greedy_coverage_after": [
+            0.9705976863753213
+          ]
+        }
+      ],
+      "model": {
+        "name": "low_rise_2_to_4",
+        "kind": "uniform_levels",
+        "params": {
+          "min_levels": 2,
+          "max_levels": 4,
+          "storey_height_m": 3.0
+        },
+        "approved": false,
+        "seed": 1
+      },
+      "height_categories_percent": {
+        "observed": 0.8431703204047217,
+        "estimated": 0.3372681281618887,
+        "placeholder": 98.8195615514334
+      },
+      "building_height_m": {
+        "mean": 9.063659359190556,
+        "median": 9.0,
+        "max": 60.0
+      },
+      "mesh_wedges": 10369,
+      "trace_seconds": 44.7,
+      "runtime": {
+        "variant": "llvm_ad_mono_polarized",
+        "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+        "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+        "threads": 16,
+        "cpu_affinity": null,
+        "mem_cap_gb": null
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "exit_code": 0,
+          "seconds": 51.81
+        }
+      ]
+    },
+    {
+      "sites": 4,
+      "outdoor_cells": 6224,
+      "los_fraction_per_site": [
+        0.5085154241645244,
+        0.3118573264781491,
+        0.0,
+        0.18043059125964012
+      ],
+      "los_fraction_any_site": 0.6715938303341902,
+      "shadow_fraction_per_site": [
+        0.0038560411311053984,
+        0.032133676092544985,
+        0.9959832904884319,
+        0.061696658097686374
+      ],
+      "shadow_fraction_all_sites": 0.0004820051413881748,
+      "reflection_only_fraction": 0.28325835475578404,
+      "diffraction_only_fraction": 0.04466580976863753,
+      "best_path_loss_db": {
+        "p5": 80.74940595278247,
+        "median": 96.18740178165177,
+        "p95": 113.8517470844115,
+        "reached_cells": 6221
+      },
+      "coverage": [
+        {
+          "max_path_loss_db": 110.0,
+          "coverage_all_sites": 0.911793059125964,
+          "coverage_target": 0.95,
+          "target_reached": false,
+          "greedy_sites": [
+            0,
+            1,
+            3
+          ],
+          "greedy_coverage_after": [
+            0.7421272493573264,
+            0.8674485861182519,
+            0.911793059125964
+          ]
+        },
+        {
+          "max_path_loss_db": 120.0,
+          "coverage_all_sites": 0.9699550128534704,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            0,
+            3,
+            1
+          ],
+          "greedy_coverage_after": [
+            0.8815874035989717,
+            0.9463367609254498,
+            0.9699550128534704
+          ]
+        },
+        {
+          "max_path_loss_db": 130.0,
+          "coverage_all_sites": 0.9863431876606684,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            0,
+            3
+          ],
+          "greedy_coverage_after": [
+            0.9455334190231363,
+            0.9763817480719794
+          ]
+        }
+      ],
+      "model": {
+        "name": "mixed_1_to_8",
+        "kind": "uniform_levels",
+        "params": {
+          "min_levels": 1,
+          "max_levels": 8,
+          "storey_height_m": 3.0
+        },
+        "approved": false,
+        "seed": 1
+      },
+      "height_categories_percent": {
+        "observed": 0.759493670886076,
+        "estimated": 0.33755274261603374,
+        "placeholder": 98.90295358649789
+      },
+      "building_height_m": {
+        "mean": 13.506751054852321,
+        "median": 12.0,
+        "max": 60.0
+      },
+      "mesh_wedges": 11185,
+      "trace_seconds": 59.3,
+      "runtime": {
+        "variant": "llvm_ad_mono_polarized",
+        "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+        "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+        "threads": 16,
+        "cpu_affinity": null,
+        "mem_cap_gb": null
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "exit_code": 0,
+          "seconds": 65.8
+        }
+      ]
+    },
+    {
+      "sites": 4,
+      "outdoor_cells": 6224,
+      "los_fraction_per_site": [
+        0.5269922879177378,
+        0.4407133676092545,
+        0.0,
+        0.2527313624678663
+      ],
+      "los_fraction_any_site": 0.7504820051413882,
+      "shadow_fraction_per_site": [
+        0.00016066838046272492,
+        0.01960154241645244,
+        0.9967866323907455,
+        0.08997429305912596
+      ],
+      "shadow_fraction_all_sites": 0.0,
+      "reflection_only_fraction": 0.2210796915167095,
+      "diffraction_only_fraction": 0.028438303341902314,
+      "best_path_loss_db": {
+        "p5": 80.88717846912353,
+        "median": 94.79140205317626,
+        "p95": 110.28588972778728,
+        "reached_cells": 6224
+      },
+      "coverage": [
+        {
+          "max_path_loss_db": 110.0,
+          "coverage_all_sites": 0.9463367609254498,
+          "coverage_target": 0.95,
+          "target_reached": false,
+          "greedy_sites": [
+            0,
+            1,
+            3
+          ],
+          "greedy_coverage_after": [
+            0.7649421593830334,
+            0.9021529562982005,
+            0.9463367609254498
+          ]
+        },
+        {
+          "max_path_loss_db": 120.0,
+          "coverage_all_sites": 0.981844473007712,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            0,
+            3
+          ],
+          "greedy_coverage_after": [
+            0.9048843187660668,
+            0.9670629820051414
+          ]
+        },
+        {
+          "max_path_loss_db": 130.0,
+          "coverage_all_sites": 0.9942159383033419,
+          "coverage_target": 0.95,
+          "target_reached": true,
+          "greedy_sites": [
+            0
+          ],
+          "greedy_coverage_after": [
+            0.9656169665809768
+          ]
+        }
+      ],
+      "model": {
+        "name": "lognormal_10m",
+        "kind": "lognormal",
+        "params": {
+          "median_m": 10.0,
+          "sigma": 0.5,
+          "min_m": 3.0,
+          "max_m": 60.0
+        },
+        "approved": false,
+        "seed": 1
+      },
+      "height_categories_percent": {
+        "observed": 0.7601351351351351,
+        "estimated": 0.33783783783783783,
+        "placeholder": 98.90202702702703
+      },
+      "building_height_m": {
+        "mean": 11.358889303057687,
+        "median": 10.003050575268427,
+        "max": 60.0
+      },
+      "mesh_wedges": 11796,
+      "trace_seconds": 54.4,
+      "runtime": {
+        "variant": "llvm_ad_mono_polarized",
+        "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+        "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+        "threads": 16,
+        "cpu_affinity": null,
+        "mem_cap_gb": null
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "exit_code": 0,
+          "seconds": 60.71
+        }
+      ]
+    }
+  ],
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "note": "Development fixture and unapproved height models: illustrative only."
+}

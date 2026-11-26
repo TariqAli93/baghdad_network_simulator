@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 import math
-import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -26,6 +25,11 @@ from pyproj import Transformer
 from shapely.geometry import Polygon
 from shapely.geometry.polygon import orient
 from shapely.ops import unary_union
+
+from bns.geospatial.grid import footprint_mask
+from bns.geospatial.heights import (ESTIMATED, OBSERVED, PLACEHOLDER, HeightPolicy,
+                                    height_from_osm_tags)
+from bns.geospatial.study_area import local_transformer  # noqa: F401  (used by Phase 0 scripts)
 
 HEIGHT_FROM_TAG = "tag:height"
 HEIGHT_FROM_LEVELS = "tag:building:levels"
@@ -59,43 +63,25 @@ class Building:
 # --- Reading OSM ------------------------------------------------------------------
 
 
-def local_transformer(lat0: float, lon0: float) -> Transformer:
-    """WGS84 lon/lat -> transverse Mercator centred on (lat0, lon0), scale 1."""
-    crs = f"+proj=tmerc +lat_0={lat0} +lon_0={lon0} +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m"
-    return Transformer.from_crs("EPSG:4326", crs, always_xy=True)
-
-
-_NUMBER = re.compile(r"^\s*([0-9]+(?:\.[0-9]+)?)\s*(m|meters|metres)?\s*$", re.IGNORECASE)
-
-
-def _parse_number(text) -> float | None:
-    match = _NUMBER.match(str(text)) if text is not None else None
-    return float(match.group(1)) if match else None
+_LABELS = {OBSERVED: HEIGHT_FROM_TAG, ESTIMATED: HEIGHT_FROM_LEVELS, PLACEHOLDER: HEIGHT_ASSUMED}
 
 
 def resolve_height(tags: dict, settings: SceneSettings) -> tuple[float, str, str | None]:
-    """Height, its source, and a warning when the tags are unusable or contradictory."""
-    height = _parse_number(tags.get("height"))
-    levels = _parse_number(tags.get("building:levels"))
-    warning = None
-    if height is not None and not 0.0 < height <= settings.max_plausible_height_m:
-        warning, height = f"implausible height={tags.get('height')}", None
-    if levels is not None and not 0.0 < levels * settings.storey_height_m <= settings.max_plausible_height_m:
-        warning, levels = f"implausible building:levels={tags.get('building:levels')}", None
-    if height is not None and levels is not None:
-        from_levels = levels * settings.storey_height_m
-        if abs(height - from_levels) > max(6.0, 0.5 * from_levels):
-            warning = f"height={height} m contradicts building:levels={levels}"
-    if height is not None:
-        return height, HEIGHT_FROM_TAG, warning
-    if levels is not None:
-        return levels * settings.storey_height_m, HEIGHT_FROM_LEVELS, warning
-    return settings.default_height_m, HEIGHT_ASSUMED, warning
+    """Height, its source label, and any warning (Phase 0 form of heights.height_from_osm_tags)."""
+    policy = HeightPolicy(settings.storey_height_m, settings.default_height_m,
+                          settings.max_plausible_height_m)
+    record = height_from_osm_tags(tags, policy, building_id="")
+    return record.height_m, _LABELS[record.category], "; ".join(record.warnings) or None
 
 
 def read_overpass_buildings(overpass_json: dict, transformer: Transformer,
                             settings: SceneSettings) -> tuple[list[Building], dict]:
-    """Building ways from an Overpass `out tags geom` response, in local metres."""
+    """Building ways from an Overpass `out tags geom` response, in local metres.
+
+    This is the Phase 0 reader, kept so the Phase 0 experiments stay reproducible.
+    It skips multipolygon relations. New code uses bns.geospatial.osm_source and
+    bns.geospatial.pipeline instead.
+    """
     buildings, warnings, skipped = [], [], Counter()
     for element in overpass_json.get("elements", []):
         tags = element.get("tags", {})
@@ -156,6 +142,18 @@ def clean_footprints(buildings: list[Building], settings: SceneSettings,
     * footprints of equal height that touch are merged into one solid, which
       removes the coincident party walls between them.
     """
+    separated, stats = separate_footprints(buildings, settings, clip_box)
+    merged, merge_stats = merge_solids(separated, settings)
+    return merged, {**stats, **merge_stats}
+
+
+def separate_footprints(buildings: list[Building], settings: SceneSettings,
+                        clip_box: Polygon | None = None) -> tuple[list[Building], dict]:
+    """Repair, clip and de-overlap footprints, keeping one piece per source building.
+
+    The result still has one entry per original building (or per piece, if
+    clipping or an overlap split it), so per-building information stays attached.
+    """
     stats = Counter()
     repaired = []
     for b in buildings:
@@ -180,8 +178,12 @@ def clean_footprints(buildings: list[Building], settings: SceneSettings,
             if polygon.area >= settings.min_area_m2:
                 separated.append(Building(polygon, b.height_m, b.height_source, b.osm_ids))
         claimed = b.polygon if claimed is None else claimed.union(b.polygon)
+    return separated, dict(stats)
 
-    # Merge touching footprints of equal height and equal height source.
+
+def merge_solids(separated: list[Building], settings: SceneSettings) -> tuple[list[Building], dict]:
+    """Merge touching footprints of equal height and equal height source into solids."""
+    stats = Counter()
     groups: dict[tuple[float, str], list[Building]] = {}
     for b in separated:
         groups.setdefault((round(b.height_m, 1), b.height_source), []).append(b)
@@ -417,12 +419,4 @@ def indoor_mask(buildings: list[Building], x_centers, y_centers, cell_size_m: fl
 
     Shape [len(y_centers), len(x_centers)], matching the radio-map arrays.
     """
-    xs, ys = np.meshgrid(np.asarray(x_centers, float), np.asarray(y_centers, float))
-    half = cell_size_m / 2.0
-    cells = shapely.box(xs.ravel() - half, ys.ravel() - half, xs.ravel() + half, ys.ravel() + half)
-    mask = np.zeros(cells.shape, dtype=bool)
-    if buildings:
-        tree = shapely.STRtree([b.polygon for b in buildings])
-        hit_cells, _ = tree.query(cells, predicate="intersects")
-        mask[np.unique(hit_cells)] = True
-    return mask.reshape(xs.shape)
+    return footprint_mask(x_centers, y_centers, cell_size_m, [b.polygon for b in buildings])

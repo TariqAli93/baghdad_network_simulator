@@ -8,6 +8,10 @@ __pycache__/
 .claude-flow/
 .swarm/
 
+# Large original downloads are cached here, never committed; data/raw keeps
+# small extracts plus manifests with checksums and download instructions.
+data/raw/**/*.zip
+
 # Generated data: rebuilt from data/raw by scripts
 data/processed/
 data/scenes/

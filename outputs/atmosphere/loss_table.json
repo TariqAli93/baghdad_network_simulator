@@ -1,0 +1,262 @@
+[
+  {
+    "case": "clear sky (baseline)",
+    "approved": true,
+    "scenario": "lte_1800",
+    "frequency_ghz": 1.8,
+    "rain_rate_mm_h": 0.0,
+    "specific_attenuation_db_per_km": 0.0068,
+    "loss_db": {
+      "250 m": 0.0017,
+      "500 m": 0.0034,
+      "1000 m": 0.0068
+    }
+  },
+  {
+    "case": "clear sky (baseline)",
+    "approved": true,
+    "scenario": "nr_3500",
+    "frequency_ghz": 3.5,
+    "rain_rate_mm_h": 0.0,
+    "specific_attenuation_db_per_km": 0.0078,
+    "loss_db": {
+      "250 m": 0.00195,
+      "500 m": 0.0039,
+      "1000 m": 0.0078
+    }
+  },
+  {
+    "case": "clear sky (baseline)",
+    "approved": true,
+    "scenario": "c6g_8000",
+    "frequency_ghz": 8.0,
+    "rain_rate_mm_h": 0.0,
+    "specific_attenuation_db_per_km": 0.0114,
+    "loss_db": {
+      "250 m": 0.00285,
+      "500 m": 0.0057,
+      "1000 m": 0.0114
+    }
+  },
+  {
+    "case": "clear sky (baseline)",
+    "approved": true,
+    "scenario": "c6g_15000",
+    "frequency_ghz": 15.0,
+    "rain_rate_mm_h": 0.0,
+    "specific_attenuation_db_per_km": 0.0291,
+    "loss_db": {
+      "250 m": 0.007275,
+      "500 m": 0.01455,
+      "1000 m": 0.0291
+    }
+  },
+  {
+    "case": "clear sky (baseline)",
+    "approved": true,
+    "scenario": "nr_28000",
+    "frequency_ghz": 28.0,
+    "rain_rate_mm_h": 0.0,
+    "specific_attenuation_db_per_km": 0.1018,
+    "loss_db": {
+      "250 m": 0.02545,
+      "500 m": 0.0509,
+      "1000 m": 0.1018
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.1 % of an average year (about 9 hours)",
+    "approved": false,
+    "scenario": "lte_1800",
+    "frequency_ghz": 1.8,
+    "rain_rate_mm_h": 4.1,
+    "specific_attenuation_db_per_km": 0.007102601558229104,
+    "loss_db": {
+      "250 m": 0.001775650389557276,
+      "500 m": 0.003551300779114552,
+      "1000 m": 0.007102601558229104
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.1 % of an average year (about 9 hours)",
+    "approved": false,
+    "scenario": "nr_3500",
+    "frequency_ghz": 3.5,
+    "rain_rate_mm_h": 4.1,
+    "specific_attenuation_db_per_km": 0.008969591740543204,
+    "loss_db": {
+      "250 m": 0.002242397935135801,
+      "500 m": 0.004484795870271602,
+      "1000 m": 0.008969591740543204
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.1 % of an average year (about 9 hours)",
+    "approved": false,
+    "scenario": "c6g_8000",
+    "frequency_ghz": 8.0,
+    "rain_rate_mm_h": 4.1,
+    "specific_attenuation_db_per_km": 0.03557000727038299,
+    "loss_db": {
+      "250 m": 0.008892501817595747,
+      "500 m": 0.017785003635191494,
+      "1000 m": 0.03557000727038299
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.1 % of an average year (about 9 hours)",
+    "approved": false,
+    "scenario": "c6g_15000",
+    "frequency_ghz": 15.0,
+    "rain_rate_mm_h": 4.1,
+    "specific_attenuation_db_per_km": 0.24758769064199398,
+    "loss_db": {
+      "250 m": 0.061896922660498496,
+      "500 m": 0.12379384532099699,
+      "1000 m": 0.24758769064199398
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.1 % of an average year (about 9 hours)",
+    "approved": false,
+    "scenario": "nr_28000",
+    "frequency_ghz": 28.0,
+    "rain_rate_mm_h": 4.1,
+    "specific_attenuation_db_per_km": 0.8290848779627862,
+    "loss_db": {
+      "250 m": 0.20727121949069655,
+      "500 m": 0.4145424389813931,
+      "1000 m": 0.8290848779627862
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.01 % of an average year (about 53 minutes)",
+    "approved": false,
+    "scenario": "lte_1800",
+    "frequency_ghz": 1.8,
+    "rain_rate_mm_h": 18.6,
+    "specific_attenuation_db_per_km": 0.008028214249386507,
+    "loss_db": {
+      "250 m": 0.0020070535623466267,
+      "500 m": 0.004014107124693253,
+      "1000 m": 0.008028214249386507
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.01 % of an average year (about 53 minutes)",
+    "approved": false,
+    "scenario": "nr_3500",
+    "frequency_ghz": 3.5,
+    "rain_rate_mm_h": 18.6,
+    "specific_attenuation_db_per_km": 0.014343777298607207,
+    "loss_db": {
+      "250 m": 0.0035859443246518017,
+      "500 m": 0.0071718886493036035,
+      "1000 m": 0.014343777298607207
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.01 % of an average year (about 53 minutes)",
+    "approved": false,
+    "scenario": "c6g_8000",
+    "frequency_ghz": 8.0,
+    "rain_rate_mm_h": 18.6,
+    "specific_attenuation_db_per_km": 0.20611048115531416,
+    "loss_db": {
+      "250 m": 0.05152762028882854,
+      "500 m": 0.10305524057765708,
+      "1000 m": 0.20611048115531416
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.01 % of an average year (about 53 minutes)",
+    "approved": false,
+    "scenario": "c6g_15000",
+    "frequency_ghz": 15.0,
+    "rain_rate_mm_h": 18.6,
+    "specific_attenuation_db_per_km": 1.0884679044447239,
+    "loss_db": {
+      "250 m": 0.27211697611118096,
+      "500 m": 0.5442339522223619,
+      "1000 m": 1.0884679044447239
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.01 % of an average year (about 53 minutes)",
+    "approved": false,
+    "scenario": "nr_28000",
+    "frequency_ghz": 28.0,
+    "rain_rate_mm_h": 18.6,
+    "specific_attenuation_db_per_km": 3.0593483654132814,
+    "loss_db": {
+      "250 m": 0.7648370913533203,
+      "500 m": 1.5296741827066407,
+      "1000 m": 3.0593483654132814
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.001 % of an average year (about 5 minutes)",
+    "approved": false,
+    "scenario": "lte_1800",
+    "frequency_ghz": 1.8,
+    "rain_rate_mm_h": 55.1,
+    "specific_attenuation_db_per_km": 0.010158974824541075,
+    "loss_db": {
+      "250 m": 0.002539743706135269,
+      "500 m": 0.005079487412270538,
+      "1000 m": 0.010158974824541075
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.001 % of an average year (about 5 minutes)",
+    "approved": false,
+    "scenario": "nr_3500",
+    "frequency_ghz": 3.5,
+    "rain_rate_mm_h": 55.1,
+    "specific_attenuation_db_per_km": 0.03033547880361255,
+    "loss_db": {
+      "250 m": 0.007583869700903138,
+      "500 m": 0.015167739401806275,
+      "1000 m": 0.03033547880361255
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.001 % of an average year (about 5 minutes)",
+    "approved": false,
+    "scenario": "c6g_8000",
+    "frequency_ghz": 8.0,
+    "rain_rate_mm_h": 55.1,
+    "specific_attenuation_db_per_km": 0.8826163278311097,
+    "loss_db": {
+      "250 m": 0.22065408195777741,
+      "500 m": 0.44130816391555483,
+      "1000 m": 0.8826163278311097
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.001 % of an average year (about 5 minutes)",
+    "approved": false,
+    "scenario": "c6g_15000",
+    "frequency_ghz": 15.0,
+    "rain_rate_mm_h": 55.1,
+    "specific_attenuation_db_per_km": 3.3209022533977754,
+    "loss_db": {
+      "250 m": 0.8302255633494439,
+      "500 m": 1.6604511266988877,
+      "1000 m": 3.3209022533977754
+    }
+  },
+  {
+    "case": "rain rate exceeded 0.001 % of an average year (about 5 minutes)",
+    "approved": false,
+    "scenario": "nr_28000",
+    "frequency_ghz": 28.0,
+    "rain_rate_mm_h": 55.1,
+    "specific_attenuation_db_per_km": 8.201267618400422,
+    "loss_db": {
+      "250 m": 2.0503169046001055,
+      "500 m": 4.100633809200211,
+      "1000 m": 8.201267618400422
+    }
+  }
+]

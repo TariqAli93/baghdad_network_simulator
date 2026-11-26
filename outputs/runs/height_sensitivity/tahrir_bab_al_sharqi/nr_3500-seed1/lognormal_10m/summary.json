@@ -1,0 +1,102 @@
+{
+  "sites": 4,
+  "outdoor_cells": 6224,
+  "los_fraction_per_site": [
+    0.5269922879177378,
+    0.4407133676092545,
+    0.0,
+    0.2527313624678663
+  ],
+  "los_fraction_any_site": 0.7504820051413882,
+  "shadow_fraction_per_site": [
+    0.00016066838046272492,
+    0.01960154241645244,
+    0.9967866323907455,
+    0.08997429305912596
+  ],
+  "shadow_fraction_all_sites": 0.0,
+  "reflection_only_fraction": 0.2210796915167095,
+  "diffraction_only_fraction": 0.028438303341902314,
+  "best_path_loss_db": {
+    "p5": 80.88717846912353,
+    "median": 94.79140205317626,
+    "p95": 110.28588972778728,
+    "reached_cells": 6224
+  },
+  "coverage": [
+    {
+      "max_path_loss_db": 110.0,
+      "coverage_all_sites": 0.9463367609254498,
+      "coverage_target": 0.95,
+      "target_reached": false,
+      "greedy_sites": [
+        0,
+        1,
+        3
+      ],
+      "greedy_coverage_after": [
+        0.7649421593830334,
+        0.9021529562982005,
+        0.9463367609254498
+      ]
+    },
+    {
+      "max_path_loss_db": 120.0,
+      "coverage_all_sites": 0.981844473007712,
+      "coverage_target": 0.95,
+      "target_reached": true,
+      "greedy_sites": [
+        0,
+        3
+      ],
+      "greedy_coverage_after": [
+        0.9048843187660668,
+        0.9670629820051414
+      ]
+    },
+    {
+      "max_path_loss_db": 130.0,
+      "coverage_all_sites": 0.9942159383033419,
+      "coverage_target": 0.95,
+      "target_reached": true,
+      "greedy_sites": [
+        0
+      ],
+      "greedy_coverage_after": [
+        0.9656169665809768
+      ]
+    }
+  ],
+  "model": {
+    "name": "lognormal_10m",
+    "kind": "lognormal",
+    "params": {
+      "median_m": 10.0,
+      "sigma": 0.5,
+      "min_m": 3.0,
+      "max_m": 60.0
+    },
+    "approved": false,
+    "seed": 1
+  },
+  "height_categories_percent": {
+    "observed": 0.7601351351351351,
+    "estimated": 0.33783783783783783,
+    "placeholder": 98.90202702702703
+  },
+  "building_height_m": {
+    "mean": 11.358889303057687,
+    "median": 10.003050575268427,
+    "max": 60.0
+  },
+  "mesh_wedges": 11796,
+  "trace_seconds": 54.4,
+  "runtime": {
+    "variant": "llvm_ad_mono_polarized",
+    "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+    "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+    "threads": 16,
+    "cpu_affinity": null,
+    "mem_cap_gb": null
+  }
+}

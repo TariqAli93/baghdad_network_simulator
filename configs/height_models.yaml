@@ -1,0 +1,40 @@
+# Height models: assumed height distributions for buildings without any height information.
+# They exist to measure how much the results depend on the unknown heights
+# (scripts/run_height_sensitivity.py). A building that receives a height from a model keeps
+# the provenance category "placeholder": the value is an assumption, not an estimate of that
+# building.
+#
+# approved: false means the supervisor has NOT approved the model for thesis results.
+# None is approved yet (docs/supervisor-decisions.md, decision D2). The numbers below are
+# illustrative ranges for exercising the framework; replace them with approved ones.
+#
+# kinds:
+#   constant        params: height_m
+#   uniform_levels  params: min_levels, max_levels (inclusive), storey_height_m
+#   lognormal       params: median_m, sigma (of ln height), min_m, max_m
+height_models:
+  flat_9m:
+    kind: constant
+    params: {height_m: 9.0}
+    approved: false
+    rationale: The single placeholder used in Phase 0 (three storeys of 3 m).
+
+  low_rise_2_to_4:
+    kind: uniform_levels
+    params: {min_levels: 2, max_levels: 4, storey_height_m: 3.0}
+    approved: false
+    rationale: >-
+      A published description of central Baghdad streets as two to four floors
+      (S. L. Jasim, AHTI 2020, Atlantis Press). One source, read once; to be confirmed.
+
+  mixed_1_to_8:
+    kind: uniform_levels
+    params: {min_levels: 1, max_levels: 8, storey_height_m: 3.0}
+    approved: false
+    rationale: A deliberately wide range to bound the effect of taller untagged buildings.
+
+  lognormal_10m:
+    kind: lognormal
+    params: {median_m: 10.0, sigma: 0.5, min_m: 3.0, max_m: 60.0}
+    approved: false
+    rationale: A skewed distribution with a few tall buildings; parameters are not from data.

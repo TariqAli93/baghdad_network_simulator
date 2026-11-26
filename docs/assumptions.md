@@ -1,5 +1,13 @@
 # Assumptions, provisional values and open decisions
 
+> **Since Phase 2** the open decisions are consolidated in `docs/supervisor-decisions.md`
+> (which replaces section 6 below), corrections to the project description are in
+> `docs/project-description-corrections.md`, building heights in
+> `docs/building-height-data.md`, and rain and gas losses in `docs/atmospheric-losses.md`.
+> The configurable assumptions now live in `configs/` (`study_area.yaml`,
+> `height_models.yaml`, `radio_system.yaml`, `atmosphere.yaml`), each marked approved or not.
+> Sections 1-4 below remain the record of what Phase 0 assumed.
+
 Every scientific assumption of the project is recorded here with its source and status.
 
 - **Approved**: taken from the project description or decided with the supervisor.
@@ -150,4 +158,4 @@ Added by the Phase 1 review (details in `docs/references.md` and `docs/related-s
 | MATLAB primary if licensed | Sionna RT is the single engine; MATLAB only cross-checks | MATLAB is not on the development PC; supervisor approved Sionna RT |
 | `requirements.lock` | `uv.lock` is the lock; `requirements.lock` is exported from it | `uv` manages the environment |
 | Parquet for numerical results | `.npz` + JSON in Phase 0 | Storage layer comes later |
-| Project structure | See `docs/architecture.md`, section 6 | |
+| Project structure | See `docs/architecture.md`, section 7 | |

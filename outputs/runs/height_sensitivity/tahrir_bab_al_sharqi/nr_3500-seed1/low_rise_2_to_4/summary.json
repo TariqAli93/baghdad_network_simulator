@@ -1,0 +1,101 @@
+{
+  "sites": 4,
+  "outdoor_cells": 6224,
+  "los_fraction_per_site": [
+    0.5628213367609255,
+    0.49839331619537275,
+    0.08708226221079692,
+    0.19762210796915167
+  ],
+  "los_fraction_any_site": 0.8025385604113111,
+  "shadow_fraction_per_site": [
+    0.006266066838046273,
+    0.0033740359897172236,
+    0.015584832904884318,
+    0.021529562982005142
+  ],
+  "shadow_fraction_all_sites": 0.0,
+  "reflection_only_fraction": 0.1637210796915167,
+  "diffraction_only_fraction": 0.03374035989717224,
+  "best_path_loss_db": {
+    "p5": 80.59116721376569,
+    "median": 94.16283304257209,
+    "p95": 108.40363443183723,
+    "reached_cells": 6224
+  },
+  "coverage": [
+    {
+      "max_path_loss_db": 110.0,
+      "coverage_all_sites": 0.9633676092544987,
+      "coverage_target": 0.95,
+      "target_reached": true,
+      "greedy_sites": [
+        0,
+        1,
+        3
+      ],
+      "greedy_coverage_after": [
+        0.7969151670951157,
+        0.9338046272493573,
+        0.9583868894601543
+      ]
+    },
+    {
+      "max_path_loss_db": 120.0,
+      "coverage_all_sites": 0.9951799485861182,
+      "coverage_target": 0.95,
+      "target_reached": true,
+      "greedy_sites": [
+        0,
+        1
+      ],
+      "greedy_coverage_after": [
+        0.9278598971722365,
+        0.9861825192802056
+      ]
+    },
+    {
+      "max_path_loss_db": 130.0,
+      "coverage_all_sites": 0.9998393316195373,
+      "coverage_target": 0.95,
+      "target_reached": true,
+      "greedy_sites": [
+        1
+      ],
+      "greedy_coverage_after": [
+        0.9705976863753213
+      ]
+    }
+  ],
+  "model": {
+    "name": "low_rise_2_to_4",
+    "kind": "uniform_levels",
+    "params": {
+      "min_levels": 2,
+      "max_levels": 4,
+      "storey_height_m": 3.0
+    },
+    "approved": false,
+    "seed": 1
+  },
+  "height_categories_percent": {
+    "observed": 0.8431703204047217,
+    "estimated": 0.3372681281618887,
+    "placeholder": 98.8195615514334
+  },
+  "building_height_m": {
+    "mean": 9.063659359190556,
+    "median": 9.0,
+    "max": 60.0
+  },
+  "mesh_wedges": 10369,
+  "trace_seconds": 44.7,
+  "runtime": {
+    "variant": "llvm_ad_mono_polarized",
+    "llvm_library": "C:\\Program Files\\LLVM\\bin\\LLVM-C.dll",
+    "kernel_cache_dir": "D:\\dev_projects\\baghdad_network_simulator\\data\\cache\\drjit",
+    "threads": 16,
+    "cpu_affinity": null,
+    "mem_cap_gb": null
+  }
+}

@@ -7,14 +7,14 @@ blockers, next phase.
 | Phase | Subject | Status |
 |---|---|---|
 | 0 | Feasibility and environment audit | **Done on the development PC; laptop rerun pending** |
-| 1 | Literature and standards review | **Done (2026-11-26)**; student to read and confirm the sources |
-| 2 | Study area and 3D city model | Not started (pipeline prototype exists from Phase 0) |
-| 3 | Radio scenario configuration | Not started (`configs/scenarios.yaml` exists) |
+| 1 | Literature and standards review | **Done (2026-11-26)**, tag `v0.2.0-literature-review`; student to read and confirm the sources |
+| 2 | Study area and 3D city model | **Technically ready (2026-11-26); not scientifically complete** until the district and the height methodology are approved |
+| 3 | Radio scenario configuration | Partly done: scenarios, study areas, height models, radio parameters and atmosphere are configurable; radio parameters undecided |
 | 4 | Ray-tracing engine (losses, adapter hardening) | Not started |
 | 5 | Single-site coverage | Not started |
-| 6 | Multi-site SINR and data rate | Not started |
+| 6 | Multi-site SINR and data rate | Calculation functions done and tested; not yet run on maps (needs radio parameters) |
 | 7 | Scientific validation (3GPP TR 38.901, MATLAB cross-check) | Not started |
-| 8 | Base-station site planning (greedy) | Not started |
+| 8 | Base-station site planning (greedy) | Greedy selection function done and tested; used in the height-sensitivity experiment |
 | 9 | Comparative analysis | Not started |
 | 10 | 6G roadmap workspace | Not started |
 | - | Streamlit application | Not started (after the simulation core is validated) |
@@ -202,3 +202,140 @@ experiments were not rerun.
 
 Phase 2 (study area and 3D city model) is blocked on the supervisor's choice of district and
 of the source of building heights (`docs/assumptions.md`, section 6, item 1).
+
+---
+
+## Phase 2 report (2026-11-26)
+
+**Status: technically ready, not scientifically complete.** The geospatial pipeline works
+for any area and was exercised on the development fixture. It becomes scientifically
+complete only when the supervisor has approved the study district (D1) and the
+building-height methodology (D2) and a dataset is built for that district.
+The Phase 0 laptop acceptance gate is still open.
+
+### Completed
+
+- **Phase 1 closed**: commit `7136ee3` "docs: complete literature review and standards
+  verification", tag `v0.2.0-literature-review`, after the full suite passed.
+- **Corrections record** (`docs/project-description-corrections.md`): 13 corrections with
+  original statement, corrected statement, source, date and impact; the PDF is unchanged and
+  the five scenarios are unchanged.
+- **Reusable geospatial pipeline** (`bns.geospatial`, `scripts/build_dataset.py`):
+  configurable study areas; OpenStreetMap extraction with a hashed local snapshot; local
+  metric coordinates; footprint validation and repair; multipolygon relations; height
+  provenance per building; missing-height detection; rooftop candidates; outdoor receiver
+  grid; 3D scene for Sionna RT; quality report.
+- **Height provenance**: every building has identifier, footprint, height, source, method,
+  category (observed / estimated / placeholder), uncertainty where the source gives one,
+  reference, and the untouched original values. Observations and height models add a new
+  record on top; nothing is overwritten.
+- **Building-height investigation** (`docs/building-height-data.md`): twelve sources
+  examined; five measured in the test area.
+- **Height sensitivity framework** (`scripts/run_height_sensitivity.py`) with seeded,
+  configurable height models, run on the fixture.
+- **Calculation core** (`bns.analysis`, `bns.optimization`): received power, SINR,
+  interference aggregation, Shannon rate, coverage, percentiles, CDF, RMSE, greedy site
+  selection; radio parameters in a config where each is undecided, provisional or approved.
+- **Rain and gas losses** (`bns.propagation.atmosphere`, `docs/atmospheric-losses.md`):
+  ITU-R P.838-3 implemented and checked against its table; gas values stored for the five
+  bands; clear sky as the documented baseline; rain as unapproved sensitivity cases.
+- **Supervisor decisions** (`docs/supervisor-decisions.md`): eleven decisions with options,
+  recommendation, justification, impact and what each blocks.
+
+### Files
+
+| File | Purpose |
+|---|---|
+| `configs/study_area.yaml`, `height_models.yaml`, `radio_system.yaml`, `atmosphere.yaml` | New configuration, each value marked approved or not |
+| `src/bns/geospatial/study_area.py`, `osm_source.py`, `heights.py`, `sites.py`, `grid.py`, `quality.py`, `pipeline.py` | New |
+| `src/bns/geospatial/osm_scene.py` | Footprint cleaning split into two steps so per-building records survive it |
+| `src/bns/analysis/link_budget.py`, `metrics.py`, `sensitivity.py`, `radio_system.py` | New |
+| `src/bns/optimization/greedy.py` | New |
+| `src/bns/propagation/atmosphere.py` | New |
+| `src/bns/propagation/sionna_engine.py` | `Grid` moved to `bns.geospatial.grid` (no behaviour change) |
+| `scripts/build_dataset.py`, `run_height_sensitivity.py`, `atmosphere_table.py` | New |
+| `tests/unit/test_link_budget.py`, `test_metrics.py`, `test_greedy.py`, `test_geospatial_pipeline.py`, `test_atmosphere.py`, `test_sensitivity.py`, `test_radio_system.py`, `tests/conftest.py` | New, written before the code they test |
+| `docs/project-description-corrections.md`, `supervisor-decisions.md`, `building-height-data.md`, `atmospheric-losses.md` | New |
+| `docs/architecture.md`, `assumptions.md`, `references.md`, `CLAUDE.md`, this file | Updated |
+| `outputs/datasets/tahrir_bab_al_sharqi/osm/quality_report.*`, `outputs/runs/height_sensitivity/…/summary.*`, `outputs/atmosphere/loss_table.*` | Results of the runs below |
+
+### Review before commit
+
+- Duplicated logic removed: the Phase 0 helpers `resolve_height`, `indoor_mask` and
+  `local_transformer` now delegate to `heights.height_from_osm_tags`, `grid.footprint_mask`
+  and `study_area.local_transformer`. The Phase 0 scene rebuilds identically (453 solids,
+  9,873 triangles, 7,149 wedges). The Phase 0 OSM reader is kept, marked as frozen.
+- Static check (ruff, rules F and B): no unused imports or undefined names.
+- Re-running the Phase 0 experiments during Phase 2 changed only timings and float noise
+  (about 1e-7 dB in the values inspected); the committed Phase 0 records were kept, not
+  replaced.
+
+### Tests and runs executed
+
+| Check | Result |
+|---|---|
+| `uv run pytest` | 158 passed (109 new) |
+| `uv run pytest -m engine` | 3 passed |
+| `scripts/build_dataset.py --area tahrir_bab_al_sharqi` | 1,186 buildings; same mesh as Phase 0 (9,873 triangles, 7,149 wedges, 0 defects) |
+| `scripts/run_height_sensitivity.py` (4 height models, 4 sites, 3.5 GHz) | Completed, each variant on the first attempt, 45-59 s per variant |
+| `scripts/atmosphere_table.py` | Completed |
+
+New code was written test-first; each new test file was run and seen to fail before its
+implementation existed. Three small tests (`load_buildings`, height-policy loading, the
+repository's rain cases) were added after their functions and passed immediately.
+
+### Measurements
+
+- **Fixture data quality**: heights observed for 0.8 % of buildings (1.8 % of footprint
+  area), estimated from storeys for 0.3 % (2.7 %), placeholder for 98.8 % (95.5 %).
+  The dataset is reported as not fit for research.
+- **Height sensitivity** (illustrative, unapproved models): line of sight to any site
+  67-86 %; sites needed for 95 % coverage at a 110 dB threshold: 2, 3, or not reached with
+  the 4 available sites, depending only on the height model.
+- **Height datasets in the test area**: medians 6.3 m (GlobalBuildingAtlas) to 13.2 m
+  (GHSL); the 55 m tower appears as 5-15 m in all of them.
+- **Rain candidate** (previous ITU edition): 18.6 mm/h exceeded 0.01 % of the year, costing
+  1.5 dB over 500 m at 28 GHz; gas loss at most 0.1 dB per km.
+
+### Limitations
+
+- The fixture's OSM snapshot was fetched in Phase 0 with a query that omits the geometry of
+  multipolygon relations, so its 8 relation buildings are missing. The query is fixed for
+  future snapshots; the Phase 0 snapshot is kept unchanged so Phase 0 stays reproducible.
+- No reader for an external height dataset exists yet; it waits for the dataset choice.
+- Different-height neighbours still share a coincident wall (55 cases on the fixture).
+- Gas attenuation is stored for the five scenario bands and the reference atmosphere only.
+- The sensitivity run used four sites, because only four tagged buildings in the fixture are
+  high enough and far enough apart; it demonstrates the framework, not a site plan.
+- Received power, SINR and data rate have been tested as functions but not yet computed on
+  real maps: that needs the undecided radio parameters.
+
+### Remaining blockers
+
+| Blocker | Who | Blocks |
+|---|---|---|
+| Study district (D1) | Supervisor | Final dataset; all research results |
+| Height methodology and dataset (D2) | Supervisor; then a download approval | Final dataset; all research results |
+| Radio parameters (D3-D7) | Supervisor | Running Phases 5-6 for results (not their code) |
+| Phase 0 laptop benchmark | Student | Phase 0 acceptance gate |
+| Approval for dataset downloads (205 MB to 2 GB) | User | Measuring 3D-GloBFP; using GlobalBuildingAtlas |
+
+### Acceptance criteria for calling Phase 2 scientifically complete
+
+1. The study district is in `configs/study_area.yaml` with `role: study district` and
+   `approved: true`.
+2. A fresh snapshot of that district is stored with its hash, relations included.
+3. The height methodology is approved and recorded; storey height agreed.
+4. No candidate site stands on a building with a placeholder height, and every building
+   above an agreed height has an observed height.
+5. The district's quality report states the share of each height category and the dataset is
+   reported "fit for research", or the remaining placeholder share is explicitly accepted.
+6. A height sensitivity run on the district, with approved height sources, is attached.
+7. Mesh checks pass (no non-manifold edge, no degenerate triangle).
+
+### Next
+
+Non-blocked work that can continue: single-site coverage maps and their storage (Phase 5
+code), the 3GPP TR 38.901 formulas with tests (Phase 7 code), and a reader for whichever
+height dataset is approved for download. None of it produces research results until D1-D7
+are decided.

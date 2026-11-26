@@ -1,0 +1,27 @@
+# Study areas. Coordinates are WGS84 degrees; sizes are metres.
+#
+# role:
+#   development fixture  used to build and test the pipeline; never for thesis results
+#   study district       the area the thesis reports on
+# approved: true only once the supervisor has approved the area as the study district.
+#
+# The study district has NOT been chosen yet (docs/supervisor-decisions.md, decision D1).
+# Add it here when it is; nothing else in the pipeline needs to change.
+areas:
+  tahrir_bab_al_sharqi:
+    role: development fixture
+    approved: false
+    description: >-
+      Tahrir Square / Bab Al-Sharqi, central Baghdad. Chosen in Phase 0 because its
+      footprints are dense in OpenStreetMap. 97 % of its buildings have no height
+      information, so it is a test bed for the pipeline, not a research dataset.
+    center: {lat: 33.3280, lon: 44.4085}
+    receiver_area_m: [1000.0, 1000.0]
+    margin_m: 150.0
+
+# How OpenStreetMap tags become heights. Every value is an assumption that must be approved
+# (docs/supervisor-decisions.md, decision D2) before it is used for thesis results.
+height_policy:
+  storey_height_m: 3.0            # used when only building:levels is tagged
+  placeholder_height_m: 9.0       # assigned when a building has no height information
+  max_plausible_height_m: 250.0   # larger tag values are treated as mapping errors
