@@ -33,3 +33,8 @@ outputs/validation/**/cells.csv
 
 # Distribution archives (scripts/make_distribution.py) and acceptance records of other machines
 dist/
+
+# Demonstration results shipped with the release (development runs, OSM-derived only; about 10 MB)
+!outputs/runs/development/**/*.npz
+!outputs/runs/development/**/*.png
+!outputs/validation/**/*.png
