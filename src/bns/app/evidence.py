@@ -22,6 +22,9 @@ def band_table(run: results.Run) -> list[dict]:
                      "sinr_median_db": s.get("sinr_db_median"), "sinr_p5_db": s.get("sinr_db_p5"),
                      "rate_p5_mbps": None if s.get("rate_p5_bps") is None else s["rate_p5_bps"] / 1e6,
                      "rate_median_mbps": None if s.get("rate_median_bps") is None else s["rate_median_bps"] / 1e6,
+                     "rate_3gpp_p5_mbps": None if s.get("rate_3gpp_p5_bps") is None else s["rate_3gpp_p5_bps"] / 1e6,
+                     "rate_3gpp_median_mbps": (None if s.get("rate_3gpp_median_bps") is None
+                                               else s["rate_3gpp_median_bps"] / 1e6),
                      "run": run.run_id, "label": run.label})
     return rows
 

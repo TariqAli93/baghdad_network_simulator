@@ -19,10 +19,14 @@ def load(tmp_path, parameters):
     return RadioSystem.load(path)
 
 
-def test_repository_config_loads_and_approves_nothing_but_the_receiver_height(repo_root):
+def test_repository_approvals_all_point_to_the_recorded_approval(repo_root):
+    # A3 approved 2026-11-26 (configs/approvals.yaml); every approval names its record
     system = RadioSystem.load(repo_root / "configs" / "radio_system.yaml")
-    assert system.approved_parameters() == ["rx_height_m"]
-    assert system.require("rx_height_m", mode="research") == 1.5
+    assert set(system.approved_parameters()) == set(system.entries)
+    for name, entry in system.entries.items():
+        if name != "rx_height_m":                    # approved earlier by the project description
+            assert "configs/approvals.yaml" in entry["approved_by"], name
+    assert system.require("coverage_threshold", mode="research") == -10.0
 
 
 def test_development_mode_accepts_candidate_values_and_research_mode_rejects_them(tmp_path):

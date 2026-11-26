@@ -16,7 +16,8 @@ parameters:
     value: 46.0
     definition: conducted          # at the antenna port, before any antenna gain
     unit: dBm per sector carrier
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [3GPP-TR38914, 3GPP-TR36942, ITU-M2292, 3GPP-TR38921]
     justification: >-
       46 dBm is the macro downlink power in the 3GPP 6G coverage assumptions (TR 38.914
@@ -33,7 +34,8 @@ parameters:
   tx_antenna_pattern:
     value: tr38901
     unit: pattern name
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [3GPP-TR38901, ITU-M2412]
     justification: >-
       3GPP TR 38.901 Table 7.3-1 sector element (65 degree beamwidth, 8 dBi peak, 30 dB
@@ -47,7 +49,8 @@ parameters:
   tx_antenna_gain_dbi:
     value: 0.0
     unit: dBi added after tracing
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [3GPP-TR38901]
     justification: >-
       Zero because the traced tr38901 pattern already contains the 8 dBi peak gain; any
@@ -58,7 +61,8 @@ parameters:
   sectors_per_site:
     value: 3
     unit: sectors
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [ITU-M2412, ITU-M2292]
     justification: "Three sectors per site (M.2412 section 8.3: three TRxPs per site)."
     validity: Sectors at 0, 120 and 240 degrees azimuth; all on the same carrier.
@@ -67,7 +71,8 @@ parameters:
   mechanical_downtilt_deg:
     value: 10.0
     unit: degrees below horizon
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [ITU-M2292, 3GPP-TR38921]
     justification: Macro urban downtilt of 10 degrees (M.2292 Tables 3-4; TR 38.921 Table 8.1.2-1).
     validity: Same for every site and band.
@@ -76,11 +81,13 @@ parameters:
   antenna_height_above_roof_m:
     value: 3.0
     unit: m
-    status: development
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
+    sources: [APPROVAL-2026-11-26]
     justification: >-
-      Software testing only. No primary source gives a mast height above a roof; the
-      references give total heights (25 m in M.2412 and TR 38.901 UMa) for flat layouts.
-      Decision D4.
+      Decision A4. No primary source gives a mast height above a roof; the references give
+      total heights (25 m in M.2412 and TR 38.901 UMa) for flat layouts. Antennas stand at
+      the roof edge facing each sector (configs/site_rule.yaml).
     impact: Raises every antenna by the same amount; affects shadowing by nearby roofs.
 
   rx_height_m:
@@ -96,7 +103,8 @@ parameters:
   rx_antenna_gain_dbi:
     value: 0.0
     unit: dBi
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [3GPP-TR36942, ITU-M2412, 3GPP-TR38830]
     justification: >-
       Isotropic user antenna, matching the isotropic receiver of the ray-traced maps
@@ -109,7 +117,8 @@ parameters:
   noise_figure_db:
     value: 9.0
     unit: dB
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [3GPP-TR38914, 3GPP-TR36942, ITU-M2292, 3GPP-TR38921]
     justification: >-
       9 dB user noise figure in the 3GPP 6G coverage assumptions (TR 38.914 Table
@@ -121,7 +130,8 @@ parameters:
   noise_temperature_k:
     value: 290.0
     unit: K
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [ITU-P372, ITU-M2412]
     justification: Reference temperature T0 = 290 K (P.372 section 1.2.1), giving -174 dBm/Hz (M.2412 Table 5).
     validity: Reference value; the physical temperature in Baghdad is not used.
@@ -131,7 +141,8 @@ parameters:
     value: -10.0
     definition: snr_db             # signal-to-noise (or SINR in multi-site runs) of the best server
     unit: dB
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [3GPP-TR38921, 3GPP-TR36942]
     justification: >-
       -10 dB is the lowest SINR at which the 3GPP link-level throughput mapping gives any
@@ -146,7 +157,8 @@ parameters:
   coverage_target:
     value: 0.95
     unit: share of outdoor cells
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [3GPP-TR38830]
     justification: 95 % cell-area reliability for control channels (TR 38.830 Table A.3).
     validity: Area coverage of outdoor receiver cells.
@@ -155,7 +167,8 @@ parameters:
   frequency_reuse:
     value: "1"
     unit: reuse factor
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [ITU-M2412, ITU-M2292]
     justification: Every site and sector uses the whole carrier (M.2412 evaluations; M.2292 Tables 2-4).
     validity: Multi-site runs.
@@ -164,10 +177,23 @@ parameters:
   interference_activity:
     value: 1.0
     unit: share of time other sectors transmit
-    status: candidate
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
     sources: [ITU-M2412, ITU-M2292]
     justification: >-
       Full buffer (M.2412 Table 5): every other sector transmits all the time. M.2292 uses
       a 50 % average activity, a sensitivity case.
     validity: Multi-site and multi-sector runs.
     impact: Lower activity raises SINR; does not change single-transmitter SNR.
+
+# Decision B3: a practical rate mapping reported BESIDE the Shannon upper bound, never instead
+# of it. Truncated, attenuated Shannon: 0 below sinr_min_db, alpha * log2(1 + SINR) between,
+# capped at sinr_max_db (3GPP TR 38.921 Table 4.2.7-1; the same form as TR 36.942 Annex A).
+rate_mapping:
+  name: 3GPP truncated Shannon
+  alpha: 0.6
+  sinr_min_db: -10.0
+  sinr_max_db: 30.0
+  status: approved
+  approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
+  sources: [3GPP-TR38921, 3GPP-TR36942]

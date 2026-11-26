@@ -39,6 +39,8 @@ def main() -> int:
         parser.add_argument(name, type=float, required=True)
     parser.add_argument("--max-sites", type=int, required=True)
     parser.add_argument("--height-dataset", action="append", default=[])
+    parser.add_argument("--add-footprints", action="append", default=[],
+                        help="also list footprints added from this dataset (as scripts/build_dataset.py does)")
     args = parser.parse_args()
 
     area = load_study_areas(ROOT / "configs" / "study_area.yaml")[args.area]
@@ -47,8 +49,11 @@ def main() -> int:
     specs = yaml.safe_load((ROOT / "configs" / "height_datasets.yaml").read_text(encoding="utf-8"))
     datasets = [(specs["datasets"][k]["name"], ROOT / "data" / "raw" / "heights" / k / f"{area.name}.geojson",
                  specs["datasets"][k]["doi"]) for k in args.height_dataset]
+    raw = ROOT / "data" / "raw" / "heights"
+    footprints = [(k, next(p for p in (raw / k / f"{area.name}.geojson", raw / k / f"{area.snapshot}.geojson")
+                          if p.exists()), specs["datasets"][k]["name"]) for k in args.add_footprints]
     buildings, _, _ = pipeline.provenance_buildings(area, data, policy, meta["sha256"],
-                                                    height_datasets=datasets)
+                                                    height_datasets=datasets, extra_footprints=footprints)
     inside = [b for b in buildings if area.receiver_box().contains(b.polygon.representative_point())]
     candidates = sites.rooftop_candidates(
         inside, mast_height_m=args.mast_height_m, min_height_m=args.min_site_height_m,

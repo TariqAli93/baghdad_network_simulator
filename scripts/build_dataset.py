@@ -45,6 +45,9 @@ def main() -> int:
     parser.add_argument("--height-dataset", action="append", default=[],
                         help="name in configs/height_datasets.yaml whose extract for this area "
                              "(scripts/import_height_dataset.py) adds height candidates")
+    parser.add_argument("--add-footprints", action="append", default=[],
+                        help="name in configs/height_datasets.yaml whose footprints that overlap no OSM "
+                             "building are added (decision A2); their heights are NOT used")
     args = parser.parse_args()
 
     areas = load_study_areas(ROOT / "configs" / "study_area.yaml")
@@ -94,11 +97,27 @@ def main() -> int:
                              f"{spec['name']} {spec.get('tile') or spec.get('file', '')}, {where}"))
             variant += f"+{key}"
 
+    footprints = []
+    if args.add_footprints:
+        specs = yaml.safe_load((ROOT / "configs" / "height_datasets.yaml").read_text(encoding="utf-8"))["datasets"]
+        for key in args.add_footprints:
+            # an area that reuses another area's snapshot (same extent) reuses its extract
+            extract = next((p for p in (ROOT / "data" / "raw" / "heights" / key / f"{n}.geojson"
+                                        for n in (area.name, area.snapshot)) if p.exists()), None)
+            if extract is None:
+                print(f"No {key} footprint extract for {area.name}: run scripts/import_height_dataset.py first.")
+                return 1
+            spec = specs[key]
+            footprints.append((key, extract, f"{spec['name']} {spec.get('tile', '')}, {spec.get('licence', '')}"))
+            variant += f"+fp_{key}"
+    height_policy_raw = yaml.safe_load((ROOT / "configs" / "study_area.yaml").read_text(encoding="utf-8"))["height_policy"]
+    method_approved = bool(height_policy_raw.get("approved_by"))
+
     scene_dir = ROOT / "data" / "scenes" / area.name / variant
     report = pipeline.build_dataset(
         area, data, scene_dir, policy, meta["sha256"], height_model=model, seed=args.seed,
         manual_rows=rows, manual_name=args.observations.name if args.observations else "manual",
-        height_datasets=datasets)
+        height_datasets=datasets, extra_footprints=footprints, height_method_approved=method_approved)
 
     report_dir = ROOT / "outputs" / "datasets" / area.name / variant
     report_dir.mkdir(parents=True, exist_ok=True)

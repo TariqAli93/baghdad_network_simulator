@@ -1,5 +1,23 @@
 # Final research execution plan (after supervisor approval)
 
+Decisions: approved on 2026-11-26 (`docs/approval-record.md`). Steps 1 and 4 are done; step 2
+waits for the field observations; everything after it waits for step 2.
+
+| Step | State on 2026-11-26 |
+|---|---|
+| 1 Study area | done: `tahrir_bab_al_sharqi_study` (approved study district, snapshot `tahrir_bab_al_sharqi_v2`) |
+| 2 Footprints and heights | footprints done (`--add-footprints 3d_globfp`: 577 footprints, 125,143 m² added in the receiver area); **heights wait for the observations** of the 330 worklist buildings |
+| 3 Quality | not fit: 99.4 % placeholder heights; becomes fit when the worklist is complete (rule in `bns.geospatial.quality`) |
+| 4 Radio parameters | done: all approved |
+| 5-15 | blocked by step 2 |
+
+Exact commands for the approved district:
+
+```
+uv run python scripts/build_dataset.py --area tahrir_bab_al_sharqi_study --add-footprints 3d_globfp --observations <filled height_worklist.csv>
+uv run python scripts/plan_sites.py --area tahrir_bab_al_sharqi_study --variant "osm+observations+fp_3d_globfp" --mode research --profile preview --min-height <A4> --min-spacing <A4> --heights observed,estimated
+```
+
 Do **not** start step 1 before the decisions in `docs/supervisor-checklist.md` are approved.
 Every command below runs in research mode only when its inputs are approved; until then the
 software refuses, and development runs stay labelled DEVELOPMENT — NOT APPROVED FOR RESEARCH.

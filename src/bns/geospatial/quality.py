@@ -17,12 +17,14 @@ def _shares(weights: dict[str, float], keys) -> dict[str, float]:
 
 def quality_report(buildings: list[Building], area: StudyArea, parse_report: dict,
                    clean_report: dict, mesh_report: dict, *, height_model: dict | None = None,
-                   height_method_approved: bool = False) -> dict:
+                   height_method_approved: bool = False, worklist: dict | None = None) -> dict:
     """Counts, shares and warnings for one built dataset, plus a fitness verdict.
 
-    A dataset is fit for research only if the area is an approved study
-    district, the height methodology is approved, and no building relies on a
-    placeholder height. Otherwise the reasons are listed.
+    A dataset is fit for research only if the area is an approved study district, the
+    height methodology is approved, and placeholder heights are acceptable: none at all, or,
+    under the approved method (decision A2), only outside a COMPLETE observation worklist
+    (`worklist`: {"listed", "observed", "unmatched"} from the observation file), their spread
+    being reported by the height sensitivity analysis. Otherwise the reasons are listed.
     """
     count_by_category = Counter(b.height.category for b in buildings)
     area_by_category: Counter = Counter()
@@ -53,8 +55,19 @@ def quality_report(buildings: list[Building], area: StudyArea, parse_report: dic
         reasons.append("the area has not been approved by the supervisor")
     if not height_method_approved:
         reasons.append("the building-height methodology has not been approved")
+    notes = []
+    complete = (worklist is not None and worklist.get("listed", 0) > 0
+                and worklist.get("observed") == worklist.get("listed") and not worklist.get("unmatched"))
     if placeholder_share > 0:
-        reasons.append(f"{placeholder_share:.1f} % of buildings have placeholder heights")
+        if height_method_approved and complete:
+            notes.append(f"{placeholder_share:.1f} % of buildings keep placeholder heights outside the completed "
+                         "observation worklist; report their spread with the height sensitivity analysis (A2)")
+        else:
+            reasons.append(f"{placeholder_share:.1f} % of buildings have placeholder heights")
+            if worklist is not None and not complete:
+                reasons.append(f"observation worklist incomplete: {worklist.get('observed', 0)} of "
+                               f"{worklist.get('listed', 0)} buildings observed, "
+                               f"{worklist.get('unmatched', 0)} rows matching no building")
 
     return {
         "area": {"name": area.name, "role": area.role, "approved": area.approved},
@@ -81,6 +94,8 @@ def quality_report(buildings: list[Building], area: StudyArea, parse_report: dic
         "mesh": mesh_report,
         "fit_for_research": not reasons,
         "not_fit_reasons": reasons,
+        "fitness_notes": notes,
+        "observation_worklist": worklist,
     }
 
 

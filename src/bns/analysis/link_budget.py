@@ -70,3 +70,17 @@ def shannon_capacity_bps(bandwidth_hz, sinr_linear):
     if np.any(ratio < 0):
         raise ValueError("SINR must be given as a non-negative linear ratio, not in dB.")
     return np.asarray(bandwidth_hz, dtype=float) * np.log2(1.0 + ratio)
+
+
+def truncated_shannon_bps(bandwidth_hz, sinr_linear, *, alpha: float, sinr_min_db: float, sinr_max_db: float):
+    """Practical rate beside the Shannon bound (decision B3; 3GPP TR 38.921 Table 4.2.7-1).
+
+    0 below sinr_min_db; alpha * B * log2(1 + SINR) between; the value at sinr_max_db above.
+    The constants come from the approved configuration (configs/radio_system.yaml, rate_mapping).
+    """
+    ratio = np.asarray(sinr_linear, dtype=float)
+    if np.any(ratio < 0):
+        raise ValueError("SINR must be given as a non-negative linear ratio, not in dB.")
+    lo, hi = 10 ** (sinr_min_db / 10), 10 ** (sinr_max_db / 10)
+    rate = alpha * np.asarray(bandwidth_hz, dtype=float) * np.log2(1.0 + np.minimum(ratio, hi))
+    return np.where(ratio >= lo, rate, 0.0)

@@ -66,3 +66,11 @@ def test_research_runs_require_a_profile_accepted_for_research():
         ex.require_research_profile(Profile("standard", 10.0, 10**9, "borderline convergence"), "research")
     ex.require_research_profile(Profile("standard", 10.0, 10**9, "borderline convergence"), "development")
     ex.require_research_profile(Profile("standard", 10.0, 10**9, "approved"), "research")
+
+
+def test_research_runs_refuse_a_dataset_that_is_not_fit_for_research():
+    unfit = {"fit_for_research": False, "not_fit_reasons": ["98.8 % of buildings have placeholder heights"]}
+    with pytest.raises(ex.ExperimentError, match="placeholder heights"):
+        ex.require_research_dataset(unfit, "research")
+    ex.require_research_dataset(unfit, "development")
+    ex.require_research_dataset({"fit_for_research": True, "not_fit_reasons": []}, "research")

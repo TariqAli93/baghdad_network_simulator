@@ -24,6 +24,21 @@ areas:
     margin_m: 150.0
     snapshot: tahrir_bab_al_sharqi      # Phase 0 download; lacks multipolygon geometry; frozen
 
+  tahrir_bab_al_sharqi_study:
+    role: study district
+    approved: true
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
+    condition: approved on condition that the tall buildings can be observed (decision A1/A2)
+    description: >-
+      The approved study district (decision A1): Tahrir Square / Bab Al-Sharqi, same boundary
+      as the development area. Uses the 2026-11-26 snapshot of tahrir_bab_al_sharqi_v2
+      (SHA-256 852683848789...), read-only. Footprints missing from OSM are added from
+      3D-GloBFP (A2); heights need the field observations before research runs.
+    center: {lat: 33.3280, lon: 44.4085}
+    receiver_area_m: [1000.0, 1000.0]
+    margin_m: 150.0
+    snapshot: tahrir_bab_al_sharqi_v2
+
   tahrir_bab_al_sharqi_v2:
     role: provisional study area
     approved: false
@@ -39,6 +54,9 @@ areas:
 # How OpenStreetMap tags become heights. Every value is an assumption that must be approved
 # (docs/supervisor-decisions.md, decision D2) before it is used for thesis results.
 height_policy:
+  # Decision A2 approved (configs/approvals.yaml): this priority, storey height 3.0 m, no external
+  # dataset as the height source, field observations for the worklist buildings.
+  approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending)
   storey_height_m: 3.0            # used when only building:levels is tagged
   placeholder_height_m: 9.0       # assigned when a building has no height information
   max_plausible_height_m: 250.0   # larger tag values are treated as mapping errors

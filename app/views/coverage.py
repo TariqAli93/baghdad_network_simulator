@@ -57,6 +57,9 @@ with right:
     st.metric("5th-percentile SINR", ui.fmt(s["sinr_db_p5"], ".1f", " dB"))
     st.metric("5th-percentile rate", ui.fmt(s["rate_p5_bps"], ".1f", " Mbit/s", 1e-6))
     st.metric("Median rate", ui.fmt(s["rate_median_bps"], ".0f", " Mbit/s", 1e-6))
+    if s.get("rate_3gpp_p5_bps") is not None:
+        st.metric("5th-pct 3GPP rate", ui.fmt(s["rate_3gpp_p5_bps"], ".1f", " Mbit/s", 1e-6),
+                  help="Truncated Shannon of TR 38.921 (decision B3), reported beside the Shannon bound.")
     st.metric("Noise power", ui.fmt(s["noise_dbm"], ".1f", " dBm"))
     if "interference_limited_share" in s:
         st.metric("Interference-limited cells", ui.fmt(s["interference_limited_share"], ".0%"),

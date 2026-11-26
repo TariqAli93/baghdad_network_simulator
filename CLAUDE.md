@@ -50,13 +50,16 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 
 ## Data and parameter rules
 
-- **The study district is not chosen.** `tahrir_bab_al_sharqi` in `configs/study_area.yaml`
-  is a development fixture: use it to build and test, never to report Baghdad results.
+- **Study district approved 2026-11-26** (as reported; `docs/approval-record.md`):
+  `tahrir_bab_al_sharqi_study` (same boundary as v2; footprints added from 3D-GloBFP). It is
+  not fit for research until the observation worklist is filled in. `tahrir_bab_al_sharqi`
+  and `_v2` stay development datasets: never report Baghdad results from them.
 - **Every building height has a provenance record** (`bns.geospatial.heights`): observed,
   estimated or placeholder, with source, method and the untouched original values. Never
   present a placeholder or a height-model draw as an estimate or a measurement.
-- **Radio-system parameters are proposals, not approved** (`configs/radio_system.yaml`,
-  `docs/radio-parameters.md`): each is development, candidate or approved. Development runs
+- **Radio-system parameters are approved** (2026-11-26, `configs/approvals.yaml`); keep the
+  approval machinery (`configs/radio_system.yaml`, `docs/radio-parameters.md`): each is development,
+  candidate or approved. Development runs
   label every output "DEVELOPMENT — NOT APPROVED FOR RESEARCH"; research runs refuse
   unapproved values. Do not add a default power, gain, noise figure, threshold or target
   anywhere in code. Never add an antenna gain on top of an EIRP or of a traced pattern.

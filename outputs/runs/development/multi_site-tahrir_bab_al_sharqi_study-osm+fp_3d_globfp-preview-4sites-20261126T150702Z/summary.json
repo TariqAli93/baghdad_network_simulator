@@ -1,0 +1,790 @@
+{
+  "label": "DEVELOPMENT \u2014 NOT APPROVED FOR RESEARCH",
+  "results": {
+    "lte_1800": {
+      "network": {
+        "transmitters": 12,
+        "outdoor_cells": 405,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": -10.0,
+        "coverage_fraction": 1.0,
+        "noise_dbm": -91.9648872375883,
+        "rx_power_dbm_median": -34.41766894010681,
+        "rx_power_dbm_p5": -44.47917049287162,
+        "sinr_db_median": 5.43649567681166,
+        "sinr_db_p5": -0.013412673187287363,
+        "rate_median_bps": 43376877.798187844,
+        "rate_p5_bps": 19955495.923258904,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 4,
+        "sectors": 12,
+        "served_share_per_site": [
+          0.7777777777777778,
+          0.0691358024691358,
+          0.019753086419753086,
+          0.13333333333333333
+        ],
+        "served_share_per_sector": [
+          0.09135802469135802,
+          0.10123456790123457,
+          0.5851851851851851,
+          0.024691358024691357,
+          0.01728395061728395,
+          0.027160493827160494,
+          0.0,
+          0.012345679012345678,
+          0.007407407407407408,
+          0.04938271604938271,
+          0.02962962962962963,
+          0.05432098765432099
+        ],
+        "interference_over_noise_db_median": 50.957097405332725,
+        "interference_limited_share": 1.0,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 1.0
+        },
+        "rate_3gpp_p5_bps": 11973297.55395534,
+        "rate_3gpp_median_bps": 26026126.678912707,
+        "rate_3gpp_note": "3GPP truncated Shannon (TR 38.921), decision B3; beside, not instead of, the Shannon bound"
+      },
+      "sites_alone": [
+        {
+          "coverage_fraction": 1.0,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 21.177689317399114,
+          "sinr_db_p5": 3.132414612602054,
+          "rate_median_bps": 140920694.2839014,
+          "rate_p5_bps": 32242943.473854776,
+          "rx_power_dbm_median": -36.475368708323934,
+          "interference_limited_share": 1.0,
+          "interference_over_noise_db_median": 31.721840461354454,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 1.0,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 19.132240488482864,
+          "sinr_db_p5": 1.9590227595256764,
+          "rate_median_bps": 127462075.3619561,
+          "rate_p5_bps": 27235477.067346796,
+          "rx_power_dbm_median": -44.409454026905316,
+          "interference_limited_share": 1.0,
+          "interference_over_noise_db_median": 29.66445816876117,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 1.0,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 23.23783216523704,
+          "sinr_db_p5": 4.768402218613765,
+          "rate_median_bps": 154525396.93077394,
+          "rate_p5_bps": 39986517.493724994,
+          "rx_power_dbm_median": -49.75662987151144,
+          "interference_limited_share": 1.0,
+          "interference_over_noise_db_median": 19.829710409342162,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.9975308641975309,
+          "unreached_fraction": 0.0024691358024691024,
+          "sinr_db_median": 20.89373183471815,
+          "sinr_db_p5": 9.535362821397339,
+          "rate_median_bps": 138891457.9342051,
+          "rate_p5_bps": 66397807.47492583,
+          "rx_power_dbm_median": -56.53650983454236,
+          "interference_limited_share": 0.9679012345679012,
+          "interference_over_noise_db_median": 13.944240054870205,
+          "served_share_per_site": [
+            0.9975308641975309
+          ]
+        }
+      ],
+      "grown_in_given_order": [
+        {
+          "sites": [
+            1
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "coverage_fraction": 1.0
+        }
+      ],
+      "additions_that_lowered_coverage": [],
+      "greedy_sinr": {
+        "selected_sites": [
+          1
+        ],
+        "coverage_after": [
+          1.0
+        ],
+        "target": 0.95,
+        "target_reached": true,
+        "stopped_because": "target reached",
+        "degrading_additions": [],
+        "note": "greedy heuristic over these candidates only; not a proven minimum"
+      }
+    },
+    "nr_3500": {
+      "network": {
+        "transmitters": 12,
+        "outdoor_cells": 405,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": -10.0,
+        "coverage_fraction": 1.0,
+        "noise_dbm": -84.97518719422811,
+        "rx_power_dbm_median": -40.16543854278832,
+        "rx_power_dbm_p5": -50.47254732390765,
+        "sinr_db_median": 6.0482838273278325,
+        "sinr_db_p5": 0.18570972291914042,
+        "rate_median_bps": 232928989.64202374,
+        "rate_p5_bps": 103117548.5602508,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 4,
+        "sectors": 12,
+        "served_share_per_site": [
+          0.7777777777777778,
+          0.0691358024691358,
+          0.019753086419753086,
+          0.13333333333333333
+        ],
+        "served_share_per_sector": [
+          0.09135802469135802,
+          0.10123456790123457,
+          0.5851851851851851,
+          0.022222222222222223,
+          0.01728395061728395,
+          0.02962962962962963,
+          0.0,
+          0.012345679012345678,
+          0.007407407407407408,
+          0.04938271604938271,
+          0.02962962962962963,
+          0.05432098765432099
+        ],
+        "interference_over_noise_db_median": 37.34751760398829,
+        "interference_limited_share": 1.0,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 1.0
+        },
+        "rate_3gpp_p5_bps": 61870529.13615048,
+        "rate_3gpp_median_bps": 139757393.78521425,
+        "rate_3gpp_note": "3GPP truncated Shannon (TR 38.921), decision B3; beside, not instead of, the Shannon bound"
+      },
+      "sites_alone": [
+        {
+          "coverage_fraction": 1.0,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 20.962876844415366,
+          "sinr_db_p5": 3.0469843510345602,
+          "rate_median_bps": 697522901.1805229,
+          "rate_p5_bps": 159309812.59886664,
+          "rx_power_dbm_median": -42.25192423465699,
+          "interference_limited_share": 0.9950617283950617,
+          "interference_over_noise_db_median": 18.520482064497195,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 1.0,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 18.452243333235025,
+          "sinr_db_p5": 1.8108104537309473,
+          "rate_median_bps": 615016074.8667903,
+          "rate_p5_bps": 133190592.16996354,
+          "rx_power_dbm_median": -50.941294112702636,
+          "interference_limited_share": 0.9753086419753086,
+          "interference_over_noise_db_median": 15.910202561403564,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 1.0,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 21.281238336086112,
+          "sinr_db_p5": 3.9185552324620385,
+          "rate_median_bps": 708017571.2762364,
+          "rate_p5_bps": 179296891.89853364,
+          "rx_power_dbm_median": -57.372939245378,
+          "interference_limited_share": 0.8074074074074075,
+          "interference_over_noise_db_median": 5.441670984599154,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.9975308641975309,
+          "unreached_fraction": 0.0024691358024691024,
+          "sinr_db_median": 16.401236518824682,
+          "sinr_db_p5": 6.904437867809868,
+          "rate_median_bps": 547169780.0111458,
+          "rate_p5_bps": 256141547.80120492,
+          "rx_power_dbm_median": -64.61165514255174,
+          "interference_limited_share": 0.454320987654321,
+          "interference_over_noise_db_median": -1.078249888274775,
+          "served_share_per_site": [
+            0.9975308641975309
+          ]
+        }
+      ],
+      "grown_in_given_order": [
+        {
+          "sites": [
+            1
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "coverage_fraction": 1.0
+        }
+      ],
+      "additions_that_lowered_coverage": [],
+      "greedy_sinr": {
+        "selected_sites": [
+          1
+        ],
+        "coverage_after": [
+          1.0
+        ],
+        "target": 0.95,
+        "target_reached": true,
+        "stopped_because": "target reached",
+        "degrading_additions": [],
+        "note": "greedy heuristic over these candidates only; not a proven minimum"
+      }
+    },
+    "c6g_8000": {
+      "network": {
+        "transmitters": 12,
+        "outdoor_cells": 405,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": -10.0,
+        "coverage_fraction": 1.0,
+        "noise_dbm": -78.95458728094849,
+        "rx_power_dbm_median": -47.381388771988505,
+        "rx_power_dbm_p5": -57.917405858498164,
+        "sinr_db_median": 6.442598683387544,
+        "sinr_db_p5": 0.20160113690491888,
+        "rate_median_bps": 974057861.8829541,
+        "rate_p5_bps": 413554021.6873199,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 4,
+        "sectors": 12,
+        "served_share_per_site": [
+          0.7753086419753087,
+          0.07160493827160494,
+          0.019753086419753086,
+          0.13333333333333333
+        ],
+        "served_share_per_sector": [
+          0.08888888888888889,
+          0.10123456790123457,
+          0.5851851851851851,
+          0.024691358024691357,
+          0.01728395061728395,
+          0.02962962962962963,
+          0.0,
+          0.012345679012345678,
+          0.007407407407407408,
+          0.04938271604938271,
+          0.02962962962962963,
+          0.05432098765432099
+        ],
+        "interference_over_noise_db_median": 23.682528707009634,
+        "interference_limited_share": 0.9975308641975309,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 1.0
+        },
+        "rate_3gpp_p5_bps": 248132413.01239192,
+        "rate_3gpp_median_bps": 584434717.1297725,
+        "rate_3gpp_note": "3GPP truncated Shannon (TR 38.921), decision B3; beside, not instead of, the Shannon bound"
+      },
+      "sites_alone": [
+        {
+          "coverage_fraction": 1.0,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 18.998205920268102,
+          "sinr_db_p5": 2.379634931794035,
+          "rate_median_bps": 2531649556.093334,
+          "rate_p5_bps": 579496932.4227078,
+          "rx_power_dbm_median": -49.434186515359805,
+          "interference_limited_share": 0.7012345679012346,
+          "interference_over_noise_db_median": 4.839866402084459,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.9975308641975309,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 15.104386193457364,
+          "sinr_db_p5": -2.746733915370626,
+          "rate_median_bps": 2024573343.0299797,
+          "rate_p5_bps": 245896886.04549214,
+          "rx_power_dbm_median": -58.92045524317731,
+          "interference_limited_share": 0.5604938271604938,
+          "interference_over_noise_db_median": 2.094481160907387,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.9876543209876543,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 11.362452332937373,
+          "sinr_db_p5": -1.4763506941532754,
+          "rate_median_bps": 1550509078.5995457,
+          "rate_p5_bps": 310229738.36504984,
+          "rx_power_dbm_median": -66.4846238744245,
+          "interference_limited_share": 0.0962962962962963,
+          "interference_over_noise_db_median": -9.667543348907689,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.9851851851851852,
+          "unreached_fraction": 0.0024691358024691024,
+          "sinr_db_median": 3.4590838028105093,
+          "sinr_db_p5": -6.404334831268053,
+          "rate_median_bps": 670814161.5145601,
+          "rate_p5_bps": 118928085.64661339,
+          "rx_power_dbm_median": -75.29299747910349,
+          "interference_limited_share": 0.2074074074074074,
+          "interference_over_noise_db_median": -17.305811347709014,
+          "served_share_per_site": [
+            0.9975308641975309
+          ]
+        }
+      ],
+      "grown_in_given_order": [
+        {
+          "sites": [
+            1
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "coverage_fraction": 1.0
+        }
+      ],
+      "additions_that_lowered_coverage": [],
+      "greedy_sinr": {
+        "selected_sites": [
+          1
+        ],
+        "coverage_after": [
+          1.0
+        ],
+        "target": 0.95,
+        "target_reached": true,
+        "stopped_because": "target reached",
+        "degrading_additions": [],
+        "note": "greedy heuristic over these candidates only; not a proven minimum"
+      }
+    },
+    "c6g_15000": {
+      "network": {
+        "transmitters": 12,
+        "outdoor_cells": 405,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": -10.0,
+        "coverage_fraction": 1.0,
+        "noise_dbm": -78.95458728094849,
+        "rx_power_dbm_median": -52.84811040573435,
+        "rx_power_dbm_p5": -63.55001435775794,
+        "sinr_db_median": 6.688638258110844,
+        "sinr_db_p5": 0.2282388562499047,
+        "rate_median_bps": 1000843707.4827375,
+        "rate_p5_bps": 415363931.25325143,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 4,
+        "sectors": 12,
+        "served_share_per_site": [
+          0.7753086419753087,
+          0.07160493827160494,
+          0.019753086419753086,
+          0.13333333333333333
+        ],
+        "served_share_per_sector": [
+          0.08641975308641975,
+          0.10123456790123457,
+          0.5876543209876544,
+          0.022222222222222223,
+          0.01728395061728395,
+          0.03209876543209877,
+          0.0,
+          0.012345679012345678,
+          0.007407407407407408,
+          0.04938271604938271,
+          0.02962962962962963,
+          0.05432098765432099
+        ],
+        "interference_over_noise_db_median": 17.849768097560048,
+        "interference_limited_share": 0.9703703703703703,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 1.0
+        },
+        "rate_3gpp_p5_bps": 249218358.75195086,
+        "rate_3gpp_median_bps": 600506224.4896425,
+        "rate_3gpp_note": "3GPP truncated Shannon (TR 38.921), decision B3; beside, not instead of, the Shannon bound"
+      },
+      "sites_alone": [
+        {
+          "coverage_fraction": 0.9950617283950617,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 17.128158299549582,
+          "sinr_db_p5": 1.5511902879172168,
+          "rate_median_bps": 2287012908.390658,
+          "rate_p5_bps": 512218184.0999112,
+          "rx_power_dbm_median": -54.90003566885115,
+          "interference_limited_share": 0.4740740740740741,
+          "interference_over_noise_db_median": -0.7949501564224203,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.9432098765432099,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 10.54388719081388,
+          "sinr_db_p5": -10.327337935668607,
+          "rate_median_bps": 1449834267.4013302,
+          "rate_p5_bps": 51180376.673128664,
+          "rx_power_dbm_median": -64.87710769139915,
+          "interference_limited_share": 0.3160493827160494,
+          "interference_over_noise_db_median": -3.412458063325045,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.9506172839506173,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 4.987301344530134,
+          "sinr_db_p5": -9.815252175735706,
+          "rate_median_bps": 821667766.7642936,
+          "rate_p5_bps": 57320094.46796048,
+          "rx_power_dbm_median": -73.10463554011773,
+          "interference_limited_share": 0.04691358024691358,
+          "interference_over_noise_db_median": -16.340590927739505,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.7950617283950617,
+          "unreached_fraction": 0.0024691358024691024,
+          "sinr_db_median": -4.2409398053165495,
+          "sinr_db_p5": -15.060792953831099,
+          "rate_median_bps": 183962800.71438226,
+          "rate_p5_bps": 17720635.125121508,
+          "rx_power_dbm_median": -83.18749978027687,
+          "interference_limited_share": 0.1728395061728395,
+          "interference_over_noise_db_median": -24.656213787497897,
+          "served_share_per_site": [
+            0.9975308641975309
+          ]
+        }
+      ],
+      "grown_in_given_order": [
+        {
+          "sites": [
+            1
+          ],
+          "coverage_fraction": 0.9950617283950617
+        },
+        {
+          "sites": [
+            1,
+            2
+          ],
+          "coverage_fraction": 0.9975308641975309
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3
+          ],
+          "coverage_fraction": 1.0
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "coverage_fraction": 1.0
+        }
+      ],
+      "additions_that_lowered_coverage": [],
+      "greedy_sinr": {
+        "selected_sites": [
+          1
+        ],
+        "coverage_after": [
+          0.9950617283950617
+        ],
+        "target": 0.95,
+        "target_reached": true,
+        "stopped_because": "target reached",
+        "degrading_additions": [],
+        "note": "greedy heuristic over these candidates only; not a proven minimum"
+      }
+    },
+    "nr_28000": {
+      "network": {
+        "transmitters": 12,
+        "outdoor_cells": 405,
+        "unreached_fraction": 0.0,
+        "coverage_definition": "snr_db",
+        "coverage_threshold": -10.0,
+        "coverage_fraction": 1.0,
+        "noise_dbm": -78.95458728094849,
+        "rx_power_dbm_median": -58.294599504986685,
+        "rx_power_dbm_p5": -69.01841305758404,
+        "sinr_db_median": 6.405057868910632,
+        "sinr_db_p5": 0.16460359984363693,
+        "rate_median_bps": 969995165.667955,
+        "rate_p5_bps": 411039672.3061873,
+        "rate_note": "Shannon capacity B*log2(1+SINR): a theoretical upper bound, not user throughput",
+        "sites": 4,
+        "sectors": 12,
+        "served_share_per_site": [
+          0.7728395061728395,
+          0.07407407407407407,
+          0.019753086419753086,
+          0.13333333333333333
+        ],
+        "served_share_per_sector": [
+          0.08395061728395062,
+          0.10123456790123457,
+          0.5876543209876544,
+          0.024691358024691357,
+          0.01728395061728395,
+          0.03209876543209877,
+          0.0,
+          0.012345679012345678,
+          0.007407407407407408,
+          0.04938271604938271,
+          0.02962962962962963,
+          0.05432098765432099
+        ],
+        "interference_over_noise_db_median": 12.137470818552739,
+        "interference_limited_share": 0.9506172839506173,
+        "interference_assumption": {
+          "carrier": "all sectors of all sites share one carrier (reuse 1)",
+          "co_located_sectors_interfere": true,
+          "interference_activity": "share of time every non-serving sector transmits; 1.0 = full load",
+          "scheduling": "none; Shannon bound for one user using the whole carrier",
+          "serving_rule": "strongest received sector (after antenna pattern and gas loss)",
+          "interference_activity_value": 1.0
+        },
+        "rate_3gpp_p5_bps": 246623803.38371238,
+        "rate_3gpp_median_bps": 581997099.400773,
+        "rate_3gpp_note": "3GPP truncated Shannon (TR 38.921), decision B3; beside, not instead of, the Shannon bound"
+      },
+      "sites_alone": [
+        {
+          "coverage_fraction": 0.9950617283950617,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 14.800001593171519,
+          "sinr_db_p5": 0.6454463153006957,
+          "rate_median_bps": 1985380924.593654,
+          "rate_p5_bps": 444474563.7229473,
+          "rx_power_dbm_median": -60.34285626808132,
+          "interference_limited_share": 0.30617283950617286,
+          "interference_over_noise_db_median": -6.500549017591981,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.8493827160493828,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": 5.493770590211459,
+          "sinr_db_p5": -17.904039502907693,
+          "rate_median_bps": 873464243.1710285,
+          "rate_p5_bps": 9277601.525126124,
+          "rx_power_dbm_median": -70.59921669778936,
+          "interference_limited_share": 0.17037037037037037,
+          "interference_over_noise_db_median": -9.46062786860768,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.8320987654320988,
+          "unreached_fraction": 0.0,
+          "sinr_db_median": -0.6844040156256332,
+          "sinr_db_p5": -17.625427723773942,
+          "rate_median_bps": 356318765.62972903,
+          "rate_p5_bps": 9892039.876607556,
+          "rx_power_dbm_median": -79.5352583134919,
+          "interference_limited_share": 0.024691358024691357,
+          "interference_over_noise_db_median": -22.645069347778204,
+          "served_share_per_site": [
+            1.0
+          ]
+        },
+        {
+          "coverage_fraction": 0.4246913580246914,
+          "unreached_fraction": 0.0024691358024691024,
+          "sinr_db_median": -12.260114416214705,
+          "sinr_db_p5": -22.835237558771777,
+          "rate_median_bps": 32825939.095790423,
+          "rate_p5_bps": 2996298.6069486216,
+          "rx_power_dbm_median": -91.21415098753329,
+          "interference_limited_share": 0.15308641975308643,
+          "interference_over_noise_db_median": -32.81135839688685,
+          "served_share_per_site": [
+            0.9975308641975309
+          ]
+        }
+      ],
+      "grown_in_given_order": [
+        {
+          "sites": [
+            1
+          ],
+          "coverage_fraction": 0.9950617283950617
+        },
+        {
+          "sites": [
+            1,
+            2
+          ],
+          "coverage_fraction": 0.9975308641975309
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3
+          ],
+          "coverage_fraction": 0.9975308641975309
+        },
+        {
+          "sites": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "coverage_fraction": 1.0
+        }
+      ],
+      "additions_that_lowered_coverage": [],
+      "greedy_sinr": {
+        "selected_sites": [
+          1
+        ],
+        "coverage_after": [
+          0.9950617283950617
+        ],
+        "target": 0.95,
+        "target_reached": true,
+        "stopped_because": "target reached",
+        "degrading_additions": [],
+        "note": "greedy heuristic over these candidates only; not a proven minimum"
+      }
+    }
+  }
+}

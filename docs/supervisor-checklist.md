@@ -7,6 +7,14 @@ named in the last column (with `status: approved`, `approved_by`).
 
 Status key: ☐ open · ☑ approved (write the decision and date).
 
+> **Update 2026-11-26.** The project owner reported that the supervisor approved **every
+> recommended option below as written** (no written reference yet). Recorded in
+> `docs/approval-record.md` and `configs/approvals.yaml`. Conditions still open: field
+> observations of the worklist buildings (A1/A2), the candidate thresholds (A4, need observed
+> heights), the MATLAB run and its reflection-then-diffraction cases (B1/B2), laptop
+> measurement, and the written approval reference. The boxes below keep the original
+> recommendation text; read them as approved subject to those conditions.
+
 ## A. Before the final experiments
 
 ### A1 — Study district

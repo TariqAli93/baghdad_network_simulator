@@ -22,7 +22,7 @@ if run.kind == "site_plan":
     rule = m["candidate_rule"]
     st.markdown(f"**Saved plan** `{run.run_id}` — {len(run.sites)} candidates (roof ≥ {rule['min_height_m']:g} m, "
                 f"≥ {rule['min_spacing_m']:g} m apart, heights {', '.join(rule['height_categories'])}; mast "
-                f"{rule['mast_height_m']:g} m at an interior roof point); objective: {m['objective']}. Overrides: "
+                f"{rule['mast_height_m']:g} m, antennas at the {(rule.get('antenna_position') or 'interior').replace('_', ' ')} of the roof); objective: {m['objective']}. Overrides: "
                 f"{m.get('overrides_for_sensitivity') or 'none'}. Traces {m['timing']['trace_wall_seconds']:.0f} s, "
                 f"selection {m['timing']['selection_seconds']:.1f} s ({run.backend}).")
     st.dataframe([{"scenario": next(s['label'] for s in scen if s['id'] == sid), "selected (in order)": ", ".join(r["selected"]),

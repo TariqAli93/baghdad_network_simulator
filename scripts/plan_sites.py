@@ -34,6 +34,7 @@ from pathlib import Path
 import numpy as np
 
 from bns import runtime
+from bns.analysis import metrics
 from bns.geospatial import sites as site_rules
 from bns.optimization.greedy import greedy_sinr_site_selection
 from bns.reporting import export
@@ -130,6 +131,10 @@ def main() -> int:
                 history_rows.append([sid, e["step"], candidates[c].candidate_id, round(v, 5), round(e["before"], 5),
                                      round(v - e["before"], 5), int(c == chosen)])
         order = sorted(g.selected)
+        mapped = ex.mapped_rate_bps(exp, sc, final.radio.sinr_db) if final is not None else None
+        if mapped is not None:
+            final.summary.update({"rate_3gpp_p5_bps": metrics.percentile(mapped, 5, exp.outdoor),
+                                  "rate_3gpp_median_bps": metrics.percentile(mapped, 50, exp.outdoor)})
         if final is not None:
             ss = final.serving_site
             maps[sid] = {"sinr_db": final.radio.sinr_db, "covered": final.radio.covered,
@@ -228,7 +233,10 @@ def main() -> int:
                  "fit_for_research": exp.quality["fit_for_research"], "receiver_area_km2": area_km2},
         "candidate_rule": {"min_height_m": args.min_height, "min_spacing_m": args.min_spacing,
                            "max_candidates": args.max_candidates, "height_categories": list(categories),
-                           "mast_height_m": exp.mast_height_m, "antenna_position": "interior point of the roof"},
+                           "mast_height_m": exp.mast_height_m,
+                           "antenna_position": exp.site_rule.get("antenna_position"),
+                           "edge_inset_m": exp.site_rule.get("edge_inset_m")},
+        "antenna_rule": exp.site_rule,
         "sites": [c.__dict__ for c in candidates],
         "sectors_per_site": [a.__dict__ for a in exp.antennas],
         "profile": exp.profile.__dict__, "grid": exp.grid.__dict__, "mechanisms": exp.config.mechanisms.__dict__,
@@ -249,9 +257,8 @@ def main() -> int:
                                       encoding="utf-8")
     cats = sorted({c.height_category for c in candidates})
     lines = [f"# {exp.label}", "", f"## Site plan {run_id}", "",
-             "Greedy heuristic on whole-network SINR coverage; **not a minimum site count**, and not a finding about "
-             "Baghdad (provisional area, unapproved radio parameters"
-             + (", candidate roofs with placeholder heights" if "placeholder" in cats else "") + ").", "",
+             "Greedy heuristic on whole-network SINR coverage; **not a minimum site count**. " + ex.caveat(exp)
+             + (" Candidate roofs include placeholder heights." if "placeholder" in cats else ""), "",
              f"- {len(candidates)} candidates (roof ≥ {args.min_height:g} m, ≥ {args.min_spacing:g} m apart, heights: "
              f"{', '.join(cats)}), mast {exp.mast_height_m:g} m, {len(exp.antennas)} sectors each.",
              f"- Target {100 * target:.0f} % of {int(exp.outdoor.sum())} outdoor cells; threshold "

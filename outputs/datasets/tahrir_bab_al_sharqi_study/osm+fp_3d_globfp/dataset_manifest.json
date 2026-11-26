@@ -1,0 +1,33 @@
+{
+  "dataset": "tahrir_bab_al_sharqi_study/osm+fp_3d_globfp",
+  "status": "awaiting field observations (A2); not fit for research",
+  "created_utc": "2026-11-26T14:56:19+00:00",
+  "software_commit": "bc750b3 + uncommitted release-cycle changes",
+  "inputs": {
+    "osm_snapshot": "data/raw/osm/tahrir_bab_al_sharqi_v2.json",
+    "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
+    "footprints_3d_globfp_extract": "data/raw/heights/3d_globfp/tahrir_bab_al_sharqi_v2.geojson",
+    "footprints_3d_globfp_extract_sha256": "52608146d89807f1e61b9018ea4aa55323277563228a0b7d28743dd18a4af0b4",
+    "footprints_licence": "CC BY 4.0 (3D-GloBFP); OSM ODbL",
+    "observations": null
+  },
+  "outputs": {
+    "scene_fingerprint": "7230170d9314929c06a789f90c0c35ada68d3f0c1656fb0c3be88044ac7a9263",
+    "buildings_geojson_sha256": "ac8d9f5c23eb2c14ddb3a908617f7c444a6c5760c1853248705b56ddbe0ef8cd",
+    "quality_report_sha256": "7b9ab2ad22349be0488393d0b5badc1caed95c24b44168266bb774c95d6c16d3"
+  },
+  "counts": {
+    "buildings": 2521,
+    "height_categories": {
+      "observed": 10,
+      "estimated": 4,
+      "placeholder": 2507
+    },
+    "footprints_added_receiver_area": 577,
+    "footprint_area_added_receiver_area_m2": 125143
+  },
+  "fit_for_research": false,
+  "not_fit_reasons": [
+    "99.4 % of buildings have placeholder heights"
+  ]
+}

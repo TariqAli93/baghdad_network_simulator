@@ -134,3 +134,16 @@ def test_wider_bandwidth_with_the_same_received_power_does_not_scale_rate_linear
 def test_shannon_rejects_negative_sinr():
     with pytest.raises(ValueError):
         lb.shannon_capacity_bps(20e6, -0.1)
+
+
+def test_truncated_shannon_is_zero_below_the_minimum_scaled_between_and_capped_above():
+    from bns.analysis.link_budget import truncated_shannon_bps
+
+    sinr_db = np.array([-20.0, -10.0, 10.0, 30.0, 40.0])
+    rate = truncated_shannon_bps(100e6, 10 ** (sinr_db / 10), alpha=0.6, sinr_min_db=-10.0, sinr_max_db=30.0)
+    assert rate[0] == 0.0
+    assert rate[1] == pytest.approx(0.6 * 100e6 * np.log2(1.1))
+    assert rate[2] == pytest.approx(0.6 * 100e6 * np.log2(11.0))
+    assert rate[3] == pytest.approx(rate[4])                      # capped at 30 dB
+    shannon = lb.shannon_capacity_bps(100e6, 10 ** (sinr_db / 10))
+    assert np.all(rate <= shannon)                                # never above the bound

@@ -1,0 +1,100 @@
+{
+  "area": {
+    "name": "tahrir_bab_al_sharqi_study",
+    "role": "study district",
+    "approved": true
+  },
+  "buildings": 2521,
+  "missing_height_buildings": 2507,
+  "conflicting_buildings": 0,
+  "buildings_with_alternative_sources": 1,
+  "height_categories": {
+    "by_count": {
+      "observed": 10,
+      "estimated": 4,
+      "placeholder": 2507
+    },
+    "by_count_percent": {
+      "observed": 0.3966679888932963,
+      "estimated": 0.15866719555731854,
+      "placeholder": 99.44466481554939
+    },
+    "by_area_percent": {
+      "observed": 0.9960308128613246,
+      "estimated": 1.4553380463432024,
+      "placeholder": 97.54863114079548
+    }
+  },
+  "height_sources": {
+    "by_count": {
+      "placeholder": 2507,
+      "osm:height": 10,
+      "osm:building:levels": 4
+    },
+    "by_area_percent": {
+      "osm:building:levels": 1.4553380463432024,
+      "osm:height": 0.9960308128613246,
+      "placeholder": 97.54863114079548
+    }
+  },
+  "height_statistics": {
+    "observed": {
+      "min_m": 1.0,
+      "median_m": 10.75,
+      "max_m": 60.0
+    },
+    "estimated": {
+      "min_m": 3.0,
+      "median_m": 13.5,
+      "max_m": 21.0
+    },
+    "placeholder": {
+      "min_m": 9.0,
+      "median_m": 9.0,
+      "max_m": 9.0
+    }
+  },
+  "height_model": null,
+  "height_warnings": [
+    {
+      "building_id": "way/645196998",
+      "warning": "implausible building:levels='0' ignored"
+    }
+  ],
+  "footprint_area_m2": 574602.83306536,
+  "built_share_of_receiver_area_percent": 35.801983414386,
+  "parse": {
+    "buildings_read": 1228,
+    "relations_read": 8,
+    "relations_with_missing_members": 0,
+    "skipped": {},
+    "duplicate_pairs": 2
+  },
+  "cleaning": {
+    "footprints added from 3d_globfp": 1327,
+    "footprints added from 3d_globfp in the receiver area": 577,
+    "footprint area added from 3d_globfp in the receiver area (m2)": 125143,
+    "buildings_split_into_pieces": 1,
+    "dropped_small": 2,
+    "overlaps_resolved": 518,
+    "buildings_outside_area_or_too_small": 34,
+    "footprints_before_merge": 2521,
+    "solids_after_merge": 1536,
+    "different_height_contacts": 43
+  },
+  "mesh": {
+    "vertices": 22410,
+    "triangles": 30576,
+    "degenerate_triangles": 1,
+    "rim_edges": 11234,
+    "wedges": 22389,
+    "flat_shared_edges": 17858,
+    "non_manifold_edges": 0,
+    "roof_triangles_facing_down": 0
+  },
+  "fit_for_research": false,
+  "not_fit_reasons": [
+    "99.4 % of buildings have placeholder heights"
+  ],
+  "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312"
+}

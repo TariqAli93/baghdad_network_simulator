@@ -33,6 +33,7 @@ to them.
 |---|---|---|---|
 | `ITU-M2083` | Rec. ITU-R M.2083-0 (09/2015), "IMT Vision – Framework and overall objectives of the future development of IMT for 2020 and beyond". https://www.itu.int/rec/R-REC-M.2083-0-201509-I/en | IMT-2020 (5G) capability targets | Read |
 | `ITU-M2410` | Report ITU-R M.2410-0 (11/2017), "Minimum requirements related to technical performance for IMT-2020 radio interface(s)". https://www.itu.int/pub/R-REP-M.2410-2017 | **Definition of user experienced data rate**; 5G targets | Read |
+| `APPROVAL-2026-11-26` | Supervisor approval of the recommended options of `docs/supervisor-checklist.md` (version bc750b3), as reported by the project owner on 2026-11-26; recorded in `configs/approvals.yaml` and `docs/approval-record.md`. No written reference yet | Values approved without a published source (mast height above the roof, antenna position, site rule) | Reported, not documented |
 | `ITU-M2412` | Report ITU-R M.2412-0 (2017), "Guidelines for evaluation of radio interface technologies for IMT-2020". https://www.itu.int/pub/R-REP-M.2412-2017 | Reference deployment geometry (dense urban) | Read |
 | `ITU-M2160` | Rec. ITU-R M.2160-0 (11/2023), "Framework and overall objectives of the future development of IMT for 2030 and beyond". https://www.itu.int/rec/R-REC-M.2160-0-202311-I/en | IMT-2030 (6G) usage scenarios and research targets | Read |
 | `ITU-IMT2030` | ITU-R WP 5D IMT-2030 pages and timeline. https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/Pages/default.aspx | 6G process dates for the roadmap | Page |

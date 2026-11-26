@@ -1,0 +1,67 @@
+# Supervisor approvals (machine-readable record; docs/approval-record.md explains it).
+#
+# Source of the approval: the project owner reported on 2026-11-26 that the supervisor
+# accepted every recommended option of docs/supervisor-checklist.md as written
+# (configuration version: commit bc750b3, tag v1.0.0-rc.1). No written reference was
+# provided; it is a remaining condition. Nothing beyond the checklist's recommended options
+# is recorded as approved.
+record:
+  reported_by: project owner
+  reported_on: 2026-11-26
+  approval_reference: none provided (written confirmation pending)
+  checklist_version: bc750b3 (v1.0.0-rc.1)
+  approved_by_text: "supervisor, as reported by the project owner on 2026-11-26 (written reference pending)"
+
+decisions:
+  A1_study_district:
+    decision: Tahrir Square / Bab Al-Sharqi
+    boundary: {center_lat: 33.3280, center_lon: 44.4085, receiver_area_m: [1000, 1000], margin_m: 150}
+    condition: >-
+      The recommendation was conditional: keep this district only if the student can observe
+      its tall buildings (A2). Observations do not exist yet.
+    status: approved_with_condition
+  A2_building_data:
+    footprints: OSM plus the footprints missing from OSM taken from 3D-GloBFP (footprints only, not its heights), each marked with its source
+    height_priority: [observation, osm_height, osm_levels, dataset, model, placeholder]
+    storey_height_m: 3.0
+    external_height_datasets: none as the height source (3D-GloBFP and GlobalBuildingAtlas rejected as height sources)
+    missing_heights: report the spread over assumed height models (sensitivity analysis)
+    manual_verification: observe the worklist buildings (tall buildings, candidate roofs, conflicts, near sites)
+    licensing: GlobalBuildingAtlas used only if its CC BY-NC 4.0 licence fits the project's use; never redistributed
+    condition: field observations not yet collected; the research dataset is incomplete until they are imported
+    status: approved_with_condition
+  A3_radio_parameters:
+    values: see configs/radio_system.yaml (status approved)
+    status: approved
+  A4_site_rule:
+    candidate_roofs: buildings with observed or storey-based heights; minimum height and spacing chosen for 20-40 candidates
+    mast_height_m: 3.0
+    sector_orientation: "azimuths 0, 120, 240 degrees; 10 degree downtilt"
+    antenna_position: roof edge facing each sector
+    condition: >-
+      The minimum height and spacing are to be chosen once observed heights exist (they set
+      the candidate count); the 1 m inset from the roof edge is an implementation choice of the
+      software (same as the controlled experiment), not part of the decision.
+    status: approved_with_condition
+  B1_validation:
+    decision: keep the controlled TR 38.901 comparison; MATLAB agreement = median |difference| in LOS cells within the profile's convergence floor, reported with RMSE
+    status: approved
+  B2_engine_limitations:
+    decision: accepted as documented; add 2-3 MATLAB cases on reflection-then-diffraction streets
+    status: approved
+  B3_rate_reporting:
+    decision: Shannon upper bound, plus the 3GPP truncated mapping (alpha 0.6, SINR -10 to 30 dB, TR 38.921) beside it
+    status: approved
+  C6_gpu_for_research:
+    decision: CPU for thesis results; GPU for exploration only
+    status: approved
+  convergence:
+    decision: standard profile (10 m, 1e9 rays) accepted for final runs
+    status: approved
+  matlab:
+    decision: required before conclusions; run the prepared case on the laptop with the B1 criterion
+    status: approved
+  laptop:
+    decision: accept the measured laptop run times as the time budget
+    condition: the laptop has not been measured yet
+    status: approved_with_condition

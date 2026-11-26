@@ -1,4 +1,16 @@
-# Release notes — v1.0.0-rc.1 (software release candidate)
+# Release notes
+
+## Unreleased (after v1.0.0-rc.1)
+
+- Supervisor approvals recorded as reported (`docs/approval-record.md`); configuration states updated.
+- Approved methodology implemented: roof-edge sector antennas (A4), missing-footprint import from
+  3D-GloBFP (A2), 3GPP truncated rate beside Shannon (B3).
+- Research mode refuses datasets that are not fit for research; fitness follows the approved A2 method.
+- Study dataset `tahrir_bab_al_sharqi_study/osm+fp_3d_globfp` and its observation worklist.
+- **v1.0.0 is not released**: field observations, laptop acceptance, MATLAB and the written approval
+  reference are open (`docs/implementation-plan.md`, last section).
+
+# v1.0.0-rc.1 (software release candidate)
 
 **What this release is.** The software for the graduation project is feature-complete and
 frozen. It is **not** a scientific result: the study district, building data, radio

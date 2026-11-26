@@ -29,6 +29,7 @@ import numpy as np
 import psutil
 
 from bns import runtime
+from bns.analysis import metrics
 from bns.core.units import linear_to_db
 from bns.optimization.greedy import greedy_sinr_site_selection
 from bns.reporting import export
@@ -187,10 +188,17 @@ def main() -> int:
 
         grown = [coverage_of(tuple(range(n))) for n in range(1, len(placed) + 1)]
         greedy = greedy_sinr_site_selection(coverage_of, len(placed), target)
+        mapped = ex.mapped_rate_bps(exp, sc, net.radio.sinr_db)
+        if mapped is not None:
+            net.summary.update({"rate_3gpp_p5_bps": metrics.percentile(mapped, 5, exp.outdoor),
+                                "rate_3gpp_median_bps": metrics.percentile(mapped, 50, exp.outdoor),
+                                "rate_3gpp_note": "3GPP truncated Shannon (TR 38.921), decision B3; beside, "
+                                                  "not instead of, the Shannon bound"})
         maps[sid] = {"path_gain_db": linear_to_db(stack.max(axis=0)), "rx_power_dbm": net.radio.rx_power_dbm,
                      "sinr_db": net.radio.sinr_db, "rate_bps": net.radio.rate_bps, "covered": net.radio.covered,
                      "serving_site": net.serving_site, "serving_sector": net.serving_sector,
-                     "interference_dbm": net.interference_dbm}
+                     "interference_dbm": net.interference_dbm,
+                     **({"rate_3gpp_bps": mapped} if mapped is not None else {})}
         alone_maps[sid] = [a.radio.sinr_db for a in alone]
         curves[sid] = grown
         results[sid] = {
@@ -249,6 +257,8 @@ def main() -> int:
                        "min_spacing_m": args.min_spacing, "count": args.sites}),
         "sites": [s.__dict__ for s in placed],
         "sectors_per_site": [a.__dict__ for a in exp.antennas],
+        "antenna_rule": exp.site_rule,
+        "sector_positions_m": {placed[i].candidate_id: ex.sector_positions(exp, placed[i]) for i in range(len(placed))},
         "profile": exp.profile.__dict__, "grid": exp.grid.__dict__,
         "mechanisms": exp.config.mechanisms.__dict__, "seeds": list(exp.config.seeds),
         "radio_parameters": exp.system.status_report(ex.USED + ["coverage_target", "frequency_reuse"]),
@@ -265,9 +275,7 @@ def main() -> int:
                                       encoding="utf-8")
 
     lines = [f"# {exp.label}", "", f"## Multi-site experiment {run_id}", "",
-             "Pipeline test. **Not a finding about Baghdad**: provisional development area "
-             f"({exp.quality['height_categories']['by_count_percent']['placeholder']:.1f} % placeholder heights, "
-             "about a third of the built area missing from OSM) and unapproved radio parameters.", "",
+             ex.caveat(exp), "",
              f"- Sites ({len(placed)}): " + "; ".join(
                  f"{s.candidate_id} on {s.building_id}, roof {s.roof_height_m:g} m ({s.height_category}), "
                  f"antenna {s.z:g} m at ({s.x:.0f}, {s.y:.0f})" for s in placed),

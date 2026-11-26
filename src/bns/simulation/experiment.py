@@ -58,6 +58,7 @@ class Experiment:
     mast_height_m: float
     backend: str = "cpu"
     backend_note: str = ""
+    site_rule: dict = field(default_factory=lambda: {"antenna_position": "interior"})
     extra: dict = field(default_factory=dict)
 
     @property
@@ -101,6 +102,12 @@ def require_research_profile(profile: Profile, mode: str) -> None:
                               "(set its status to 'approved' in configs/simulation.yaml after the supervisor's decision).")
 
 
+def require_research_dataset(quality: dict, mode: str) -> None:
+    """Research runs need a dataset whose quality report says it is fit for research."""
+    if mode == "research" and not quality.get("fit_for_research"):
+        raise ExperimentError("The dataset is not fit for research: " + "; ".join(quality.get("not_fit_reasons", [])))
+
+
 def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
          backend: str = "cpu") -> Experiment:
     root = Path(root)
@@ -123,6 +130,7 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
     if not (scene_dir / "scene.xml").exists():
         raise ExperimentError(f"No dataset {scene_dir}; run scripts/build_dataset.py --area {area.name} first.")
     quality = json.loads((scene_dir / "quality_report.json").read_text(encoding="utf-8"))
+    require_research_dataset(quality, mode)
     buildings = pipeline.load_buildings(scene_dir, area)
     rx_height = system.require("rx_height_m", mode=mode)
     grid = area.receiver_grid(profile.cell_size_m, rx_height)
@@ -130,8 +138,25 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
     antennas = sector_antennas(system, mode=mode, polarization=config.polarization)
     mast = system.require("antenna_height_above_roof_m", mode=mode)
     chosen, note = resolve_backend(backend, config, mode)
+    rule_path = root / "configs" / "site_rule.yaml"
+    site_rule = yaml.safe_load(rule_path.read_text(encoding="utf-8")) if rule_path.exists() else \
+        {"antenna_position": "interior"}
+    if mode == "research" and site_rule.get("status") != "approved":
+        raise ExperimentError("The site rule (configs/site_rule.yaml) is not approved.")
     return Experiment(root, area, variant, mode, profile, system, config, load_scenarios(root), baseline,
-                      label, scene_dir, quality, buildings, grid, outdoor, antennas, mast, chosen, note)
+                      label, scene_dir, quality, buildings, grid, outdoor, antennas, mast, chosen, note, site_rule)
+
+
+def caveat(exp: Experiment) -> str:
+    """One sentence on what a run of this experiment may be used for, from the facts."""
+    from bns.analysis.radio_system import RESEARCH_LABEL
+
+    if exp.label == RESEARCH_LABEL and exp.quality.get("fit_for_research"):
+        return "Approved research configuration on a dataset fit for research."
+    reasons = list(exp.quality.get("not_fit_reasons") or [])
+    if exp.mode != "research":
+        reasons.append("development mode")
+    return "**Not a finding about Baghdad**: " + "; ".join(reasons) + "."
 
 
 def place_sites(exp: Experiment, building_ids: list[str]) -> list[sites.Candidate]:
@@ -157,13 +182,24 @@ def observed_sites(exp: Experiment, count: int, *, min_height_m: float, min_spac
                                     categories=(ht.OBSERVED,))
 
 
+def sector_positions(exp: Experiment, site: sites.Candidate) -> list[tuple[float, float, float]]:
+    """Antenna position of every sector of a site, following the site rule (decision A4)."""
+    if exp.site_rule.get("antenna_position") != "roof_edge" or exp.antennas[0].pattern == "iso":
+        return [(site.x, site.y, site.z)] * len(exp.antennas)
+    roof = next(b.polygon for b in exp.buildings if b.building_id == site.building_id)
+    xy = sites.edge_positions(roof, site.x, site.y, [a.orientation_rad[0] for a in exp.antennas],
+                              float(exp.site_rule["edge_inset_m"]))
+    return [(x, y, site.z) for x, y in xy]
+
+
 def jobs_for(exp: Experiment, placed: list[sites.Candidate]) -> dict[str, list[tuple[int, PropagationJob]]]:
-    """Per scenario: (site index, job) for every sector of every site."""
+    """Per scenario: (site index, job) for every sector of every site, each sector at its position."""
+    positions = {i: sector_positions(exp, s) for i, s in enumerate(placed)}
     out = {}
     for sc in exp.scenarios:
-        out[sc["id"]] = [(i, job) for i, s in enumerate(placed)
-                         for job in site_jobs(exp.scene_dir, sc["frequency_hz"], (s.x, s.y, s.z), exp.antennas,
-                                              exp.grid, exp.config, exp.profile.rays_per_site, exp.backend)]
+        out[sc["id"]] = [(i, site_jobs(exp.scene_dir, sc["frequency_hz"], positions[i][k], [antenna], exp.grid,
+                                       exp.config, exp.profile.rays_per_site, exp.backend)[0])
+                         for i in range(len(placed)) for k, antenna in enumerate(exp.antennas)]
     return out
 
 
@@ -178,6 +214,27 @@ def radio_inputs(exp: Experiment, scenario: dict) -> RadioInputs:
         coverage_definition=sys_.definition("coverage_threshold"),
         coverage_threshold=sys_.require("coverage_threshold", sid, mode=mode),
         interference_activity=sys_.require("interference_activity", sid, mode=mode))
+
+
+def rate_mapping(exp: Experiment) -> dict | None:
+    """The practical rate mapping of decision B3 (configs/radio_system.yaml), or None if absent."""
+    data = yaml.safe_load((exp.root / "configs" / "radio_system.yaml").read_text(encoding="utf-8"))
+    mapping = data.get("rate_mapping")
+    if mapping and exp.mode == "research" and mapping.get("status") != "approved":
+        raise ExperimentError("The rate mapping (B3) is not approved.")
+    return mapping
+
+
+def mapped_rate_bps(exp: Experiment, scenario: dict, sinr_db: np.ndarray) -> np.ndarray | None:
+    """Rate of the B3 mapping for a SINR map (dB; -inf where unreached), or None without a mapping."""
+    from bns.analysis.link_budget import truncated_shannon_bps
+
+    m = rate_mapping(exp)
+    if not m:
+        return None
+    sinr = np.where(np.isfinite(sinr_db), 10.0 ** (np.where(np.isfinite(sinr_db), sinr_db, 0.0) / 10.0), 0.0)
+    return truncated_shannon_bps(scenario["bandwidth_hz"], sinr, alpha=float(m["alpha"]),
+                                 sinr_min_db=float(m["sinr_min_db"]), sinr_max_db=float(m["sinr_max_db"]))
 
 
 def gas_loss_db(exp: Experiment, scenario: dict, position_m) -> np.ndarray:

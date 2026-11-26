@@ -765,3 +765,53 @@ demonstration results.
 
 Supervisor decisions (`docs/supervisor-checklist.md`); laptop acceptance (`benchmark.ps1`);
 MATLAB case on the laptop; then `docs/research-execution-plan.md`.
+
+---
+
+## Final research execution cycle: approvals recorded, execution blocked by field observations (2026-11-26)
+
+**Status.** `master` = `bc750b3` (`v1.0.0-rc.1`, fast-forward merge done earlier). Approvals
+recorded as reported by the project owner (`docs/approval-record.md`). **v1.0.0 not released**:
+mandatory gates remain open (below). Changes of this cycle are uncommitted on `master`'s working
+tree (the user's own theme edit and roadmap file left untouched).
+
+### Done
+
+1. **Approval record** (`configs/approvals.yaml`, `docs/approval-record.md`): every recommended
+   checklist option approved as reported; no written reference; conditions listed. Radio
+   parameters, height policy, standard profile, site rule and study district set to approved.
+2. **Approved methodology implemented** (needed to apply the approvals, not new scope):
+   roof-edge sector antennas (A4, `configs/site_rule.yaml`, `sites.edge_positions`,
+   `experiment.sector_positions`); missing-footprint import from 3D-GloBFP with footprint
+   provenance and placeholder heights (A2, `build_dataset.py --add-footprints`); the 3GPP
+   truncated rate beside Shannon (B3, `link_budget.truncated_shannon_bps`, map layer and
+   percentiles).
+3. **Research-mode protection extended**: refuses a dataset that is not fit for research; the
+   fitness rule follows the approved A2 method (placeholders allowed only outside a completed
+   observation worklist, method approved, no unmatched rows).
+4. **Study dataset** `tahrir_bab_al_sharqi_study/osm+fp_3d_globfp`: 2,521 buildings, 577
+   footprints (125,143 m²) added in the receiver area, mesh valid (0 non-manifold edges),
+   checksum manifest `outputs/datasets/tahrir_bab_al_sharqi_study/osm+fp_3d_globfp/dataset_manifest.json`
+   (scene fingerprint 7230170d…). **Not fit for research**: 99.4 % placeholder heights.
+5. **Observation worklist** for the fieldwork: 330 buildings (3 tall, 4 candidate roofs, 324
+   that may block a candidate site), `outputs/datasets/tahrir_bab_al_sharqi_study/height_worklist.csv`.
+6. **Rehearsal** (development mode, CPU, preview, 4 observed sites, roof-edge sectors, B3) on
+   the study dataset: 60 traces in 577 s; 405 outdoor cells at 25 m (808 before the added
+   footprints); every run artefact as required. Labelled development; **not a result**.
+7. Research mode refused the study dataset with "99.4 % of buildings have placeholder heights".
+
+### Not done, and why (no results fabricated)
+
+| Gate | State | What unblocks it |
+|---|---|---|
+| Final dataset (A2) | observations missing | student fieldwork on the 330 worklist buildings, then `build_dataset.py ... --observations <file>` |
+| Candidate thresholds (A4) | cannot be set (only 4 roofs with observed heights) | the observations |
+| Experiments A-E as research runs | blocked by the dataset | the two rows above |
+| Convergence on the final scene | not run | after the final dataset exists |
+| MATLAB cross-check (B1) and reflection-then-diffraction cases (B2) | not executed; MATLAB not on this PC | laptop run; cases need the final scene |
+| Laptop acceptance | not measured | `benchmark.ps1` on the laptop |
+| Written approval reference | missing | supervisor's written confirmation |
+
+### Tests
+
+Unit 280 passed; engine 6 passed (Phase 0 records untouched); pages 12 passed; lint clean.

@@ -113,3 +113,24 @@ def test_matched_height_becomes_an_estimate_with_its_provenance():
     assert record.category == ht.ESTIMATED and record.height_m == 11.0
     assert record.source == "dataset:3D-GloBFP v4"
     assert "one-to-one" in record.method and "ext/7" in record.reference
+
+
+def test_only_footprints_touching_no_osm_building_are_added_with_placeholder_heights():
+    from shapely.geometry import box
+
+    from bns.geospatial import heights as ht
+    from bns.geospatial.height_datasets import ExternalFootprint, footprint_buildings, missing_footprints
+
+    policy = ht.HeightPolicy(storey_height_m=3.0, placeholder_height_m=9.0, max_plausible_height_m=250.0)
+    rec = ht.HeightRecord(12.0, ht.OBSERVED, "osm:height", "tag", "way/1")
+    osm = [ht.Building("way/1", box(0, 0, 10, 10), {}, rec)]
+    external = [ExternalFootprint("rec/a", box(5, 5, 15, 15), 30.0),      # overlaps: mismatch, not missing
+                ExternalFootprint("rec/b", box(50, 0, 60, 10), 40.0),     # missing building
+                ExternalFootprint("rec/c", box(80, 0, 81, 1), 5.0),       # too small
+                ExternalFootprint("rec/d", box(500, 0, 510, 10), 5.0)]    # outside the clip box
+    missing = missing_footprints(osm, external, box(-100, -100, 100, 100), min_area_m2=20.0)
+    assert [m.footprint_id for m in missing] == ["rec/b"]
+    [b] = footprint_buildings(missing, "3d_globfp", "3D-GloBFP tile", policy)
+    assert b.building_id == "3d_globfp/rec/b" and b.tags["footprint_source"] == "dataset:3d_globfp"
+    assert b.height.height_m == 9.0 and b.height.category == ht.PLACEHOLDER      # dataset height NOT used
+    assert b.height.original == {"dataset_height_m_not_used": 40.0}

@@ -28,7 +28,8 @@ def provenance_buildings(area: StudyArea, overpass_json: dict, policy: ht.Height
                          snapshot_sha256: str, *, height_model: ht.HeightModel | None = None,
                          seed: int | None = None, manual_rows: list[dict] | None = None,
                          manual_name: str = "manual", scene_settings=None,
-                         height_datasets: list[tuple[str, Path, str]] | None = None
+                         height_datasets: list[tuple[str, Path, str]] | None = None,
+                         extra_footprints: list[tuple[str, Path, str]] | None = None
                          ) -> tuple[list[ht.Building], dict, dict]:
     """Parse, attach height records, then repair, clip and de-overlap the footprints.
 
@@ -47,6 +48,17 @@ def provenance_buildings(area: StudyArea, overpass_json: dict, policy: ht.Height
                              ht.height_from_osm_tags(b.tags, policy, b.building_id, snapshot_sha256))
                  for b in raw]
     clean_report: dict = {}
+    for name, extract, reference in extra_footprints or []:
+        # decision A2: footprints missing from OSM, with their source; placeholder heights
+        missing = hd.missing_footprints(buildings, hd.load_extract(extract, area), area.clip_box(), 0.0)
+        added = hd.footprint_buildings(missing, name, reference, policy)
+        buildings = buildings + added
+        receiver = area.receiver_box()
+        inside = [b for b in added if receiver.contains(b.polygon.representative_point())]
+        clean_report[f"footprints added from {name}"] = len(added)
+        clean_report[f"footprints added from {name} in the receiver area"] = len(inside)
+        clean_report[f"footprint area added from {name} in the receiver area (m2)"] = round(
+            sum(b.polygon.area for b in inside))
     for name, extract, reference in height_datasets or []:
         if Path(extract).suffix == ".json":            # joined by OSM id (GlobalBuildingAtlas)
             from bns.geospatial import gba
@@ -123,19 +135,30 @@ def _geojson(area: StudyArea, buildings: list[ht.Building]) -> dict:
             "features": features}
 
 
+def _worklist_status(manual_rows: list[dict] | None, clean_report: dict) -> dict | None:
+    """How complete the observation file (the filled-in worklist) is."""
+    if not manual_rows:
+        return None
+    listed = len(manual_rows)
+    observed = sum(1 for r in manual_rows if str(r.get("height_m", "")).strip())
+    return {"listed": listed, "observed": observed,
+            "unmatched": len(clean_report.get("manual_observations_without_building") or [])}
+
+
 def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: ht.HeightPolicy,
                   snapshot_sha256: str, *, height_model: ht.HeightModel | None = None,
                   seed: int | None = None, manual_rows: list[dict] | None = None,
                   manual_name: str = "manual", scene_settings=None,
                   height_datasets: list[tuple[str, Path, str]] | None = None,
-                  height_method_approved: bool = False) -> dict:
+                  height_method_approved: bool = False,
+                  extra_footprints: list[tuple[str, Path, str]] | None = None) -> dict:
     """Write scene, building table and quality report into out_dir; return the report."""
     settings = scene_settings or osm_scene.SceneSettings()
     out_dir = Path(out_dir)
     buildings, parse_report, clean_report = provenance_buildings(
         area, overpass_json, policy, snapshot_sha256, height_model=height_model, seed=seed,
         manual_rows=manual_rows, manual_name=manual_name, scene_settings=settings,
-        height_datasets=height_datasets)
+        height_datasets=height_datasets, extra_footprints=extra_footprints)
 
     plain = [osm_scene.Building(b.polygon, b.height.height_m, b.height.category, (b.building_id,))
              for b in buildings]
@@ -153,7 +176,8 @@ def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: h
         json.dumps(_geojson(area, buildings)), encoding="utf-8")
     report = quality.quality_report(buildings, area, parse_report, clean_report,
                                     scene_meta.get("mesh", {}), height_model=model_info,
-                                    height_method_approved=height_method_approved)
+                                    height_method_approved=height_method_approved,
+                                    worklist=_worklist_status(manual_rows, clean_report))
     report["osm_snapshot_sha256"] = snapshot_sha256
     (out_dir / "quality_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     (out_dir / "quality_report.md").write_text(quality.render_markdown(report), encoding="utf-8")

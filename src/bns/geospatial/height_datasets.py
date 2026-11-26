@@ -217,3 +217,41 @@ def height_record(match: Match, dataset: str, reference: str) -> ht.HeightRecord
                            f"{reference}; {', '.join(match.footprint_ids)}",
                            {"dataset_height_m": match.height_m,
                             "dataset_max_height_m": match.max_height_m})
+
+
+# --- missing footprints (decision A2) -------------------------------------------------
+
+
+def missing_footprints(buildings: list[ht.Building], external: list[ExternalFootprint], clip_box,
+                       min_area_m2: float) -> list[ExternalFootprint]:
+    """External footprints that touch no OSM building at all, inside the clip box.
+
+    Only footprints with no overlap are taken: a partial overlap is a geometry mismatch or a
+    merged block, not a missing building (docs/building-height-data.md, section 9).
+    """
+    tree = shapely.STRtree([b.polygon for b in buildings])
+    out = []
+    for e in external:
+        if e.polygon.area < min_area_m2 or not clip_box.contains(e.polygon.representative_point()):
+            continue
+        if len(tree.query(e.polygon, predicate="intersects")) == 0:
+            out.append(e)
+    return out
+
+
+def footprint_buildings(missing: list[ExternalFootprint], dataset: str, reference: str,
+                        policy: ht.HeightPolicy) -> list[ht.Building]:
+    """Buildings for missing footprints: footprint provenance kept, height an explicit placeholder.
+
+    The dataset's own height is NOT used (A2: rejected as a height source); it is kept only
+    as an untouched original value for reference.
+    """
+    out = []
+    for e in missing:
+        record = ht.HeightRecord(policy.placeholder_height_m, ht.PLACEHOLDER, "placeholder",
+                                 f"no height information; footprint added from {dataset} (missing in OSM)",
+                                 f"{reference}; {e.footprint_id}", {"dataset_height_m_not_used": e.height_m})
+        out.append(ht.Building(f"{dataset}/{e.footprint_id}", e.polygon,
+                               {"footprint_source": f"dataset:{dataset}", "footprint_reference": reference},
+                               record))
+    return out

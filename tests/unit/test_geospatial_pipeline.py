@@ -470,3 +470,43 @@ def test_build_dataset_with_a_height_model_labels_the_variant(tmp_path):
     props = json.loads((tmp_path / "buildings.geojson").read_text())["features"][0]["properties"]
     assert props["height_m"] == 15.0 and props["height_source"] == "model:flat15"
     assert props["height_category"] == ht.PLACEHOLDER
+
+
+def test_sector_antennas_stand_at_the_roof_edge_they_face():
+    import numpy as np
+    from shapely.geometry import Polygon
+
+    from bns.geospatial.sites import edge_positions
+
+    roof = Polygon([(0, 0), (20, 0), (20, 10), (0, 10)])
+    east, north, west = edge_positions(roof, 5.0, 5.0, [0.0, np.pi / 2, np.pi], inset_m=1.0)
+    assert east == pytest.approx((19.0, 5.0)) and north == pytest.approx((5.0, 9.0))
+    assert west == pytest.approx((1.0, 5.0))
+    courtyard = Polygon([(0, 0), (30, 0), (30, 30), (0, 30)], [[(10, 10), (20, 10), (20, 20), (10, 20)]])
+    [p] = edge_positions(courtyard, 5.0, 15.0, [0.0], inset_m=1.0)
+    assert p == pytest.approx((9.0, 15.0))                        # stops at the courtyard wall
+    with pytest.raises(ValueError):
+        edge_positions(roof, 50.0, 5.0, [0.0], inset_m=1.0)
+
+
+def test_placeholders_block_research_until_the_approved_worklist_is_complete():
+    from shapely.geometry import box
+
+    from bns.geospatial.quality import quality_report
+
+    district = StudyArea(name="d", role="study district", approved=True, center_lat=33.3, center_lon=44.4,
+                         receiver_size_m=(100.0, 100.0), margin_m=10.0)
+    observed = ht.HeightRecord(20.0, ht.OBSERVED, "manual:obs.csv", "laser", "x")
+    placeholder = ht.HeightRecord(9.0, ht.PLACEHOLDER, "placeholder", "none", "x")
+    blds = [ht.Building("way/1", box(0, 0, 10, 10), {}, observed), ht.Building("way/2", box(20, 0, 30, 10), {}, placeholder)]
+
+    def fit(**kw):
+        r = quality_report(blds, district, {}, {}, {}, **kw)
+        return r["fit_for_research"], r["not_fit_reasons"]
+
+    assert fit(height_method_approved=True) == (False, ["50.0 % of buildings have placeholder heights"])
+    ok, reasons = fit(height_method_approved=True, worklist={"listed": 2, "observed": 1, "unmatched": 0})
+    assert not ok and "1 of 2 buildings observed" in reasons[1]
+    assert fit(height_method_approved=True, worklist={"listed": 1, "observed": 1, "unmatched": 0}) == (True, [])
+    assert not fit(height_method_approved=False, worklist={"listed": 1, "observed": 1, "unmatched": 0})[0]
+    assert not fit(height_method_approved=True, worklist={"listed": 1, "observed": 1, "unmatched": 1})[0]

@@ -1,0 +1,13 @@
+# Base-station site rule (decision A4, configs/approvals.yaml).
+#
+# antenna_position: roof_edge  each sector stands at the roof edge in the direction it points,
+#                              edge_inset_m inside the footprint (the inset is a software choice)
+#                   interior   all sectors at one interior point of the roof (development runs
+#                              before the approval; kept for comparison and old manifests)
+# The candidate thresholds (minimum roof height and spacing) are chosen once observed heights
+# exist so that the district has 20-40 candidates; until then they are given per run.
+antenna_position: roof_edge
+edge_inset_m: 1.0
+candidate_height_categories: [observed, estimated]
+status: approved
+approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)

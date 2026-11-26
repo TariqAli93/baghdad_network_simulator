@@ -16,7 +16,9 @@ profiles:
   standard:
     cell_size_m: 10
     rays_per_site: 1.0e9
-    status: borderline convergence
+    status: approved
+    approved_by: supervisor, as reported by the project owner on 2026-11-26 (written reference pending; configs/approvals.yaml)
+    convergence: borderline (two independent 1e9-ray maps within 1.4-2.0 dB for 95 % of cells), accepted as sufficient
     basis: >-
       All 8 cases: two independent 1-billion-ray maps agree within 1.4-2.0 dB for 95 % of
       outdoor cells, no cell missed. 1e8 rays failed on the full area (3.9-5.2 dB), although
