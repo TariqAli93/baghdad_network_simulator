@@ -18,9 +18,9 @@ uv run python scripts/build_dataset.py --area tahrir_bab_al_sharqi_study --add-f
 uv run python scripts/plan_sites.py --area tahrir_bab_al_sharqi_study --variant "osm+observations+fp_3d_globfp" --mode research --profile preview --min-height <A4> --min-spacing <A4> --heights observed,estimated
 ```
 
-Do **not** start step 1 before the decisions in `docs/supervisor-checklist.md` are approved.
-Every command below runs in research mode only when its inputs are approved; until then the
-software refuses, and development runs stay labelled DEVELOPMENT — NOT APPROVED FOR RESEARCH.
+All supervisor decisions are approved (`docs/approval-record.md`). Every command below runs in
+research mode only with the research baseline on a dataset fit for research and after the
+final-scene convergence; until then results are classified as Preliminary Simulations.
 Run on the machine whose times were accepted (laptop gate, `docs/laptop-acceptance.md`), on
 the CPU backend unless decision C6 approves the GPU. Times are development-PC measurements.
 

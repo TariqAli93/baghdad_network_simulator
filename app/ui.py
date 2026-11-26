@@ -17,7 +17,6 @@ from bns.app import results
 from bns.reporting import plotstyle as style
 
 ROOT = Path(__file__).resolve().parents[1]
-DEV_LABEL = "DEVELOPMENT — NOT APPROVED FOR RESEARCH"
 SEQ = [[i / 6, c] for i, c in enumerate(["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"])]
 SITE_COLOURS = ["#2a6f97", "#c0504d", "#5b8c3a", "#8064a2", "#d08c2b", "#4b9b9b", "#7a6a53", "#b5527a"]
 CATEGORY_COLOURS = {"observed": "#1b7f5b", "estimated": "#d08c2b", "placeholder": "#b9b8b0"}
@@ -39,19 +38,42 @@ def page_header(title: str, caption: str) -> None:
     st.caption(caption)
 
 
-def development_banner(label: str | None = DEV_LABEL) -> None:
-    if label and "NOT APPROVED" in label:
-        st.markdown(f'<div class="dev-banner">{label}</div>', unsafe_allow_html=True)
-    elif label:
-        st.success(label)
+def result_banner(classification) -> None:
+    """The scientific classification of a result: what it is, its configuration, data and validation."""
+    from bns.analysis import classification as cl
+
+    if classification is None:
+        return
+    kind = "validated" if classification.validated else (
+        "preliminary" if classification.result == cl.PRELIMINARY else "experiment")
+    st.markdown(f'<div class="result-banner {kind}"><b>{classification.result}</b>'
+                f'<span>{classification.details}</span></div>', unsafe_allow_html=True)
+
+
+def label_classification(text: str):
+    """Classification of a saved note from its label line; labels written before 2026-11-27 describe
+    runs whose configuration was not recorded, on incomplete data, before validation."""
+    from bns.analysis import classification as cl
+
+    parts = [p.strip() for p in text.split("·")]
+    known = {cl.BASELINE, cl.CUSTOM, cl.SENSITIVITY, cl.NOT_RECORDED}
+    config = next((p for p in parts if p in known), None)
+    if config is None:
+        return cl.Classification(cl.NOT_RECORDED, cl.INCOMPLETE, cl.PENDING)
+    return cl.Classification(config, cl.COMPLETE if cl.COMPLETE in parts else cl.INCOMPLETE,
+                             cl.VALIDATED if cl.VALIDATED in parts else cl.PENDING)
 
 
 def inject_css() -> None:
     st.markdown("""
 <style>
 div.block-container, [data-testid="stMainBlockContainer"] {padding-top: 2.2rem;}
-.dev-banner {border-left: 4px solid #c96a12; background: #fff4e5; color: #6b3a06; padding: .45rem .8rem;
-             font-weight: 600; letter-spacing: .02em; border-radius: 4px; margin: .2rem 0 .8rem 0;}
+.result-banner {border-left: 4px solid #8a6d3b; background: rgba(201,106,18,.08); padding: .45rem .8rem;
+                 border-radius: 4px; margin: .2rem 0 .8rem 0; display: flex; flex-wrap: wrap; gap: .2rem .9rem;
+                 align-items: baseline;}
+.result-banner span {font-size: .82rem; opacity: .85;}
+.result-banner.experiment {border-color: #2a6f97; background: rgba(42,111,151,.08);}
+.result-banner.validated {border-color: #1b7f5b; background: rgba(27,127,91,.10);}
 div[data-testid="stMetricValue"] {font-variant-numeric: tabular-nums;}
 section[data-testid="stSidebar"] .sidebar-note {font-size: .8rem; color: #52514e;}
 </style>""", unsafe_allow_html=True)
@@ -192,9 +214,12 @@ def markdown_file(path) -> None:
     """Show a saved Markdown note: its label line as the banner, headings two levels smaller."""
     from pathlib import Path as _P
 
-    lines = _P(path).read_text(encoding="utf-8").splitlines()
-    if lines and lines[0].startswith("# ") and "APPROVED" in lines[0]:
-        development_banner(lines[0][2:].strip())
+    from bns.analysis import classification as cl
+
+    lines = cl.display_text(_P(path).read_text(encoding="utf-8")).splitlines()
+    markers = ("APPROVED", cl.PRELIMINARY, cl.BASELINE, cl.CUSTOM, cl.SENSITIVITY, cl.VALIDATED_RESULTS)
+    if lines and lines[0].startswith("# ") and any(m in lines[0] for m in markers):
+        result_banner(label_classification(lines[0][2:].strip()))       # the label line becomes the banner
         lines = lines[1:]
     st.markdown("\n".join("##" + ln if ln.startswith("#") else ln for ln in lines))
 

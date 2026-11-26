@@ -23,7 +23,7 @@ variant = c2.selectbox("Dataset variant", variants, index=variants.index("osm") 
                             "external heights as candidates under the height policy.")
 st.markdown(f"**Role:** {info['role']}")
 if info["role"] != "study district":
-    st.warning("Not the study district: use for development and testing only, never to report Baghdad results.")
+    st.warning("Not the study district: for software testing only, never used to report Baghdad results.")
 else:
     gates = {g.id: g for g in readiness.indicators(ui.ROOT)}
     with st.expander("Study-area and building-data methodology (research baseline)", expanded=True):

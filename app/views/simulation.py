@@ -4,6 +4,7 @@ import streamlit as st
 import ui
 import yaml
 
+from bns.analysis import classification
 from bns.app import control
 from bns.simulation import experiment as ex
 from bns.simulation.cache import PathGainCache
@@ -14,7 +15,7 @@ ui.page_header("Run simulation", "Single- or multi-site coverage for all five sc
 areas = ui.study_areas()
 profiles = yaml.safe_load((ui.ROOT / "configs" / "simulation.yaml").read_text(encoding="utf-8"))["profiles"]
 usable = [k for k, v in profiles.items() if v.get("rays_per_site") is not None]
-RUN_TYPES = {"development": "Development / custom experiment",
+RUN_TYPES = {"development": "Preliminary simulation / custom experiment / sensitivity analysis",
              "research": "Research baseline (final research run)"}
 # parameter -> (label, step, number format); ranges come from bns.simulation.experiment.OVERRIDES
 PARAMS = {
@@ -62,11 +63,11 @@ profile = c3.selectbox("Profile", usable, index=usable.index("standard") if "sta
                        f"{float(profiles[p]['rays_per_site']):.0e} rays")
 mode = c4.selectbox("Run type", list(RUN_TYPES), format_func=RUN_TYPES.get,
                     help="A research-baseline run uses the approved configuration unchanged and needs a dataset fit "
-                         "for research and the final-scene convergence. Everything else runs as development or "
-                         "custom experiment and is labelled so.")
+                         "for research and the final-scene convergence. Everything else runs as a preliminary "
+                         "simulation, custom experiment or sensitivity analysis and is classified so.")
 baseline = ex.baseline_values(ui.ROOT, profile)
 
-if st.button("Reset to research baseline", help="Restore every parameter below to the approved baseline values."):
+if st.button("Reset to research baseline", help="Restore every parameter below to the research-baseline values."):
     for k in [k for k in st.session_state if str(k).startswith("param-")]:
         del st.session_state[k]
     st.rerun()
@@ -102,14 +103,14 @@ with st.form("run_form"):
 
 overrides = ex.differences(values, baseline)
 if overrides:
-    st.info("**Custom experiment** — differs from the research baseline in: "
+    st.info(f"**{classification.configuration_class(overrides)}** — differs from the research baseline in: "
             + ", ".join(f"{k} {v:g} (baseline {baseline[k]:g})" for k, v in overrides.items())
             + ". The run records the values it used.")
 else:
-    st.success("**Research baseline** values.")
+    st.success("**Research Baseline** values.")
 if overrides and mode == "research":
     st.error("A research-baseline run uses the baseline values: reset them, or choose "
-             "'Development / custom experiment'.")
+             "'Preliminary simulation / custom experiment / sensitivity analysis'.")
     st.stop()
 
 request = {"area": area, "variant": variant, "profile": profile, "mode": mode, "backend": backend,
@@ -130,7 +131,7 @@ if estimate or st.session_state.get("checked_request") == request:
                    f"≥ {r['min_roof_area_m2']:g} m², ≥ {r['min_spacing_m']:g} m apart, heights "
                    f"{', '.join(r['categories'])}). Choose buildings, or change the candidate criteria.")
         st.stop()
-    ui.development_banner(exp.label)
+    ui.result_banner(exp.classification)
     st.markdown(f"**Run:** {exp.run_class} · **Backend:** {exp.backend.upper()} — {exp.backend_note}")
     st.dataframe([{"site": s.candidate_id, "building": s.building_id, "roof [m]": s.roof_height_m,
                    "roof height": s.height_category, "antenna [m]": s.z, "x [m]": round(s.x), "y [m]": round(s.y)}

@@ -7,10 +7,11 @@ import yaml
 
 from bns.app import evidence
 
-ui.page_header("6G roadmap for Iraq", "A structured workspace: verified facts, provisional results from saved runs, "
+ui.page_header("6G roadmap for Iraq", "A structured workspace: verified facts, preliminary results from saved runs, "
                "open questions, and your own recommendations. Nothing here is generated as a conclusion.")
-st.markdown('<div class="dev-banner">Simulation evidence on this page comes from DEVELOPMENT runs — NOT APPROVED '
-            "FOR RESEARCH. No date shown is a confirmed deployment date.</div>", unsafe_allow_html=True)
+st.markdown('<div class="result-banner"><b>Preliminary Simulation evidence</b><span>The simulation results on this '
+            "page come from runs on incomplete data, before validation; none is a validated research result. No date "
+            "shown is a confirmed deployment date.</span></div>", unsafe_allow_html=True)
 
 roadmap = yaml.safe_load((ui.ROOT / "configs" / "roadmap.yaml").read_text(encoding="utf-8"))
 NOTES = ui.ROOT / "outputs" / "roadmap" / "student_recommendations.json"
@@ -97,7 +98,7 @@ for tab, stage in zip(tabs, roadmap["stages"], strict=True):
 st.divider()
 st.subheader("Assumptions and limitations")
 for line in ("The research baseline (district, building-data method, radio parameters, site rule) is set, but the "
-             "dataset is not yet fit for research (field observations): the evidence above is from development runs.",
+             "dataset is not yet fit for research (field observations): the evidence above is from preliminary simulations.",
              "Shannon rates are theoretical upper bounds for one user with the whole carrier; the 3GPP mapping "
              "beside them uses LTE (TR 36.942) for 4G, NR (TR 38.921) for 5G and the NR values as an approximation "
              "for candidate 6G.",

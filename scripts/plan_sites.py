@@ -38,6 +38,7 @@ from bns.analysis import metrics
 from bns.geospatial import sites as site_rules
 from bns.optimization.greedy import greedy_sinr_site_selection
 from bns.reporting import export
+from bns.analysis import classification
 from bns.simulation import experiment as ex
 from bns.simulation import propagation as prop
 from bns.simulation.cache import PathGainCache, scene_fingerprint
@@ -235,6 +236,10 @@ def main() -> int:
         "label": exp.label, "run_id": run_id, "kind": "site_plan", "mode": args.mode,
         "run_class": ex.run_class({**exp.overrides, **overrides,
                                    **({"heights": args.heights} if args.heights else {})}),
+        "classification": classification.Classification(
+            classification.configuration_class({**exp.overrides, **overrides})
+            if not args.heights else classification.CUSTOM,
+            exp.classification.dataset, exp.classification.validation).as_dict(),
         "overrides": {**exp.overrides, **overrides, **({"heights": args.heights} if args.heights else {})},
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,

@@ -42,6 +42,8 @@ def main() -> int:
     args = parser.parse_args()
 
     manifest = json.loads((args.run / "manifest.json").read_text(encoding="utf-8"))
+    from bns.analysis import classification
+    run_label = classification.from_manifest(manifest).label   # scientific class of the source run
     arrays = np.load(args.run / "bands.npz")
     g = manifest["grid"]
     grid = Grid(tuple(g["center_xy"]), tuple(g["size_xy"]), g["cell_size_m"], g["height_m"])
@@ -102,7 +104,7 @@ def main() -> int:
               "line of sight clears own roof": [r for r in rows if not r["shadowed_by_own_roof"]]}
     for r in rows:
         r["excess_db"] = r["reference_db"] - r["traced_db"]
-    lines = [f"# {manifest['label']}", "",
+    lines = [f"# {run_label}", "",
              f"## Near-site diagnosis, {sc['label']} ({sc['frequency_hz'] / 1e9:g} GHz), run {manifest['run_id']}", "",
              f"Site on {site['building_id']}: roof {roof:g} m, antenna {tx[2]:g} m ({tx[2] - roof:g} m mast), "
              f"{len(orientations)} sectors, downtilt {np.degrees(orientations[0][1]):g} deg. "
@@ -138,7 +140,7 @@ def main() -> int:
     ax.set(xlabel="horizontal distance from site [m]", ylabel="excess loss over free space + pattern [dB]",
            title=f"{sc['label']}: near-site cells")
     ax.legend()
-    fig.suptitle(manifest["label"], x=0.05, ha="left", fontsize=9)
+    fig.suptitle(run_label, x=0.05, ha="left", fontsize=9)
     fig.savefig(args.run / f"near_site_{args.scenario}.png")
     print("\n".join(lines))
     return 0

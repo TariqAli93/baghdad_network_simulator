@@ -926,3 +926,17 @@ Under the feature freeze, configuration and guards only; no simulation was run.
   editor with ranges and reset to baseline; Overview, Radio, Study area without approval workflow.
 - Candidate pool with today's heights: 1 (target 20-40): the survey is needed.
 - Tests run: see the commit message.
+
+### Addendum: scientific result classification replaces the approval label (2026-11-27)
+
+- `bns.analysis.classification`: configuration (Research Baseline / Custom Experiment / Sensitivity
+  Analysis / not recorded), dataset (complete / incomplete), validation (Validated / Validation
+  Pending) and the result class (Preliminary Simulation, Custom Experiment, Sensitivity Analysis,
+  Research Baseline · Validation Pending, Validated Research Results). Sensitivity Analysis =
+  changes only to threshold, target, load or rain. Validated = final-scene convergence and a MATLAB
+  comparison whose LOS median is within the B1 tolerance in every band.
+- Run scripts record `classification` in the manifest and use its label in figures, notes and
+  exports; the app (banners, pages, run titles), the printable report and saved-note displays show
+  it. Historical files are unchanged; displays and new reports show their class (Preliminary
+  Simulation) and caption their saved figures.
+- Tests run: see the commit message.

@@ -197,9 +197,11 @@ configs/radio_system.yaml ─► antenna (pattern, sectors, downtilt, mast)     
 - **Antenna.** Sectors are separate traced transmitters. With the 3GPP TR 38.901 pattern
   traced, its 8 dBi are inside the path gain and no gain is added afterwards; the radio
   configuration refuses combinations that would count a gain twice.
-- **Run modes.** Development runs use proposed values and stamp every output
-  "DEVELOPMENT — NOT APPROVED FOR RESEARCH"; research runs refuse unapproved parameters and
-  non-approved study areas.
+- **Run modes and classification.** Development runs accept any valid value; research runs
+  accept only the research baseline on a dataset fit for research. Every output is stamped
+  with its classification (`bns.analysis.classification`: configuration, dataset, validation;
+  recorded as `classification` in the manifest). Files made before 2026-11-27 keep their old
+  label; displays and new reports show their class (Preliminary Simulation) instead.
 - **Profiles** (`configs/simulation.yaml`, `docs/convergence.md`): preview 25 m / 1e8 rays,
   standard 10 m / 1e9 rays; the 5 m research profile is not yet validated and cannot be
   selected.

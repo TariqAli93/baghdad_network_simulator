@@ -19,7 +19,7 @@ tab_bands, tab_runs, tab_sites, tab_model, tab_sens, tab_lim = st.tabs(
 with tab_bands:
     run = ui.pick_run("comparison-run")
     if run is not None:
-        ui.development_banner(run.label)
+        ui.result_banner(run.classification)
         scen, outdoor = run.scenarios, run.outdoor
         table = evidence.band_table(run)
         st.dataframe([{"scenario": r["scenario"], "GHz": r["frequency_ghz"], "MHz": r["bandwidth_mhz"],
@@ -163,9 +163,9 @@ with tab_sens:
     else:
         srun = candidates[0]
         data = json.loads((srun.path / "sensitivity.json").read_text(encoding="utf-8"))
-        ui.development_banner(data["label"])
+        ui.result_banner(ui.label_classification(data["label"]))
         st.caption(f"From `{srun.run_id}`. Sourced candidate values: threshold {data['sourced']['threshold']} dB, "
-                   f"load {data['sourced']['load']}; all other points are provisional sweep values.")
+                   f"load {data['sourced']['load']}; all other points are sensitivity sweep values.")
         load = st.radio("Load (interference activity)", data["loads"], horizontal=True)
         fig = go.Figure()
         for sc in srun.scenarios:

@@ -8,7 +8,7 @@ whose height is observed). Propagation comes from the cached path-gain maps (tra
 missing); the radio system from configs/radio_system.yaml in the chosen mode; the weather is
 the clear-sky baseline of configs/atmosphere.yaml.
 
-In development mode every output is labelled DEVELOPMENT — NOT APPROVED FOR RESEARCH.
+Every output carries its scientific classification (bns.analysis.classification).
 Research mode stops unless every parameter used is approved.
 
 Writes outputs/runs/<mode>/<run id>/: manifest.json, summary.json, summary.md, figures
@@ -29,6 +29,7 @@ import psutil
 import yaml
 
 from bns import runtime
+from bns.analysis import classification
 from bns.analysis.radio_system import RadioSystem
 from bns.core.units import linear_to_db
 from bns.geospatial import heights as ht
@@ -139,7 +140,7 @@ def main() -> int:
                               ("path_gain_db", "rx_power_dbm", "sinr_db", "rate_bps", "covered")}
                    | {"summary": summaries[sc["id"]]} for sc in manifest["scenarios"]}
         names = figures(args.replot, grid, results, arrays["outdoor"], manifest["site"]["position_m"],
-                        manifest["label"], manifest["scenarios"])
+                        classification.from_manifest(manifest).label, manifest["scenarios"])
         print(f"Redrew {names} in {args.replot}")
         return 0
 
@@ -162,13 +163,14 @@ def main() -> int:
     for sc in scenarios:
         sc["frequency_hz"], sc["bandwidth_hz"] = float(sc["frequency_hz"]), float(sc["bandwidth_hz"])
     baseline, _ = atm.load_conditions(ROOT / "configs" / "atmosphere.yaml")
-    label = system.label(USED, mode=args.mode)
 
     scene_dir = ROOT / "data" / "scenes" / area.name / args.variant
     if not (scene_dir / "scene.xml").exists():
         print(f"No dataset {scene_dir}; run scripts/build_dataset.py first.")
         return 1
     quality = json.loads((scene_dir / "quality_report.json").read_text(encoding="utf-8"))
+    classes = classification.classify(ROOT, {}, quality)
+    label = classes.label
     try:
         ex.require_research_dataset(quality, args.mode)
     except ex.ExperimentError as exc:
@@ -254,7 +256,7 @@ def main() -> int:
     names = figures(out, grid, results, outdoor, position, label, scenarios)
     memory = psutil.Process().memory_info()
     manifest = {
-        "label": label, "run_id": run_id, "mode": args.mode,
+        "label": label, "run_id": run_id, "mode": args.mode, "classification": classes.as_dict(),
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "area": {"name": area.name, "role": area.role, "approved": area.approved,
                  "snapshot": area.snapshot, "variant": args.variant,

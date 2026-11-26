@@ -14,10 +14,10 @@ import re
 from pathlib import Path
 
 LIMITATIONS = [
-    "Development data: provisional study area with mostly placeholder building heights and about a third of "
-    "the buildings missing from OpenStreetMap.",
-    "The inputs of the run and their status at run time are in the tables above; only research-baseline runs "
-    "on a dataset fit for research are research results (docs/approval-record.md).",
+    "Dataset: unless the classification says 'Complete data', most building heights are placeholders (field "
+    "observations pending); results on such data are preliminary simulations.",
+    "Only research-baseline runs on a dataset fit for research, after the final-scene convergence and the "
+    "MATLAB comparison, are validated research results; everything else is preliminary or experimental.",
     "Shannon rates are theoretical upper bounds for one user with the whole carrier; not network capacity or "
     "user throughput. A 3GPP mapping, where present, is reported beside them (the run summary names it).",
     "Greedy site selection is a heuristic; it does not give a minimum site count.",
@@ -31,7 +31,20 @@ font-size:14px;line-height:1.45}h1{font-size:22px}h2{font-size:18px;margin-top:2
 h3{font-size:15px}table{border-collapse:collapse;margin:8px 0;font-size:12px}td,th{border:1px solid #ccc;
 padding:3px 6px;text-align:left;vertical-align:top}th{background:#f1f0ec}.label{border-left:4px solid #c96a12;
 background:#fff4e5;color:#6b3a06;padding:6px 10px;font-weight:600}img{max-width:100%;margin:8px 0}
-code{background:#f1f0ec;padding:0 3px}@media print{h2{page-break-before:auto}img{page-break-inside:avoid}}"""
+code{background:#f1f0ec;padding:0 3px}@media print{h2{page-break-before:auto}img{page-break-inside:avoid}}
+.label span{display:block;font-weight:400;font-size:12px;margin-top:2px}"""
+
+
+def _strip_label_line(md: str) -> str:
+    """Saved notes start with the run's label line; the report shows the classification instead."""
+    from bns.analysis.classification import display_text
+
+    lines = display_text(md).splitlines()
+    markers = ("APPROVED", "Preliminary Simulation", "Research Baseline", "Custom Experiment",
+               "Sensitivity Analysis", "Validated Research Results")
+    if lines and lines[0].startswith("# ") and any(m in lines[0] for m in markers):
+        lines = lines[1:]
+    return "\n".join(lines)
 
 
 def _inline(text: str) -> str:
@@ -78,25 +91,38 @@ def markdown_to_html(md: str) -> str:
     return "\n".join(out)
 
 
+def value_source(manifest: dict, name: str) -> str:
+    """Where a parameter value of a run came from: the research baseline, a custom value, or not recorded."""
+    if "overrides" not in manifest:
+        return "not recorded (run before 2026-11-27)"
+    return "custom value" if name in (manifest.get("overrides") or {}) else "research baseline"
+
+
 def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
                invalid_reason: str | None = None) -> str:
     run_dir = Path(run_dir)
+    from bns.analysis.classification import from_manifest
+
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
-    label = manifest.get("label", "")
+    c = from_manifest(manifest)
+    label = c.result
+    detail = c.details
     parts = [f"<!doctype html><html><head><meta charset='utf-8'><title>Report {html.escape(manifest.get('run_id', run_dir.name))}"
              f"</title><style>{_CSS}</style></head><body>",
              (f"<div class='label' style='border-color:#b00020;background:#fde7ea;color:#7a0014'>INVALID FOR RESEARCH "
               f"INTERPRETATION: {html.escape(invalid_reason)}</div>" if invalid_reason else ""),
-             f"<div class='label'>{html.escape(label)}</div>",
+             f"<div class='label'>{html.escape(label)}<span>{html.escape(detail)}</span></div>",
              f"<h1>Baghdad Network Simulator — run report</h1><p><code>{html.escape(manifest.get('run_id', run_dir.name))}</code>"
              f" · created {html.escape(manifest.get('created_utc', ''))}</p>"]
     area = manifest.get("area", {})
     profile = manifest.get("profile", {})
-    rows = [("Kind", manifest.get("kind", "single_site")), ("Mode", manifest.get("mode", "")),
-            ("Run class", manifest.get("run_class", "not recorded (before 2026-11-27)")
-             + (": " + ", ".join(f"{k} = {v}" for k, v in manifest["overrides"].items())
-                if manifest.get("overrides") else "")),
-            ("Study area", f"{area.get('name')} / {area.get('variant')} ({area.get('role', '')}; approved: {area.get('approved')})"),
+    rows = [("Classification", f"{c.result} (configuration: {c.configuration}; dataset: {c.dataset}; "
+                                f"validation: {c.validation})"),
+            ("Kind", manifest.get("kind", "single_site")), ("Mode", manifest.get("mode", "")),
+            ("Values differing from the research baseline",
+             ", ".join(f"{k} = {v}" for k, v in manifest["overrides"].items()) if manifest.get("overrides")
+             else ("none" if "overrides" in manifest else "not recorded (run before 2026-11-27)")),
+            ("Study area", f"{area.get('name')} / {area.get('variant')} ({area.get('role', '')})"),
             ("OSM snapshot SHA-256", str(area.get("osm_snapshot_sha256", ""))[:16] + "..."),
             ("Scene fingerprint", str(area.get("scene_fingerprint", ""))[:16] + "..."),
             ("Height categories (% of buildings)", ", ".join(f"{k} {v:.1f}" for k, v in
@@ -110,21 +136,24 @@ def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
                  + "".join(f"<tr><th>{html.escape(k)}</th><td>{html.escape(str(v))}</td></tr>" for k, v in rows) + "</table>")
     params = manifest.get("radio_parameters") or {}
     if params:
-        parts.append("<h2>Radio parameters used (status at run time)</h2><table><tr><th>Parameter</th><th>Value</th>"
-                     "<th>Status</th></tr>" + "".join(
+        parts.append("<h2>Radio parameters used</h2><table><tr><th>Parameter</th><th>Value</th>"
+                     "<th>Value from</th></tr>" + "".join(
                          f"<tr><td>{html.escape(k)}</td><td>{html.escape(str(v.get('value', v) if isinstance(v, dict) else v))}</td>"
-                         f"<td>{html.escape(str(v.get('status', '')) if isinstance(v, dict) else '')}</td></tr>"
+                         f"<td>{html.escape(value_source(manifest, k))}</td></tr>"
                          for k, v in params.items()) + "</table>")
     for name in ("summary.md", "sensitivity.md", "backend_agreement.md", "near_site_nr_28000.md"):
         path = run_dir / name
         if path.exists():
-            parts.append(f"<h2>{html.escape(name)}</h2>" + markdown_to_html(path.read_text(encoding="utf-8")))
+            parts.append(f"<h2>{html.escape(name)}</h2>" + markdown_to_html(_strip_label_line(
+                path.read_text(encoding="utf-8"))))
     for title, md in (extra_markdown or {}).items():
-        parts.append(f"<h2>{html.escape(title)}</h2>" + markdown_to_html(md))
+        parts.append(f"<h2>{html.escape(title)}</h2>" + markdown_to_html(_strip_label_line(md)))
+    if sorted(run_dir.glob("*.png")) and "classification" not in manifest:
+        parts.append("<p><i>Figures saved before 2026-11-27 keep the title written at run time; that run-time label corresponds to the class Preliminary Simulation.</i></p>")
     for png in sorted(run_dir.glob("*.png")):
         data = base64.b64encode(png.read_bytes()).decode("ascii")
         parts.append(f"<h3>{html.escape(png.name)}</h3><img alt='{html.escape(png.name)}' src='data:image/png;base64,{data}'>")
     parts.append("<h2>Scientific limitations</h2><ul>" + "".join(f"<li>{html.escape(t)}</li>" for t in LIMITATIONS)
                  + "</ul>")
-    parts.append(f"<div class='label'>{html.escape(label)}</div></body></html>")
+    parts.append(f"<div class='label'>{html.escape(label)}<span>{html.escape(detail)}</span></div></body></html>")
     return "\n".join(parts)

@@ -10,7 +10,7 @@ ui.page_header("Coverage analysis", "Maps of a saved run. Indoor cells (building
 run = ui.pick_run("coverage-run")
 if run is None:
     st.stop()
-ui.development_banner(run.label)
+ui.result_banner(run.classification)
 st.caption(f"Backend: {run.backend.upper()} · profile {run.manifest['profile']['name']} · "
            + ("site plan: maps show the final selection of each scenario" if run.kind == "site_plan" else
               f"{len(run.sites)} site(s)"))

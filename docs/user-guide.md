@@ -1,9 +1,11 @@
 # User guide
 
 For the student operating the Baghdad Network Simulator on Windows. Installation is in the
-README; this guide follows a typical session. Every result today is labelled
-**DEVELOPMENT — NOT APPROVED FOR RESEARCH**: it shows how the method behaves, not findings
-about Baghdad (see `docs/supervisor-checklist.md`).
+README; this guide follows a typical session. Every result carries its scientific
+classification: configuration (Research Baseline, Custom Experiment or Sensitivity Analysis),
+dataset (complete or incomplete) and validation. Today every result is a **Preliminary
+Simulation** (incomplete building data, validation pending): it shows how the method behaves,
+not validated findings about Baghdad (`docs/approval-record.md`).
 
 ## 1. Install and check (once)
 

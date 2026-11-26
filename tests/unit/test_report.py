@@ -13,17 +13,37 @@ def test_markdown_subset_converts_headings_tables_lists_and_escapes_html():
     assert "<li>one</li><li>two</li>" in out
 
 
-def test_report_keeps_the_development_label_and_embeds_figures(tmp_path):
+def test_report_of_a_historical_run_shows_its_classification_not_the_old_label(tmp_path):
     (tmp_path / "manifest.json").write_text(json.dumps({
         "label": "DEVELOPMENT — NOT APPROVED FOR RESEARCH", "run_id": "r1", "mode": "development",
+        "area": {"fit_for_research": False},
         "profile": {"name": "preview", "cell_size_m": 25, "rays_per_site": 1e8},
         "radio_parameters": {"tx_power_dbm": {"value": 46.0, "status": "candidate"}}}), encoding="utf-8")
-    (tmp_path / "summary.md").write_text("| x | y |\n|---|---|\n| 1 | 2 |\n", encoding="utf-8")
+    (tmp_path / "summary.md").write_text("# DEVELOPMENT — NOT APPROVED FOR RESEARCH\n\n| x | y |\n|---|---|\n| 1 | 2 |\n",
+                                         encoding="utf-8")
     (tmp_path / "fig.png").write_bytes(b"\x89PNG\r\n")
     page = build_html(tmp_path)
-    assert page.count("DEVELOPMENT — NOT APPROVED FOR RESEARCH") == 2       # top and bottom
-    assert "data:image/png;base64," in page and "candidate" in page
+    assert "NOT APPROVED" not in page and "DEVELOPMENT" not in page
+    assert page.count("Preliminary Simulation") >= 2                       # top and bottom
+    assert "Configuration not recorded" in page and "Validation Pending" in page
+    assert "not recorded (run before 2026-11-27)" in page                  # value source, not an approval status
+    assert "data:image/png;base64," in page and "<td>2</td>" in page
     assert "Scientific limitations" in page and "Shannon rates are theoretical upper bounds" in page
+
+
+def test_report_of_a_new_custom_run_names_its_custom_values(tmp_path):
+    from bns.analysis import classification as cl
+
+    c = cl.Classification(cl.CUSTOM, cl.INCOMPLETE, cl.PENDING)
+    (tmp_path / "manifest.json").write_text(json.dumps({
+        "label": c.label, "classification": c.as_dict(), "run_id": "r2", "mode": "development",
+        "overrides": {"tx_power_dbm": 43.0}, "profile": {"name": "standard"},
+        "radio_parameters": {"tx_power_dbm": {"value": 43.0}, "noise_figure_db": {"value": 9.0}}}), encoding="utf-8")
+    page = build_html(tmp_path)
+    assert "Preliminary Simulation" in page and "Custom Experiment" in page
+    assert "tx_power_dbm = 43.0" in page
+    assert "<td>tx_power_dbm</td><td>43.0</td><td>custom value</td>" in page
+    assert "<td>noise_figure_db</td><td>9.0</td><td>research baseline</td>" in page
 
 
 def test_report_of_an_invalid_run_says_so_at_the_top(tmp_path):

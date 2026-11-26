@@ -77,10 +77,13 @@ def main() -> int:
         print(f"{sc['id']}: {len(cases)} cases", flush=True)
 
     out = args.run
-    (out / "sensitivity.json").write_text(json.dumps({"label": run.label, "run": run.run_id, "thresholds_db": THRESHOLDS_DB,
+    from bns.analysis import classification as cl
+    source = cl.from_manifest(run.manifest)
+    label = cl.Classification(cl.SENSITIVITY, source.dataset, source.validation).label
+    (out / "sensitivity.json").write_text(json.dumps({"label": label, "run": run.run_id, "thresholds_db": THRESHOLDS_DB,
                                                      "loads": LOADS, "sourced": SOURCED, "results": results}, indent=1),
                                           encoding="utf-8")
-    lines = [f"# {run.label}", "", f"## Coverage and interference sensitivity, run {run.run_id}", "",
+    lines = [f"# {label}", "", f"## Coverage and interference sensitivity, run {run.run_id}", "",
              f"{n_sites} candidate sites (all sectors on one carrier). Re-evaluated from cached path gain; nothing traced. "
              "Coverage = share of outdoor cells with SINR at or above the threshold. **Bold** rows use only sourced "
              "candidate values (threshold −10 dB; load 1.0 or 0.5); every other row is a provisional sweep point.", "",
@@ -123,7 +126,7 @@ def main() -> int:
         ax.set(title=f"load {load:g}", xlabel="SINR threshold [dB]")
     axes[0].set_ylabel("outdoor cells covered [%] (dashed: site 1 alone)")
     axes[-1].legend(fontsize=7)
-    fig.suptitle(run.label, x=0.05, ha="left", fontsize=10, fontweight="bold")
+    fig.suptitle(label, x=0.05, ha="left", fontsize=10, fontweight="bold")
     fig.savefig(out / "sensitivity.png")
     print("\n".join(lines[-3:]))
     return 0

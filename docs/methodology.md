@@ -86,7 +86,11 @@ changes.
 
 ## 5. Run modes
 
-- **Development**: any proposed value may be used; every output carries the label
-  "DEVELOPMENT — NOT APPROVED FOR RESEARCH". For testing the pipeline and for learning.
-- **Research**: only supervisor-approved values, on an approved study district; anything
-  else stops the run. Only research runs may produce thesis results.
+- **Development** (preliminary simulations, custom experiments, sensitivity analyses): any
+  valid value may be used; every output carries its classification (configuration, dataset,
+  validation; `bns.analysis.classification`).
+- **Research** (research-baseline runs): the approved baseline unchanged, on the study district
+  with a dataset fit for research and the final-scene convergence. Only research-baseline runs on
+  complete data, after the MATLAB comparison meets B1, are Validated Research Results.
+- *(Before 2026-11-27 development outputs carried the label "DEVELOPMENT — NOT APPROVED FOR
+  RESEARCH"; those files keep it and are shown as Preliminary Simulations.)*

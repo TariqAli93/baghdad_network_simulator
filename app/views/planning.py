@@ -12,7 +12,7 @@ st.caption("The greedy result is a heuristic over these candidates only, not a p
 run = ui.pick_run("planning-run", kinds=("site_plan", "multi_site"))
 if run is None:
     st.stop()
-ui.development_banner(run.label)
+ui.result_banner(run.classification)
 st.caption("Create a new plan with `uv run python scripts/plan_sites.py --area NAME --mode development "
            "[--backend gpu] [--threshold DB --load X]` (traces only what is not cached).")
 scen = run.scenarios

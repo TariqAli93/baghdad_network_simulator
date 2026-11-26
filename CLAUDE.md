@@ -59,12 +59,16 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 - **Every building height has a provenance record** (`bns.geospatial.heights`): observed,
   estimated or placeholder, with source, method and the untouched original values. Never
   present a placeholder or a height-model draw as an estimate or a measurement.
-- **Radio-system parameters are approved** (2026-11-26, `configs/approvals.yaml`); keep the
-  approval machinery (`configs/radio_system.yaml`, `docs/radio-parameters.md`): each is development,
-  candidate or approved. Development runs
-  label every output "DEVELOPMENT — NOT APPROVED FOR RESEARCH"; research runs refuse
-  unapproved values. Do not add a default power, gain, noise figure, threshold or target
-  anywhere in code. Never add an antenna gain on top of an EIRP or of a traced pattern.
+- **Radio-system parameters are approved** (`configs/approvals.yaml`); each entry keeps its
+  status and sources (`configs/radio_system.yaml`, `docs/radio-parameters.md`). Every output is
+  labelled with its scientific classification (`bns.analysis.classification`): configuration
+  (Research Baseline / Custom Experiment / Sensitivity Analysis), dataset (complete / incomplete)
+  and validation (Validated / Validation Pending), giving Preliminary Simulation, Custom
+  Experiment, Sensitivity Analysis, Research Baseline · Validation Pending or Validated Research
+  Results. Never call a result validated without the final-scene convergence and a MATLAB
+  comparison meeting B1. Never use the old "DEVELOPMENT — NOT APPROVED FOR RESEARCH" label.
+  Do not add a default power, gain, noise figure, threshold or target anywhere in code. Never
+  add an antenna gain on top of an EIRP or of a traced pattern.
 - **Propagation and radio system stay separate**: ray tracing goes through
   `bns.simulation.propagation` (cached by job key); received power, SINR and rates through
   `bns.simulation.radio`. A path-gain map is never reported as coverage.

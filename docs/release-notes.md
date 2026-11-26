@@ -19,6 +19,11 @@
   research mode refuses until the five pre-experiment gates pass. Shown on the Overview, Radio and
   Study area pages.
 - Fix: `run_single_site.py --mode research` now applies the shared research guards.
+- Results are labelled with a scientific classification (`bns.analysis.classification`) instead of
+  "DEVELOPMENT — NOT APPROVED FOR RESEARCH": configuration, dataset and validation are separate
+  states; only validated research-baseline runs on complete data are Validated Research Results. A
+  MATLAB comparison counts as validation only if it meets B1. Historical files keep their label;
+  the app and new reports show their class.
 - Fix: observation acceptance per group (P0-P2 measured or documented; S storey counts); separate
   progress on the Overview and Study area pages.
 - Azimuth convention made explicit (compass bearings in manifests and the app); orientations

@@ -11,7 +11,7 @@ For every scenario the script reports:
   - a greedy selection on network SINR coverage (interference included).
 Path gains come from the cache (traced only if missing); nothing is traced twice.
 
-In development mode every output is labelled DEVELOPMENT — NOT APPROVED FOR RESEARCH.
+Every output carries its scientific classification (bns.analysis.classification).
 Writes outputs/runs/<mode>/<run id>/: manifest.json, summary.json, summary.md, figures,
 network.npz (git-ignored), cells_<scenario>.csv and sites.geojson.
 """
@@ -253,7 +253,7 @@ def main() -> int:
     memory = psutil.Process().memory_info()
     manifest = {
         "label": exp.label, "run_id": run_id, "kind": "multi_site", "mode": args.mode,
-        "run_class": exp.run_class, "overrides": exp.overrides,
+        "run_class": exp.run_class, "overrides": exp.overrides, "classification": exp.classification.as_dict(),
         "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,
                     "variant": all_jobs[0].engine["variant"],
                     "status": (exp.config.backends or {}).get(exp.backend, {}).get("status"),

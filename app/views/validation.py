@@ -25,6 +25,7 @@ else:
     for png in ("pathloss_UMa.png", "pathloss_UMi.png", "los_probability.png"):
         if (v["folder"] / png).exists():
             st.image(str(v["folder"] / png))
+    st.caption("Figures saved before 2026-11-27 keep the title written at run time; that run-time label corresponds to the class Preliminary Simulation.")
 
 st.subheader("Engine checks (Phase 0)")
 rows = []

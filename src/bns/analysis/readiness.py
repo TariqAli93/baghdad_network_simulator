@@ -10,7 +10,7 @@
     matlab         MATLAB cross-check
     laptop         target-laptop acceptance
 
-States: "Ready", "Completed", "Incomplete data", "Validation pending", "Research baseline",
+States: "Ready", "Completed", "Incomplete data", "Validation Pending", "Research Baseline",
 "Custom experiment". Nothing here asks for an approval, and none of it blocks development,
 preview, custom or sensitivity runs. A research-baseline run (mode "research") needs the
 baseline configuration, a dataset fit for research (heights and observations) and the
@@ -30,8 +30,8 @@ import yaml
 
 from bns.analysis import research_baseline
 
-READY, COMPLETED, INCOMPLETE, PENDING = "Ready", "Completed", "Incomplete data", "Validation pending"
-BASELINE, CUSTOM = "Research baseline", "Custom experiment"
+READY, COMPLETED, INCOMPLETE, PENDING = "Ready", "Completed", "Incomplete data", "Validation Pending"
+BASELINE, CUSTOM = "Research Baseline", "Custom Experiment"
 RESEARCH_REQUIREMENTS = ("configuration", "dataset", "heights", "observations", "convergence")
 PASSING = (READY, COMPLETED, BASELINE)
 
@@ -239,13 +239,32 @@ def _validation(root: Path) -> Indicator:
 
 
 def _matlab(root: Path) -> Indicator:
-    found = sorted(p.relative_to(root) for base in ("validation", "outputs/validation")
+    """Completed only when every saved comparison meets the B1 criterion: |median (MATLAB - Sionna)|
+    in LOS cells within the tolerance of configs/approvals.yaml, in every band. NLOS and RMSE are
+    reported, not judged."""
+    title = "MATLAB comparison"
+    found = sorted(p for base in ("validation", "outputs/validation")
                    for p in (Path(root) / base).glob("**/comparison.json"))
-    if found:
-        return Indicator("matlab", "MATLAB comparison", COMPLETED,
-                         f"{len(found)} comparison(s), e.g. {found[0].as_posix()}; assess with median |Δ| in LOS ≤ 2.0 dB")
-    return Indicator("matlab", "MATLAB comparison", PENDING,
-                     "package prepared (validation/matlab/); not run (needs MATLAB on the laptop)")
+    if not found:
+        return Indicator("matlab", title, PENDING, "package prepared (validation/matlab/); not run (needs MATLAB "
+                                                   "on the laptop)")
+    tol = float(((_yaml(root, "approvals.yaml").get("decisions") or {}).get("B1_validation") or {})
+                .get("los_median_abs_tolerance_db", 2.0))
+    failing = []
+    for path in found:
+        rows = json.loads(path.read_text(encoding="utf-8"))
+        los = {k: v for k, v in rows.items() if k.endswith("_LOS")}
+        for k, v in los.items():
+            if v.get("median_db") is None or abs(float(v["median_db"])) > tol:
+                failing.append(f"{path.parent.name}/{k}")
+        if not los:
+            failing.append(f"{path.parent.name}: no LOS cells")
+    if failing:
+        return Indicator("matlab", title, PENDING,
+                         f"{len(found)} comparison(s); LOS median beyond ±{tol:.1f} dB or missing in: " + ", ".join(failing),
+                         {"failing": failing})
+    return Indicator("matlab", title, COMPLETED,
+                     f"{len(found)} comparison(s); LOS median within ±{tol:.1f} dB in every band (NLOS, RMSE reported)")
 
 
 def _laptop(root: Path) -> Indicator:
@@ -254,6 +273,11 @@ def _laptop(root: Path) -> Indicator:
         return Indicator("laptop", "Laptop acceptance", COMPLETED,
                          f"{len(found)} benchmark run(s), latest {found[-1].parent.name}")
     return Indicator("laptop", "Laptop acceptance", PENDING, "benchmark.ps1 not yet run on the target laptop")
+
+
+def validation_indicators(root: Path) -> list[Indicator]:
+    """The two validation steps a result needs before it is a validated research result."""
+    return [_convergence(Path(root)), _matlab(Path(root))]
 
 
 def indicators(root: Path) -> list[Indicator]:

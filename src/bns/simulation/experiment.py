@@ -139,6 +139,7 @@ class Experiment:
     site_rule: dict = field(default_factory=lambda: {"antenna_position": "interior"})
     extra: dict = field(default_factory=dict)
     overrides: dict = field(default_factory=dict)     # values that differ from the research baseline
+    classification: object = None                     # bns.analysis.classification.Classification
 
     @property
     def run_class(self) -> str:
@@ -243,7 +244,6 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
                           overrides.get("rays_per_site", profile.rays_per_site),
                           "custom (not convergence-checked)")
     require_research_profile(profile, mode)
-    label = system.label(USED, mode=mode)             # refuses unapproved values in research mode
     baseline, _ = atm.load_conditions(root / "configs" / "atmosphere.yaml")
     if "rain_rate_mm_h" in overrides:
         baseline = atm.Conditions(rain_rate_mm_h=overrides["rain_rate_mm_h"], include_gas=baseline.include_gas)
@@ -252,6 +252,9 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
         raise ExperimentError(f"No dataset {scene_dir}; run scripts/build_dataset.py --area {area.name} first.")
     quality = json.loads((scene_dir / "quality_report.json").read_text(encoding="utf-8"))
     require_research_dataset(quality, mode)
+    from bns.analysis import classification
+    classes = classification.classify(root, overrides, quality)
+    label = classes.label                              # what the result is, scientifically
     buildings = pipeline.load_buildings(scene_dir, area)
     rx_height = system.require("rx_height_m", mode=mode)
     grid = area.receiver_grid(profile.cell_size_m, rx_height)
@@ -266,21 +269,22 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str,
         raise ExperimentError("The site rule (configs/site_rule.yaml) is not approved.")
     return Experiment(root, area, variant, mode, profile, system, config, load_scenarios(root), baseline,
                       label, scene_dir, quality, buildings, grid, outdoor, antennas, mast, chosen, note, site_rule,
-                      overrides=overrides)
+                      overrides=overrides, classification=classes)
 
 
 def caveat(exp: Experiment) -> str:
     """One sentence on what a run of this experiment may be used for, from the facts."""
-    from bns.analysis.radio_system import RESEARCH_LABEL
-
-    if exp.label == RESEARCH_LABEL and exp.quality.get("fit_for_research"):
-        return "Approved research configuration on a dataset fit for research."
+    c = exp.classification
+    if c is not None and c.validated:
+        return "Validated research result: research baseline on a dataset fit for research, validation completed."
     reasons = list(exp.quality.get("not_fit_reasons") or [])
     if exp.overrides:
-        reasons.append("custom experiment (" + ", ".join(f"{k} = {v}" for k, v in exp.overrides.items()) + ")")
-    if exp.mode != "research":
-        reasons.append("development mode")
-    return "**Not a finding about Baghdad**: " + "; ".join(reasons) + "."
+        reasons.append(f"{c.configuration if c else 'custom experiment'} ("
+                       + ", ".join(f"{k} = {v}" for k, v in exp.overrides.items()) + ")")
+    if c is not None and c.validation != "Validated":
+        reasons.append("validation pending (final-scene convergence, MATLAB comparison)")
+    return f"**{c.result if c else 'Preliminary Simulation'}, not a validated finding about Baghdad**: " \
+        + "; ".join(reasons) + "."
 
 
 def place_sites(exp: Experiment, building_ids: list[str]) -> list[sites.Candidate]:

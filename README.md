@@ -6,10 +6,10 @@ SINR and Shannon rate of five scenarios (1.8, 3.5, 28 GHz and candidate 6G at 8 
 multi-site networks, site planning, validation against 3GPP TR 38.901, and a roadmap
 workspace, in a local Streamlit application.
 
-> **Status.** Software: release candidate **v1.0.0-rc.1**. Science: **not approved**. The study district,
-> building data, radio parameters and site rule await the supervisor's decisions
-> (`docs/supervisor-decisions.md`); every result is labelled
-> **DEVELOPMENT — NOT APPROVED FOR RESEARCH**.
+> **Status.** Software: release candidate **v1.0.0-rc.1**. Methodology: the research baseline is
+> approved by the supervisor (`docs/approval-record.md`). Every result carries its scientific
+> classification (Preliminary Simulation, Custom Experiment, Sensitivity Analysis, Research Baseline · Validation Pending, Validated Research Results); until the field observations, the final-scene convergence and the
+> MATLAB comparison exist, results are **Preliminary Simulations**, not validated findings.
 
 ## Requirements
 

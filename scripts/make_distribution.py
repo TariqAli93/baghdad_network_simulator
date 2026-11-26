@@ -66,7 +66,8 @@ def main() -> int:
             kept += 1
         note = [f"Baghdad Network Simulator {describe} (commit {commit})",
                 f"Built {datetime.now(timezone.utc).isoformat(timespec='seconds')} from the commit only (no git history).",
-                "All development results are labelled DEVELOPMENT - NOT APPROVED FOR RESEARCH.",
+                "Every result carries its scientific classification (configuration, dataset, validation); "
+                "none is a validated research result yet.",
                 "Data licences and attribution: docs/licensing.md.", "", "Excluded (configs/distribution.yaml):"]
         note += [f"  {path}  -- {reason}" for path, reason in excluded] or ["  nothing"]
         z.writestr(PREFIX + "DISTRIBUTION.txt", "\n".join(note) + "\n")

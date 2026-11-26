@@ -9,7 +9,6 @@ from bns.app import configuration
 
 ui.page_header("Coverage and data rate of 4G, 5G and candidate 6G in Baghdad",
                "Ray-tracing study over a ~1 km² district and a 6G roadmap for Iraq (graduation project).")
-ui.development_banner()
 
 scen = ui.scenarios()
 cols = st.columns(len(scen))
@@ -20,8 +19,8 @@ for col, sc in zip(cols, scen, strict=True):
                     f'<br>{sc["bandwidth_hz"] / 1e6:g} MHz · {sc["status"]}</div>', unsafe_allow_html=True)
 
 st.subheader("Research readiness")
-st.caption("Scientific and technical status, computed from the data, configuration and saved evidence. Development, "
-           "preview, custom and sensitivity runs are always available; a research-baseline run needs the baseline "
+st.caption("Scientific and technical status, computed from the data, configuration and saved evidence. Preliminary "
+           "simulations, custom experiments and sensitivity analyses are always available; a research-baseline run needs the baseline "
            "configuration, a dataset fit for research and the convergence on the final scene.")
 indicators = readiness.indicators(ui.ROOT)
 MARK = {readiness.READY: "✅ Ready", readiness.COMPLETED: "✅ Completed", readiness.INCOMPLETE: "🟠 Incomplete data",
@@ -36,7 +35,9 @@ for grp in obs.get("groups") or []:
         st.progress(grp["observed"] / grp["required"],
                     text=f"{', '.join(grp['priorities'])} — {' or '.join(grp['accepted']).replace('_', ' ')}{pref}: "
                          f"{grp['observed']} of {grp['required']} buildings")
-st.caption("The research baseline is the supervisor-approved configuration (provenance: docs/approval-record.md).")
+st.caption("Results are classified by configuration (Research Baseline, Custom Experiment, Sensitivity Analysis), "
+           "dataset (complete or incomplete) and validation; only research-baseline runs on complete data after "
+           "validation are Validated Research Results.")
 
 st.subheader("Software status")
 st.markdown("""
@@ -45,9 +46,9 @@ st.markdown("""
 | 0 Feasibility (CPU ray tracing) | done | engine checks E1–E5 passed; laptop acceptance: see above |
 | 1 Literature and standards | done | references verified (`docs/references.md`) |
 | 2–4 Geospatial pipeline, radio configuration | done | research baseline set; dataset incomplete (field observations) |
-| 5–6 Single-site and multi-site coverage | done | development results only |
+| 5–6 Single-site and multi-site coverage | done | preliminary simulations only |
 | 7 Validation | done (TR 38.901, CPU/GPU, analytical); MATLAB package prepared | MATLAB not run; no field measurements |
-| 8 Site planning | done (SINR greedy) | candidate pool needs the survey; development results only |
+| 8 Site planning | done (SINR greedy) | candidate pool needs the survey; preliminary simulations only |
 | 9–10 Comparison, 6G roadmap | done | conclusions are the student's, from research results |
 | Release | v1.0.0-rc.1: software release candidate | not a research result |
 """)
@@ -68,7 +69,7 @@ c4.metric("Study areas", len(areas), help="Study district: "
 st.subheader("Profiles and backends")
 st.dataframe(configuration.backend_profile_rows(ui.ROOT), hide_index=True, use_container_width=True)
 st.caption("Research-baseline runs use the standard profile on the CPU; preview, custom ray counts, GPU and auto "
-           "are available for development and custom experiments (GPU limits: docs/validation.md §7).")
+           "are available for preliminary simulations and custom experiments (GPU limits: docs/validation.md §7).")
 
 if runs:
     latest = ui.run(runs[0])

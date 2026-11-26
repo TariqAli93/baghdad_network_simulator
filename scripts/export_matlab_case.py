@@ -72,6 +72,8 @@ def main() -> int:
     args = parser.parse_args()
     args.run = args.run.resolve()
     manifest = json.loads((args.run / "manifest.json").read_text(encoding="utf-8"))
+    from bns.analysis import classification
+    run_label = classification.from_manifest(manifest).label   # scientific class of the source run
     summary = json.loads((args.run / "summary.json").read_text(encoding="utf-8"))
     from bns.geospatial.grid import Grid
     from bns.geospatial.grid import outdoor_mask
@@ -99,14 +101,14 @@ def main() -> int:
     write_stl(out / "scene.stl", *merge([read_ply(p) for p in sorted((scene_dir / "meshes").glob("*.ply"))]), name=case)
     scenarios = {s["id"]: s for s in load_scenarios(ROOT)}
     with open(out / "receivers.csv", "w", newline="", encoding="utf-8") as f:
-        f.write(f"# {manifest['label']}; Sionna values are cell averages over {grid.cell_size_m:g} m cells\n")
+        f.write(f"# {run_label}; Sionna values are cell averages over {grid.cell_size_m:g} m cells\n")
         w = csv.writer(f)
         w.writerow(["id", "x_m", "y_m", "z_m", "d2d_m", "los", *[f"sionna_pathloss_db_{b}" for b in BANDS]])
         for n, (iy, ix) in enumerate(cells, start=1):
             w.writerow([n, f"{xs[iy, ix]:.2f}", f"{ys[iy, ix]:.2f}", f"{grid.height_m:.2f}", f"{d2d[iy, ix]:.1f}",
                         int(los[iy, ix]), *[f"{-linear_to_db(gains[b][iy, ix]):.2f}" for b in BANDS]])
     mech = manifest["mechanisms"]
-    spec = {"label": manifest["label"], "case": case, "source_run": str(args.run.relative_to(ROOT)),
+    spec = {"label": run_label, "case": case, "source_run": str(args.run.relative_to(ROOT)),
             "coordinates": "scene metres: x east, y north, z up; origin at the study-area centre "
                            f"({area.center_lat}, {area.center_lon}), local transverse Mercator",
             "transmitter": {"position_m": tx, "antenna": "isotropic", "polarization": "V", "power_w": 1},
@@ -126,7 +128,7 @@ def main() -> int:
 
 **Status: prepared, not executed.** MATLAB is not installed on the development PC; run this on
 the laptop that has MATLAB. Nothing is verified until `scripts/compare_matlab.py` has run on the
-results. {manifest['label']}.
+results. {run_label}.
 
 ## What is compared
 

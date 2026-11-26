@@ -61,7 +61,19 @@ class Run:
         return self.manifest.get("kind", "single_site")
 
     @property
+    def classification(self):
+        """Scientific classification (configuration, dataset, validation) recorded by the run, or for runs
+        before 2026-11-27 derived from what they recorded (configuration not recorded -> preliminary)."""
+        from bns.analysis.classification import from_manifest
+        return from_manifest(self.manifest)
+
+    @property
     def label(self) -> str:
+        return self.classification.label
+
+    @property
+    def recorded_label(self) -> str:
+        """The label written into the run's files when it was made (provenance; not shown as a status)."""
         return self.manifest.get("label", "")
 
     @property
