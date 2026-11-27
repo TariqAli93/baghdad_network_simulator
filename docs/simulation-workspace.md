@@ -407,3 +407,107 @@ worker). It is kept as found. Verification data left in place (not committed): t
 "Verification: …" in `outputs/experiments/` and the runs `…-ws-20261127T150723Z`, `…T150920Z`,
 `…T152310Z` in `outputs/runs/development/`.
 
+## 10. Final production integration (2026-11-27)
+
+### 10.1 Gas attenuation at custom carriers: ITU-Rpy
+
+Authorised addition of `itur` (ITU-Rpy) after compatibility and licence checks:
+
+| Check | Result |
+|---|---|
+| Version and lock | `itur==0.4.0` in `pyproject.toml` and `uv.lock`; `uv sync --frozen --dry-run`: "Would make no changes" |
+| Licences | ITU-Rpy MIT; astropy 8.0.3, pyerfa 2.0.1.5 and astropy-iers-data BSD-3-Clause (`docs/licensing.md`) |
+| Environment | Python 3.13, NumPy 2.5.5, SciPy 1.18.1, pyproj 3.8.0, Sionna RT 2.2.0: unit, app and engine suites pass |
+| Recommendation edition | ITU-R P.676-12 Annex 1 (`itur.models.itu676.get_version()` = 12), recorded with every value |
+| The five presets | ITU-Rpy gives 0.006750 / 0.007810 / 0.011416 / 0.029058 / 0.101756 dB/km at 1.8 / 3.5 / 8 / 15 / 28 GHz; stored 0.0068 / 0.0078 / 0.0114 / 0.0291 / 0.1018 (largest difference 0.00005 dB/km, the stored rounding) |
+| Offline | import and calculation in a process whose network calls are disabled (`tests/unit/test_atmosphere.py`) |
+| Clean installation | installed from the lock file by `1 - Install.cmd`; the doctor checks the pin (`package itur: 0.4.0`) |
+
+Supported frequency range of a custom carrier: the intersection of the models applied at it
+(`bns.app.carriers.supported_ranges_hz`).
+
+| Model | Defined for |
+|---|---|
+| Scene materials (ITU-R P.2040 in the installed Sionna RT; concrete) | 1-100 GHz and 110-330 GHz |
+| Gas attenuation (ITU-R P.676 Annex 1) | 1-1000 GHz |
+| Antenna element: 3GPP TR 38.901 sector pattern / isotropic | 0.5-100 GHz / no limit |
+| Ray-tracing numerics | no frequency limit in the radio map; ray counts were measured only at the five carriers (`docs/convergence.md`) |
+| **Result** | **1-100 GHz with sector antennas**; 1-100 and 110-330 GHz with isotropic antennas only |
+
+Nothing is extrapolated outside it; the bandwidth limit (0.1 MHz to a quarter of the carrier) is unchanged.
+
+Scientifically meaningful calculation change (recorded in `docs/assumptions.md` section 10): before this
+integration a custom carrier between 1 and 30 GHz ran **without** gas loss (recorded "omitted") and one
+above 30 GHz was refused. Now every custom carrier gets its P.676 value (for example 0.0095 dB/km at
+6 GHz, 0.1089 at 20 GHz, 14.78 at 60 GHz). The five presets keep their stored values, so the research
+baseline and every earlier run are unchanged; runs recorded "omitted" are read as recorded and never
+recomputed. Gas loss is applied after ray tracing: the path-gain cache does not depend on it. The value,
+edition and library version are stored in the carrier, in the run manifest (`atmosphere.gas`,
+`gas_db_per_km`, `gas_models`, `versions.itur`) and in the classification's deviations; the workspace's
+evaluation cache is keyed by the whole carrier record, and a saved run's results are shown for a carrier
+only when its gas treatment, value and model match.
+
+### 10.2 Demonstration experiment
+
+`outputs/experiments/demo-research-baseline-network.json` ("Demonstration: research-baseline network ·
+عرض توضيحي"): the research-baseline run of the study district on the Synthetic Urban Model as an
+experiment (S1 on the site-rule roof, the five presets, standard profile, CPU), with its workspace run
+`…-standard-1sites-ws-20261127T162816Z` written from the 15 cached traces (no new tracing). Coverage,
+median SINR and 5th-percentile rates equal those of the original run in every band. It is the only
+experiment file tracked (`.gitignore`) and is required in the delivery archive. A fresh installation has
+no path-gain cache: the workspace shows the saved run's results (marked "read from the saved run of
+27 November 2026, 16:28") because the experiment's design matches that run exactly.
+
+### 10.3 Verification in the installed candidate (development PC, Chrome, both languages)
+
+A candidate archive of the branch was installed into a new folder with `1 - Install.cmd`
+(234 s with a warm uv cache, 0 FAIL, `package itur: 0.4.0` PASS, 419 of 419 files match
+`SHA256SUMS.txt`; the one WARN was the port of the development instance). Started with `run.ps1`:
+
+| Check | Result |
+|---|---|
+| Opens into the workspace | yes, in Arabic, on the demonstration experiment with its saved results |
+| Language switch | the whole workspace changes at once: layer, building fill, saved run, band and profile selectors, station properties, results, classification, progress during a run; experiment names keep their Unicode text |
+| Custom carrier | 15 → 20 GHz accepted, shown as "custom · gas 0.109 dB/km (P.676)", the experiment becomes a Custom Experiment; a real preview run of that band (3 traces, 41 s) recorded `p676`, 0.108931 dB/km, "ITU-R P.676-12 Annex 1" and "ITU-Rpy 0.4.0" in its manifest |
+| Run, progress, save | preview profile, 12 traces in 115 s and 15 traces in 144 s, every worker attempt exit code 0; progress shows the trace in progress, cached / to trace / committed / left, elapsed time and estimate, in either language mid-run; the experiment is saved before the run |
+| Results and inspection | result layers, legend, a receiver cell's values; the map hatched as stale after a receiver-height change |
+| History and comparison | two runs with identical stations chosen in the History open under Across runs; "Two runs side by side" states the identical station locations |
+
+Defects found and fixed during this verification (all display or localisation):
+
+- the results state box laid its text out as side-by-side columns (a flex container); the saved run is
+  now named by its date, not its folder name;
+- the Cancel button covered the last progress line (Streamlit pulls the element after a markdown block
+  up by 1 rem; the workspace's blocks have no paragraph margin to absorb it);
+- in Arabic a custom carrier's label ("15 GHz → 20 GHz / 400 MHz") and receiver-cell and station
+  coordinates were reordered by the bidirectional algorithm: the values are now isolated left-to-right
+  and the arrow follows the reading direction; the P.676 state reads "توهين غازي … dB/km (P.676)";
+- the second map of "Two runs side by side" was stretched (a shared y axis ignored its aspect lock);
+- the runs chosen for comparison, the comparison metric and the sites chosen on the Automatic Site
+  Planning page fell back to their defaults when the language changed (`ui.multiselect`, as `ui.select`).
+
+Known limitation: other view choices without a stored value (Planning layer, scenario and sensitivity
+sliders; Study Area colouring; the Sensitivity load; the Reports figure) return to their defaults when
+the language is switched. Nothing is lost from experiments or runs.
+
+### 10.4 User guides
+
+`docs/user-guide.md` and `docs/user-guide.ar.md` are rewritten around the workspace (create an
+experiment, study area and dataset, place and configure stations, 4G/5G/candidate 6G, custom frequency
+and bandwidth, run and cancel, results, save/reopen/duplicate, 5G versus candidate 6G with identical
+stations, reports, classification labels), with screenshots of the installed candidate in each language
+(`docs/images/user-guide/{ar,en}/`). The research guides and the README point to the new pages.
+
+### 10.5 Reliability
+
+- Committed traces are kept on cancel and a resume traces only the missing ones
+  (`tests/unit/test_simulation_propagation.py`; real standard-profile run in section 9).
+- A worker that does not exit cleanly never writes to the cache (same tests; section 9).
+- Estimates divide by (1 − observed retry rate, at most 0.5) and add the worker start-up
+  (`bns.app.workspace_runs`).
+- Path-gain job keys hold every propagation input (scene, frequency, position, antenna, grid,
+  mechanisms, rays, seeds, engine; `docs/benchmarks.md` section 12); gas and rain are applied after
+  tracing and recorded per run.
+- Power plans are diagnostic only: the workspace warns about Power saver, the doctor reports PASS for
+  any other plan (Balanced included, unit test) and nothing changes the plan. During this verification
+  the development PC ran Ultimate Performance; a Balanced plan was not exercised on it.

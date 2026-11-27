@@ -1170,4 +1170,33 @@ The project owner approved the prototype's direction and resolved R1-R4 (`docs/s
 Before merging: rewrite the user guides (`docs/user-guide.md`, `docs/user-guide.ar.md`) for the new
 pages, run the laptop acceptance (`docs/laptop-acceptance.md`) on the branch, rebuild and re-verify the
 delivery package. ITU-Rpy for P.676 gas loss at any frequency needs approval as a new dependency.
+(Done in the final integration below; the laptop acceptance is still open.)
 
+## Simulation workspace: final production integration (2026-11-27)
+
+Request "Simulation Workspace — Final Production Integration". Details and evidence:
+`docs/simulation-workspace.md` section 10.
+
+- **ITU-Rpy** (`itur==0.4.0`, MIT; authorised): ITU-R P.676-12 Annex 1 gas attenuation for custom
+  carriers, value, edition and library version recorded in the carrier and the run manifest. It
+  reproduces the five stored preset values to 0.00005 dB/km and works offline. The presets keep their
+  stored values: the research baseline is unchanged. **Calculation change**: custom carriers between 1
+  and 30 GHz previously ran without gas loss and those above 30 GHz were refused; now all get the P.676
+  value (`docs/assumptions.md` section 10; old runs read as recorded).
+- **Supported custom frequency range**: intersection of the scene materials (Sionna RT), P.676 and the
+  antenna model: 1-100 GHz with sector antennas.
+- **Defects fixed**: language-specific widget state (selectors, runs to compare, comparison metric,
+  planning sites), mixed Arabic/Latin text (custom band labels, coordinates, gas state), the results state
+  box, the progress line under Cancel, the stretched second map of "Two runs side by side"; estimates
+  allow for retries and worker start-up; saved workspace results are shown on a fresh installation.
+- **Demonstration content**: experiment `demo-research-baseline-network` and its run from cached traces.
+- **User guides** rewritten around the workspace with screenshots of the installed candidate in both
+  languages; research guides and README updated.
+- **Verification on the development PC** (not the target laptop): unit, app and engine suites (counts in
+  the commit history and below); clean installation of a candidate archive (0 FAIL, itur installed from
+  the lock file); browser checks in Arabic and English including a custom-carrier run through the real
+  engine (preview profile).
+
+Not done: target-laptop acceptance (`docs/laptop-acceptance.md`); scientific validation (final-scene
+convergence and MATLAB comparison). Feature freeze from here: only defect fixes and approved research
+execution.
