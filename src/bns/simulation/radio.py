@@ -57,15 +57,17 @@ def _check(path_gain: np.ndarray) -> np.ndarray:
     return gain
 
 
-def multi_site(path_gain_stack, outdoor, inputs: RadioInputs, extra_loss_db) -> RadioResult:
-    """Strongest transmitter serves, all others interfere (same carrier), shape [tx, y, x]."""
+def multi_site(path_gain_stack, outdoor, inputs: RadioInputs, extra_loss_db, external_interference_w=None) -> RadioResult:
+    """Strongest transmitter serves, all others interfere (same carrier), shape [tx, y, x].
+    external_interference_w: power [y, x] in watts from other carriers inside this band (never serving)."""
     gain = _check(path_gain_stack)
     outdoor = np.asarray(outdoor, dtype=bool)
     rx_dbm = lb.received_power_dbm(inputs.tx_power_dbm, gain, rx_gain_dbi=inputs.rx_gain_dbi,
                                    extra_loss_db=extra_loss_db)
     received_w = np.where(np.isfinite(rx_dbm), dbm_to_watt(np.where(np.isfinite(rx_dbm), rx_dbm, 0.0)), 0.0)
     noise_dbm = float(noise_power_dbm(inputs.bandwidth_hz, inputs.noise_figure_db, inputs.noise_temperature_k))
-    sinr = lb.sinr(received_w, dbm_to_watt(noise_dbm), interference_activity=inputs.interference_activity)
+    sinr = lb.sinr(received_w, dbm_to_watt(noise_dbm), interference_activity=inputs.interference_activity,
+                   external_interference_w=external_interference_w)
     sinr_db = linear_to_db(sinr.sinr)
     best_dbm = rx_dbm.max(axis=0)
     rate = lb.shannon_capacity_bps(inputs.bandwidth_hz, sinr.sinr)

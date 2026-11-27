@@ -35,7 +35,7 @@ class SinrResult:
     interference_w: np.ndarray  # after the activity factor
 
 
-def sinr(received_w, noise_w: float, *, interference_activity: float) -> SinrResult:
+def sinr(received_w, noise_w: float, *, interference_activity: float, external_interference_w=None) -> SinrResult:
     """Signal-to-interference-plus-noise ratio with the strongest site serving.
 
     received_w has shape [sites, ...]: the power received from every site at
@@ -44,6 +44,8 @@ def sinr(received_w, noise_w: float, *, interference_activity: float) -> SinrRes
     interference_activity: 1.0 means every other site transmits at full power
     all the time (the usual worst case), 0.0 means no interference.
     The caller must choose that factor; there is no default.
+    external_interference_w (optional, watts per receiver): power from transmitters on other carriers that
+    falls inside this carrier's band; it never serves and is scaled by the same activity factor.
     """
     received = np.asarray(received_w, dtype=float)
     if received.ndim < 2:
@@ -57,7 +59,13 @@ def sinr(received_w, noise_w: float, *, interference_activity: float) -> SinrRes
 
     serving = np.argmax(received, axis=0)
     signal = np.max(received, axis=0)
-    interference = interference_activity * (received.sum(axis=0) - signal)
+    others = received.sum(axis=0) - signal
+    if external_interference_w is not None:
+        external = np.asarray(external_interference_w, dtype=float)
+        if np.any(external < 0) or not np.all(np.isfinite(external)):
+            raise ValueError("external_interference_w must be finite and non-negative (watts).")
+        others = others + external
+    interference = interference_activity * others
     denominator = interference + noise_w
     with np.errstate(divide="ignore", invalid="ignore"):
         ratio = np.where(signal > 0, signal / denominator, 0.0)

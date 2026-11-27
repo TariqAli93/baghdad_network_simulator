@@ -40,6 +40,25 @@ class NetworkResult:
     summary: dict
 
 
+# Added to the assumption above when other carriers are present (docs/assumptions.md section 11).
+OTHER_CARRIERS_ASSUMPTION = ("transmitters on other carriers interfere with the share of their power that falls "
+                             "inside this carrier's band (flat power spectral density over each carrier); adjacent-"
+                             "channel leakage and receiver selectivity are not modelled, so carriers that do not "
+                             "overlap never interfere; other carriers never serve")
+
+
+def spectral_overlap(victim_frequency_hz: float, victim_bandwidth_hz: float, interferer_frequency_hz: float,
+                     interferer_bandwidth_hz: float) -> float:
+    """Share of an interferer's power inside the victim carrier's band: the overlap of the two channels
+    divided by the interferer's bandwidth (its power spread evenly over its channel). 1 for the same
+    carrier, 0 for carriers that do not overlap."""
+    if victim_bandwidth_hz <= 0 or interferer_bandwidth_hz <= 0:
+        raise ValueError("Bandwidths must be positive.")
+    lo = max(victim_frequency_hz - victim_bandwidth_hz / 2, interferer_frequency_hz - interferer_bandwidth_hz / 2)
+    hi = min(victim_frequency_hz + victim_bandwidth_hz / 2, interferer_frequency_hz + interferer_bandwidth_hz / 2)
+    return max(0.0, hi - lo) / interferer_bandwidth_hz
+
+
 def _check_sites(sector_site, n_sectors: int) -> np.ndarray:
     sector_site = np.asarray(sector_site, dtype=int)
     if sector_site.shape != (n_sectors,):
@@ -50,12 +69,14 @@ def _check_sites(sector_site, n_sectors: int) -> np.ndarray:
     return sector_site
 
 
-def network(path_gain_stack, sector_site, outdoor, inputs: RadioInputs, extra_loss_db) -> NetworkResult:
-    """Radio results of a multi-site, multi-sector network. Shapes: [sector, y, x]."""
+def network(path_gain_stack, sector_site, outdoor, inputs: RadioInputs, extra_loss_db,
+            external_interference_w=None) -> NetworkResult:
+    """Radio results of a multi-site, multi-sector network. Shapes: [sector, y, x].
+    external_interference_w: power [y, x] in watts from other carriers inside this band (spectral_overlap)."""
     stack = np.asarray(path_gain_stack, dtype=float)
     sector_site = _check_sites(sector_site, stack.shape[0])
     outdoor = np.asarray(outdoor, dtype=bool)
-    radio = multi_site(stack, outdoor, inputs, extra_loss_db)
+    radio = multi_site(stack, outdoor, inputs, extra_loss_db, external_interference_w)
 
     served = outdoor & (radio.serving >= 0)
     serving_sector = np.where(served, radio.serving, -1)
@@ -66,7 +87,10 @@ def network(path_gain_stack, sector_site, outdoor, inputs: RadioInputs, extra_lo
     finite = np.isfinite(per_sector_dbm)
     per_sector_w = np.where(finite, dbm_to_watt(np.where(finite, per_sector_dbm, 0.0)), 0.0)
     signal_w = per_sector_w.max(axis=0)
-    interference_w = inputs.interference_activity * (per_sector_w.sum(axis=0) - signal_w)
+    others_w = per_sector_w.sum(axis=0) - signal_w
+    if external_interference_w is not None:
+        others_w = others_w + np.asarray(external_interference_w, dtype=float)
+    interference_w = inputs.interference_activity * others_w
     with np.errstate(divide="ignore"):
         interference_dbm = np.where(interference_w > 0, watt_to_dbm(np.maximum(interference_w, 1e-300)),
                                     -np.inf)
@@ -86,7 +110,9 @@ def network(path_gain_stack, sector_site, outdoor, inputs: RadioInputs, extra_lo
                                               if served.any() and np.nanmedian(i_over_n) > 0 else None),
         "interference_limited_share": float((served & (interference_w > noise_w)).sum() / n_out),
         "interference_assumption": {**INTERFERENCE_ASSUMPTION,
-                                    "interference_activity_value": inputs.interference_activity},
+                                    "interference_activity_value": inputs.interference_activity,
+                                    **({"other_carriers": OTHER_CARRIERS_ASSUMPTION}
+                                       if external_interference_w is not None else {})},
     }
     return NetworkResult(radio, serving_sector, serving_site, interference_dbm, summary)
 

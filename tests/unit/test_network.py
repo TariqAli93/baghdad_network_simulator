@@ -89,3 +89,48 @@ def test_equal_share_divides_each_sector_among_the_outdoor_cells_it_serves():
     serving = np.array([[0, 0, 1, 1]])                 # cell 3 is indoor
     shared = equal_share_rate_bps(rate, serving, OUTDOOR)
     assert shared.tolist() == [[50.0, 30.0, 30.0, 0.0]]
+
+
+# ---------------------------------------------------------------- other carriers (spectral overlap)
+@pytest.mark.parametrize(("victim", "interferer", "expected"), [
+    ((3.5e9, 100e6), (3.5e9, 100e6), 1.0),          # the same carrier: all of its power is in band
+    ((1.8e9, 20e6), (3.5e9, 100e6), 0.0),           # disjoint carriers never interfere
+    ((3.5e9, 100e6), (3.55e9, 100e6), 0.5),         # half of the interferer's band overlaps
+    ((3.5e9, 100e6), (3.5e9, 20e6), 1.0),           # a narrow interferer inside the victim's band
+    ((3.5e9, 20e6), (3.5e9, 100e6), 0.2),           # only the victim's 20 MHz of a 100 MHz interferer
+    ((3.5e9, 100e6), (3.6e9, 100e6), 0.0),          # adjacent: touching edges, no overlap
+])
+def test_spectral_overlap_is_the_share_of_the_interferers_power_inside_the_victims_band(victim, interferer, expected):
+    from bns.simulation.network import spectral_overlap
+
+    assert spectral_overlap(*victim, *interferer) == pytest.approx(expected)
+
+
+def test_other_carriers_add_their_overlapping_power_to_the_interference():
+    external_w = np.array([[1e-12, 0.0, 2e-12, 5e-12]])
+    base = network(STACK, SECTOR_SITE, OUTDOOR, inputs(), LOSS)
+    more = network(STACK, SECTOR_SITE, OUTDOOR, inputs(), LOSS, external_interference_w=external_w)
+    own_w = 10 ** ((base.interference_dbm - 30) / 10)
+    total_w = 10 ** ((more.interference_dbm - 30) / 10)
+    assert total_w[0, :3] == pytest.approx(own_w[0, :3] + external_w[0, :3])
+    noise_w = 10 ** ((more.radio.noise_dbm - 30) / 10)
+    signal_w = 10 ** ((more.radio.rx_power_dbm - 30) / 10)
+    assert more.radio.sinr_db[0, 0] == pytest.approx(10 * np.log10(signal_w[0, 0] / (total_w[0, 0] + noise_w)))
+    assert more.serving_sector.tolist() == base.serving_sector.tolist()     # other carriers never serve
+
+
+def test_other_carriers_are_scaled_by_the_activity_factor_like_every_interferer():
+    external_w = np.full((1, 4), 1e-12)
+    half = network(STACK, SECTOR_SITE, OUTDOOR, inputs(interference_activity=0.5), LOSS,
+                   external_interference_w=external_w)
+    own = network(STACK, SECTOR_SITE, OUTDOOR, inputs(interference_activity=0.5), LOSS)
+    added = 10 ** ((half.interference_dbm - 30) / 10) - 10 ** ((own.interference_dbm - 30) / 10)
+    assert added[0, :3] == pytest.approx(0.5 * external_w[0, :3])
+
+
+def test_without_other_carriers_the_results_are_bit_identical():
+    a = network(STACK, SECTOR_SITE, OUTDOOR, inputs(), LOSS)
+    b = network(STACK, SECTOR_SITE, OUTDOOR, inputs(), LOSS, external_interference_w=np.zeros((1, 4)))
+    np.testing.assert_array_equal(a.radio.sinr_db, b.radio.sinr_db)
+    np.testing.assert_array_equal(a.interference_dbm, b.interference_dbm)
+    assert a.summary == {**b.summary, "interference_assumption": a.summary["interference_assumption"]}
