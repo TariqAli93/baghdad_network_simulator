@@ -1,0 +1,782 @@
+{
+  "label": "Custom Experiment · Estimated Building Heights · Validation Pending",
+  "run_id": "multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-standard-2sites-ws-20261127T150254Z",
+  "kind": "multi_site",
+  "mode": "development",
+  "source": "workspace",
+  "experiment": {
+    "id": "exp-20261127T145355-4b3a",
+    "name": "شبكة العرض التوضيحي",
+    "config": {
+      "experiment_id": "exp-20261127T145355-4b3a",
+      "name": "شبكة العرض التوضيحي",
+      "area": "tahrir_bab_al_sharqi_study",
+      "variant": "synthetic_urban-seed42+fp_3d_globfp",
+      "profile": "standard",
+      "cell_size_m": 10.0,
+      "rays_per_site": 1000000000,
+      "backend": "cpu",
+      "rx_height_m": 1.5,
+      "radio": {
+        "coverage_threshold": -10.0,
+        "interference_activity": 1.0,
+        "noise_figure_db": 9.0,
+        "rain_rate_mm_h": 0.0
+      },
+      "carriers": [
+        {
+          "id": "lte_1800",
+          "label": "4G LTE",
+          "frequency_hz": 1800000000.0,
+          "bandwidth_hz": 20000000.0,
+          "status": "deployed",
+          "preset": "lte_1800",
+          "custom": false,
+          "gas": "tabulated",
+          "selected": true
+        },
+        {
+          "id": "nr_3500",
+          "label": "5G NR mid-band",
+          "frequency_hz": 3500000000.0,
+          "bandwidth_hz": 100000000.0,
+          "status": "assumed",
+          "preset": "nr_3500",
+          "custom": false,
+          "gas": "tabulated",
+          "selected": true
+        },
+        {
+          "id": "c6g_8000",
+          "label": "Candidate 6G upper mid-band",
+          "frequency_hz": 8000000000.0,
+          "bandwidth_hz": 400000000.0,
+          "status": "candidate",
+          "preset": "c6g_8000",
+          "custom": false,
+          "gas": "tabulated",
+          "selected": true
+        },
+        {
+          "id": "c6g_15000",
+          "label": "Candidate 6G 15 GHz",
+          "frequency_hz": 15000000000.0,
+          "bandwidth_hz": 400000000.0,
+          "status": "candidate",
+          "preset": "c6g_15000",
+          "custom": false,
+          "gas": "tabulated",
+          "selected": true
+        },
+        {
+          "id": "nr_28000",
+          "label": "5G NR mmWave",
+          "frequency_hz": 28000000000.0,
+          "bandwidth_hz": 400000000.0,
+          "status": "assumed",
+          "preset": "nr_28000",
+          "custom": false,
+          "gas": "tabulated",
+          "selected": true
+        }
+      ],
+      "stations": [
+        {
+          "station_id": "S1",
+          "x": -177.90098845773826,
+          "y": -131.23326489986027,
+          "antenna_height_m": 58.0,
+          "mount": "rooftop",
+          "tx_power_dbm": 46.0,
+          "pattern": "tr38901",
+          "sectors": 3,
+          "azimuth_deg": 0.0,
+          "downtilt_deg": 10.0,
+          "building_id": "way/919688856",
+          "roof_height_m": 55.0,
+          "height_category": "observed",
+          "meets_site_rule": true,
+          "enabled": true,
+          "origin": "site rule",
+          "antenna_position": "rule",
+          "source_run": "multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-standard-1sites-20261127T121824Z"
+        },
+        {
+          "station_id": "S2",
+          "x": -336.0285019832887,
+          "y": 198.063930897914,
+          "antenna_height_m": 9.0,
+          "mount": "rooftop",
+          "tx_power_dbm": 46.0,
+          "pattern": "tr38901",
+          "sectors": 3,
+          "azimuth_deg": 0.0,
+          "downtilt_deg": 10.0,
+          "building_id": "way/1176968522",
+          "roof_height_m": 6.0,
+          "height_category": "placeholder",
+          "meets_site_rule": false,
+          "enabled": true,
+          "origin": "manual",
+          "antenna_position": "rule",
+          "source_run": null
+        }
+      ],
+      "template": {
+        "tx_power_dbm": 46.0,
+        "sectors": 3,
+        "azimuth_deg": 0.0,
+        "downtilt_deg": 10.0,
+        "mast_height_m": 3.0,
+        "hypothetical_height_m": null,
+        "allow_hypothetical": false
+      },
+      "created_utc": "2026-11-27T14:53:55+00:00",
+      "modified_utc": "2026-11-27T14:55:02+00:00",
+      "origin": {
+        "opened_from_run": "multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-standard-1sites-20261127T121824Z"
+      },
+      "notes": "",
+      "schema": 1
+    }
+  },
+  "run_class": "Custom Experiment",
+  "overrides": {},
+  "classification": {
+    "configuration": "Custom Experiment",
+    "dataset": "Estimated Building Heights",
+    "validation": "Validation Pending",
+    "deviations": [
+      "S2 on way/1176968522, a roof outside the candidate rule"
+    ],
+    "validation_scope": "0d2c17c6c48c3c6b",
+    "result": "Custom Experiment",
+    "placement": "Manual placement"
+  },
+  "backend": {
+    "name": "cpu",
+    "note": "CPU selected.",
+    "variant": "llvm_ad_mono_polarized",
+    "status": "production",
+    "gpu": null
+  },
+  "created_utc": "2026-11-27T15:02:56+00:00",
+  "area": {
+    "name": "tahrir_bab_al_sharqi_study",
+    "role": "study district",
+    "approved": true,
+    "variant": "synthetic_urban-seed42+fp_3d_globfp",
+    "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
+    "scene_fingerprint": "7522d10cef42deff280f7c09161917bbebe58b0361e6a89ee410680bf4ff3d64",
+    "height_categories_percent": {
+      "observed": 0.3966679888932963,
+      "estimated": 0.15866719555731854,
+      "placeholder": 99.44466481554939
+    },
+    "height_model": {
+      "name": "synthetic_urban",
+      "kind": "synthetic_urban",
+      "seed": 42,
+      "synthetic": 99.44466481554939
+    },
+    "fit_for_research": false
+  },
+  "site_rule": {
+    "workspace": true,
+    "placement": "Manual placement",
+    "min_roof_height_m": 12.0,
+    "min_roof_area_m2": 100.0,
+    "min_spacing_m": 125.0,
+    "categories": [
+      "observed",
+      "estimated",
+      "placeholder"
+    ]
+  },
+  "sites": [
+    {
+      "candidate_id": "S1",
+      "x": -177.90098845773826,
+      "y": -131.23326489986027,
+      "z": 58.0,
+      "building_id": "way/919688856",
+      "roof_height_m": 55.0,
+      "footprint_area_m2": 833.4210671361501,
+      "height_category": "observed",
+      "mount": "rooftop",
+      "tx_power_dbm": 46.0,
+      "pattern": "tr38901",
+      "sectors": 3,
+      "azimuth_deg": 0.0,
+      "downtilt_deg": 10.0,
+      "origin": "site rule"
+    },
+    {
+      "candidate_id": "S2",
+      "x": -336.0285019832887,
+      "y": 198.063930897914,
+      "z": 9.0,
+      "building_id": "way/1176968522",
+      "roof_height_m": 6.0,
+      "footprint_area_m2": 256.3917129744078,
+      "height_category": "placeholder",
+      "mount": "rooftop",
+      "tx_power_dbm": 46.0,
+      "pattern": "tr38901",
+      "sectors": 3,
+      "azimuth_deg": 0.0,
+      "downtilt_deg": 10.0,
+      "origin": "manual"
+    }
+  ],
+  "stations": [
+    {
+      "station_id": "S1",
+      "x": -177.90098845773826,
+      "y": -131.23326489986027,
+      "antenna_height_m": 58.0,
+      "mount": "rooftop",
+      "tx_power_dbm": 46.0,
+      "pattern": "tr38901",
+      "sectors": 3,
+      "azimuth_deg": 0.0,
+      "downtilt_deg": 10.0,
+      "building_id": "way/919688856",
+      "roof_height_m": 55.0,
+      "height_category": "observed",
+      "meets_site_rule": true,
+      "enabled": true,
+      "origin": "site rule",
+      "antenna_position": "rule",
+      "source_run": "multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-standard-1sites-20261127T121824Z",
+      "antennas": [
+        {
+          "pattern": "tr38901",
+          "polarization": "V",
+          "orientation_rad": [
+            1.5707963267948966,
+            0.17453292519943295,
+            0.0
+          ]
+        },
+        {
+          "pattern": "tr38901",
+          "polarization": "V",
+          "orientation_rad": [
+            5.759586531581287,
+            0.17453292519943295,
+            0.0
+          ]
+        },
+        {
+          "pattern": "tr38901",
+          "polarization": "V",
+          "orientation_rad": [
+            3.6651914291880923,
+            0.17453292519943295,
+            0.0
+          ]
+        }
+      ],
+      "sector_bearings_deg": [
+        0.0,
+        120.0,
+        240.0
+      ]
+    },
+    {
+      "station_id": "S2",
+      "x": -336.0285019832887,
+      "y": 198.063930897914,
+      "antenna_height_m": 9.0,
+      "mount": "rooftop",
+      "tx_power_dbm": 46.0,
+      "pattern": "tr38901",
+      "sectors": 3,
+      "azimuth_deg": 0.0,
+      "downtilt_deg": 10.0,
+      "building_id": "way/1176968522",
+      "roof_height_m": 6.0,
+      "height_category": "placeholder",
+      "meets_site_rule": false,
+      "enabled": true,
+      "origin": "manual",
+      "antenna_position": "rule",
+      "source_run": null,
+      "antennas": [
+        {
+          "pattern": "tr38901",
+          "polarization": "V",
+          "orientation_rad": [
+            1.5707963267948966,
+            0.17453292519943295,
+            0.0
+          ]
+        },
+        {
+          "pattern": "tr38901",
+          "polarization": "V",
+          "orientation_rad": [
+            5.759586531581287,
+            0.17453292519943295,
+            0.0
+          ]
+        },
+        {
+          "pattern": "tr38901",
+          "polarization": "V",
+          "orientation_rad": [
+            3.6651914291880923,
+            0.17453292519943295,
+            0.0
+          ]
+        }
+      ],
+      "sector_bearings_deg": [
+        0.0,
+        120.0,
+        240.0
+      ]
+    }
+  ],
+  "sectors_per_site": [
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ]
+    },
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ]
+    },
+    {
+      "pattern": "tr38901",
+      "polarization": "V",
+      "orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ]
+    }
+  ],
+  "sector_bearings_deg": [
+    0.0,
+    120.0,
+    239.99999999999997
+  ],
+  "azimuth_convention": "orientation_rad[0]: yaw counter-clockwise from east (scene x east, y north); sector_bearings_deg: compass, clockwise from north",
+  "antenna_rule": {
+    "antenna_position": "roof_edge",
+    "edge_inset_m": 1.0,
+    "radio_parameters": [
+      "antenna_height_above_roof_m",
+      "sectors_per_site",
+      "mechanical_downtilt_deg"
+    ],
+    "candidate_height_categories": [
+      "observed",
+      "estimated"
+    ],
+    "candidate_count_target": [
+      20,
+      40
+    ],
+    "excluded_structures": [
+      "monument",
+      "memorial",
+      "artwork"
+    ],
+    "site_selection": "interference-aware SINR greedy over physical sites (scripts/plan_sites.py)",
+    "candidate_thresholds": {
+      "min_roof_height_m": 12.0,
+      "min_roof_area_m2": 100.0,
+      "min_spacing_m": 125.0,
+      "adjustments": [
+        {
+          "date": "2026-11-27",
+          "change": "min_spacing_m 50 -> 125 (height 12 m and area 100 m2 unchanged)",
+          "dataset": "tahrir_bab_al_sharqi_study, Synthetic Urban Model synthetic-urban-1, seed 42",
+          "justification": "Geometry only (no coverage result consulted). With 50 m spacing the receiver area has 102 candidates on the baseline scenario (67 low, 141 high), far above the 20-40 target. 125 m is the smallest spacing tested (50, 75, 100, 125, 150 m) that gives 20-40 candidates in all three height scenarios: 29 low, 30 baseline, 33 high. Re-evaluate when observed heights replace the synthetic ones."
+        }
+      ]
+    },
+    "status": "approved",
+    "approved_by": "supervisor, as reported by the project owner (2026-11-26, 2026-11-27; configs/approvals.yaml)"
+  },
+  "sector_positions_m": {
+    "S1": [
+      [
+        -177.90098845773826,
+        -117.96247522513453,
+        58.0
+      ],
+      [
+        -159.6580858058686,
+        -141.76580965671738,
+        58.0
+      ],
+      [
+        -184.67721348666518,
+        -135.1455202444007,
+        58.0
+      ]
+    ],
+    "S2": [
+      [
+        -336.0285019832887,
+        205.9596468400808,
+        9.0
+      ],
+      [
+        -330.3080447408991,
+        194.7612233691326,
+        9.0
+      ],
+      [
+        -343.02772698644316,
+        194.02292645822402,
+        9.0
+      ]
+    ]
+  },
+  "profile": {
+    "name": "standard",
+    "cell_size_m": 10.0,
+    "rays_per_site": 1000000000,
+    "status": "approved"
+  },
+  "grid": {
+    "center_xy": [
+      0.0,
+      0.0
+    ],
+    "size_xy": [
+      1000.0,
+      1000.0
+    ],
+    "cell_size_m": 10.0,
+    "height_m": 1.5
+  },
+  "mechanisms": {
+    "max_depth": 2,
+    "los": true,
+    "specular_reflection": true,
+    "diffraction": true,
+    "refraction": false,
+    "diffuse_reflection": false,
+    "edge_diffraction": false
+  },
+  "seeds": [
+    1
+  ],
+  "radio_parameters": {
+    "tx_power_dbm": {
+      "value": 46.0,
+      "unit": "dBm per sector carrier",
+      "status": "approved",
+      "definition": "conducted",
+      "sources": [
+        "3GPP-TR38914",
+        "3GPP-TR36942",
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "46 dBm is the macro downlink power in the 3GPP 6G coverage assumptions (TR 38.914 Table 5.1.20.1-2), the E-UTRA reference base station (TR 36.942 Table 4.6), ITU-R M.2292 macro urban (Tables 3-4) and TR 38.921 (two polarisations, 7 GHz range). The same total power in every band; the power per MHz therefore falls with bandwidth (33 dBm/MHz at 20 MHz, 26 at 100 MHz, 20 at 400 MHz)."
+    },
+    "tx_antenna_gain_dbi": {
+      "value": 0.0,
+      "unit": "dBi added after tracing",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR38901"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Zero because the traced tr38901 pattern already contains the 8 dBi peak gain; any other value would count the gain twice (refused when the file is loaded)."
+    },
+    "tx_antenna_pattern": {
+      "value": "tr38901",
+      "unit": "pattern name",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR38901",
+        "ITU-M2412"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "3GPP TR 38.901 Table 7.3-1 sector element (65 degree beamwidth, 8 dBi peak, 30 dB front-to-back), the element ITU-R M.2412 also uses. It is TRACED by the ray tracer, so its gain is part of the path gain."
+    },
+    "sectors_per_site": {
+      "value": 3,
+      "unit": "sectors",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Three sectors per site (M.2412 section 8.3: three TRxPs per site)."
+    },
+    "mechanical_downtilt_deg": {
+      "value": 10.0,
+      "unit": "degrees below horizon",
+      "status": "approved",
+      "sources": [
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Macro urban downtilt of 10 degrees (M.2292 Tables 3-4; TR 38.921 Table 8.1.2-1)."
+    },
+    "antenna_height_above_roof_m": {
+      "value": 3.0,
+      "unit": "m",
+      "status": "approved",
+      "sources": [
+        "APPROVAL-2026-11-26"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Decision A4. No primary source gives a mast height above a roof; the references give total heights (25 m in M.2412 and TR 38.901 UMa) for flat layouts. Antennas stand at the roof edge facing each sector (configs/site_rule.yaml)."
+    },
+    "rx_height_m": {
+      "value": 1.5,
+      "unit": "m above ground",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412"
+      ],
+      "approved_by": "project description, Stage 6 (the approved project baseline)",
+      "justification": "Receivers 1.5 m above street level; the outdoor UE height of M.2412 Table 5(b)."
+    },
+    "rx_antenna_gain_dbi": {
+      "value": 0.0,
+      "unit": "dBi",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR36942",
+        "ITU-M2412",
+        "3GPP-TR38830"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Isotropic user antenna, matching the isotropic receiver of the ray-traced maps (0 dBi in TR 36.942 section 4.2.2, M.2412 at 4 GHz, TR 38.830 for FR1). M.2412 and TR 38.830 give 5 dBi at 30 GHz with user-side beamforming, left to the deployment interpretation."
+    },
+    "noise_figure_db": {
+      "value": 9.0,
+      "unit": "dB",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR38914",
+        "3GPP-TR36942",
+        "ITU-M2292",
+        "3GPP-TR38921"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "9 dB user noise figure in the 3GPP 6G coverage assumptions (TR 38.914 Table 5.1.20.1-2), TR 36.942 Table 4.8, M.2292 Table 1 and the TR 38.921 baseline. Per-band values (7 dB at 4 GHz, 10 dB at 30 GHz in M.2412) belong to the deployment interpretation."
+    },
+    "noise_temperature_k": {
+      "value": 290.0,
+      "unit": "K",
+      "status": "approved",
+      "sources": [
+        "ITU-P372",
+        "ITU-M2412"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Reference temperature T0 = 290 K (P.372 section 1.2.1), giving -174 dBm/Hz (M.2412 Table 5)."
+    },
+    "coverage_threshold": {
+      "value": -10.0,
+      "unit": "dB",
+      "status": "approved",
+      "definition": "snr_db",
+      "sources": [
+        "3GPP-TR38921",
+        "3GPP-TR36942"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "-10 dB is the lowest SINR at which the 3GPP link-level throughput mapping gives any data rate (TR 38.921 Table 4.2.7-1, TR 36.942 Annex A). A noise-referenced threshold is the same physical condition at every bandwidth."
+    },
+    "interference_activity": {
+      "value": 1.0,
+      "unit": "share of time other sectors transmit",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Full buffer (M.2412 Table 5): every other sector transmits all the time. M.2292 uses a 50 % average activity, a sensitivity case."
+    },
+    "coverage_target": {
+      "value": 0.95,
+      "unit": "share of outdoor cells",
+      "status": "approved",
+      "sources": [
+        "3GPP-TR38830"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "95 % cell-area reliability for control channels (TR 38.830 Table A.3)."
+    },
+    "frequency_reuse": {
+      "value": "1",
+      "unit": "reuse factor",
+      "status": "approved",
+      "sources": [
+        "ITU-M2412",
+        "ITU-M2292"
+      ],
+      "approved_by": "supervisor, as reported by the project owner on 2026-11-26 (configs/approvals.yaml)",
+      "justification": "Every site and sector uses the whole carrier (M.2412 evaluations; M.2292 Tables 2-4)."
+    }
+  },
+  "atmosphere": {
+    "baseline": {
+      "rain_rate_mm_h": 0.0,
+      "include_gas": true
+    },
+    "rain_rate_mm_h": 0.0,
+    "gas": {
+      "c6g_8000": "tabulated"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "c6g_8000",
+      "label": "Candidate 6G upper mid-band",
+      "frequency_hz": 8000000000.0,
+      "bandwidth_hz": 400000000.0,
+      "status": "candidate",
+      "preset": "c6g_8000",
+      "custom": false,
+      "gas": "tabulated",
+      "selected": true
+    }
+  ],
+  "workload_before_run": {
+    "jobs": 6,
+    "cached": 3,
+    "to_trace": 3
+  },
+  "jobs": [
+    {
+      "scenario": "c6g_8000",
+      "site": "S1",
+      "key": "6d2072231211312f181021e798b4e4b06fa54ca8b320a9db971f6be37317d666",
+      "sector_orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 85.606,
+      "worker_peak_commit_gb": 0.858,
+      "power_plan": null
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "S1",
+      "key": "c641b09d38fe6ce015f45272b0882736dfdf432108a1d2694f6ad74ca15c59e5",
+      "sector_orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 85.187,
+      "worker_peak_commit_gb": 0.86,
+      "power_plan": null
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "S1",
+      "key": "22f1dafe9299a88e5ac54592679b9c937181b1702a25ffcfd8e8665adbb2ab1f",
+      "sector_orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 77.399,
+      "worker_peak_commit_gb": 0.861,
+      "power_plan": null
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "S2",
+      "key": "807b07ce2ffd182ee88aae2114b02f18c07860c3a74ea6152d450fc02c1a81d8",
+      "sector_orientation_rad": [
+        1.5707963267948966,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 97.69,
+      "worker_peak_commit_gb": 0.848,
+      "power_plan": {
+        "guid": "c6b414d3-6b92-45ab-890e-298ac15b7a7e",
+        "name": "Ultimate Performance",
+        "power_saver": false
+      }
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "S2",
+      "key": "20ef52de884e89d528aed7b42e6242ca21da245fdeb8a4a56195da5d27a73be2",
+      "sector_orientation_rad": [
+        5.759586531581287,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 73.403,
+      "worker_peak_commit_gb": 0.849,
+      "power_plan": {
+        "guid": "c6b414d3-6b92-45ab-890e-298ac15b7a7e",
+        "name": "Ultimate Performance",
+        "power_saver": false
+      }
+    },
+    {
+      "scenario": "c6g_8000",
+      "site": "S2",
+      "key": "89a5030be802459fde643b024c65e45d3ac8483ab06449081e807eca65a715a9",
+      "sector_orientation_rad": [
+        3.6651914291880923,
+        0.17453292519943295,
+        0.0
+      ],
+      "trace_seconds": 96.055,
+      "worker_peak_commit_gb": 0.85,
+      "power_plan": {
+        "guid": "c6b414d3-6b92-45ab-890e-298ac15b7a7e",
+        "name": "Ultimate Performance",
+        "power_saver": false
+      }
+    }
+  ],
+  "timing": {
+    "trace_wall_seconds": 469.6,
+    "total_wall_seconds": 470.8,
+    "batch_size": 1,
+    "script_peak_commit_gb": 0.521
+  },
+  "versions": {
+    "sionna-rt": "2.2.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "numpy": "2.5.5",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "python": "3.13.9",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "figures": [
+    "network_sinr_db.png",
+    "network_interference_dbm.png",
+    "serving_site.png"
+  ]
+}
