@@ -56,3 +56,4 @@ dist/
 /outputs/runs/development/multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-preview-1sites-20261127T013103Z/
 # local screenshots of the interface (not research outputs)
 outputs/screenshots/
+/outputs/runs/development
