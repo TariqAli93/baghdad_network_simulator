@@ -72,7 +72,11 @@ def test_historical_runs_are_preliminary_with_their_configuration_not_recorded()
 
 
 def test_the_repository_validation_state_is_pending():
-    assert cl.validation_class(ROOT) == cl.PENDING                # no final-scene convergence, no MATLAB run
+    from bns.analysis import validation_scope as vs
+
+    m = json.loads(next((ROOT / "outputs" / "runs").glob("*/*/manifest.json")).read_text(encoding="utf-8"))
+    assert cl.validation_class(ROOT, vs.from_manifest(m), profile="standard") == cl.PENDING   # no evidence yet
+    assert cl.validation_class(ROOT, None, profile="standard") == cl.PENDING
 
 
 def test_a_matlab_comparison_counts_only_if_it_meets_the_b1_criterion(tmp_path):

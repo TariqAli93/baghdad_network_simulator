@@ -246,9 +246,19 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str 
     rule_path = root / "configs" / "site_rule.yaml"
     site_rule = yaml.safe_load(rule_path.read_text(encoding="utf-8")) if rule_path.exists() else \
         {"antenna_position": "interior"}
+    from dataclasses import asdict
+
     from bns.analysis import classification
+    from bns.analysis import validation_scope as vs
+    from bns.propagation.engine_settings import engine_fingerprint
+    from bns.simulation.cache import scene_fingerprint
+
+    scope = vs.scope(scene_fingerprint=scene_fingerprint(scene_dir), grid=asdict(grid),
+                     rays_per_site=profile.rays_per_site, engine=engine_fingerprint(chosen),
+                     antennas=[asdict(a) for a in antennas], mechanisms=asdict(config.mechanisms), seeds=config.seeds)
     classes = classification.classify(root, overrides, quality, study_district=area.is_research_dataset,
-                                      deviations=baseline_deviations(root, profile, chosen))
+                                      deviations=baseline_deviations(root, profile, chosen), scope=scope,
+                                      profile=profile.name)
     label = classes.label                              # what the result is, scientifically
     return Experiment(root, area, variant, mode, profile, system, config, load_scenarios(root), baseline,
                       label, scene_dir, quality, buildings, grid, outdoor, antennas, mast, chosen, note, site_rule,

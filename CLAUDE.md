@@ -142,6 +142,10 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   sensitivity, with deviations: values, profile, backend, placement), dataset (complete /
   estimated / incomplete; only the study district can be complete) and validation are recorded
   separately; execution state (Running / Completed / Cancelled / Failed) is separate again.
+- Validation is scoped (`bns.analysis.validation_scope`, `docs/validation.md` §11): evidence applies
+  only to runs with the same scene, grid, rays, engine, antennas and mechanisms; never mark other
+  runs validated. Radio-only changes keep the evidence. Each area's `primary_variant`
+  (`configs/study_area.yaml`) is the app's default dataset variant.
 - Sectors face compass bearings 0/120/240° (0 = north, clockwise); the ray tracer's yaw is
   counter-clockwise from east, yaw = 90° − bearing (`setup.bearing_to_scene_azimuth_rad`). Runs
   before 2026-11-27 used yaw 0/120/240°; never reinterpret their manifests.

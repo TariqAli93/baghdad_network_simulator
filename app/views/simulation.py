@@ -56,7 +56,7 @@ area = c1.selectbox("Area", list(areas), index=list(areas).index(study[0]) if st
                     help="Every area with a built dataset can be simulated; only the study district can give "
                          "complete data. Other areas are for comparison and experimentation.")
 variants = ui.variants(area) or ["osm"]
-variant = c2.selectbox("Dataset variant", variants)
+variant = c2.selectbox("Dataset variant", variants, index=ui.default_variant(area, variants))
 profile = c3.selectbox("Profile", usable, index=usable.index("standard") if "standard" in usable else 0,
                        help="Sets the baseline cell size and ray count below; "
                             + "; ".join(f"{k}: {v.get('status', '')}" for k, v in profiles.items()),

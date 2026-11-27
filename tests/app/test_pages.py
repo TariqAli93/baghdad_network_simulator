@@ -38,8 +38,11 @@ def test_both_datasets_are_ready_to_run_with_their_limitations_shown(app, area):
         pytest.skip(f"no scene of {area} on this computer")
     at = app.switch_page("views/simulation.py").run()
     assert not any(s.label == "Run type" for s in at.selectbox)          # no mode to choose
+    assert next(s for s in at.selectbox if s.label == "Area").value == "tahrir_bab_al_sharqi_study"   # default
     next(s for s in at.selectbox if s.label == "Area").set_value(area)
     at.run()
+    expected = {"tahrir_bab_al_sharqi_study": "osm+fp_3d_globfp", "tahrir_bab_al_sharqi_v2": "osm"}[area]
+    assert next(s for s in at.selectbox if s.label == "Dataset variant").value == expected  # configured primary
     next(b for b in at.button if b.label == "Check sites and workload").click()
     at.run()
     assert not at.exception, [e.message for e in at.exception]

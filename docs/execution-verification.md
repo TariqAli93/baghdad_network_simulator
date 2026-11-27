@@ -27,3 +27,15 @@ validation pending), recorded only to show that execution works. They are not fi
 Baghdad. Before the change, the v2 run stopped with "Research mode needs an approved study
 district". Technical errors still stop a run (unit tests: invalid value, unknown area, missing
 scene, unconverged profile, unavailable GPU).
+
+## Through the application (Start button)
+
+| Run ID | Set in the UI | Execution | Classification |
+|---|---|---|---|
+| `multi_site-tahrir_bab_al_sharqi_v2-osm-preview-1sites-20261127T001247Z` | area `tahrir_bab_al_sharqi_v2` (variant `osm`, the configured default), preview, CPU, 1 site, transmit power 43 dBm | Ready → Running ("all traces cached; computing radio results") → Completed; 15 of 15 traces from the cache, 0 s tracing, 2.1 s total; folder saved (manifest, summary, arrays, figures, CSV) | Preliminary Simulation · Custom Experiment (preview profile; tx_power_dbm = 43.0) · Incomplete data · Validation Pending |
+
+Coverage / median SINR / median Shannon rate: LTE 100.0 % / 21.4 dB / 142 Mbit/s; NR 3.5 GHz
+100.0 % / 21.2 dB / 706 Mbit/s; 8 GHz 99.6 % / 18.8 dB / 2509 Mbit/s; 15 GHz 99.5 % / 16.5 dB /
+2211 Mbit/s; 28 GHz 99.4 % / 12.3 dB / 1670 Mbit/s. Shown on Coverage analysis with its
+classification banner; the Reports page offers the HTML report (generated: 477 kB, four
+figures, classification and the custom value). Local only (`.gitignore`).

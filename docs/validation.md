@@ -209,3 +209,24 @@ interior-point placement stays in the candidate generator until A4 decides; noth
 - Any comparison with field measurements.
 - The research profile (5 m cells).
 - Anything on the target laptop (Phase 0 gate open).
+
+## 11. Scope of validation evidence (2026-11-27)
+
+Validation evidence counts only for runs inside its propagation scope
+(`bns.analysis.validation_scope`): the scene fingerprint (geometry, heights, height model), the
+receiver grid (extent, cell size, receiver height), the ray count, the engine (variant, versions,
+wedge table), the transmit antennas (pattern, polarisation, bearings, downtilt), the propagation
+mechanisms and the seeds. A run's classification records the key of its scope.
+
+- A MATLAB comparison counts when it meets B1 (|median| in LOS cells within the configured
+  tolerance in every band) and the run it was exported from has the same scope.
+- The final-scene convergence counts when the profile's record in `configs/simulation.yaml` is
+  accepted for the same scene fingerprint and backend (and the run uses that profile's cell size
+  and ray count): `final_scene_convergence: {status: accepted, scene_fingerprint: ..., backend: cpu}`.
+- Both are needed for "Validation Completed"; otherwise "Validation Pending" (never a block).
+- Radio-system quantities (power, noise figure, threshold, target, load, rate mappings, rain) do
+  not change the path gain, so evidence carries over across them without revalidation; site
+  positions are not part of the scope (the evidence characterises the engine on that scene and
+  settings). Any other change (scene, heights, grid, rays, backend, engine, antennas,
+  mechanisms) needs its own evidence. The engine limitations of section 2 remain stated whatever
+  the validation status.

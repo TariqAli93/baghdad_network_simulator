@@ -7,6 +7,8 @@
 #   study district          the area the thesis reports on
 # approved: true only once the supervisor has approved the area as the study district.
 # snapshot: name of the OpenStreetMap snapshot in data/raw/osm (defaults to the area name).
+# primary_variant: the dataset variant the application selects first (other variants stay
+#   selectable for experiments and sensitivity analyses).
 # A snapshot is never overwritten; a new download needs a new snapshot name.
 #
 # The study district is tahrir_bab_al_sharqi_study (decision A1, configs/approvals.yaml),
@@ -23,6 +25,7 @@ areas:
     receiver_area_m: [1000.0, 1000.0]
     margin_m: 150.0
     snapshot: tahrir_bab_al_sharqi      # Phase 0 download; lacks multipolygon geometry; frozen
+    primary_variant: osm
 
   tahrir_bab_al_sharqi_study:
     role: study district
@@ -38,6 +41,7 @@ areas:
     receiver_area_m: [1000.0, 1000.0]
     margin_m: 150.0
     snapshot: tahrir_bab_al_sharqi_v2
+    primary_variant: osm+fp_3d_globfp   # OSM + 3D-GloBFP footprints (A2)
     # Footprints: OSM plus the footprints missing from OSM taken from 3D-GloBFP (footprints
     # only; its heights are not used). Footprint provenance (footprint_source) and height
     # provenance (category, source) are recorded separately for every building.
@@ -85,6 +89,7 @@ areas:
     receiver_area_m: [1000.0, 1000.0]
     margin_m: 150.0
     snapshot: tahrir_bab_al_sharqi_v2
+    primary_variant: osm
 
 # How OpenStreetMap tags and observations become heights (decision A2, configs/approvals.yaml).
 height_policy:

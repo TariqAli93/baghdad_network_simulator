@@ -16,9 +16,12 @@ None of this decides whether a run may execute: any technically valid simulation
 classification says what its result is. The research baseline is the approved configuration
 (values in configs/, the standard profile, the CPU backend, the site rule); a run that departs
 from it in any way records the deviations and is a custom experiment (or a sensitivity analysis
-when only the threshold, target, load or rain differ). "Completed" validation needs the
-convergence on the final scene and a MATLAB comparison meeting the B1 criterion
-(bns.analysis.readiness).
+when only the threshold, target, load or rain differ). "Completed" validation needs evidence
+for the run's own propagation scope (bns.analysis.validation_scope): an accepted convergence
+record and a MATLAB comparison meeting the B1 criterion, both for the same scene, grid, rays,
+engine, antennas and mechanisms. Evidence never transfers to runs outside that scope; it does
+carry over across radio-system values (power, noise, threshold, load, rates), which do not change
+the path gain.
 """
 
 from __future__ import annotations
@@ -43,6 +46,7 @@ class Classification:
     dataset: str
     validation: str
     deviations: tuple[str, ...] = field(default=())     # how the configuration departs from the baseline
+    validation_scope: str = ""                          # key of the run's propagation scope (validation_scope)
 
     @property
     def result(self) -> str:
@@ -73,7 +77,7 @@ class Classification:
 
     def as_dict(self) -> dict:
         return {"configuration": self.configuration, "dataset": self.dataset, "validation": self.validation,
-                "deviations": list(self.deviations), "result": self.result}
+                "deviations": list(self.deviations), "validation_scope": self.validation_scope, "result": self.result}
 
 
 def configuration_class(overrides: dict | None, deviations=()) -> str:
@@ -98,18 +102,34 @@ def dataset_class(quality: dict | None, *, study_district: bool) -> str:
     return INCOMPLETE
 
 
-def validation_class(root: Path) -> str:
+def validation_class(root: Path, scope: dict | None, *, profile: str | None) -> str:
+    """Validation Completed only when evidence covers this run's propagation scope: a MATLAB comparison
+    meeting B1 whose source run has the same scope, and an accepted final-scene convergence record for
+    the same profile (cell size, rays), scene and backend. Anything else: Validation Pending."""
     from bns.analysis import readiness
+    from bns.analysis import validation_scope as vs
+    from bns.propagation.engine_settings import backend_of
 
-    found = {i.id: i.state for i in readiness.validation_indicators(root)}
-    return VALIDATED if all(s == readiness.COMPLETED for s in found.values()) else PENDING
+    if not scope:
+        return PENDING
+    k = vs.key(scope)
+    matlab = any(e["passes"] and e["scope_key"] == k for e in readiness.matlab_evidence(root))
+    conv = readiness.convergence_record(root, profile)
+    converged = bool(conv) and conv.get("scene_fingerprint") == scope["scene_fingerprint"] \
+        and conv.get("backend", "cpu") == backend_of(scope["engine"]) \
+        and float(conv.get("cell_size_m") or -1) == scope["grid"]["cell_size_m"] \
+        and int(float(conv.get("rays_per_site") or -1)) == scope["rays_per_site"]
+    return VALIDATED if matlab and converged else PENDING
 
 
 def classify(root: Path, overrides: dict | None, quality: dict | None, *, study_district: bool,
-             deviations=()) -> Classification:
+             deviations=(), scope: dict | None = None, profile: str | None = None) -> Classification:
+    from bns.analysis import validation_scope as vs
+
     devs = tuple(deviations) + tuple(f"{k} = {v}" for k, v in (overrides or {}).items())
     return Classification(configuration_class(overrides, deviations),
-                          dataset_class(quality, study_district=study_district), validation_class(root), devs)
+                          dataset_class(quality, study_district=study_district),
+                          validation_class(root, scope, profile=profile), devs, vs.key(scope))
 
 
 # labels written into run files before 2026-11-27; the files keep them (provenance), displays and new
@@ -132,6 +152,6 @@ def from_manifest(manifest: dict) -> Classification:
     if rec:
         return Classification(rec["configuration"], rec["dataset"],
                               _OLD_VALIDATION.get(rec["validation"], rec["validation"]),
-                              tuple(rec.get("deviations") or ()))
+                              tuple(rec.get("deviations") or ()), rec.get("validation_scope", ""))
     area = manifest.get("area") or {}
     return Classification(NOT_RECORDED, COMPLETE if area.get("fit_for_research") else INCOMPLETE, PENDING)

@@ -18,7 +18,7 @@ variants = ui.variants(area_name)
 if not variants:
     st.warning(f"No dataset built for {area_name}. Run `scripts/build_dataset.py --area {area_name}`.")
     st.stop()
-variant = c2.selectbox("Dataset variant", variants, index=variants.index("osm") if "osm" in variants else 0,
+variant = c2.selectbox("Dataset variant", variants, index=ui.default_variant(area_name, variants),
                        help="osm: OpenStreetMap heights only (placeholder 9 m elsewhere); osm+<dataset>: "
                             "external heights as candidates under the height policy.")
 st.markdown(f"**Role:** {info['role']}")

@@ -205,13 +205,28 @@ def _configuration(root: Path) -> Indicator:
     return Indicator("configuration", title, BASELINE, "the configuration files hold the approved research baseline")
 
 
+def convergence_record(root: Path, profile: str | None) -> dict:
+    """The final-scene convergence record of a profile (configs/simulation.yaml): {} when not accepted.
+    An accepted record names the scene fingerprint and backend it was measured with."""
+    entry = ((_yaml(root, "simulation.yaml").get("profiles") or {}).get(profile or "") or {})
+    rec = entry.get("final_scene_convergence")
+    if isinstance(rec, dict) and rec.get("status") in ("accepted", "completed"):
+        return {**rec, "cell_size_m": entry.get("cell_size_m"), "rays_per_site": entry.get("rays_per_site")}
+    return {}
+
+
 def _convergence(root: Path) -> Indicator:
     title = "Simulation convergence"
     profiles = _yaml(root, "simulation.yaml").get("profiles") or {}
-    research = {n: p for n, p in profiles.items() if (p or {}).get("status") == "approved"}
-    states = {n: str(p.get("final_scene_convergence", "not evaluated")) for n, p in research.items()}
-    if research and all(s in ("accepted", "completed") for s in states.values()):
-        return Indicator("convergence", title, COMPLETED, ", ".join(f"{n}: checked on the final scene" for n in states))
+    research = [n for n, p in profiles.items() if (p or {}).get("status") == "approved"]
+    records = {n: convergence_record(root, n) for n in research}
+    if research and all(records.values()):
+        return Indicator("convergence", title, COMPLETED,
+                         ", ".join(f"{n}: accepted on scene {r.get('scene_fingerprint', '?')[:12]}…, "
+                                   f"{r.get('backend', 'cpu').upper()}" for n, r in records.items())
+                         + " (applies only to runs on that scene, profile and backend)", records)
+    states = {n: (profiles[n].get("final_scene_convergence") if not isinstance(profiles[n].get("final_scene_convergence"), dict)
+                  else profiles[n]["final_scene_convergence"].get("status")) or "not evaluated" for n in research}
     return Indicator("convergence", title, PENDING,
                      "measured on the provisional scene (docs/convergence.md); on the final scene: "
                      + ", ".join(f"{n} {s}" for n, s in states.items())
@@ -228,33 +243,51 @@ def _validation(root: Path) -> Indicator:
     return Indicator("validation", title, PENDING, "no TR 38.901 comparison saved (scripts/validate_tr38901.py)")
 
 
+def matlab_evidence(root: Path) -> list[dict]:
+    """Every saved MATLAB comparison: whether it meets the B1 criterion (|median (MATLAB - Sionna)| in
+    LOS cells within the configured tolerance, in every band; NLOS and RMSE reported, not judged) and
+    the propagation scope of the run it was exported from (bns.analysis.validation_scope)."""
+    from bns.analysis import validation_scope as vs
+
+    tol = float(((_yaml(root, "approvals.yaml").get("decisions") or {}).get("B1_validation") or {})
+                .get("los_median_abs_tolerance_db", 2.0))
+    out = []
+    for path in sorted(p for base in ("validation", "outputs/validation")
+                       for p in (Path(root) / base).glob("**/comparison.json")):
+        rows = json.loads(path.read_text(encoding="utf-8"))
+        los = {k: v for k, v in rows.items() if k.endswith("_LOS")}
+        failing = [k for k, v in los.items() if v.get("median_db") is None or abs(float(v["median_db"])) > tol]
+        if not los:
+            failing.append("no LOS cells")
+        scope = None
+        case = path.parent / "case.json"
+        if case.exists():
+            source = Path(root) / json.loads(case.read_text(encoding="utf-8")).get("source_run", "") / "manifest.json"
+            if source.exists():
+                scope = vs.from_manifest(json.loads(source.read_text(encoding="utf-8")))
+        out.append({"path": path, "case": path.parent.name, "passes": not failing, "failing": failing,
+                    "tolerance_db": tol, "scope": scope, "scope_key": vs.key(scope)})
+    return out
+
+
 def _matlab(root: Path) -> Indicator:
-    """Completed only when every saved comparison meets the B1 criterion: |median (MATLAB - Sionna)|
-    in LOS cells within the tolerance of configs/approvals.yaml, in every band. NLOS and RMSE are
-    reported, not judged."""
     title = "MATLAB comparison"
-    found = sorted(p for base in ("validation", "outputs/validation")
-                   for p in (Path(root) / base).glob("**/comparison.json"))
+    found = matlab_evidence(root)
     if not found:
         return Indicator("matlab", title, PENDING, "package prepared (validation/matlab/); not run (needs MATLAB "
                                                    "on the laptop)")
-    tol = float(((_yaml(root, "approvals.yaml").get("decisions") or {}).get("B1_validation") or {})
-                .get("los_median_abs_tolerance_db", 2.0))
-    failing = []
-    for path in found:
-        rows = json.loads(path.read_text(encoding="utf-8"))
-        los = {k: v for k, v in rows.items() if k.endswith("_LOS")}
-        for k, v in los.items():
-            if v.get("median_db") is None or abs(float(v["median_db"])) > tol:
-                failing.append(f"{path.parent.name}/{k}")
-        if not los:
-            failing.append(f"{path.parent.name}: no LOS cells")
+    tol = found[0]["tolerance_db"]
+    failing = [f"{e['case']}/{k}" for e in found for k in e["failing"]]
     if failing:
         return Indicator("matlab", title, PENDING,
                          f"{len(found)} comparison(s); LOS median beyond ±{tol:.1f} dB or missing in: " + ", ".join(failing),
                          {"failing": failing})
+    scoped = [e["case"] for e in found if e["scope_key"]]
     return Indicator("matlab", title, COMPLETED,
-                     f"{len(found)} comparison(s); LOS median within ±{tol:.1f} dB in every band (NLOS, RMSE reported)")
+                     f"{len(found)} comparison(s); LOS median within ±{tol:.1f} dB in every band (NLOS, RMSE reported); "
+                     "applies only to runs with the same scene, grid, rays, engine, antennas and mechanisms as its "
+                     "source run" + ("" if len(scoped) == len(found) else " (source run of some comparisons unknown: "
+                                     "they apply to no run)"))
 
 
 def _laptop(root: Path) -> Indicator:
@@ -263,11 +296,6 @@ def _laptop(root: Path) -> Indicator:
         return Indicator("laptop", "Laptop acceptance", COMPLETED,
                          f"{len(found)} benchmark run(s), latest {found[-1].parent.name}")
     return Indicator("laptop", "Laptop acceptance", PENDING, "benchmark.ps1 not yet run on the target laptop")
-
-
-def validation_indicators(root: Path) -> list[Indicator]:
-    """The two validation steps a result needs before it is a validated research result."""
-    return [_convergence(Path(root)), _matlab(Path(root))]
 
 
 def indicators(root: Path) -> list[Indicator]:

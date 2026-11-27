@@ -235,10 +235,14 @@ def main() -> int:
         "label": exp.label, "run_id": run_id, "kind": "site_plan", "mode": args.mode,
         "run_class": ex.run_class({**exp.overrides, **overrides,
                                    **({"heights": args.heights} if args.heights else {})}),
-        "classification": classification.classify(
-            ROOT, {**exp.overrides, **overrides}, exp.quality, study_district=exp.area.is_research_dataset,
-            deviations=ex.baseline_deviations(ROOT, exp.profile, exp.backend)
-            + ([f"height categories {args.heights}"] if args.heights else [])).as_dict(),
+        "classification": classification.Classification(
+            classification.configuration_class({**exp.overrides, **overrides},
+                                               ex.baseline_deviations(ROOT, exp.profile, exp.backend)
+                                               + ([f"height categories {args.heights}"] if args.heights else [])),
+            exp.classification.dataset, exp.classification.validation,
+            tuple(exp.classification.deviations) + tuple(f"{k} = {v}" for k, v in overrides.items())
+            + ((f"height categories {args.heights}",) if args.heights else ()),
+            exp.classification.validation_scope).as_dict(),
         "overrides": {**exp.overrides, **overrides, **({"heights": args.heights} if args.heights else {})},
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,

@@ -956,3 +956,14 @@ Under the feature freeze, configuration and guards only; no simulation was run.
   Estimated (height model) / Incomplete; validation Pending / Completed. Run control reports
   execution (Running / Completed / Cancelled / Failed) and the run's LIMITATION lines.
 - Verified through the real pipeline: see the commit message.
+
+### Addendum: scoped validation and dataset defaults (2026-11-27)
+
+- Validation evidence is scoped to the propagation inputs (`bns.analysis.validation_scope`);
+  `classification.validation_class(root, scope, profile=...)` needs a B1-passing MATLAB comparison
+  from a run with the same scope and an accepted convergence record for the same scene, profile and
+  backend. Radio-only changes keep the scope. The classification records `validation_scope`.
+- `primary_variant` per area (study: `osm+fp_3d_globfp`; v2 and fixture: `osm`) is the default
+  variant on Run simulation and Study area; no alphabetical choice.
+- Dataset classes unchanged (Complete data / Estimated heights / Incomplete data).
+- One run through the Start button: see `docs/execution-verification.md`.

@@ -94,6 +94,16 @@ def study_areas() -> dict:
     return yaml.safe_load((ROOT / "configs" / "study_area.yaml").read_text(encoding="utf-8"))["areas"]
 
 
+def default_variant(area: str, variants: list[str]) -> int:
+    """Index of the area's configured primary variant (configs/study_area.yaml), else 'osm', else the
+    first; never chosen by alphabetical accident when a primary variant is configured."""
+    primary = (study_areas().get(area) or {}).get("primary_variant")
+    for name in (primary, "osm"):
+        if name in variants:
+            return variants.index(name)
+    return 0
+
+
 def variants(area: str) -> list[str]:
     folder = ROOT / "data" / "scenes" / area
     return sorted(d.name for d in folder.iterdir() if (d / "scene.xml").exists()) if folder.exists() else []
