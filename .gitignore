@@ -39,3 +39,9 @@ dist/
 !outputs/runs/development/**/*.png
 !outputs/validation/**/*.png
 !outputs/datasets/**/fieldwork/*.png
+
+# Local verification runs of 2026-11-27 (docs/execution-verification.md): kept on disk for the
+# application, not part of the repository.
+/outputs/runs/development/multi_site-tahrir_bab_al_sharqi_v2-osm-preview-1sites-20261126T235144Z/
+/outputs/runs/development/multi_site-tahrir_bab_al_sharqi_study-osm+fp_3d_globfp-preview-1sites-20261126T235306Z/
+/outputs/runs/development/multi_site-tahrir_bab_al_sharqi_study-osm+fp_3d_globfp-standard-1sites-20261126T235539Z/
