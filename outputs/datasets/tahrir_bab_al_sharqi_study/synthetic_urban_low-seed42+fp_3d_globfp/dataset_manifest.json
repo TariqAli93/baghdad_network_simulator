@@ -1,0 +1,295 @@
+{
+  "dataset": "tahrir_bab_al_sharqi_study/synthetic_urban_low-seed42+fp_3d_globfp",
+  "created_utc": "2026-11-27T01:04:49+00:00",
+  "software_commit": "5147157",
+  "inputs": {
+    "osm_snapshot": "tahrir_bab_al_sharqi_v2",
+    "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312",
+    "observations": null,
+    "required_observations": {
+      "worklist": "outputs/datasets/tahrir_bab_al_sharqi_study/fieldwork/observation_priorities.csv",
+      "sha256": "28af275c5a7a67063eaf0f4c3258f0ee7d0cde59159a0107c8295be6ade2ba78",
+      "required_priorities": [
+        "P0",
+        "P1",
+        "P2",
+        "S"
+      ],
+      "method_requirements": {
+        "P0": [
+          "measured",
+          "documented"
+        ],
+        "P1": [
+          "measured",
+          "documented"
+        ],
+        "P2": [
+          "measured",
+          "documented",
+          "storey_count"
+        ],
+        "S": [
+          "storey_count",
+          "measured",
+          "documented"
+        ]
+      },
+      "count": 81
+    },
+    "footprint_datasets": [
+      {
+        "name": "3d_globfp",
+        "extract": "data\\raw\\heights\\3d_globfp\\tahrir_bab_al_sharqi_v2.geojson",
+        "sha256": "52608146d89807f1e61b9018ea4aa55323277563228a0b7d28743dd18a4af0b4"
+      }
+    ],
+    "height_datasets": []
+  },
+  "outputs": {
+    "scene_fingerprint": "2c6a8da0682f4974179b41fc371861120bd8f09ca5542b4fa28f1044288dbadc",
+    "buildings_geojson_sha256": "f25c62208a29baf142301fd94c2bedd2108631547c41c99085eed826239c2066",
+    "quality_report_sha256": "7bf53144d9cbde3fd6dedb42f50ec9971a8590971e9fc53cef517320717439c3"
+  },
+  "height_categories": {
+    "observed": 10,
+    "estimated": 4,
+    "placeholder": 2507
+  },
+  "height_model": {
+    "name": "synthetic_urban_low",
+    "kind": "synthetic_urban",
+    "params": {
+      "version": "synthetic-urban-1",
+      "scenario": "low",
+      "mode_position": 0.0,
+      "storey_height_m": 3.0,
+      "neighbour_radius_m": 60.0,
+      "neighbour_weight": 0.4,
+      "large_commercial_min_area_m2": 1500.0,
+      "classes": {
+        "small_residential": {
+          "floors": [
+            1,
+            2
+          ]
+        },
+        "standard_residential": {
+          "floors": [
+            2,
+            4
+          ]
+        },
+        "commercial": {
+          "floors": [
+            2,
+            6
+          ]
+        },
+        "apartments": {
+          "floors": [
+            3,
+            8
+          ]
+        },
+        "large_commercial": {
+          "floors": [
+            4,
+            12
+          ]
+        },
+        "high_rise": {
+          "floors": [
+            10,
+            20
+          ]
+        }
+      },
+      "tag_classes": {
+        "small_residential": [
+          "house",
+          "detached",
+          "semidetached_house",
+          "bungalow",
+          "hut",
+          "shed",
+          "garage",
+          "garages",
+          "cabin",
+          "kiosk",
+          "roof",
+          "carport",
+          "service",
+          "toilets"
+        ],
+        "standard_residential": [
+          "residential",
+          "terrace"
+        ],
+        "apartments": [
+          "apartments",
+          "dormitory"
+        ],
+        "commercial": [
+          "commercial",
+          "retail",
+          "office",
+          "shop",
+          "supermarket",
+          "hotel",
+          "warehouse",
+          "industrial",
+          "public",
+          "civic",
+          "government",
+          "school",
+          "college",
+          "university",
+          "hospital",
+          "mosque",
+          "church",
+          "train_station",
+          "transportation"
+        ],
+        "high_rise": [
+          "tower",
+          "skyscraper"
+        ]
+      },
+      "area_classes": [
+        [
+          80.0,
+          "small_residential"
+        ],
+        [
+          300.0,
+          "standard_residential"
+        ],
+        [
+          1000.0,
+          "commercial"
+        ],
+        [
+          3000.0,
+          "apartments"
+        ],
+        [
+          Infinity,
+          "large_commercial"
+        ]
+      ]
+    },
+    "approved": false,
+    "seed": 42,
+    "synthetic": {
+      "algorithm": "synthetic-urban-1",
+      "scenario": "low",
+      "buildings": 2521,
+      "synthetic_buildings": 2507,
+      "synthetic_percent": 99.44466481554939,
+      "remaining_placeholders": 0,
+      "classes": {
+        "apartments": 69,
+        "commercial": 452,
+        "large_commercial": 7,
+        "small_residential": 954,
+        "standard_residential": 1025
+      }
+    }
+  },
+  "observation_worklist": {
+    "listed": 81,
+    "observed": 0,
+    "unmatched": 0,
+    "missing": [
+      "way/919688856",
+      "way/414264304",
+      "way/82967076",
+      "way/645196998",
+      "way/1537439360",
+      "way/763390915",
+      "way/1537432810",
+      "way/901843544",
+      "way/901843541",
+      "way/901843543",
+      "3d_globfp/rec/698817",
+      "way/1537432793",
+      "way/901843553",
+      "way/763390921",
+      "way/1176968520",
+      "way/901843552",
+      "way/1537432806",
+      "way/1537432803",
+      "way/1537439362",
+      "way/1537439406",
+      "way/901843563",
+      "way/901843540",
+      "way/1537439359",
+      "way/901843539",
+      "way/901843538",
+      "way/901843542",
+      "way/1537439358",
+      "way/1537439385",
+      "way/1176968508",
+      "3d_globfp/rec/698836",
+      "way/1177380411",
+      "way/1176968512",
+      "way/1537439403",
+      "way/1537439402",
+      "way/1537432795",
+      "way/1537439364",
+      "3d_globfp/rec/698820",
+      "way/1537439407",
+      "way/901843512",
+      "way/839130754",
+      "way/1177380354",
+      "way/763390923",
+      "relation/12758059",
+      "way/1177122281",
+      "3d_globfp/rec/696323",
+      "3d_globfp/rec/696408",
+      "way/863860517",
+      "way/1177122278",
+      "way/863860515",
+      "3d_globfp/rec/696272",
+      "3d_globfp/rec/696361",
+      "way/901843548",
+      "3d_globfp/rec/696395",
+      "3d_globfp/rec/696485",
+      "way/763390920",
+      "3d_globfp/rec/696394",
+      "3d_globfp/rec/696429",
+      "3d_globfp/rec/940842",
+      "way/901843571",
+      "way/901843567",
+      "way/1180699969",
+      "relation/15920193",
+      "way/901843502",
+      "way/82995031",
+      "3d_globfp/rec/696414",
+      "3d_globfp/rec/696526",
+      "3d_globfp/rec/696146",
+      "3d_globfp/rec/696535",
+      "3d_globfp/rec/941396",
+      "way/1239352072",
+      "3d_globfp/rec/696125",
+      "way/903940623",
+      "3d_globfp/rec/696332",
+      "3d_globfp/rec/940828",
+      "way/901843501",
+      "way/903940593",
+      "way/901843555",
+      "3d_globfp/rec/940830",
+      "way/901843497",
+      "way/903940609",
+      "way/947082879"
+    ],
+    "insufficient": []
+  },
+  "fit_for_research": false,
+  "not_fit_reasons": [
+    "99.4 % of buildings have placeholder heights",
+    "observation worklist incomplete: 0 of 81 buildings observed, 0 rows matching no building"
+  ],
+  "fitness_notes": []
+}

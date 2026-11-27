@@ -32,7 +32,7 @@ def test_dataset_quality_has_three_levels_and_a_provisional_area_is_never_comple
 @pytest.mark.parametrize("config, dataset, validation, result", [
     (cl.BASELINE, cl.COMPLETE, cl.VALIDATED, cl.VALIDATED_RESULTS),
     (cl.BASELINE, cl.COMPLETE, cl.PENDING, "Research Baseline · Validation Pending"),
-    (cl.BASELINE, cl.ESTIMATED, cl.VALIDATED, cl.PRELIMINARY),
+    (cl.BASELINE, cl.ESTIMATED, cl.VALIDATED, cl.SIMULATION_RESULTS),        # synthetic heights: never validated
     (cl.BASELINE, cl.INCOMPLETE, cl.PENDING, cl.PRELIMINARY),
     (cl.CUSTOM, cl.COMPLETE, cl.VALIDATED, cl.CUSTOM),
     (cl.SENSITIVITY, cl.COMPLETE, cl.PENDING, cl.SENSITIVITY),

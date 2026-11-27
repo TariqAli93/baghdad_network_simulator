@@ -17,7 +17,7 @@ def test_the_baseline_holds_the_approved_values():
     assert b["antenna_height_above_roof_m"] == 3.0 and b["mechanical_downtilt_deg"] == 10.0
     assert (b["cell_size_m"], b["rays_per_site"]) == (10.0, 10**9)
     assert b["rain_rate_mm_h"] == 0.0
-    assert (b["min_roof_height_m"], b["min_roof_area_m2"], b["min_spacing_m"]) == (12.0, 100.0, 50.0)
+    assert (b["min_roof_height_m"], b["min_roof_area_m2"], b["min_spacing_m"]) == (12.0, 100.0, 125.0)  # refined
 
 
 def test_only_values_that_differ_from_the_baseline_are_overrides():

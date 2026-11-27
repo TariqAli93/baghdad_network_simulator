@@ -19,6 +19,10 @@
   research mode refuses until the five pre-experiment gates pass. Shown on the Overview, Radio and
   Study area pages.
 - Fix: `run_single_site.py --mode research` now applies the shared research guards.
+- Synthetic Urban Model (`synthetic-urban-1`, seed 42): estimated building heights for every
+  building without one, classed by tag and footprint, smoothed over neighbours; low/baseline/high
+  scenarios on identical footprints; default dataset of the study district. Candidate spacing
+  refined 50 -> 125 m (geometric, documented). Results on it are classified "Simulation Results".
 - Execution no longer depends on approvals or research mode: any technically valid simulation
   runs (provisional areas, incomplete observations, modified values, preview profile, GPU);
   only technical problems stop a run. Scientific limitations are listed before and during the run,

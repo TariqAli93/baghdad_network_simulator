@@ -32,8 +32,17 @@ site_selection: interference-aware SINR greedy over physical sites (scripts/plan
 candidate_thresholds:
   min_roof_height_m: 12.0
   min_roof_area_m2: 100.0
-  min_spacing_m: 50.0
-  adjustments: []
+  min_spacing_m: 125.0
+  adjustments:
+    - date: 2026-11-27
+      change: min_spacing_m 50 -> 125 (height 12 m and area 100 m2 unchanged)
+      dataset: tahrir_bab_al_sharqi_study, Synthetic Urban Model synthetic-urban-1, seed 42
+      justification: >-
+        Geometry only (no coverage result consulted). With 50 m spacing the receiver area has 102
+        candidates on the baseline scenario (67 low, 141 high), far above the 20-40 target.
+        125 m is the smallest spacing tested (50, 75, 100, 125, 150 m) that gives 20-40 candidates
+        in all three height scenarios: 29 low, 30 baseline, 33 high. Re-evaluate when observed
+        heights replace the synthetic ones.
 
 status: approved
 approved_by: supervisor, as reported by the project owner (2026-11-26, 2026-11-27; configs/approvals.yaml)

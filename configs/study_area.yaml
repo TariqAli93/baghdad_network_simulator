@@ -41,7 +41,10 @@ areas:
     receiver_area_m: [1000.0, 1000.0]
     margin_m: 150.0
     snapshot: tahrir_bab_al_sharqi_v2
-    primary_variant: osm+fp_3d_globfp   # OSM + 3D-GloBFP footprints (A2)
+    # Synthetic Urban Model (baseline scenario, seed 42) on OSM + 3D-GloBFP footprints: the default for
+    # simulation experiments; osm+fp_3d_globfp (documented heights only) and the low/high scenarios
+    # stay selectable
+    primary_variant: synthetic_urban-seed42+fp_3d_globfp
     # Footprints: OSM plus the footprints missing from OSM taken from 3D-GloBFP (footprints
     # only; its heights are not used). Footprint provenance (footprint_source) and height
     # provenance (category, source) are recorded separately for every building.

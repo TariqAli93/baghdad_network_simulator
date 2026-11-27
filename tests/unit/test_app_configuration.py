@@ -18,7 +18,7 @@ def test_rows_read_the_configuration_values():
     assert site["Mast height above the roof"]["value"] == "3.0 m"
     assert "compass 0, 120, 240°" in site["Sector bearings"]["value"]
     assert "yaw 90, 330, 210°" in site["Sector bearings"]["value"]
-    assert site["Minimum roof height"]["value"] == "12.0 m" and site["Minimum spacing"]["value"] == "50.0 m"
+    assert site["Minimum roof height"]["value"] == "12.0 m" and site["Minimum spacing"]["value"] == "125.0 m"
     rates = {r["scenario"]: r for r in cfg.rate_rows(ROOT, load_scenarios(ROOT))}
     assert rates["4G LTE"]["cap"] == "4.4 bit/s/Hz"
     assert rates["5G NR mid-band"]["cap"] == "30 dB"

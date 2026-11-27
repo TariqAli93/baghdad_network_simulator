@@ -466,7 +466,8 @@ def test_build_dataset_with_a_height_model_labels_the_variant(tmp_path):
     model = ht.HeightModel("flat15", "constant", {"height_m": 15.0}, approved=False)
     report = pipeline.build_dataset(AREA, data, tmp_path, POLICY, snapshot_sha256="x",
                                     height_model=model, seed=4)
-    assert report["height_model"] == {"name": "flat15", "kind": "constant", "approved": False, "seed": 4}
+    assert report["height_model"] == {"name": "flat15", "kind": "constant", "params": {"height_m": 15.0},
+                                      "approved": False, "seed": 4}
     props = json.loads((tmp_path / "buildings.geojson").read_text())["features"][0]["properties"]
     assert props["height_m"] == 15.0 and props["height_source"] == "model:flat15"
     assert props["height_category"] == ht.PLACEHOLDER

@@ -967,3 +967,22 @@ Under the feature freeze, configuration and guards only; no simulation was run.
   variant on Run simulation and Study area; no alphabetical choice.
 - Dataset classes unchanged (Complete data / Estimated heights / Incomplete data).
 - One run through the Start button: see `docs/execution-verification.md`.
+
+### Addendum: Synthetic Urban Model (2026-11-27)
+
+- New height-model kind `synthetic_urban` (`bns.geospatial.heights`, `configs/height_models.yaml`):
+  class from tag or footprint area, triangular floors per class, neighbourhood smoothing, 3 m per
+  storey, seed 42, scenarios low/baseline/high sharing each building's draw. Known heights never
+  change; synthetic heights keep category placeholder with source `model:<model>:<class>`.
+- Footprint overlaps are now resolved with the pre-model height, so every height-model variant has
+  the footprints of the variant without a model (checked identical).
+- Built the three study variants; the baseline is the study district's `primary_variant`.
+  Metadata in quality reports and manifests (parameters, seed, synthetic share, classes).
+- Candidates on synthetic datasets include synthetic roofs; spacing refined 50 -> 125 m
+  (29/30/33 candidates low/baseline/high); research baseline re-recorded with that note.
+- Readiness: "Synthetic Urban Model" indicator (Synthetic Data Complete), height completeness
+  reported on documented heights. Classification: "Estimated Building Heights" -> "Simulation
+  Results" (baseline values), never validated research results.
+- Propagation caches: keys include the scene fingerprint, so the new scenes never reuse traces of
+  other scenes; no cache had to be deleted.
+- Height sensitivity and checks: `docs/synthetic-urban-model.md`.

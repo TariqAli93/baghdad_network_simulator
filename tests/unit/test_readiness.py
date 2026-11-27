@@ -57,16 +57,17 @@ def _ind(repo):
 
 
 def test_indicators_are_scientific_and_in_order(repo):
-    assert [i.id for i in rd.indicators(repo)] == ["dataset", "heights", "observations", "candidates",
+    assert [i.id for i in rd.indicators(repo)] == ["dataset", "heights", "observations", "synthetic", "candidates",
                                                     "configuration", "convergence", "validation", "matlab", "laptop"]
     states = {i.state for i in rd.indicators(repo)}
-    assert states <= {rd.READY, rd.COMPLETED, rd.INCOMPLETE, rd.PENDING, rd.BASELINE, rd.CUSTOM}
+    assert states <= {rd.READY, rd.COMPLETED, rd.INCOMPLETE, rd.PENDING, rd.BASELINE, rd.CUSTOM,
+                      rd.SYNTHETIC_COMPLETE}
 
 
 def test_nothing_is_completed_without_evidence(repo):
     g = _ind(repo)
     assert g["configuration"].state == rd.BASELINE
-    for i in ("dataset", "heights", "observations", "candidates"):
+    for i in ("dataset", "heights", "observations", "synthetic", "candidates"):
         assert g[i].state == rd.INCOMPLETE
     for i in ("convergence", "validation", "matlab", "laptop"):
         assert g[i].state == rd.PENDING

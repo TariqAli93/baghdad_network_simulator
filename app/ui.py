@@ -19,7 +19,14 @@ from bns.reporting import plotstyle as style
 ROOT = Path(__file__).resolve().parents[1]
 SEQ = [[i / 6, c] for i, c in enumerate(["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"])]
 SITE_COLOURS = ["#2a6f97", "#c0504d", "#5b8c3a", "#8064a2", "#d08c2b", "#4b9b9b", "#7a6a53", "#b5527a"]
-CATEGORY_COLOURS = {"observed": "#1b7f5b", "estimated": "#d08c2b", "placeholder": "#b9b8b0"}
+CATEGORY_COLOURS = {"observed": "#1b7f5b", "estimated": "#d08c2b", "synthetic": "#7b8fb5", "placeholder": "#b9b8b0"}
+
+
+def height_display_category(b) -> str:
+    """observed / estimated / synthetic (Synthetic Urban Model or another height model) / placeholder."""
+    if b.height.category == "placeholder" and b.height.source.startswith("model:"):
+        return "synthetic"
+    return b.height.category
 
 LAYERS = {   # name in the saved arrays -> (title, unit, colour range, kind)
     "path_gain_db": ("Path gain, best sector (propagation only)", "dB", (-160, -60), "seq"),

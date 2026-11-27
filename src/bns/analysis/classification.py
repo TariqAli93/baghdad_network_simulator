@@ -8,9 +8,11 @@ The result class follows from the three, and is never better than the evidence:
 
     Validated Research Results              baseline configuration, complete data, validation completed
     Research Baseline · Validation Pending  baseline configuration, complete data, validation pending
-    Custom Experiment / Sensitivity Analysis  other values or settings on complete data
-    Preliminary Simulation                  estimated or incomplete data, or a configuration that was not
-                                            recorded (runs before 2026-11-27)
+    Simulation Results                      baseline configuration on estimated building heights (e.g. the
+                                            Synthetic Urban Model): a simulation, never a validated finding
+    Custom Experiment / Sensitivity Analysis  other values or settings on complete or estimated data
+    Preliminary Simulation                  incomplete data (placeholder heights), or a configuration that
+                                            was not recorded (runs before 2026-11-27)
 
 None of this decides whether a run may execute: any technically valid simulation runs, and the
 classification says what its result is. The research baseline is the approved configuration
@@ -31,9 +33,11 @@ from pathlib import Path
 
 BASELINE, CUSTOM, SENSITIVITY = "Research Baseline", "Custom Experiment", "Sensitivity Analysis"
 NOT_RECORDED = "Configuration not recorded"
-COMPLETE, ESTIMATED, INCOMPLETE = "Complete data", "Estimated heights", "Incomplete data"
+COMPLETE, ESTIMATED, INCOMPLETE = "Complete data", "Estimated Building Heights", "Incomplete data"
 VALIDATED, PENDING = "Validation Completed", "Validation Pending"
 PRELIMINARY, VALIDATED_RESULTS = "Preliminary Simulation", "Validated Research Results"
+SIMULATION_RESULTS = "Simulation Results"           # complete synthetic heights, not empirical
+_OLD_DATASET = {"Estimated heights": ESTIMATED}
 # parameters whose variation is a sensitivity analysis of the baseline (threshold, target, load,
 # rain: the approved sensitivity dimensions); changing anything else is a custom experiment
 SENSITIVITY_KEYS = frozenset({"coverage_threshold", "coverage_target", "interference_activity", "rain_rate_mm_h"})
@@ -50,10 +54,12 @@ class Classification:
 
     @property
     def result(self) -> str:
-        if self.dataset != COMPLETE or self.configuration == NOT_RECORDED:
+        if self.dataset == INCOMPLETE or self.configuration == NOT_RECORDED:
             return PRELIMINARY
         if self.configuration != BASELINE:
             return self.configuration
+        if self.dataset == ESTIMATED:              # every height known, but estimated: never validated research
+            return SIMULATION_RESULTS
         return VALIDATED_RESULTS if self.validation == VALIDATED else f"{BASELINE} · {PENDING}"
 
     @property
@@ -150,7 +156,7 @@ def from_manifest(manifest: dict) -> Classification:
     recorded, dataset from the recorded fitness, validation pending -> Preliminary Simulation."""
     rec = manifest.get("classification")
     if rec:
-        return Classification(rec["configuration"], rec["dataset"],
+        return Classification(rec["configuration"], _OLD_DATASET.get(rec["dataset"], rec["dataset"]),
                               _OLD_VALIDATION.get(rec["validation"], rec["validation"]),
                               tuple(rec.get("deviations") or ()), rec.get("validation_scope", ""))
     area = manifest.get("area") or {}

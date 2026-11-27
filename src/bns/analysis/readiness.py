@@ -29,6 +29,7 @@ import yaml
 from bns.analysis import research_baseline
 
 READY, COMPLETED, INCOMPLETE, PENDING = "Ready", "Completed", "Incomplete data", "Validation Pending"
+SYNTHETIC_COMPLETE = "Synthetic Data Complete"
 BASELINE, CUSTOM = "Research Baseline", "Custom Experiment"
 @dataclass
 class Indicator:
@@ -76,10 +77,12 @@ def _dataset(root: Path, areas: dict) -> Indicator:
     name, area = next(iter(areas.items()))
     current = _current(root, name, area)
     if current:
+        # the configured primary variant, else a dataset fit for research, else the newest
+        primary = [t for t in current if t[0].name == area.get("primary_variant")]
         fit = [t for t in current if t[1].get("fit_for_research")]
-        folder = (fit or current)[0][0]
+        folder, quality, _ = (primary or fit or current)[0]
         return Indicator("dataset", "Dataset availability", READY, f"{name}/{folder.name}",
-                         {"area": name, "variant": folder.name})
+                         {"area": name, "variant": folder.name, "quality": quality})
     if _datasets(root, name):
         return Indicator("dataset", "Dataset availability", INCOMPLETE,
                          f"the dataset of {name} records older observation requirements; rebuild it "
@@ -94,8 +97,10 @@ def _heights(root: Path, areas: dict) -> Indicator:
     current = _current(root, name, area)
     if not current:
         return Indicator("heights", "Building-height completeness", INCOMPLETE, "no current dataset")
-    fit = [t for t in current if t[1].get("fit_for_research")]
-    folder, q, _ = (fit or current)[0]
+    # documented heights: the datasets without a height model (synthetic heights are reported separately)
+    empirical = [t for t in current if not t[1].get("height_model")] or current
+    fit = [t for t in empirical if t[1].get("fit_for_research")]
+    folder, q, _ = (fit or empirical)[0]
     pct = (q.get("height_categories") or {}).get("by_count_percent") or {}
     shares = ", ".join(f"{k} {v:.1f} %" for k, v in pct.items())
     if fit:
@@ -174,17 +179,37 @@ def _candidates(root: Path, areas: dict) -> Indicator:
     inside = [b for b in pipeline.load_buildings(scene, area) if box.contains(b.polygon.representative_point())]
     mast = float(((_yaml(root, "radio_system.yaml").get("parameters") or {}).get("antenna_height_above_roof_m")
                   or {}).get("value") or 0.0)
+    cats = sites.candidate_categories(rule.get("candidate_height_categories"),
+                                      (dataset.data.get("quality") or {}).get("height_model"))
     found = sites.rooftop_candidates(inside, mast_height_m=mast, min_height_m=values["min_roof_height_m"],
                                      min_area_m2=values["min_roof_area_m2"], min_spacing_m=values["min_spacing_m"],
-                                     categories=tuple(rule.get("candidate_height_categories") or ("observed", "estimated")))
-    data = {**values, "count": len(found), "target": target}
-    rule_text = (f"roof ≥ {values['min_roof_height_m']:g} m, ≥ {values['min_roof_area_m2']:g} m², "
-                 f"≥ {values['min_spacing_m']:g} m apart, observed or storey-based heights")
+                                     categories=cats)
+    data = {**values, "count": len(found), "target": target, "variant": dataset.data["variant"]}
+    heights = "observed, storey-based or synthetic heights" if "placeholder" in cats else "observed or storey-based heights"
+    rule_text = (f"{dataset.data['variant']}: roof ≥ {values['min_roof_height_m']:g} m, "
+                 f"≥ {values['min_roof_area_m2']:g} m², ≥ {values['min_spacing_m']:g} m apart, {heights}")
     if len(found) < target[0]:
         return Indicator("candidates", title, INCOMPLETE,
                          f"{len(found)} candidates ({rule_text}); target {target[0]}-{target[1]}: needs the survey", data)
     note = "" if len(found) <= target[1] else "; above the target: refine the thresholds (documented, geometric)"
     return Indicator("candidates", title, READY, f"{len(found)} candidates ({rule_text}){note}", data)
+
+
+def _synthetic(root: Path, areas: dict) -> Indicator:
+    """Completion of the Synthetic Urban Model on the primary dataset: every building has a height
+    (documented or synthetic). Separate from empirical completeness and from validation."""
+    title = "Synthetic Urban Model"
+    dataset = _dataset(root, areas)
+    model = ((dataset.data.get("quality") or {}).get("height_model") or {})
+    syn = model.get("synthetic")
+    if dataset.state != READY or not syn:
+        return Indicator("synthetic", title, INCOMPLETE, "the primary dataset is not a Synthetic Urban Model")
+    state = SYNTHETIC_COMPLETE if syn["remaining_placeholders"] == 0 else INCOMPLETE
+    return Indicator("synthetic", title, state,
+                     f"{dataset.data['variant']}: {syn['synthetic_buildings']} of {syn['buildings']} buildings "
+                     f"({syn['synthetic_percent']:.1f} %) with estimated building heights ({syn['algorithm']}, "
+                     f"{syn['scenario']} scenario, seed {model.get('seed')}); {syn['remaining_placeholders']} plain "
+                     "placeholders. Synthetic completion, not empirical validation.", syn)
 
 
 def _configuration(root: Path) -> Indicator:
@@ -301,5 +326,6 @@ def _laptop(root: Path) -> Indicator:
 def indicators(root: Path) -> list[Indicator]:
     root = Path(root)
     areas = research_areas(root)
-    return [_dataset(root, areas), _heights(root, areas), _observations(root, areas), _candidates(root, areas),
-            _configuration(root), _convergence(root), _validation(root), _matlab(root), _laptop(root)]
+    return [_dataset(root, areas), _heights(root, areas), _observations(root, areas), _synthetic(root, areas),
+            _candidates(root, areas), _configuration(root), _convergence(root), _validation(root), _matlab(root),
+            _laptop(root)]

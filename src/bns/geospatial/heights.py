@@ -102,7 +102,7 @@ class HeightModel:
     """An assumed height distribution for buildings without any height information."""
 
     name: str
-    kind: str               # constant | uniform_levels | lognormal
+    kind: str               # constant | uniform_levels | lognormal | synthetic_urban
     params: dict
     approved: bool          # approved by the supervisor for thesis results
     rationale: str = ""
@@ -369,6 +369,81 @@ def _draw(model: HeightModel, rng: np.random.Generator) -> float:
     raise ValueError(f"Unknown height model kind {model.kind!r}.")
 
 
+def synthetic_class(b: Building, params: dict) -> str:
+    """Building class of the Synthetic Urban Model: from the OSM building tag when it names the use,
+    otherwise from the footprint area; high-rise only with tagged evidence."""
+    tag = str(b.tags.get("building", "")).strip().lower()
+    area = float(b.polygon.area)
+    for cls, tags in (params.get("tag_classes") or {}).items():
+        if tag in tags:
+            if cls == "commercial" and area >= float(params["large_commercial_min_area_m2"]):
+                return "large_commercial"
+            return cls
+    for upper, cls in params["area_classes"]:
+        if area < float(upper):
+            return cls
+    return params["area_classes"][-1][1]
+
+
+def _triangular_inverse(u: float, mode: float) -> float:
+    """Inverse CDF of the triangular distribution on [0, 1] with the given mode."""
+    if mode <= 0.0:
+        return 1.0 - np.sqrt(1.0 - u)
+    if mode >= 1.0:
+        return float(np.sqrt(u))
+    return float(np.sqrt(u * mode)) if u < mode else 1.0 - float(np.sqrt((1.0 - u) * (1.0 - mode)))
+
+
+def _synthetic_urban(buildings: list[Building], model: HeightModel, seed: int) -> list[Building]:
+    """Synthetic Urban Model (algorithm synthetic-urban-1, configs/height_models.yaml).
+
+    Only placeholder buildings change. Each draws one uniform number from (seed, building id) - the
+    same in every scenario, so scenarios are ordered per building - maps it to whole floors through a
+    triangular distribution over its class range, and moves towards the median floors of neighbours
+    within the radius (known heights and other first draws), staying inside its class range.
+    """
+    p = model.params
+    storey = float(p["storey_height_m"])
+    mode = float(p["mode_position"])
+    radius, weight = float(p["neighbour_radius_m"]), float(p["neighbour_weight"])
+    classes = {b.building_id: synthetic_class(b, p) for b in buildings if b.height.category == PLACEHOLDER}
+    first = {}
+    for b in buildings:
+        if b.building_id not in classes:
+            continue
+        lo, hi = (int(v) for v in p["classes"][classes[b.building_id]]["floors"])
+        u = np.random.default_rng([int(seed), zlib.crc32(b.building_id.encode())]).random()
+        first[b.building_id] = lo + min(int(_triangular_inverse(u, mode) * (hi - lo + 1)), hi - lo)
+    # floors of every building for the neighbourhood: known heights and first draws
+    centre = {b.building_id: b.polygon.centroid for b in buildings}
+    floors = {b.building_id: first.get(b.building_id, b.height.height_m / storey) for b in buildings}
+    cells: dict[tuple[int, int], list[str]] = {}
+    for bid, c in centre.items():
+        cells.setdefault((int(c.x // radius), int(c.y // radius)), []).append(bid)
+    status = "synthetic estimate, not a measurement"
+    out = []
+    for b in buildings:
+        if b.building_id not in classes:
+            out.append(b)
+            continue
+        cls = classes[b.building_id]
+        lo, hi = (int(v) for v in p["classes"][cls]["floors"])
+        c = centre[b.building_id]
+        cx, cy = int(c.x // radius), int(c.y // radius)
+        near = [floors[o] for dx in (-1, 0, 1) for dy in (-1, 0, 1) for o in cells.get((cx + dx, cy + dy), [])
+                if o != b.building_id and centre[o].distance(c) <= radius]
+        f = first[b.building_id]
+        if near:
+            f = int(round((1.0 - weight) * f + weight * float(np.median(near))))
+        f = int(min(max(f, lo), hi))
+        method = (f"Synthetic Urban Model {p.get('version', '')} '{model.name}' ({p.get('scenario', '')} scenario), "
+                  f"class {cls}, {f} floors x {storey:g} m, seed {seed}; {status}")
+        record = HeightRecord(f * storey, PLACEHOLDER, f"model:{model.name}:{cls}", method,
+                              b.height.reference, b.height.original, superseded=b.height)
+        out.append(replace(b, height=record))
+    return out
+
+
 def apply_height_model(buildings: list[Building], model: HeightModel, seed: int) -> list[Building]:
     """Give every placeholder building a height drawn from an assumed distribution.
 
@@ -377,6 +452,8 @@ def apply_height_model(buildings: list[Building], model: HeightModel, seed: int)
     individual building. Each building's draw depends only on the seed and its
     id, so the outcome does not change with the order or number of buildings.
     """
+    if model.kind == "synthetic_urban":
+        return _synthetic_urban(buildings, model, seed)
     if model.kind not in ("constant", "uniform_levels", "lognormal"):
         raise ValueError(f"Unknown height model kind {model.kind!r}.")
     status = "approved" if model.approved else "not approved"

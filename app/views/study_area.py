@@ -72,7 +72,7 @@ colour_by = st.radio("Colour buildings by", ["height provenance", "height"], hor
 fig = go.Figure()
 if colour_by == "height provenance":
     for cat, col in ui.CATEGORY_COLOURS.items():
-        polys = [b.polygon for b in buildings if b.height.category == cat]
+        polys = [b.polygon for b in buildings if ui.height_display_category(b) == cat]
         if polys:
             xs, ys = ui.outline_xy(polys)
             fig.add_scatter(x=xs, y=ys, mode="lines", fill="toself", fillcolor=col, line=dict(color="#555", width=0.4),
@@ -92,7 +92,7 @@ fig.add_scatter(x=list(bx), y=list(by), mode="lines", line=dict(color="#c0504d",
 tall = sorted(buildings, key=lambda b: -b.height.height_m)[:40]
 fig.add_scatter(x=[b.polygon.representative_point().x for b in tall], y=[b.polygon.representative_point().y for b in tall],
                 mode="markers", marker=dict(size=5, color="rgba(0,0,0,0)"), showlegend=False,
-                hovertext=[f"{b.building_id}<br>{b.height.height_m:g} m, {b.height.category}<br>{b.height.source}"
+                hovertext=[f"{b.building_id}<br>{b.height.height_m:g} m, {ui.height_display_category(b)}<br>{b.height.source}"
                            for b in tall], hoverinfo="text")
 fig.update_layout(height=680, margin=dict(l=10, r=10, t=10, b=10), plot_bgcolor="#fcfcfb",
                   yaxis=dict(scaleanchor="x", title="y north [m]"), xaxis=dict(title="x east [m]"),
@@ -100,7 +100,7 @@ fig.update_layout(height=680, margin=dict(l=10, r=10, t=10, b=10), plot_bgcolor=
 st.plotly_chart(fig, use_container_width=True)
 
 st.subheader("Tallest buildings and their height provenance")
-st.dataframe([{"building": b.building_id, "height [m]": b.height.height_m, "category": b.height.category,
+st.dataframe([{"building": b.building_id, "height [m]": b.height.height_m, "category": ui.height_display_category(b),
                "source": b.height.source, "method": b.height.method,
                "alternatives": "; ".join(f"{a.source} {a.height_m:g} m" for a in b.height.alternatives)}
               for b in tall[:25]], hide_index=True, use_container_width=True)

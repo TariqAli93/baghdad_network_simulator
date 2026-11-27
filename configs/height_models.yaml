@@ -4,9 +4,9 @@
 # the provenance category "placeholder": the value is an assumption, not an estimate of that
 # building.
 #
-# approved: false means the supervisor has NOT approved the model for thesis results.
-# None is approved yet (docs/supervisor-decisions.md, decision D2). The numbers below are
-# illustrative ranges for exercising the framework; replace them with approved ones.
+# approved: kept for the record format (all false). The first four models bound the effect of
+# unknown heights; the synthetic_urban models below fill every missing height for simulation
+# experiments (docs/synthetic-urban-model.md). All values are modelling assumptions.
 #
 # kinds:
 #   constant        params: height_m
@@ -38,3 +38,75 @@ height_models:
     params: {median_m: 10.0, sigma: 0.5, min_m: 3.0, max_m: 60.0}
     approved: false
     rationale: A skewed distribution with a few tall buildings; parameters are not from data.
+
+  # ---------------------------------------------------------------------------------------------
+  # Synthetic Urban Model (kind synthetic_urban, algorithm synthetic-urban-1): estimated building
+  # heights for every building without any height information, for simulation experiments when
+  # field observations are not available. Real footprints and coordinates are kept; known heights
+  # (OSM height, storey counts, observations) are never changed. The values are modelling
+  # assumptions, NOT measurements and NOT verified statistics about Baghdad; every synthetic
+  # height keeps the provenance category "placeholder" with source model:<name>:<class>.
+  #
+  #   1. Class: from the OSM building tag when it says what the building is (tag_classes);
+  #      otherwise from the footprint area (area_classes, upper bounds in m2). Commercial
+  #      buildings at least large_commercial_min_area_m2 large become large commercial.
+  #      High-rise only with tagged evidence (tower, skyscraper), never from size alone.
+  #   2. Floors: a triangular distribution over the class's whole-floor range, with its mode at
+  #      mode_position (0 = lowest floor count, 1 = highest) for the scenario. Each building draws
+  #      one uniform number from (seed, building id), shared by all scenarios, so the low,
+  #      baseline and high scenarios are ordered per building on identical geometry.
+  #   3. Neighbourhood: floors move towards the median floors of buildings within
+  #      neighbour_radius_m (weight neighbour_weight), staying inside the class range; no abrupt
+  #      spatial jumps. Height = floors x storey_height_m (3.0 m, the configured storey height).
+  synthetic_urban: &synthetic_urban
+    kind: synthetic_urban
+    params: &synthetic_params
+      version: synthetic-urban-1
+      scenario: baseline
+      mode_position: 0.33
+      storey_height_m: 3.0
+      neighbour_radius_m: 60.0
+      neighbour_weight: 0.4
+      large_commercial_min_area_m2: 1500.0
+      classes:                               # floors (inclusive); heights = floors x 3 m
+        small_residential: {floors: [1, 2]}      # 3-6 m
+        standard_residential: {floors: [2, 4]}   # 6-12 m
+        commercial: {floors: [2, 6]}             # 6-18 m
+        apartments: {floors: [3, 8]}             # 9-24 m
+        large_commercial: {floors: [4, 12]}      # 12-36 m
+        high_rise: {floors: [10, 20]}            # 30-60 m, tagged evidence only
+      tag_classes:
+        small_residential: [house, detached, semidetached_house, bungalow, hut, shed, garage, garages,
+                            cabin, kiosk, roof, carport, service, toilets]
+        standard_residential: [residential, terrace]
+        apartments: [apartments, dormitory]
+        commercial: [commercial, retail, office, shop, supermarket, hotel, warehouse, industrial, public,
+                     civic, government, school, college, university, hospital, mosque, church,
+                     train_station, transportation]
+        high_rise: [tower, skyscraper]
+      area_classes:                          # [upper bound of footprint area in m2, class]
+        - [80.0, small_residential]
+        - [300.0, standard_residential]
+        - [1000.0, commercial]
+        - [3000.0, apartments]
+        - [.inf, large_commercial]
+    approved: false
+    rationale: >-
+      Illustrative floor ranges per building class given for the simulation study (2026-11-27);
+      modelling assumptions, not verified statistics about Baghdad.
+
+  synthetic_urban_low:
+    <<: *synthetic_urban
+    params:
+      <<: *synthetic_params
+      scenario: low
+      mode_position: 0.0
+    rationale: Low-rise sensitivity scenario of the Synthetic Urban Model (floors skewed to each class minimum).
+
+  synthetic_urban_high:
+    <<: *synthetic_urban
+    params:
+      <<: *synthetic_params
+      scenario: high
+      mode_position: 1.0
+    rationale: High-rise sensitivity scenario of the Synthetic Urban Model (floors skewed to each class maximum).

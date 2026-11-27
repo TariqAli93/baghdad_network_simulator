@@ -58,7 +58,15 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   and `_v2` stay development datasets: never report Baghdad results from them.
 - **Every building height has a provenance record** (`bns.geospatial.heights`): observed,
   estimated or placeholder, with source, method and the untouched original values. Never
-  present a placeholder or a height-model draw as an estimate or a measurement.
+  present a placeholder or a height-model draw as a measurement or as a storey-based estimate of
+  that building (a synthetic dataset is labelled "Estimated Building Heights" only as a class).
+- **Synthetic Urban Model** (`synthetic_urban*` in `configs/height_models.yaml`,
+  `docs/synthetic-urban-model.md`): fills every missing height for simulation experiments, seed 42,
+  three scenarios (low/baseline/high) on identical footprints; the study district's default variant
+  is `synthetic_urban-seed42+fp_3d_globfp`. Synthetic heights keep category placeholder with source
+  `model:<model>:<class>`, are shown as "synthetic" / "Estimated Building Heights", are eligible
+  candidate roofs only on synthetic datasets, and never count as observations or as empirical
+  completeness. Results on them are "Simulation Results", never validated research results.
 - **Radio-system parameters are approved** (`configs/approvals.yaml`); each entry keeps its
   status and sources (`configs/radio_system.yaml`, `docs/radio-parameters.md`). Every output is
   labelled with its scientific classification (`bns.analysis.classification`): configuration

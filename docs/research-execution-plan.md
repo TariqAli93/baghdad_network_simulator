@@ -11,6 +11,20 @@ waits for the field observations; everything after it waits for step 2.
 | 4 Radio parameters | done: all approved |
 | 5-15 | blocked by step 2 |
 
+Five-band workflow on the Synthetic Urban Model (no fieldwork needed; results are simulation
+results on estimated building heights, `docs/synthetic-urban-model.md`):
+
+```
+uv run python scripts/build_dataset.py --area tahrir_bab_al_sharqi_study --height-model synthetic_urban --add-footprints 3d_globfp
+uv run python scripts/build_dataset.py --area tahrir_bab_al_sharqi_study --height-model synthetic_urban_low --add-footprints 3d_globfp
+uv run python scripts/build_dataset.py --area tahrir_bab_al_sharqi_study --height-model synthetic_urban_high --add-footprints 3d_globfp
+uv run python scripts/plan_sites.py --area tahrir_bab_al_sharqi_study --variant "synthetic_urban-seed42+fp_3d_globfp" --profile standard --max-candidates 40
+uv run python scripts/run_multi_site.py --area tahrir_bab_al_sharqi_study --variant "synthetic_urban-seed42+fp_3d_globfp" --profile standard --buildings <sites selected by the plan>
+```
+
+(seed 42 by default; repeat the last two commands for the low and high variants for the height
+sensitivity; CPU is the research-baseline backend, GPU is faster and recorded as a deviation.)
+
 Exact commands for the approved district:
 
 ```

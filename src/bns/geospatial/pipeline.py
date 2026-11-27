@@ -81,7 +81,16 @@ def provenance_buildings(area: StudyArea, overpass_json: dict, policy: ht.Height
     # The footprint cleaner works on plain (polygon, height) items; the building id
     # travels through it so each cleaned piece finds its record again.
     by_id = {b.building_id: b for b in buildings}
-    plain = [osm_scene.Building(b.polygon, b.height.height_m, b.height.category, (b.building_id,))
+
+    def overlap_height(b: ht.Building) -> float:
+        # where footprints overlap the taller one keeps the ground; a height drawn from a model must not
+        # decide this, so every height-model variant (and scenario) keeps the footprints of the variant
+        # without a model
+        if b.height.source.startswith("model:") and b.height.superseded is not None:
+            return b.height.superseded.height_m
+        return b.height.height_m
+
+    plain = [osm_scene.Building(b.polygon, overlap_height(b), b.height.category, (b.building_id,))
              for b in buildings]
     pieces, separate_report = osm_scene.separate_footprints(plain, settings, area.clip_box())
     piece_count = Counter(p.osm_ids[0] for p in pieces)
@@ -215,8 +224,20 @@ def build_dataset(area: StudyArea, overpass_json: dict, out_dir: Path, policy: h
     solids, merge_report = osm_scene.merge_solids(plain, settings)
     clean_report.update(merge_report)
     model_info = None if height_model is None else {
-        "name": height_model.name, "kind": height_model.kind,
+        "name": height_model.name, "kind": height_model.kind, "params": height_model.params,
         "approved": height_model.approved, "seed": seed}
+    if height_model is not None and height_model.kind == "synthetic_urban":
+        synthetic = [b for b in buildings if b.height.source.startswith(f"model:{height_model.name}")]
+        classes: dict[str, int] = {}
+        for b in synthetic:
+            cls = b.height.source.split(":")[2]
+            classes[cls] = classes.get(cls, 0) + 1
+        model_info["synthetic"] = {
+            "algorithm": height_model.params.get("version"), "scenario": height_model.params.get("scenario"),
+            "buildings": len(buildings), "synthetic_buildings": len(synthetic),
+            "synthetic_percent": 100.0 * len(synthetic) / max(len(buildings), 1),
+            "remaining_placeholders": sum(b.height.source == "placeholder" for b in buildings),
+            "classes": dict(sorted(classes.items()))}
     scene_meta = osm_scene.write_scene(
         out_dir, solids, settings, area.half_extent_m,
         extra_meta={"area": area.name, "osm_snapshot_sha256": snapshot_sha256,

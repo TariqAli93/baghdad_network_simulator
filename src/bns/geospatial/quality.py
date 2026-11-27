@@ -127,9 +127,18 @@ def render_markdown(report: dict) -> str:
                      f"{report['height_sources']['by_area_percent'][source]:.1f} % |")
     if report["height_model"]:
         model = report["height_model"]
-        lines += ["", f"Placeholder heights come from height model `{model['name']}` "
-                      f"({model['kind']}, seed {model['seed']}; "
-                      f"{'approved' if model['approved'] else 'not approved'})."]
+        syn = model.get("synthetic")
+        if syn:
+            lines += ["", f"**Synthetic Urban Model** `{model['name']}` ({syn['algorithm']}, {syn['scenario']} "
+                          f"scenario, seed {model['seed']}): {syn['synthetic_buildings']} of {syn['buildings']} "
+                          f"buildings ({syn['synthetic_percent']:.1f} %) have estimated building heights from the "
+                          f"model; {syn['remaining_placeholders']} plain placeholders remain. Classes: "
+                          + ", ".join(f"{k} {v}" for k, v in syn["classes"].items())
+                          + ". These are modelling assumptions, not measurements; real footprints and known "
+                          "heights are unchanged."]
+        else:
+            lines += ["", f"Placeholder heights come from height model `{model['name']}` "
+                          f"({model['kind']}, seed {model['seed']})."]
     lines += ["", "## Height values", "", "| Category | Min | Median | Max |", "|---|---|---|---|"]
     for category, s in report["height_statistics"].items():
         lines.append(f"| {category} | {s['min_m']:.1f} m | {s['median_m']:.1f} m | {s['max_m']:.1f} m |")

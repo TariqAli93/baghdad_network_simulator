@@ -84,6 +84,16 @@ quantitative deployment case must be labelled as an illustration under stated as
 Steps 2-8 are cheap and are recomputed from cached path gain whenever a radio parameter
 changes.
 
+## 4a. Building heights for the simulation
+
+The study is a ray-tracing simulation of central Baghdad on real geographic footprints (OSM,
+3D-GloBFP for missing footprints). Heights are documented for 14 buildings; all others take
+estimated building heights from the reproducible Synthetic Urban Model (seed 42; low, baseline
+and high scenarios on identical footprints; `docs/synthetic-urban-model.md`). Results on it are
+simulation results under stated height assumptions, reported with the height sensitivity; they
+are not an empirical description of Baghdad and are not validated against field measurements.
+Field observations, when available, replace synthetic heights through the height priority.
+
 ## 5. Run modes
 
 - **Development** (preliminary simulations, custom experiments, sensitivity analyses): any

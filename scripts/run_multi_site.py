@@ -267,6 +267,9 @@ def main() -> int:
                  "osm_snapshot_sha256": exp.quality["osm_snapshot_sha256"],
                  "scene_fingerprint": scene_fingerprint(exp.scene_dir),
                  "height_categories_percent": exp.quality["height_categories"]["by_count_percent"],
+                 "height_model": {k: (exp.quality.get("height_model") or {}).get(k) for k in ("name", "kind", "seed")}
+                 | {"synthetic": ((exp.quality.get("height_model") or {}).get("synthetic") or {}).get("synthetic_percent")}
+                 if exp.quality.get("height_model") else None,
                  "fit_for_research": exp.quality["fit_for_research"]},
         "site_rule": ({"buildings": args.buildings} if args.buildings else
                       {**exp.candidate_rule, "count": args.sites}),

@@ -152,7 +152,8 @@ class Experiment:
         """Candidate rooftop criteria in effect (site rule, with experiment overrides)."""
         t = self.site_rule.get("candidate_thresholds") or {}
         rule = {k: self.overrides.get(k, t.get(k)) for k in ("min_roof_height_m", "min_roof_area_m2", "min_spacing_m")}
-        rule["categories"] = list(self.site_rule.get("candidate_height_categories") or ["observed", "estimated"])
+        rule["categories"] = list(sites.candidate_categories(self.site_rule.get("candidate_height_categories"),
+                                                             self.quality.get("height_model")))
         return rule
 
     @property
@@ -276,9 +277,20 @@ def limitations(exp: Experiment) -> list[str]:
         out.append(f"{exp.area.name} is a {exp.area.role}, not the study district: results do not describe the "
                    "study district's research dataset")
         reasons = [r for r in reasons if "not the study district" not in r]
-    out += reasons
-    if c is not None and c.dataset == classification_module().ESTIMATED:
-        out.append("missing building heights are drawn from an assumed height model")
+    model = exp.quality.get("height_model") or {}
+    syn = model.get("synthetic")
+    if syn:
+        # the placeholder and worklist reasons describe the empirical data; here those buildings carry
+        # synthetic heights, which is the limitation to state
+        reasons = [r for r in reasons if "placeholder heights" not in r and "observation worklist" not in r]
+        out += reasons
+        out.append(f"Synthetic Urban Model '{model.get('name')}' ({syn.get('algorithm')}, {syn.get('scenario')} "
+                   f"scenario, seed {model.get('seed')}): {syn.get('synthetic_percent', 0):.1f} % of buildings have "
+                   "estimated building heights (modelling assumptions, not measurements); no field observations")
+    else:
+        out += reasons
+        if c is not None and c.dataset == classification_module().ESTIMATED:
+            out.append("missing building heights are drawn from an assumed height model")
     if c is not None and c.deviations:
         out.append("differs from the research baseline: " + "; ".join(c.deviations))
     if c is not None and c.validation != classification_module().VALIDATED:

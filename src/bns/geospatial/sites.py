@@ -25,6 +25,16 @@ def is_structure_not_building(tags: dict) -> bool:
                 or tags.get("man_made") in ("monument", "obelisk"))
 
 
+def candidate_categories(rule_categories, height_model: dict | None) -> tuple[str, ...]:
+    """Height categories eligible for candidate roofs. On a Synthetic Urban Model dataset the
+    synthetic heights (category placeholder, source model:...) are eligible too: the experiment is
+    a simulation on estimated building heights and every candidate keeps its height category."""
+    cats = tuple(rule_categories or ("observed", "estimated"))
+    if (height_model or {}).get("kind") == "synthetic_urban" and "placeholder" not in cats:
+        cats += ("placeholder",)
+    return cats
+
+
 def rooftop_candidates(buildings: list[Building], *, mast_height_m: float, min_height_m: float,
                        min_area_m2: float, min_spacing_m: float,
                        max_candidates: int | None = None,

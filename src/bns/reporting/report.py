@@ -14,8 +14,9 @@ import re
 from pathlib import Path
 
 LIMITATIONS = [
-    "Dataset: unless the classification says 'Complete data', most building heights are placeholders (field "
-    "observations pending); results on such data are preliminary simulations.",
+    "Building heights: real footprints and coordinates; heights are documented only for a few buildings. Runs on "
+    "the Synthetic Urban Model use estimated building heights (modelling assumptions, not measurements); runs on "
+    "placeholder heights are preliminary simulations. Neither is an empirical description of Baghdad.",
     "Only research-baseline runs on a dataset fit for research, after the final-scene convergence and the "
     "MATLAB comparison, are validated research results; everything else is preliminary or experimental.",
     "Shannon rates are theoretical upper bounds for one user with the whole carrier; not network capacity or "
@@ -91,6 +92,18 @@ def markdown_to_html(md: str) -> str:
     return "\n".join(out)
 
 
+def _height_text(area: dict) -> str:
+    """Where the run's building heights come from (real footprints in every case)."""
+    model = area.get("height_model") or {}
+    if model.get("kind") == "synthetic_urban":
+        return (f"Synthetic Urban Model '{model.get('name')}' (seed {model.get('seed')}): estimated building heights "
+                f"for {model.get('synthetic') or 0:.1f} % of buildings, modelling assumptions, not measurements; "
+                "real OSM / 3D-GloBFP footprints")
+    if model:
+        return f"height model '{model.get('name')}' (seed {model.get('seed')}) for buildings without heights"
+    return "documented heights where available, placeholders elsewhere"
+
+
 def value_source(manifest: dict, name: str) -> str:
     """Where a parameter value of a run came from: the research baseline, a custom value, or not recorded."""
     if "overrides" not in manifest:
@@ -125,6 +138,7 @@ def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
             ("Study area", f"{area.get('name')} / {area.get('variant')} ({area.get('role', '')})"),
             ("OSM snapshot SHA-256", str(area.get("osm_snapshot_sha256", ""))[:16] + "..."),
             ("Scene fingerprint", str(area.get("scene_fingerprint", ""))[:16] + "..."),
+            ("Building heights", _height_text(area)),
             ("Height categories (% of buildings)", ", ".join(f"{k} {v:.1f}" for k, v in
                                                              (area.get("height_categories_percent") or {}).items())),
             ("Profile", f"{profile.get('name')} — {profile.get('cell_size_m')} m cells, {profile.get('rays_per_site'):.0e} rays"

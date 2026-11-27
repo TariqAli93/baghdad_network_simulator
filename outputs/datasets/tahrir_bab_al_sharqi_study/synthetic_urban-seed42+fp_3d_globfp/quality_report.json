@@ -1,0 +1,339 @@
+{
+  "area": {
+    "name": "tahrir_bab_al_sharqi_study",
+    "role": "study district",
+    "approved": true
+  },
+  "buildings": 2521,
+  "missing_height_buildings": 2507,
+  "conflicting_buildings": 0,
+  "buildings_with_alternative_sources": 1,
+  "height_categories": {
+    "by_count": {
+      "observed": 10,
+      "estimated": 4,
+      "placeholder": 2507
+    },
+    "by_count_percent": {
+      "observed": 0.3966679888932963,
+      "estimated": 0.15866719555731854,
+      "placeholder": 99.44466481554939
+    },
+    "by_area_percent": {
+      "observed": 0.9960308128613246,
+      "estimated": 1.4553380463432024,
+      "placeholder": 97.54863114079548
+    }
+  },
+  "height_sources": {
+    "by_count": {
+      "model:synthetic_urban:standard_residential": 1025,
+      "model:synthetic_urban:small_residential": 954,
+      "model:synthetic_urban:commercial": 452,
+      "model:synthetic_urban:apartments": 69,
+      "model:synthetic_urban:large_commercial": 7,
+      "osm:height": 10,
+      "osm:building:levels": 4
+    },
+    "by_area_percent": {
+      "model:synthetic_urban:apartments": 16.662602465881733,
+      "model:synthetic_urban:commercial": 39.176662678864965,
+      "model:synthetic_urban:large_commercial": 5.994020224970553,
+      "model:synthetic_urban:small_residential": 7.049772598258054,
+      "model:synthetic_urban:standard_residential": 28.665573172820167,
+      "osm:building:levels": 1.455338046343204,
+      "osm:height": 0.9960308128613256
+    }
+  },
+  "height_statistics": {
+    "observed": {
+      "min_m": 1.0,
+      "median_m": 10.75,
+      "max_m": 60.0
+    },
+    "estimated": {
+      "min_m": 3.0,
+      "median_m": 13.5,
+      "max_m": 21.0
+    },
+    "placeholder": {
+      "min_m": 3.0,
+      "median_m": 6.0,
+      "max_m": 21.0
+    }
+  },
+  "height_model": {
+    "name": "synthetic_urban",
+    "kind": "synthetic_urban",
+    "params": {
+      "version": "synthetic-urban-1",
+      "scenario": "baseline",
+      "mode_position": 0.33,
+      "storey_height_m": 3.0,
+      "neighbour_radius_m": 60.0,
+      "neighbour_weight": 0.4,
+      "large_commercial_min_area_m2": 1500.0,
+      "classes": {
+        "small_residential": {
+          "floors": [
+            1,
+            2
+          ]
+        },
+        "standard_residential": {
+          "floors": [
+            2,
+            4
+          ]
+        },
+        "commercial": {
+          "floors": [
+            2,
+            6
+          ]
+        },
+        "apartments": {
+          "floors": [
+            3,
+            8
+          ]
+        },
+        "large_commercial": {
+          "floors": [
+            4,
+            12
+          ]
+        },
+        "high_rise": {
+          "floors": [
+            10,
+            20
+          ]
+        }
+      },
+      "tag_classes": {
+        "small_residential": [
+          "house",
+          "detached",
+          "semidetached_house",
+          "bungalow",
+          "hut",
+          "shed",
+          "garage",
+          "garages",
+          "cabin",
+          "kiosk",
+          "roof",
+          "carport",
+          "service",
+          "toilets"
+        ],
+        "standard_residential": [
+          "residential",
+          "terrace"
+        ],
+        "apartments": [
+          "apartments",
+          "dormitory"
+        ],
+        "commercial": [
+          "commercial",
+          "retail",
+          "office",
+          "shop",
+          "supermarket",
+          "hotel",
+          "warehouse",
+          "industrial",
+          "public",
+          "civic",
+          "government",
+          "school",
+          "college",
+          "university",
+          "hospital",
+          "mosque",
+          "church",
+          "train_station",
+          "transportation"
+        ],
+        "high_rise": [
+          "tower",
+          "skyscraper"
+        ]
+      },
+      "area_classes": [
+        [
+          80.0,
+          "small_residential"
+        ],
+        [
+          300.0,
+          "standard_residential"
+        ],
+        [
+          1000.0,
+          "commercial"
+        ],
+        [
+          3000.0,
+          "apartments"
+        ],
+        [
+          Infinity,
+          "large_commercial"
+        ]
+      ]
+    },
+    "approved": false,
+    "seed": 42,
+    "synthetic": {
+      "algorithm": "synthetic-urban-1",
+      "scenario": "baseline",
+      "buildings": 2521,
+      "synthetic_buildings": 2507,
+      "synthetic_percent": 99.44466481554939,
+      "remaining_placeholders": 0,
+      "classes": {
+        "apartments": 69,
+        "commercial": 452,
+        "large_commercial": 7,
+        "small_residential": 954,
+        "standard_residential": 1025
+      }
+    }
+  },
+  "height_warnings": [
+    {
+      "building_id": "way/645196998",
+      "warning": "implausible building:levels='0' ignored"
+    }
+  ],
+  "footprint_area_m2": 574602.83306536,
+  "built_share_of_receiver_area_percent": 35.801983414386,
+  "parse": {
+    "buildings_read": 1228,
+    "relations_read": 8,
+    "relations_with_missing_members": 0,
+    "skipped": {},
+    "duplicate_pairs": 2
+  },
+  "cleaning": {
+    "footprints added from 3d_globfp": 1327,
+    "footprints added from 3d_globfp in the receiver area": 577,
+    "footprint area added from 3d_globfp in the receiver area (m2)": 125143,
+    "buildings_split_into_pieces": 1,
+    "dropped_small": 2,
+    "overlaps_resolved": 518,
+    "buildings_outside_area_or_too_small": 34,
+    "footprints_before_merge": 2521,
+    "solids_after_merge": 2156,
+    "different_height_contacts": 391
+  },
+  "mesh": {
+    "vertices": 25526,
+    "triangles": 33999,
+    "degenerate_triangles": 0,
+    "rim_edges": 12767,
+    "wedges": 25523,
+    "flat_shared_edges": 19092,
+    "non_manifold_edges": 0,
+    "roof_triangles_facing_down": 0
+  },
+  "fit_for_research": false,
+  "not_fit_reasons": [
+    "99.4 % of buildings have placeholder heights",
+    "observation worklist incomplete: 0 of 81 buildings observed, 0 rows matching no building"
+  ],
+  "fitness_notes": [],
+  "observation_worklist": {
+    "listed": 81,
+    "observed": 0,
+    "unmatched": 0,
+    "missing": [
+      "way/919688856",
+      "way/414264304",
+      "way/82967076",
+      "way/645196998",
+      "way/1537439360",
+      "way/763390915",
+      "way/1537432810",
+      "way/901843544",
+      "way/901843541",
+      "way/901843543",
+      "3d_globfp/rec/698817",
+      "way/1537432793",
+      "way/901843553",
+      "way/763390921",
+      "way/1176968520",
+      "way/901843552",
+      "way/1537432806",
+      "way/1537432803",
+      "way/1537439362",
+      "way/1537439406",
+      "way/901843563",
+      "way/901843540",
+      "way/1537439359",
+      "way/901843539",
+      "way/901843538",
+      "way/901843542",
+      "way/1537439358",
+      "way/1537439385",
+      "way/1176968508",
+      "3d_globfp/rec/698836",
+      "way/1177380411",
+      "way/1176968512",
+      "way/1537439403",
+      "way/1537439402",
+      "way/1537432795",
+      "way/1537439364",
+      "3d_globfp/rec/698820",
+      "way/1537439407",
+      "way/901843512",
+      "way/839130754",
+      "way/1177380354",
+      "way/763390923",
+      "relation/12758059",
+      "way/1177122281",
+      "3d_globfp/rec/696323",
+      "3d_globfp/rec/696408",
+      "way/863860517",
+      "way/1177122278",
+      "way/863860515",
+      "3d_globfp/rec/696272",
+      "3d_globfp/rec/696361",
+      "way/901843548",
+      "3d_globfp/rec/696395",
+      "3d_globfp/rec/696485",
+      "way/763390920",
+      "3d_globfp/rec/696394",
+      "3d_globfp/rec/696429",
+      "3d_globfp/rec/940842",
+      "way/901843571",
+      "way/901843567",
+      "way/1180699969",
+      "relation/15920193",
+      "way/901843502",
+      "way/82995031",
+      "3d_globfp/rec/696414",
+      "3d_globfp/rec/696526",
+      "3d_globfp/rec/696146",
+      "3d_globfp/rec/696535",
+      "3d_globfp/rec/941396",
+      "way/1239352072",
+      "3d_globfp/rec/696125",
+      "way/903940623",
+      "3d_globfp/rec/696332",
+      "3d_globfp/rec/940828",
+      "way/901843501",
+      "way/903940593",
+      "way/901843555",
+      "3d_globfp/rec/940830",
+      "way/901843497",
+      "way/903940609",
+      "way/947082879"
+    ],
+    "insufficient": []
+  },
+  "osm_snapshot_sha256": "85268384878918d3ee4cf724c4f9829c9ee02deacc9980b6f0cafa9201897312"
+}

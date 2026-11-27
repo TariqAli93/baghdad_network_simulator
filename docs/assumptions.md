@@ -186,7 +186,7 @@ what is still open. Reconciled record: `docs/approval-record.md`.
 |---|---|---|---|
 | Study district | Tahrir Sq / Bab Al-Sharqi, 33.3280 N 44.4085 E, 1000 × 1000 m, 150 m margin | `study_area.yaml` | research results need the field observations |
 | Footprints | OSM + missing footprints from 3D-GloBFP (footprints only) | `study_area.yaml` | footprint and height provenance recorded separately |
-| Heights | observation > OSM height > OSM storeys × 3.0 m > authorised dataset (none) > approved model > placeholder | `study_area.yaml` | 3D-GloBFP heights and GlobalBuildingAtlas not height sources |
+| Heights | observation > OSM height > OSM storeys × 3.0 m > authorised dataset (none) > model > placeholder; for simulation experiments the Synthetic Urban Model fills every missing height (seed 42, low/baseline/high) | `study_area.yaml`, `height_models.yaml` | synthetic heights are modelling assumptions (`docs/synthetic-urban-model.md`); 3D-GloBFP heights and GlobalBuildingAtlas not height sources |
 | Observations | P0-P1 measured or documented (4); P2 measured or documented preferred, storey-based fallback (34); S storey counts (43); P3 via height sensitivity | `study_area.yaml` | 190 before 2026-11-27 (kept in `history`); storey counts stay *estimated* |
 | Radio system | 46 dBm conducted per sector carrier; TR 38.901 element traced (8 dBi peak, 65°), added gain 0; 3 sectors; 10° downtilt; no array gain; isotropic rx at 1.5 m; NF 9 dB; 290 K | `radio_system.yaml` | gain double counting refused on loading |
 | Coverage | SINR ≥ −10 dB on 95 % of outdoor cells | `radio_system.yaml` | |

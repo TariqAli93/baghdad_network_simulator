@@ -43,7 +43,7 @@ def main() -> int:
     parser.add_argument("--fetch", action="store_true",
                         help="download a new OpenStreetMap snapshot (replaces the stored one)")
     parser.add_argument("--height-model", help="name in configs/height_models.yaml")
-    parser.add_argument("--seed", type=int, help="random seed, required with --height-model")
+    parser.add_argument("--seed", type=int, help="random seed of the height model (default 42)")
     parser.add_argument("--observations", type=Path,
                         help="CSV of observed heights: building_id,height_m,method[,observer,date,uncertainty_m]")
     parser.add_argument("--height-dataset", action="append", default=[],
@@ -75,8 +75,7 @@ def main() -> int:
             print(f"Unknown height model '{args.height_model}'. Defined: {', '.join(models)}")
             return 1
         if args.seed is None:
-            print("--height-model needs --seed.")
-            return 1
+            args.seed = 42                     # the documented default seed (reproducible)
         model, variant = models[args.height_model], f"{args.height_model}-seed{args.seed}"
     rows = None
     if args.observations:
@@ -169,6 +168,7 @@ def main() -> int:
                     "buildings_geojson_sha256": sha(scene_dir / "buildings.geojson"),
                     "quality_report_sha256": sha(scene_dir / "quality_report.json")},
         "height_categories": report["height_categories"]["by_count"],
+        "height_model": report.get("height_model"),
         "observation_worklist": report.get("observation_worklist"),
         "fit_for_research": report["fit_for_research"], "not_fit_reasons": report["not_fit_reasons"],
         "fitness_notes": report.get("fitness_notes", [])}

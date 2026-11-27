@@ -25,7 +25,7 @@ st.caption("Scientific and technical status, computed from the data, configurati
 indicators = readiness.indicators(ui.ROOT)
 MARK = {readiness.READY: "✅ Ready", readiness.COMPLETED: "✅ Completed", readiness.INCOMPLETE: "🟠 Incomplete data",
         readiness.PENDING: "⏳ Validation pending", readiness.BASELINE: "🔷 Research baseline",
-        readiness.CUSTOM: "🔶 Custom experiment"}
+        readiness.CUSTOM: "🔶 Custom experiment", readiness.SYNTHETIC_COMPLETE: "🧩 Synthetic Data Complete"}
 st.dataframe([{"item": i.title, "status": MARK.get(i.state, i.state), "details": i.detail} for i in indicators],
              hide_index=True, use_container_width=True)
 obs = next(i for i in indicators if i.id == "observations").data
