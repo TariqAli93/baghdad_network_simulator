@@ -1,0 +1,112 @@
+{
+ "experiment_id": "demo-research-baseline-network",
+ "name": "Demonstration: research-baseline network · عرض توضيحي",
+ "area": "tahrir_bab_al_sharqi_study",
+ "variant": "synthetic_urban-seed42+fp_3d_globfp",
+ "profile": "standard",
+ "cell_size_m": 10.0,
+ "rays_per_site": 1000000000,
+ "backend": "cpu",
+ "rx_height_m": 1.5,
+ "radio": {
+  "coverage_threshold": -10.0,
+  "interference_activity": 1.0,
+  "noise_figure_db": 9.0,
+  "rain_rate_mm_h": 0.0
+ },
+ "carriers": [
+  {
+   "id": "lte_1800",
+   "label": "4G LTE",
+   "frequency_hz": 1800000000.0,
+   "bandwidth_hz": 20000000.0,
+   "status": "deployed",
+   "preset": "lte_1800",
+   "custom": false,
+   "gas": "tabulated",
+   "selected": true
+  },
+  {
+   "id": "nr_3500",
+   "label": "5G NR mid-band",
+   "frequency_hz": 3500000000.0,
+   "bandwidth_hz": 100000000.0,
+   "status": "assumed",
+   "preset": "nr_3500",
+   "custom": false,
+   "gas": "tabulated",
+   "selected": true
+  },
+  {
+   "id": "c6g_8000",
+   "label": "Candidate 6G upper mid-band",
+   "frequency_hz": 8000000000.0,
+   "bandwidth_hz": 400000000.0,
+   "status": "candidate",
+   "preset": "c6g_8000",
+   "custom": false,
+   "gas": "tabulated",
+   "selected": true
+  },
+  {
+   "id": "c6g_15000",
+   "label": "Candidate 6G 15 GHz",
+   "frequency_hz": 15000000000.0,
+   "bandwidth_hz": 400000000.0,
+   "status": "candidate",
+   "preset": "c6g_15000",
+   "custom": false,
+   "gas": "tabulated",
+   "selected": true
+  },
+  {
+   "id": "nr_28000",
+   "label": "5G NR mmWave",
+   "frequency_hz": 28000000000.0,
+   "bandwidth_hz": 400000000.0,
+   "status": "assumed",
+   "preset": "nr_28000",
+   "custom": false,
+   "gas": "tabulated",
+   "selected": true
+  }
+ ],
+ "stations": [
+  {
+   "station_id": "S1",
+   "x": -177.90098845773826,
+   "y": -131.23326489986027,
+   "antenna_height_m": 58.0,
+   "mount": "rooftop",
+   "tx_power_dbm": 46.0,
+   "pattern": "tr38901",
+   "sectors": 3,
+   "azimuth_deg": 0.0,
+   "downtilt_deg": 10.0,
+   "building_id": "way/919688856",
+   "roof_height_m": 55.0,
+   "height_category": "observed",
+   "meets_site_rule": true,
+   "enabled": true,
+   "origin": "site rule",
+   "antenna_position": "rule",
+   "source_run": "multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-standard-1sites-20261127T121824Z"
+  }
+ ],
+ "template": {
+  "tx_power_dbm": 46.0,
+  "sectors": 3,
+  "azimuth_deg": 0.0,
+  "downtilt_deg": 10.0,
+  "mast_height_m": 3.0,
+  "hypothetical_height_m": null,
+  "allow_hypothetical": false
+ },
+ "created_utc": "2026-11-27T16:28:13+00:00",
+ "modified_utc": "2026-11-27T16:28:13+00:00",
+ "origin": {
+  "opened_from_run": "multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-standard-1sites-20261127T121824Z"
+ },
+ "notes": "Shipped demonstration: the research-baseline run on the Synthetic Urban Model, as an experiment.",
+ "schema": 1
+}

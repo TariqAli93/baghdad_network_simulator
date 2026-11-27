@@ -21,6 +21,22 @@ KEY_MARKER = re.compile(r"\b(?:common|nav|dashboard|cls|limitations|readiness|st
                         r"\.[a-z0-9_]+\.[a-z0-9_.]+\b")
 
 
+def user_names() -> list[str]:
+    """Experiment names as their authors typed them (recorded in run manifests and saved experiments)."""
+    import json
+
+    names = set()
+    for f in [*ROOT.glob("outputs/runs/*/*/manifest.json"), *ROOT.glob("outputs/experiments/*.json")]:
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        name = (data.get("experiment") or {}).get("name") if "experiment" in data else data.get("name")
+        if isinstance(name, str) and name:
+            names.add(name)
+    return sorted(names, key=len, reverse=True)
+
+
 def visible_text(at) -> str:
     texts = [str(e.value) for kind in ("markdown", "caption", "info", "warning", "error", "success", "title",
                                        "subheader") for e in getattr(at, kind)]
@@ -47,8 +63,11 @@ def test_every_page_renders_in_the_language_without_untranslated_keys(app, page)
     heading = str(at.title[0].value) if at.title else " ".join(b.label for b in at.button[:3])
     assert bool(ARABIC.search(heading)) == (lang == "ar"), heading
     assert KEY_MARKER.findall(visible_text(at)) == []
-    if lang == "en" and page != "history":          # the history shows experiment names exactly as typed
-        assert not ARABIC.search(visible_text(at)), "no Arabic on English pages"
+    if lang == "en":                                # experiment names are shown exactly as typed
+        text = visible_text(at)
+        for name in user_names():
+            text = text.replace(name, "")
+        assert not ARABIC.search(text), "no Arabic on English pages"
     assert at.session_state["lang"] == lang                     # the choice survives page navigation
 
 
