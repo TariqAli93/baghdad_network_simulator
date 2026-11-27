@@ -1,0 +1,7 @@
+title: Research status
+caption: 'What the study''s results may be used for today: the dataset, the configuration and the validation evidence.'
+area: 'Study district: **{name}**, receiver area {size}; primary dataset {variant}.'
+classification: How results are classified
+classification_text: Every result states its configuration (research baseline, custom experiment or sensitivity analysis), its placement (automatic, manual or hypothetical), its dataset (complete, estimated heights or incomplete) and its validation (completed or pending), separately from whether it ran.
+indicators: Readiness indicators
+limitations: General limitations

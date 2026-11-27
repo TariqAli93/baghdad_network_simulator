@@ -13,11 +13,12 @@ from streamlit.testing.v1 import AppTest  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 pytestmark = pytest.mark.app
-PAGES = ["overview", "study_area", "simulation", "coverage", "comparison", "planning", "reports", "radio",
-         "validation", "roadmap"]
+PAGES = ["workspace", "comparison", "planning", "history", "reports", "coverage", "research_status", "study_area",
+         "radio", "validation", "roadmap"]
 ARABIC = re.compile(r"[؀-ۿ]")
 KEY_MARKER = re.compile(r"\b(?:common|nav|dashboard|cls|limitations|readiness|study_area|config|simulation|coverage|"
-                        r"comparison|planning|reports|radio|validation|roadmap|report)\.[a-z0-9_]+\.[a-z0-9_.]+\b")
+                        r"comparison|planning|reports|radio|validation|roadmap|report|workspace|history|research_status)"
+                        r"\.[a-z0-9_]+\.[a-z0-9_.]+\b")
 
 
 def visible_text(at) -> str:
@@ -43,8 +44,8 @@ def test_every_page_renders_in_the_language_without_untranslated_keys(app, page)
     lang, at = app
     at = at.switch_page(f"views/{page}.py").run()
     assert not at.exception, [e.message for e in at.exception]
-    title = str(at.title[0].value)
-    assert bool(ARABIC.search(title)) == (lang == "ar"), title
+    heading = str(at.title[0].value) if at.title else " ".join(b.label for b in at.button[:3])
+    assert bool(ARABIC.search(heading)) == (lang == "ar"), heading
     assert KEY_MARKER.findall(visible_text(at)) == []
     if lang == "en":
         assert not ARABIC.search(visible_text(at)), "no Arabic on English pages"
@@ -61,10 +62,10 @@ def test_right_to_left_styles_only_in_arabic(app):
 
 def test_language_switch_changes_the_interface_and_persists():
     at = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240).run()
-    assert ARABIC.search(str(at.title[0].value)), "Arabic is the default language"
+    assert "حفظ" in [b.label for b in at.button], "Arabic is the default language"
     switch = at.segmented_control(key="lang_switch")
     switch.set_value("en").run()
-    assert at.session_state["lang"] == "en" and not ARABIC.search(str(at.title[0].value))
+    assert at.session_state["lang"] == "en" and "Save" in [b.label for b in at.button]
     assert at.query_params.get("lang") in ("en", ["en"])        # the URL keeps the choice across reloads
     at.switch_page("views/coverage.py").run()
     assert str(at.title[0].value) == "Coverage Analysis"
@@ -75,7 +76,7 @@ def test_the_chosen_language_survives_an_application_restart(isolated_preference
     at.segmented_control(key="lang_switch").set_value("en").run()
     assert isolated_preferences.exists()
     restarted = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240).run()   # new session, no ?lang=
-    assert restarted.session_state["lang"] == "en" and str(restarted.title[0].value) == "Baghdad Network Simulator"
+    assert restarted.session_state["lang"] == "en" and "Save" in [b.label for b in restarted.button]
     restarted.segmented_control(key="lang_switch").set_value("ar").run()
     again = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240).run()
     assert again.session_state["lang"] == "ar"
@@ -85,20 +86,17 @@ def test_language_from_the_query_parameter():
     at = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240)
     at.query_params["lang"] = "en"
     at.run()
-    assert at.session_state["lang"] == "en" and str(at.title[0].value) == "Baghdad Network Simulator"
+    assert at.session_state["lang"] == "en" and "Save" in [b.label for b in at.button]
 
 
-def test_dashboard_shows_the_main_action_and_the_latest_run(app):
+def test_the_workspace_offers_each_action_once(app):
     lang, at = app
-    at = at.switch_page("views/overview.py").run()
+    at = at.switch_page("views/workspace.py").run()
     from bns import i18n
 
     buttons = [b.label for b in at.button]
-    assert i18n.translate(lang, "dashboard.start") in buttons
-    text = visible_text(at)
-    for removed in ("Phase", "commit", "approval record"):              # no development history on the dashboard
-        assert removed not in text
+    assert i18n.translate(lang, "workspace.experiment.save") in buttons
     assert len(buttons) == len(set(buttons)), buttons                   # no duplicated actions
-    headings = [str(h.value) for h in at.subheader]
-    assert len(headings) == len(set(headings)), headings
-    assert i18n.translate(lang, "dashboard.card.latest") not in headings   # the latest run is not announced twice
+    text = visible_text(at)
+    for removed in ("Phase", "commit", "approval record", "Prototype"):    # no development history or prototype labels
+        assert removed not in text

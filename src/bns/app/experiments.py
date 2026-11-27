@@ -60,8 +60,11 @@ class Experiment:
         return cls(**{k: v for k, v in data.items() if k in known})
 
 
+ENV = "BNS_EXPERIMENTS_DIR"                 # tests point this at a temporary folder
+
+
 def folder(root: Path) -> Path:
-    return Path(root) / "outputs" / "experiments"
+    return Path(os.environ[ENV]) if os.environ.get(ENV) else Path(root) / "outputs" / "experiments"
 
 
 def new_id(name: str) -> str:

@@ -1,0 +1,50 @@
+title: Experiment History
+caption: Experiments are configurations you edit and save; runs are completed, immutable results. Editing an experiment never changes its runs.
+experiments: Experiments
+no_experiments: No saved experiment yet. Save one in the Simulation Workspace.
+pick_experiment: Select an experiment to open, run again, rename, duplicate or delete it.
+open: Open in the workspace
+run_again: Run again
+run_again_help: Start a new run of the saved configuration (cached traces are reused); earlier runs stay as they are.
+rename_or_copy: Rename or duplicate
+experiment_runs: 'Runs of this experiment: {runs}'
+delete_title: Delete experiment
+delete_text: Delete the configuration **{name}**? Its {runs} completed run(s) stay in the history and the reports.
+runs: Completed runs
+runs_caption: Every saved result, from the workspace and from the research scripts, newest first. Select one to view it, open it in the workspace or print its report; select two or more to compare them.
+pick_run: Select a run (or several to compare).
+view: View maps and statistics
+open_run: Open in the workspace
+open_run_help: A new, unsaved experiment with this run's settings and stations; its traces are reused.
+report: Report
+compare: Compare ({n})
+compare_help: Open the selected runs in Scenario Comparison.
+processes: Background simulations
+processes_caption: Simulations started from the workspace or by the older Run Simulation page, with their state and log.
+trace_line: '{done} of {total} traces committed · {retries} retries · {s} s'
+output: 'Result: {run}'
+columns:
+  name: Experiment
+  modified: Modified
+  dataset: Dataset
+  stations: Stations
+  carriers: Carriers
+  profile: Profile
+  runs: Runs
+  state: State
+  created: Created
+  source: Source
+  experiment: Experiment
+  class: Classification
+  duration: Duration
+execution:
+  ready: Ready
+  running: Running
+  completed: Completed
+  cancelled: Cancelled
+  failed: Failed
+sources:
+  workspace: workspace
+  multi_site: multi-site script
+  site_plan: site plan
+  single_site: single-site script

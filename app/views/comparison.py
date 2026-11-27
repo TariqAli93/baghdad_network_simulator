@@ -1,5 +1,6 @@
 import json
 
+import numpy as np
 import plotly.graph_objects as go
 import streamlit as st
 import ui
@@ -90,7 +91,9 @@ with tab_bands:
 
 with tab_runs:
     paths = ui.run_list()
-    chosen = st.multiselect(t("comparison.runs.select"), paths, default=paths[:2] if len(paths) > 1 else paths,
+    requested = [p for p in st.session_state.pop("cmp-runs", []) if p in paths]      # from the Experiment History
+    chosen = st.multiselect(t("comparison.runs.select"), paths,
+                            default=requested or (paths[:2] if len(paths) > 1 else paths),
                             format_func=lambda p: ui.run_title(ui.run(p)))
     if len(chosen) >= 2:
         runs = [ui.run(p) for p in chosen]
@@ -112,6 +115,59 @@ with tab_runs:
         fig.update_layout(height=380, xaxis=dict(title=t("comparison.frequency_axis"), type="log"),
                           yaxis_title=t(f"comparison.runs.metrics.{metric}"), **LAYOUT)
         ui.chart(fig)
+
+        # two runs side by side: a carrier of each (e.g. 5G 3.5 GHz and candidate 6G 8 GHz), one layer, one scale
+        st.subheader(t("comparison.runs.maps_title"))
+        a_run, b_run = runs[0], runs[1]
+
+        def where(run):
+            return sorted((round(s["x"], 1), round(s["y"], 1), round(s["z"], 1)) for s in run.sites_for(run.scenarios[0]["id"]))
+
+        st.markdown(t("comparison.runs.sites_same" if where(a_run) == where(b_run) else "comparison.runs.sites_differ"))
+
+        def carrier_label(sc):
+            custom = f" → {sc['frequency_hz'] / 1e9:g} GHz / {sc['bandwidth_hz'] / 1e6:g} MHz" if sc.get("custom") else ""
+            return ui.scenario_name({"id": sc.get("preset", sc["id"]), "label": sc["label"],
+                                     "frequency_hz": sc.get("preset_frequency_hz", sc["frequency_hz"])}) + custom
+
+        m1, m2, m3 = st.columns(3)
+        sa = m1.selectbox(t("comparison.runs.band_a"), a_run.scenarios, format_func=carrier_label, key="cmp-a")
+        sb = m2.selectbox(t("comparison.runs.band_b"), b_run.scenarios, format_func=carrier_label, key="cmp-b",
+                          index=min(1, len(b_run.scenarios) - 1) if a_run.path == b_run.path else 0)
+        shared = [k for k in ("sinr_db", "rx_power_dbm", "rate_bps", "interference_dbm", "path_gain_db")
+                  if k in a_run.layers() and k in b_run.layers()]
+        lay = m3.selectbox(t("common.layer"), shared, format_func=ui.layer_title, key="cmp-layer")
+        if a_run.manifest["grid"] != b_run.manifest["grid"]:
+            st.warning(t("comparison.runs.grid_differs"))
+        elif lay:
+            from plotly.subplots import make_subplots
+
+            unit, rng, _ = ui.LAYERS[lay]
+            scale = 1e-6 if lay == "rate_bps" else 1.0
+            za, zb = (np.where(r.outdoor, r.layer(sc["id"], lay) * scale, np.nan) for r, sc in ((a_run, sa), (b_run, sb)))
+            if lay == "rate_bps":
+                finite = np.concatenate([z[np.isfinite(z) & (z > 0)] for z in (za, zb)])
+                rng, unit = (0.0, float(np.percentile(finite, 99)) if finite.size else 1.0), "Mbit/s"
+            grid = a_run.grid
+            fig = make_subplots(rows=1, cols=2, shared_yaxes=True, horizontal_spacing=0.02,
+                                subplot_titles=[carrier_label(sa), carrier_label(sb)])
+            for k, z in enumerate((za, zb), start=1):
+                fig.add_heatmap(x=grid.x_centers, y=grid.y_centers, z=np.where(np.isfinite(z), z, np.nan),
+                                colorscale=ui.SEQ, zmin=rng[0], zmax=rng[1], showscale=k == 2, colorbar=dict(title=unit),
+                                row=1, col=k, hovertemplate="x %{x:.0f} m, y %{y:.0f} m<br>%{z:.1f} " + unit
+                                + "<extra></extra>")
+                fig.update_yaxes(scaleanchor=f"x{k if k > 1 else ''}", row=1, col=k)
+            fig.update_layout(height=430, margin=dict(l=10, r=10, t=40, b=10), plot_bgcolor="#e9e8e3")
+            fig.update_annotations(font_size=12)
+            ui.chart(fig)
+            rows = [{t(C + "scenario"): carrier_label(sc), "GHz": sc["frequency_hz"] / 1e9, "MHz": sc["bandwidth_hz"] / 1e6,
+                     t(C + "coverage"): r1(run.scenario_summary(sc["id"]).get("coverage_fraction"), 100),
+                     t(C + "sinr"): r1(run.scenario_summary(sc["id"]).get("sinr_db_median")),
+                     t(C + "rate_p5"): r1((run.scenario_summary(sc["id"]).get("rate_p5_bps") or 0) / 1e6),
+                     t(C + "rate_median"): r1((run.scenario_summary(sc["id"]).get("rate_median_bps") or 0) / 1e6, digits=0)}
+                    for run, sc in ((a_run, sa), (b_run, sb))]
+            st.dataframe(rows, hide_index=True, width="stretch")
+            st.caption(t("common.candidate_6g_note") + " " + t("comparison.cdf_note"))
     else:
         st.info(t("comparison.runs.need_two"))
 

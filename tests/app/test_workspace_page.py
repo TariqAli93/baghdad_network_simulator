@@ -22,7 +22,7 @@ DEMO = "multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globf
 def workspace(lang="en"):
     if not (ROOT / "outputs" / "runs" / "development" / DEMO / "network.npz").exists():
         pytest.skip("demonstration run not on this computer")
-    at = AppTest.from_file(str(ROOT / "app" / "workspace.py"), default_timeout=240)
+    at = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240)     # the landing page
     at.session_state["lang"] = lang
     return at.run()
 
@@ -65,4 +65,4 @@ def test_a_radio_change_recomputes_at_once_and_a_propagation_change_makes_the_re
     at.run()
     assert not at.exception, [e.message for e in at.exception]
     assert "ws-state stale" in state(at)
-    assert any(b.label.startswith("Trace this band") for b in at.button)
+    assert "Run simulation (15 traces)" in [b.label for b in at.button]     # 1 station x 3 sectors x 5 carriers

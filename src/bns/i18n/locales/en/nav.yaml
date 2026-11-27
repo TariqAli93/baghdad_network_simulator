@@ -12,3 +12,10 @@ roadmap: 6G Roadmap
 sidebar_note: >-
   4G, 5G and candidate 6G coverage by ray tracing on real Baghdad footprints. Any valid
   setting can be simulated; every result states its configuration, data and validation.
+workspace: Simulation Workspace
+scenario_comparison: Scenario Comparison
+site_planning: Automatic Site Planning
+history: Experiment History
+research: Settings and Research Details
+research_status: Research status
+run_viewer: Run viewer
