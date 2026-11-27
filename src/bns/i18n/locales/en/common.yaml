@@ -1,0 +1,54 @@
+app_name: Baghdad Network Simulator
+app_tagline: Ray-tracing simulation of 4G, 5G and candidate 6G coverage in central Baghdad
+language: Language
+language_names: {ar: العربية, en: English}
+saved_run: Saved run
+none: none
+none_yet: None yet.
+yes_word: yes
+no_word: no
+not_available: not available
+loading_run: Loading run...
+loading_buildings: Loading buildings...
+preparing_dataset: Preparing the dataset...
+checking_gpu: Checking for a GPU...
+reading_cache: Reading cached path gain...
+technical_details: Technical details
+technical_record: Run record (as saved, English)
+english_source: This content is the project's English source record.
+download: Download
+no_runs_kind: No saved run of this kind yet. Start one on **Run simulation**.
+invalid_run: "Invalid for research interpretation: {reason} Kept for reproducibility only."
+invalid_prefix: INVALID
+run_title: "{date} · {sites} · {profile} · {area}"
+sites: {zero: no sites, one: 1 site, other: "{count} sites"}
+candidates: {zero: no candidates, one: 1 candidate, other: "{count} candidates"}
+buildings: {zero: no buildings, one: 1 building, other: "{count} buildings"}
+site_plan: site plan
+scenario: Scenario
+layer: Layer
+show_buildings: Buildings
+units_note: Shannon rates are theoretical upper bounds for one user with the whole carrier, not user throughput.
+candidate_6g_note: Candidate 6G (8 and 15 GHz) are hypothetical research scenarios, not deployed networks.
+status: Status
+error_category:
+  missing_dataset: The dataset for this area is not built on this computer.
+  invalid_value: A parameter value is outside its valid range.
+  no_gpu: The GPU backend is not available on this computer.
+  unknown: The simulation cannot start because of a technical problem.
+error_hint: The technical message is below.
+scenario_status: {deployed: deployed, assumed: assumed for Iraq, candidate: candidate (research scenario)}
+band:
+  lte_1800: 4G — 1.8 GHz
+  nr_3500: 5G — 3.5 GHz
+  nr_28000: 5G — 28 GHz
+  c6g_8000: Candidate 6G — 8 GHz
+  c6g_15000: Candidate 6G — 15 GHz
+generation: {lte_1800: 4G, nr_3500: 5G, nr_28000: 5G, c6g_8000: Candidate 6G, c6g_15000: Candidate 6G}
+height_category: {observed: observed, estimated: estimated, synthetic: synthetic, placeholder: placeholder}
+area_role: {study district: study district, provisional study area: provisional study area, development fixture: development fixture}
+acronyms:
+  sinr: "SINR: signal-to-interference-plus-noise ratio — signal quality including interference from other sectors."
+  rsrp: "Received power: power of the serving sector at the receiver, before noise and interference."
+  shannon: "Shannon rate: B·log2(1+SINR), the theoretical upper bound for one user with the whole carrier."
+  gpu: "GPU: graphics processor; faster ray tracing, recorded as a deviation from the CPU research baseline."

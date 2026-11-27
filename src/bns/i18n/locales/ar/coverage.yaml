@@ -1,0 +1,41 @@
+title: تحليل التغطية
+caption: خرائط تشغيل محفوظ. الخلايا الداخلية (مخططات المباني) رمادية ولا تُحتسب أبدًا؛ والخلايا الخارجية التي لا تصلها أي إشارة تُعدّ غير مغطاة.
+run_line: "المحرّك {backend} · الملف {profile} · {sites}"
+site_plan_maps: "خطة مواقع: تعرض الخرائط الاختيار النهائي لكل سيناريو"
+no_layers: لا يحتوي هذا التشغيل على طبقات خرائط للعرض.
+buildings_unavailable: المباني غير متاحة (مجموعة بيانات هذا التشغيل غير موجودة على هذا الحاسوب).
+no_site: لم يُختر أي موقع لهذا السيناريو.
+layers:
+  path_gain_db: كسب المسار
+  rx_power_dbm: قدرة الإشارة المستقبلة
+  sinr_db: جودة الإشارة (SINR)
+  rate_bps: معدل نقل البيانات (شانون)
+  rate_3gpp_bps: معدل نقل البيانات (تحويل 3GPP)
+  covered: الخلايا المغطاة
+  serving_site: الموقع المخدِّم
+  interference_dbm: قدرة التداخل
+metrics:
+  coverage: التغطية
+  coverage_help: "الخلايا الخارجية التي فيها {definition} ≥ {threshold}."
+  sinr_median: وسيط SINR
+  sinr_p5: SINR عند المئين الخامس
+  rate_p5: معدل نقل البيانات عند المئين الخامس
+  rate_median: وسيط معدل نقل البيانات
+  rate_3gpp_p5: معدل 3GPP عند المئين الخامس
+  rate_3gpp_help: صيغة شانون المقيّدة من TR 38.921 (القرار B3)، تُعرض بجانب حد شانون.
+  noise: قدرة الضوضاء
+  interference_limited: خلايا يحدّها التداخل
+  interference_limited_help: الخلايا الخارجية المخدومة التي يتجاوز فيها التداخل الضوضاء.
+cells_note: "{cells} خلية خارجية · غير المغطاة بأي مسار {unreached}. المعدلات حدود شانون العليا، وليست إنتاجية المستخدم."
+cdf_title: "التوزيع على الخلايا الخارجية (CDF): {layer}"
+cdf_y: النسبة عند القيمة أو دونها
+cdf_note: "الخلايا التي لا يصلها أي مسار ({cells}) مستبعدة من هذا المنحنى."
+sites: المواقع
+sites_selected: المواقع (المختارة لهذا السيناريو)
+map:
+  site: الموقع
+  covered: مغطاة
+  not_covered: غير مغطاة
+  site_hover: "{site}<br>{building}<br>السطح {roof} m ({category})<br>الهوائي {antenna} m"
+  x_axis: "x شرقًا [m]"
+  y_axis: "y شمالًا [m]"

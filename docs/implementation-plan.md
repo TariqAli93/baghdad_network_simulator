@@ -986,3 +986,25 @@ Under the feature freeze, configuration and guards only; no simulation was run.
 - Propagation caches: keys include the scene fingerprint, so the new scenes never reuse traces of
   other scenes; no cache had to be deleted.
 - Height sensitivity and checks: `docs/synthetic-urban-model.md`.
+
+### Addendum: Arabic/English interface and simplified dashboard (2026-11-27)
+
+- `bns.i18n`: YAML catalogues per feature (`src/bns/i18n/locales/{ar,en}/*.yaml`), dotted keys,
+  `str.format` interpolation, CLDR plural forms (Arabic six, English two), English fallback then the
+  key, localized dates (Western digits for all numbers), `validate()` for key and placeholder parity.
+  Arabic is the default; the choice is kept in the session and in `?lang=`.
+- Every page goes through `t()`; Arabic is right-to-left (CSS on Streamlit's test ids) while charts,
+  tables, code, numbers and inputs stay left-to-right; Arabic chart texts and band names carry Unicode
+  direction isolates. Saved run records (Markdown notes, figures) remain English source records and
+  are labelled as such; the roadmap claims are translated item by item and a unit test keeps the
+  English text identical to `configs/roadmap.yaml`.
+- Dashboard (`bns.app.dashboard`): header with language switch and execution status, four cards from
+  real data, one primary action, latest completed run, five-scenario comparison, scientific status,
+  one context-aware next step. Navigation: seven workflow pages plus "Research details" (radio,
+  validation, roadmap).
+- Printable report: `build_html(..., lang="ar"|"en")`, `<html lang dir>`, Arabic font stack; the
+  English output is unchanged. CSV/JSON/GeoJSON exports keep their English schema.
+- No change to simulation, formulas, baseline, provenance, validation rules or caches.
+- Tests: `tests/unit/test_i18n.py` (parity, used keys, plurals, fallback, terminology, roadmap sync,
+  classification, Arabic report), `tests/unit/test_dashboard.py`, `tests/app/test_i18n_pages.py`
+  (every page in both languages, RTL styles, switch, `?lang=`).

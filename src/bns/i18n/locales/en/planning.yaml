@@ -1,0 +1,39 @@
+title: Site Planning
+caption: SINR-based greedy selection over the sites of a saved multi-site run. Every evaluation includes the interference of all selected sectors; path gain is read from the cache, nothing is traced.
+heuristic: The greedy result is a heuristic over these candidates only, not a proven minimum. Adding a site can lower coverage; such additions are listed.
+new_plan: "Create a new plan with `uv run python scripts/plan_sites.py --area NAME [--backend gpu] [--threshold DB --load X]` (traces only what is not cached)."
+saved_plan: "**Saved plan** `{run}` — {candidates} (roof ≥ {height} m, ≥ {spacing} m apart, heights {categories}; mast {mast} m, antennas at the {position} of the roof); objective: {objective}. Overrides: {overrides}. Traces {trace} s, selection {selection} s ({backend})."
+positions: {interior: interior, roof_edge: edge}
+columns:
+  scenario: Scenario
+  selected: Selected (in order)
+  coverage_after: Coverage after each
+  stop: Stop reason
+  why: Explanation
+  uncovered: Uncovered cells
+  all_on: All candidates on
+  degrading: Degrading additions seen
+english_reasons: Stop reasons and explanations are recorded in the run in English.
+history: Selection history (every candidate evaluated at every step)
+final_map: Final map for
+layers: {covered: Coverage, uncovered: Uncovered areas, sinr_db: SINR, serving_site: Serving site}
+reevaluate: Re-evaluate from the cache
+config_changed: "These radio parameters changed since the run; results below use the current files: {items}"
+saved_greedy: "**Saved greedy result** (target {target}): sites {sites} → {coverage}; stopped because *{reason}*."
+try: Try a selection
+try_note: Sliders change assumptions for a sensitivity check only; the research baseline is unchanged.
+site_label: "{site} · {building} · roof {roof} m ({category})"
+transmitting: Sites transmitting
+activity: Interference activity (load of non-serving sectors)
+activity_help: 1.0 = every other sector always transmits (ITU-R M.2412 full buffer).
+threshold_help: −10 dB is the lowest SINR with a non-zero rate in the 3GPP mapping.
+target: Coverage target
+greedy: Greedy selection with these settings
+greedy_result: "Selected {sites} → {coverage}; target {reached} (*{reason}*)."
+reached: reached
+not_reached: not reached
+sites_selected: sites selected
+step: Step
+coverage_before: Coverage before
+degrading: "Additions that would have lowered coverage: {items}"
+degrading_item: "step {step}: {site} ({change} pt)"

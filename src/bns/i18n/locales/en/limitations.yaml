@@ -1,0 +1,31 @@
+not_study_district: "{area} is a {role}, not the study district: results do not describe the study district's research dataset"
+placeholder_share: "{pct:.1f} % of buildings have placeholder heights"
+worklist_incomplete: "observation worklist incomplete: {observed} of {listed} buildings observed, {unmatched} rows matching no building"
+synthetic: "Synthetic Urban Model '{name}' ({algorithm}, {scenario} scenario, seed {seed}): {pct:.1f} % of buildings have estimated building heights (modelling assumptions, not measurements); no field observations"
+height_model: missing building heights are drawn from an assumed height model
+deviations: "differs from the research baseline: {items}"
+validation_pending: validation pending (final-scene convergence, MATLAB comparison)
+dataset_note: "{text}"
+general:
+  heights: >-
+    Building heights: real footprints and coordinates; heights are documented only for a few
+    buildings. Runs on the Synthetic Urban Model use estimated heights (modelling assumptions,
+    not measurements); runs on placeholder heights are preliminary simulations. Neither is an
+    empirical description of Baghdad.
+  validated: >-
+    Only research-baseline runs on a dataset fit for research, after the final-scene convergence
+    and the MATLAB comparison, are validated research results; everything else is preliminary or
+    experimental.
+  shannon: >-
+    Shannon rates are theoretical upper bounds for one user with the whole carrier; not network
+    capacity or user throughput. A 3GPP mapping, where present, is reported beside them.
+  greedy: Greedy site selection is a heuristic; it does not give a minimum site count.
+  validation_scope: >-
+    Validation so far: analytical checks and comparison with 3GPP TR 38.901 (model-to-model).
+    MATLAB cross-check prepared but not executed; no field measurements.
+  candidate_6g: >-
+    Candidate 6G bands (8 and 15 GHz) are research assumptions, not finalized commercial 6G
+    specifications.
+  runs_compared: >-
+    Runs are compared as one experiment only when area, grid, profile, mechanisms, antennas,
+    radio parameters, load and backend match; otherwise a warning names the differences.

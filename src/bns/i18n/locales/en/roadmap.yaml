@@ -1,0 +1,79 @@
+title: 6G Roadmap for Iraq
+caption: "A structured workspace: verified facts, results from saved runs, open questions and your own recommendations. Nothing here is generated as a conclusion."
+banner: Preliminary Simulation evidence
+banner_detail: The simulation results on this page come from runs on incomplete data, before validation; none is a validated research result. No date shown is a confirmed deployment date.
+unreadable: "{path} could not be read; it will be overwritten only when you save."
+no_run: No saved run yet.
+no_plan: No saved site plan yet (scripts/plan_sites.py).
+from_run: "From `{run}` — {label}"
+from_validation: "From `{folder}` (model-to-model comparison; not measurements)"
+plan_note: Greedy over the saved candidates; not a minimum. Sensitivity-case rows use threshold/load values other than the research baseline.
+needs_both: Needs a saved network run and a saved site plan.
+columns:
+  band: Band
+  status: Status
+  coverage: Coverage
+  sinr: Median SINR
+  rate_p5: 5th-percentile Shannon rate
+  threshold: Threshold
+  load: Load
+  sites: Sites
+  density: "Sites per km²"
+  stop: Stop reason
+  sensitivity: Sensitivity case
+  bandwidth: Bandwidth
+  rate_median: Median Shannon rate
+  selected: Sites selected (candidate assumptions)
+kinds: {verified: Verified evidence, result: Provisional experimental result, question: Open question}
+sources: sources
+your_notes: "**Your recommendations for this stage** (stored locally; not generated)"
+recommendation: Recommendation
+placeholder: Write your interpretation and recommendation, citing the evidence above.
+save: Save
+saved: Saved.
+last_saved: "Last saved {date}"
+assumptions: Assumptions and limitations
+limits:
+  dataset: "The research baseline (district, building-data method, radio parameters, site rule) is set, but the dataset is not yet complete measured data (field observations): the evidence above is from simulations under stated assumptions."
+  shannon: Shannon rates are theoretical upper bounds for one user with the whole carrier; the 3GPP mapping beside them uses LTE (TR 36.942) for 4G, NR (TR 38.921) for 5G and the NR values as an approximation for candidate 6G.
+  bands: 8 and 15 GHz are candidate research bands (WRC-27 studies), not finalized 6G specifications.
+  press: Press-based facts about Iraq's 5G status rest on few sources and must be re-checked before submission.
+stages:
+  preparation:
+    title: Preparation and infrastructure assessment
+    purpose: What exists today and what a 6G-capable network would build on.
+  spectrum:
+    title: Spectrum planning
+    purpose: Which bands the regulator could plan for, on the basis of international studies.
+  trials:
+    title: Experimental trials
+    purpose: What a trial would need to measure to replace this study's assumptions with evidence.
+  commercial:
+    title: Potential commercial introduction
+    purpose: Conditions under which commercial 6G could follow; no date is implied.
+# item texts: configs/roadmap.yaml is the English source; these keys translate it item by item
+items:
+  preparation:
+    i0: All three operators launched LTE on 1800 MHz in January 2021; 2G on 900/1800 MHz, 3G on 2100 MHz.
+    i1: 4G population coverage 96.6 % (ITU figure for 2022, quoted by the CMC).
+    i2: As of November 2026 no operator had launched commercial 5G in Iraq; operators were running trials and the regulator was reported to plan a 5G auction for 2027 (single, one-day-old press source; confirm).
+    i3: Sites needed per km² in the development district, per band (greedy, not a minimum).
+    i4: Which existing rooftops and masts could host mid-band and upper-mid-band sectors, and at what height? (Depends on decisions A1 and A4 and on field observation of tall buildings.)
+  spectrum:
+    i0: The regulator's 5G plan names 700 MHz and 2.6/2.3 GHz first and 3.4-3.8 GHz as the key capacity band, with contiguous 100 MHz blocks per licence holder to be evaluated. No 5G spectrum has been assigned.
+    i1: WRC-27 agenda item 1.7 studies 4 400-4 800 MHz, 7 125-8 400 MHz and 14.8-15.35 GHz for IMT; in Region 1 (Iraq) 7 125-7 250 MHz, 7 750-8 400 MHz and 14.8-15.35 GHz.
+    i2: The Arab Spectrum Management Group would consider identifying 7 125-7 250, 7 750-8 400 MHz and 14.8-15.35 GHz on the study results, provided incumbent services are protected.
+    i3: 14.8-15.3 GHz is used today in Iraq for fixed links and defence systems; 3.3-3.4 GHz for military radiolocation.
+    i4: WRC-27 takes place 18 October - 12 November 2027 (Shanghai).
+    i5: Coverage, median SINR and 5th-percentile Shannon rate per candidate band in the development runs.
+    i6: How would sharing with incumbent fixed and defence links at 15 GHz be handled in Baghdad?
+  trials:
+    i0: "3GPP Release 21 holds the first 6G specifications: content approved March 2027, Stage 3 frozen December 2028, ASN.1/OpenAPI frozen March 2029 (planning dates of the standards body, not deployment dates)."
+    i1: A 5G lab for educational purposes opened at Al-Nahrain University with Asiacell (press releases).
+    i2: Agreement of the ray tracer with 3GPP TR 38.901 path-loss models (model-to-model, not measurements).
+    i3: Which measurements (rooftop heights, drive tests at 3.5 GHz, a short 8 or 15 GHz link) would most reduce the uncertainty of the results? (The height sensitivity and the near-site roof shadow are candidates.)
+  commercial:
+    i0: 3GPP's 6G dense-urban evaluation target is a 5th-percentile user data rate of 300 Mbit/s downlink with a macro inter-site distance of 200 m.
+    i1: "6G evaluation bandwidths: 400 MHz aggregated at 7 GHz and at 15 GHz; 1 GHz at 30 GHz."
+    i2: "Coverage-capacity trade-off: wider candidate carriers raise the Shannon bound but need more sites for the same coverage (development results; Shannon bound, not throughput)."
+    i3: Would the candidate bands meet the 300 Mbit/s 5th-percentile target at a realistic site density once load, scheduling and real building data are included? (Not answerable from the current model.)

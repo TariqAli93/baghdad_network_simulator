@@ -127,7 +127,11 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   fixture (`tahrir_bab_al_sharqi`) is frozen; development work uses `tahrir_bab_al_sharqi_v2`.
 - Raw data in `data/raw/` is immutable and hashed; `data/scenes/`, `data/cache/` and large
   run outputs are regenerated and git-ignored.
-- Charts use `bns.reporting.plotstyle` (one colour per scenario, everywhere).
+- Charts use `bns.reporting.plotstyle` (one colour per scenario, everywhere); in the app they are shown
+  through `ui.chart` (keeps Arabic chart texts in reading order).
+- User-facing text goes through `t("feature.key")` (`bns.i18n`, locales in `src/bns/i18n/locales/{ar,en}`);
+  Arabic is the default and right-to-left. Add every key in both languages (`tests/unit/test_i18n.py`).
+  Identifiers, file names, data fields and machine-readable exports are never translated.
 - `data/raw/**` is binary for git (`.gitattributes`): never let git convert hashed raw files.
 - GlobalBuildingAtlas (CC BY-NC 4.0) per-building values stay local (git-ignored); only aggregate
   evaluation results are in the repository.
@@ -185,7 +189,8 @@ src/bns/analysis/               link_budget (received power, SINR, Shannon), met
 src/bns/optimization/greedy.py  greedy site selection (coverage masks; and on network SINR)
 src/bns/simulation/network.py   multi-site network: serving sector/site, interference
 src/bns/simulation/experiment.py  shared experiment set-up (scripts and app)
-src/bns/app/                    saved runs, run control, re-evaluation (no UI code)
+src/bns/app/                    saved runs, run control, re-evaluation, dashboard data (no UI code)
+src/bns/i18n/                   Arabic/English catalogues, plurals, dates, validation
 app/                            Streamlit application (main.py, ui.py, views/: 10 pages)
 src/bns/validation/tr38901.py   3GPP UMa/UMi path loss, LOS probability, applicability
 src/bns/validation/matlab_case.py  STL export and receiver sampling for the MATLAB package

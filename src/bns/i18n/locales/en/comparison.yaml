@@ -1,0 +1,57 @@
+title: Network Comparison
+caption: The five scenarios on the same grid, sites and radio system — only frequency and bandwidth differ — plus comparisons across runs, site counts, the 3GPP check and sensitivity.
+tabs: {bands: Scenarios in one run, runs: Across runs, sites: Site counts, model: 3GPP model check, sensitivity: Sensitivity Analysis, limitations: Limitations}
+columns:
+  scenario: Scenario
+  coverage: "Coverage [%]"
+  rx_power: "Median received power [dBm]"
+  sinr: "Median SINR [dB]"
+  rate_p5: "5th-percentile data rate [Mbit/s]"
+  rate_median: "Median data rate [Mbit/s]"
+charts:
+  coverage: Coverage by frequency
+  rx_power_median_dbm: Median received power
+  sinr_median_db: Median SINR
+  cdf_y: share of outdoor cells at or below
+  sinr_cdf: SINR distribution (CDF)
+  rate_cdf: Shannon data-rate distribution (upper bound)
+cdf_note: "Unreached outdoor cells enter the SINR curve at −40 dB and the rate percentiles with 0. Shannon rate = one user with the whole carrier: a theoretical link bound, not capacity or throughput."
+frequency_axis: "frequency [GHz]"
+network:
+  title: Single site vs network
+  network: "network [%]"
+  alone: "{site} alone [%]"
+  lowered: additions that lowered coverage
+  lowered_item: "site {site} ({change} pt)"
+  growth: Coverage vs number of sites (given order)
+  sites_axis: sites
+runs:
+  select: Runs to compare
+  differ: "`{other}` differs from `{ref}` in: **{items}**. These are not the same experiment; read differences as the combined effect of all of them."
+  same: "`{other}` and `{ref}` share area, grid, profile, mechanisms, antennas, radio parameters, load and backend."
+  metrics:
+    coverage: "coverage [%]"
+    sinr_median_db: "median SINR [dB]"
+    rate_p5_mbps: "5th-percentile Shannon rate [Mbit/s]"
+    rate_median_mbps: "median Shannon rate [Mbit/s]"
+  need_two: Select at least two runs.
+plans:
+  none: No saved site plan yet (scripts/plan_sites.py or the Site Planning page).
+  case: "threshold {threshold} dB, load {load}"
+  chart: Sites selected by the SINR greedy vs frequency
+  columns: {band: Band, threshold: "Threshold [dB]", load: Load, sites: Sites, density: "Sites per km²", coverage: Coverage, target: Target, stop: Stop reason, candidates: Candidates, profile: Profile, backend: Backend}
+  note: "Greedy over the saved candidates (heuristic, not a minimum). “no candidate raises coverage” is a local stall, not proof that the target is unreachable. Density = sites / 1 km² receiver area."
+model:
+  none: No TR 38.901 comparison saved yet (scripts/validate_tr38901.py).
+  caption: "`{folder}` — model-to-model comparison (category 2), not a validation against measurements."
+  chart: RMSE of traced vs TR 38.901 path loss
+sens:
+  none: No sensitivity analysis saved yet (scripts/run_sensitivity.py RUN_DIR).
+  caption: "From `{run}`. Sourced candidate values: threshold {threshold} dB, load {load}; all other points are sensitivity sweep values."
+  load: Load (interference activity)
+  all_sites: "{band} — all sites"
+  site_1: "{band} — site 1"
+  candidate_line: candidate −10 dB
+  chart: "Coverage vs SINR threshold (solid: all sites; dotted: site 1 alone)"
+  threshold_axis: "threshold [dB]"
+  table: Full table

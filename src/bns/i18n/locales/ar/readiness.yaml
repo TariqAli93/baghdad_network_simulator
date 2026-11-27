@@ -1,0 +1,19 @@
+title:
+  dataset: توفر مجموعة البيانات
+  heights: اكتمال ارتفاعات المباني (الارتفاعات الموثّقة)
+  observations: الأرصاد الميدانية
+  synthetic: النموذج الحضري الاصطناعي
+  candidates: المواقع المرشّحة للمحطات
+  configuration: الإعدادات
+  convergence: تقارب المحاكاة
+  validation: التحقق (تحليلي، TR 38.901)
+  matlab: المقارنة مع MATLAB
+  laptop: اختبار الأداء على الحاسوب المحمول
+state:
+  Ready: جاهز
+  Completed: مكتمل
+  Incomplete data: بيانات غير مكتملة
+  Validation Pending: التحقق العلمي قيد الانتظار
+  Research Baseline: الإعدادات البحثية الأساسية
+  Custom Experiment: تجربة مخصصة
+  Synthetic Data Complete: البيانات الاصطناعية مكتملة

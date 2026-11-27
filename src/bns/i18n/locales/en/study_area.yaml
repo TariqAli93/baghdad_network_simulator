@@ -1,0 +1,55 @@
+title: Study Area
+caption: The district, its buildings and where each building height comes from.
+names:
+  tahrir_bab_al_sharqi_study: Tahrir Square / Bab Al-Sharqi
+  tahrir_bab_al_sharqi_v2: Tahrir Square / Bab Al-Sharqi (provisional data)
+  tahrir_bab_al_sharqi: Tahrir Square / Bab Al-Sharqi (test fixture)
+variants:
+  osm: OpenStreetMap heights only
+  synthetic_urban: Synthetic Urban Model (baseline)
+  synthetic_urban_low: Synthetic Urban Model (low-rise)
+  synthetic_urban_high: Synthetic Urban Model (high-rise)
+  mixed_1_to_8: height model 1-8 floors
+  low_rise_2_to_4: height model 2-4 floors
+  flat_9m: flat 9 m
+  lognormal_10m: log-normal heights
+area: Area
+variant: Dataset
+variant_help: The configured default is selected first; the other variants are kept for comparison and sensitivity analysis.
+role: "Role: {role}"
+not_study: Not the study district — for comparison and testing only, never used to report Baghdad results.
+no_dataset: "No dataset built for {area}. Build it with scripts/build_dataset.py."
+metrics:
+  buildings: Buildings
+  documented: Documented heights
+  synthetic: Synthetic heights
+  placeholder: Placeholder heights
+synthetic_note: >-
+  Synthetic heights are estimated by the Synthetic Urban Model (seed {seed}): modelling assumptions,
+  not measurements. Footprints and coordinates are real.
+not_fit: "Not complete measured data: {reasons}"
+methodology: Study-area and building-data methodology
+observations: Field observations
+observations_note: >-
+  Field observations replace synthetic heights automatically when imported
+  (scripts/build_dataset.py --observations FILE). Worklist and template:
+  outputs/datasets/<area>/fieldwork/.
+group_progress: "{groups}: {observed} of {required} buildings ({accepted})"
+site_rule: Site rule and candidate rooftops
+map_colour: Colour buildings by
+colour_provenance: height source
+colour_height: height
+receiver_area: receiver area
+x_axis: x east [m]
+y_axis: y north [m]
+tallest: Tallest buildings and where their heights come from
+columns:
+  building: "Building"
+  height: "Height [m]"
+  category: "Source type"
+  source: "Source"
+  method: "Method"
+  alternatives: "Alternatives"
+config_columns: {item: Item, value: Value, configuration: Configuration, file: File}
+external: External height datasets (evaluated; not used as height sources)
+no_evaluation: No evaluation for this area.

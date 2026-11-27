@@ -1,0 +1,99 @@
+title: Baghdad Network Simulator
+tagline: >-
+  Simulates coverage, signal quality and data rate of 4G, 5G and candidate 6G networks over a
+  1 km² district of central Baghdad, using ray tracing on real building footprints.
+status_running: Simulation running
+status_idle_latest: "Latest simulation: {date}"
+status_none: No simulation yet
+card:
+  study_area: Study area
+  study_area_sub: "{size} receiver area · real building footprints"
+  scenarios: Network scenarios
+  scenarios_value: "5"
+  scenarios_sub: 4G · 5G (3.5 and 28 GHz) · candidate 6G (8 and 15 GHz)
+  dataset: Building heights
+  dataset_synthetic: "{pct:.1f} % estimated"
+  dataset_synthetic_sub: "{buildings} buildings · {documented} documented heights · Synthetic Urban Model"
+  dataset_plain: "{documented} documented"
+  dataset_plain_sub: "{buildings} buildings · the rest use placeholder heights"
+  dataset_missing: not built
+  dataset_missing_sub: Build the dataset first (scripts/build_dataset.py).
+  latest: Latest simulation
+  latest_none: none yet
+  latest_none_sub: Start your first simulation.
+  latest_running: running
+  latest_running_sub: "{progress}"
+  latest_sub: "{stations} · {duration}"
+start: Start New Simulation
+view_latest: View latest results
+latest:
+  heading: Latest simulation
+  empty: No completed simulation yet. Start one to see coverage, signal quality and data rate here.
+  area: Study area
+  stations: Stations
+  date: Date
+  duration: Duration
+  coverage: Coverage
+  sinr: Median SINR
+  rate: Median data rate
+  rate_p5: 5th-percentile data rate
+  across: across the five scenarios
+  view_full: View full results
+  seconds: "{value:.0f} s"
+  minutes: "{value:.1f} min"
+comparison:
+  heading: Network comparison
+  subtitle: Results of the latest simulation; only frequency and bandwidth differ between scenarios.
+  metric: Compare
+  metrics:
+    coverage: Coverage [%]
+    rx_power_median_dbm: Received power [dBm]
+    sinr_median_db: Median SINR [dB]
+    rate_median_mbps: Median data rate [Mbit/s]
+  columns:
+    scenario: Scenario
+    bandwidth: Bandwidth [MHz]
+    coverage: Coverage [%]
+    rx_power: Median received power [dBm]
+    sinr: Median SINR [dB]
+    rate: Median data rate [Mbit/s]
+    rate_p5: 5th-pct data rate [Mbit/s]
+    status: Status
+  empty: The comparison appears after the first completed simulation.
+status:
+  heading: Scientific status
+  note: Informational only — none of this prevents running a simulation.
+  dataset: Dataset quality
+  dataset_synthetic: >-
+    {pct:.1f} % of building heights come from the Synthetic Urban Model (estimated, not measured);
+    {documented} heights are documented. Footprints and coordinates are real.
+  dataset_plain: "{documented} of {buildings} heights are documented; the rest are placeholders."
+  dataset_missing: The study dataset is not built on this computer.
+  configuration: Configuration
+  configuration_baseline: The configuration files hold the approved research baseline.
+  configuration_custom: The configuration files differ from the research baseline.
+  validation: Numerical validation
+  validation_text: >-
+    Analytical checks and the TR 38.901 comparison are done; the final-scene convergence and the
+    MATLAB comparison are pending. No field measurements.
+  validation_done: Convergence and the MATLAB comparison are completed for their documented scope.
+  limitations: Known limitations
+  details: Detailed status and provenance
+  detail_columns: {item: Item, state: Status, details: Technical details}
+next:
+  heading: Next step
+  progress: A simulation is running — follow its progress.
+  first_run: Start your first simulation.
+  explore_coverage: Your simulation finished — explore the coverage maps.
+  compare: Compare the five network scenarios.
+  review_limitations: Validation is pending — review the scientific limitations.
+  report: Generate a printable report of the results.
+  new_experiment: Try a custom experiment or a height sensitivity case.
+  button:
+    progress: View progress
+    first_run: Start simulation
+    explore_coverage: Open coverage analysis
+    compare: Open network comparison
+    review_limitations: Review limitations
+    report: Open reports
+    new_experiment: Run a new simulation

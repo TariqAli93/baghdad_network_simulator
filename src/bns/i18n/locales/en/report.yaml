@@ -1,0 +1,35 @@
+# printable run report (bns.reporting.report)
+title: "Report {run}"
+heading: Baghdad Network Simulator — run report
+created: "created {date}"
+invalid: "INVALID FOR RESEARCH INTERPRETATION: {reason}"
+configuration: Configuration and provenance
+rows:
+  classification: Classification
+  classification_value: "{result} (configuration: {configuration}; dataset: {dataset}; validation: {validation})"
+  kind: Kind
+  mode: Mode
+  deviations: Values differing from the research baseline
+  area: Study area
+  osm: OSM snapshot SHA-256
+  scene: Scene fingerprint
+  heights: Building heights
+  categories: Height categories (% of buildings)
+  profile: Profile
+  profile_value: "{name} — {cell} m cells, {rays} rays"
+  backend: Backend
+  versions: Versions
+none: none
+not_recorded: not recorded (run before 2026-11-27)
+value_sources: {custom: custom value, baseline: research baseline}
+heights:
+  synthetic: "Synthetic Urban Model '{name}' (seed {seed}): estimated building heights for {pct:.1f} % of buildings, modelling assumptions, not measurements; real OSM / 3D-GloBFP footprints"
+  model: "height model '{name}' (seed {seed}) for buildings without heights"
+  default: documented heights where available, placeholders elsewhere
+radio: Radio parameters used
+radio_columns: {parameter: Parameter, value: Value, source: Value from}
+notes_english: ""
+old_figures: Figures saved before 2026-11-27 keep the title written at run time; that run-time label corresponds to the class Preliminary Simulation.
+figures_english: ""
+limitations: Scientific limitations
+validation_extra: Latest TR 38.901 comparison

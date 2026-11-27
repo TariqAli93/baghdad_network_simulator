@@ -1,0 +1,19 @@
+title:
+  dataset: Dataset availability
+  heights: Building-height completeness (documented heights)
+  observations: Field observations
+  synthetic: Synthetic Urban Model
+  candidates: Candidate station sites
+  configuration: Configuration
+  convergence: Simulation convergence
+  validation: Validation (analytical, TR 38.901)
+  matlab: MATLAB comparison
+  laptop: Laptop acceptance
+state:
+  Ready: Ready
+  Completed: Completed
+  Incomplete data: Incomplete data
+  Validation Pending: Validation Pending
+  Research Baseline: Research Baseline
+  Custom Experiment: Custom Experiment
+  Synthetic Data Complete: Synthetic Data Complete

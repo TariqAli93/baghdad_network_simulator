@@ -1,0 +1,55 @@
+title: منطقة الدراسة
+caption: المنطقة ومبانيها ومصدر ارتفاع كل مبنى.
+names:
+  tahrir_bab_al_sharqi_study: ساحة التحرير / باب الشرقي
+  tahrir_bab_al_sharqi_v2: ساحة التحرير / باب الشرقي (بيانات مؤقتة)
+  tahrir_bab_al_sharqi: ساحة التحرير / باب الشرقي (بيانات اختبار)
+variants:
+  osm: ارتفاعات OpenStreetMap فقط
+  synthetic_urban: النموذج الحضري الاصطناعي (الأساسي)
+  synthetic_urban_low: النموذج الحضري الاصطناعي (منخفض الارتفاع)
+  synthetic_urban_high: النموذج الحضري الاصطناعي (مرتفع الارتفاع)
+  mixed_1_to_8: نموذج ارتفاعات من 1 إلى 8 طوابق
+  low_rise_2_to_4: نموذج ارتفاعات من 2 إلى 4 طوابق
+  flat_9m: ارتفاع ثابت 9 م
+  lognormal_10m: ارتفاعات بتوزيع لوغاريتمي طبيعي
+area: المنطقة
+variant: مجموعة البيانات
+variant_help: يُختار الإعداد الافتراضي المضبوط أولًا، وتبقى المجموعات الأخرى متاحة للمقارنة وتحليل الحساسية.
+role: "الدور: {role}"
+not_study: ليست منطقة الدراسة — للمقارنة والاختبار فقط، ولا تُستخدم لعرض نتائج عن بغداد.
+no_dataset: "لا توجد مجموعة بيانات مبنية لـ {area}. ابنِها باستخدام scripts/build_dataset.py."
+metrics:
+  buildings: المباني
+  documented: ارتفاعات موثّقة
+  synthetic: ارتفاعات اصطناعية
+  placeholder: ارتفاعات افتراضية مؤقتة
+synthetic_note: >-
+  الارتفاعات الاصطناعية مقدّرة بالنموذج الحضري الاصطناعي (البذرة {seed}): افتراضات نمذجة وليست قياسات.
+  المخططات والإحداثيات حقيقية.
+not_fit: "ليست بيانات قياس مكتملة: {reasons}"
+methodology: منهجية منطقة الدراسة وبيانات المباني
+observations: الأرصاد الميدانية
+observations_note: >-
+  تحلّ الأرصاد الميدانية محل الارتفاعات الاصطناعية تلقائيًا عند استيرادها
+  (scripts/build_dataset.py --observations FILE). قائمة العمل والنموذج:
+  outputs/datasets/<area>/fieldwork/.
+group_progress: "{groups}: {observed} من {required} مبنى ({accepted})"
+site_rule: قاعدة المواقع والأسطح المرشّحة
+map_colour: تلوين المباني حسب
+colour_provenance: مصدر الارتفاع
+colour_height: الارتفاع
+receiver_area: منطقة الاستقبال
+x_axis: x شرقًا [m]
+y_axis: y شمالًا [m]
+tallest: أعلى المباني ومصادر ارتفاعاتها
+columns:
+  building: "المبنى"
+  height: "الارتفاع [m]"
+  category: "نوع المصدر"
+  source: "المصدر"
+  method: "الطريقة"
+  alternatives: "البدائل"
+config_columns: {item: البند, value: القيمة, configuration: الإعدادات, file: الملف}
+external: مجموعات بيانات ارتفاعات خارجية (قُيِّمت ولا تُستخدم مصدرًا للارتفاعات)
+no_evaluation: لا يوجد تقييم لهذه المنطقة.

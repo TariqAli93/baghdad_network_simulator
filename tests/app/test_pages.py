@@ -22,7 +22,9 @@ PAGES = ["overview", "study_area", "radio", "simulation", "coverage", "compariso
 def app():
     if not (ROOT / "data" / "scenes" / "tahrir_bab_al_sharqi_v2" / "osm" / "scene.xml").exists():
         pytest.skip("development dataset not built (setup.ps1)")
-    return AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=180)
+    at = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=180)
+    at.session_state["lang"] = "en"                 # labels below are the English interface (Arabic: test_i18n_pages)
+    return at
 
 
 @pytest.mark.parametrize("page", PAGES)
@@ -42,12 +44,12 @@ def test_both_datasets_are_ready_to_run_with_their_limitations_shown(app, area):
     next(s for s in at.selectbox if s.label == "Area").set_value(area)
     at.run()
     expected = {"tahrir_bab_al_sharqi_study": "synthetic_urban-seed42+fp_3d_globfp", "tahrir_bab_al_sharqi_v2": "osm"}[area]
-    assert next(s for s in at.selectbox if s.label == "Dataset variant").value == expected  # configured primary
+    assert next(s for s in at.selectbox if s.label == "Dataset").value == expected  # configured primary
     next(b for b in at.button if b.label == "Check sites and workload").click()
     at.run()
     assert not at.exception, [e.message for e in at.exception]
     assert not any("cannot start" in e.value for e in at.error)
-    assert any("Execution:** Ready" in m.value for m in at.markdown)
+    assert any("Execution:** ready" in m.value for m in at.markdown)
     assert any(b.label == "Start run" for b in at.button)
     warnings = " ".join(w.value for w in at.warning)
     assert "Scientific limitations" in warnings and "validation pending" in warnings
@@ -71,7 +73,7 @@ def test_a_changed_parameter_makes_a_custom_experiment_and_reset_restores_the_ba
     power.set_value(43.0)
     next(b for b in at.button if b.label == "Check sites and workload").click()
     at.run()
-    assert any("Custom Experiment" in i.value and "tx_power_dbm 43" in i.value for i in at.info)
+    assert any("Custom Experiment" in i.value and "Transmit power" in i.value and "`43`" in i.value for i in at.info)
     assert not at.exception, [e.message for e in at.exception]
     next(b for b in at.button if b.label == "Reset to research baseline").click()
     at.run()

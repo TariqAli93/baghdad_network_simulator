@@ -1,0 +1,14 @@
+dashboard: Dashboard
+study_area: Study Area
+run_simulation: Run Simulation
+coverage: Coverage Analysis
+comparison: Network Comparison
+planning: Site Planning
+reports: Reports
+advanced: Research Details
+radio: Radio Scenarios
+validation: Validation
+roadmap: 6G Roadmap
+sidebar_note: >-
+  4G, 5G and candidate 6G coverage by ray tracing on real Baghdad footprints. Any valid
+  setting can be simulated; every result states its configuration, data and validation.

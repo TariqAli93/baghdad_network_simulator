@@ -13,27 +13,27 @@ import json
 import re
 from pathlib import Path
 
-LIMITATIONS = [
-    "Building heights: real footprints and coordinates; heights are documented only for a few buildings. Runs on "
-    "the Synthetic Urban Model use estimated building heights (modelling assumptions, not measurements); runs on "
-    "placeholder heights are preliminary simulations. Neither is an empirical description of Baghdad.",
-    "Only research-baseline runs on a dataset fit for research, after the final-scene convergence and the "
-    "MATLAB comparison, are validated research results; everything else is preliminary or experimental.",
-    "Shannon rates are theoretical upper bounds for one user with the whole carrier; not network capacity or "
-    "user throughput. A 3GPP mapping, where present, is reported beside them (the run summary names it).",
-    "Greedy site selection is a heuristic; it does not give a minimum site count.",
-    "Validation so far: analytical checks and comparison with 3GPP TR 38.901 (model-to-model). MATLAB "
-    "cross-check prepared but not executed; no field measurements.",
-    "Candidate 6G bands (8 and 15 GHz) are research assumptions, not finalized commercial 6G specifications.",
-]
+LIMITATION_KEYS = ("heights", "validated", "shannon", "greedy", "validation_scope", "candidate_6g")
 
-_CSS = """body{font-family:Segoe UI,Arial,sans-serif;color:#1b1b19;max-width:1000px;margin:24px auto;padding:0 16px;
+
+def limitations(lang: str = "en") -> list[str]:
+    """The scientific limitations every report carries, in the report language."""
+    from bns.i18n import translate
+
+    return [" ".join(translate(lang, f"limitations.general.{k}").split()) for k in LIMITATION_KEYS]
+
+
+LIMITATIONS = limitations("en")
+
+_CSS = """body{font-family:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;color:#1b1b19;max-width:1000px;margin:24px auto;padding:0 16px;
 font-size:14px;line-height:1.45}h1{font-size:22px}h2{font-size:18px;margin-top:28px;border-bottom:1px solid #ddd}
 h3{font-size:15px}table{border-collapse:collapse;margin:8px 0;font-size:12px}td,th{border:1px solid #ccc;
-padding:3px 6px;text-align:left;vertical-align:top}th{background:#f1f0ec}.label{border-left:4px solid #c96a12;
+padding:3px 6px;text-align:start;vertical-align:top}th{background:#f1f0ec}.label{border-inline-start:4px solid #c96a12;
 background:#fff4e5;color:#6b3a06;padding:6px 10px;font-weight:600}img{max-width:100%;margin:8px 0}
 code{background:#f1f0ec;padding:0 3px}@media print{h2{page-break-before:auto}img{page-break-inside:avoid}}
-.label span{display:block;font-weight:400;font-size:12px;margin-top:2px}"""
+.label span{display:block;font-weight:400;font-size:12px;margin-top:2px}
+code,.ltr{direction:ltr;unicode-bidi:isolate}.source{direction:ltr;text-align:left}
+.note{font-size:12px;color:#5b5a55}"""
 
 
 def _strip_label_line(md: str) -> str:
@@ -92,82 +92,125 @@ def markdown_to_html(md: str) -> str:
     return "\n".join(out)
 
 
-def _height_text(area: dict) -> str:
+def _height_text(area: dict, lang: str = "en") -> str:
     """Where the run's building heights come from (real footprints in every case)."""
+    from bns.i18n import translate
+
     model = area.get("height_model") or {}
     if model.get("kind") == "synthetic_urban":
-        return (f"Synthetic Urban Model '{model.get('name')}' (seed {model.get('seed')}): estimated building heights "
-                f"for {model.get('synthetic') or 0:.1f} % of buildings, modelling assumptions, not measurements; "
-                "real OSM / 3D-GloBFP footprints")
+        return translate(lang, "report.heights.synthetic", name=model.get("name"), seed=model.get("seed"),
+                         pct=model.get("synthetic") or 0)
     if model:
-        return f"height model '{model.get('name')}' (seed {model.get('seed')}) for buildings without heights"
-    return "documented heights where available, placeholders elsewhere"
+        return translate(lang, "report.heights.model", name=model.get("name"), seed=model.get("seed"))
+    return translate(lang, "report.heights.default")
 
 
-def value_source(manifest: dict, name: str) -> str:
+def value_source(manifest: dict, name: str, lang: str = "en") -> str:
     """Where a parameter value of a run came from: the research baseline, a custom value, or not recorded."""
+    from bns.i18n import translate
+
     if "overrides" not in manifest:
-        return "not recorded (run before 2026-11-27)"
-    return "custom value" if name in (manifest.get("overrides") or {}) else "research baseline"
+        return translate(lang, "report.not_recorded")
+    custom = name in (manifest.get("overrides") or {})
+    return translate(lang, "report.value_sources." + ("custom" if custom else "baseline"))
+
+
+def _class_texts(lang: str, c) -> tuple[str, str, str]:
+    """(headline, details, table value) of the run's classification in the report language."""
+    from bns import i18n
+
+    if lang == "en":            # the English report keeps the classification module's own wording
+        return c.result, c.details, (f"{c.result} (configuration: {c.configuration}; dataset: {c.dataset}; "
+                                     f"validation: {c.validation})")
+    tr = i18n.translator(lang)
+    head, details = i18n.classification_texts(tr, c)
+    result, configuration, dataset, validation = i18n.classification_names(tr, c)
+    return head, details, tr("report.rows.classification_value", result=result, configuration=configuration,
+                             dataset=dataset, validation=validation)
 
 
 def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
-               invalid_reason: str | None = None) -> str:
-    run_dir = Path(run_dir)
+               invalid_reason: str | None = None, lang: str = "en") -> str:
+    """The report in English (default) or Arabic (right-to-left). Saved notes and figures are the run's
+    English records; in Arabic they stay left-to-right with a note saying so."""
     from bns.analysis.classification import from_manifest
+    from bns.i18n import LANGUAGES, RTL, translate, translator
 
+    lang = lang if lang in LANGUAGES else "en"
+    tr = translator(lang)
+
+    def T(key: str, **values) -> str:
+        return translate(lang, key, **values)
+
+    E = html.escape
+    run_dir = Path(run_dir)
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     c = from_manifest(manifest)
-    label = c.result
-    detail = c.details
-    parts = [f"<!doctype html><html><head><meta charset='utf-8'><title>Report {html.escape(manifest.get('run_id', run_dir.name))}"
-             f"</title><style>{_CSS}</style></head><body>",
-             (f"<div class='label' style='border-color:#b00020;background:#fde7ea;color:#7a0014'>INVALID FOR RESEARCH "
-              f"INTERPRETATION: {html.escape(invalid_reason)}</div>" if invalid_reason else ""),
-             f"<div class='label'>{html.escape(label)}<span>{html.escape(detail)}</span></div>",
-             f"<h1>Baghdad Network Simulator — run report</h1><p><code>{html.escape(manifest.get('run_id', run_dir.name))}</code>"
-             f" · created {html.escape(manifest.get('created_utc', ''))}</p>"]
+    label, detail, class_value = _class_texts(lang, c)
+    run_id = manifest.get("run_id", run_dir.name)
+    created = manifest.get("created_utc", "")
+    direction = "rtl" if lang in RTL else "ltr"
+    parts = [f"<!doctype html><html lang='{lang}' dir='{direction}'><head><meta charset='utf-8'>"
+             f"<title>{E(T('report.title', run=run_id))}</title><style>{_CSS}</style></head><body>",
+             (f"<div class='label' style='border-color:#b00020;background:#fde7ea;color:#7a0014'>"
+              f"{E(T('report.invalid', reason=invalid_reason))}</div>" if invalid_reason else ""),
+             f"<div class='label'>{E(label)}<span>{E(detail)}</span></div>",
+             f"<h1>{E(T('report.heading'))}</h1><p><code>{E(run_id)}</code>"
+             f" · {E(T('report.created', date=created if lang == 'en' or not created else tr.date(created)))}</p>"]
     area = manifest.get("area", {})
     profile = manifest.get("profile", {})
-    rows = [("Classification", f"{c.result} (configuration: {c.configuration}; dataset: {c.dataset}; "
-                                f"validation: {c.validation})"),
-            ("Kind", manifest.get("kind", "single_site")), ("Mode", manifest.get("mode", "")),
-            ("Values differing from the research baseline",
-             ", ".join(f"{k} = {v}" for k, v in manifest["overrides"].items()) if manifest.get("overrides")
-             else ("none" if "overrides" in manifest else "not recorded (run before 2026-11-27)")),
-            ("Study area", f"{area.get('name')} / {area.get('variant')} ({area.get('role', '')})"),
-            ("OSM snapshot SHA-256", str(area.get("osm_snapshot_sha256", ""))[:16] + "..."),
-            ("Scene fingerprint", str(area.get("scene_fingerprint", ""))[:16] + "..."),
-            ("Building heights", _height_text(area)),
-            ("Height categories (% of buildings)", ", ".join(f"{k} {v:.1f}" for k, v in
-                                                             (area.get("height_categories_percent") or {}).items())),
-            ("Profile", f"{profile.get('name')} — {profile.get('cell_size_m')} m cells, {profile.get('rays_per_site'):.0e} rays"
-             if profile.get("rays_per_site") else str(profile)),
-            ("Backend", json.dumps(manifest.get("backend") or {"name": "cpu"})),
-            ("Versions", ", ".join(f"{k} {v}" for k, v in (manifest.get("versions") or {}).items()
-                                   if k in ("sionna-rt", "mitsuba", "drjit", "python")))]
-    parts.append("<h2>Configuration and provenance</h2><table>"
-                 + "".join(f"<tr><th>{html.escape(k)}</th><td>{html.escape(str(v))}</td></tr>" for k, v in rows) + "</table>")
+    R = "report.rows."
+
+    def term(group: str, value: str) -> str:
+        """A recorded category name in the report language; unknown values stay as recorded."""
+        return T(f"common.{group}.{value}") if tr.has(f"common.{group}.{value}") else value
+
+    if manifest.get("overrides"):
+        deviations = ", ".join(f"{k} = {v}" for k, v in manifest["overrides"].items())
+    else:
+        deviations = T("report.none") if "overrides" in manifest else T("report.not_recorded")
+    profile_value = (T(R + "profile_value", name=profile.get("name"), cell=profile.get("cell_size_m"),
+                       rays=f"{profile.get('rays_per_site'):.0e}") if profile.get("rays_per_site") else str(profile))
+    rows = [(T(R + "classification"), class_value),
+            (T(R + "kind"), manifest.get("kind", "single_site")), (T(R + "mode"), manifest.get("mode", "")),
+            (T(R + "deviations"), deviations),
+            (T(R + "area"), f"{area.get('name')} / {area.get('variant')} ({term('area_role', area.get('role', ''))})"),
+            (T(R + "osm"), str(area.get("osm_snapshot_sha256", ""))[:16] + "..."),
+            (T(R + "scene"), str(area.get("scene_fingerprint", ""))[:16] + "..."),
+            (T(R + "heights"), _height_text(area, lang)),
+            (T(R + "categories"), ", ".join(f"{term('height_category', k)} {v:.1f}" for k, v in
+                                            (area.get("height_categories_percent") or {}).items())),
+            (T(R + "profile"), profile_value),
+            (T(R + "backend"), json.dumps(manifest.get("backend") or {"name": "cpu"})),
+            (T(R + "versions"), ", ".join(f"{k} {v}" for k, v in (manifest.get("versions") or {}).items()
+                                          if k in ("sionna-rt", "mitsuba", "drjit", "python")))]
+    parts.append(f"<h2>{E(T('report.configuration'))}</h2><table>"
+                 + "".join(f"<tr><th>{E(k)}</th><td>{E(str(v))}</td></tr>" for k, v in rows) + "</table>")
     params = manifest.get("radio_parameters") or {}
     if params:
-        parts.append("<h2>Radio parameters used</h2><table><tr><th>Parameter</th><th>Value</th>"
-                     "<th>Value from</th></tr>" + "".join(
-                         f"<tr><td>{html.escape(k)}</td><td>{html.escape(str(v.get('value', v) if isinstance(v, dict) else v))}</td>"
-                         f"<td>{html.escape(value_source(manifest, k))}</td></tr>"
+        C = "report.radio_columns."
+        parts.append(f"<h2>{E(T('report.radio'))}</h2><table><tr><th>{E(T(C + 'parameter'))}</th>"
+                     f"<th>{E(T(C + 'value'))}</th><th>{E(T(C + 'source'))}</th></tr>" + "".join(
+                         f"<tr><td>{E(k)}</td><td>{E(str(v.get('value', v) if isinstance(v, dict) else v))}</td>"
+                         f"<td>{E(value_source(manifest, k, lang))}</td></tr>"
                          for k, v in params.items()) + "</table>")
-    for name in ("summary.md", "sensitivity.md", "backend_agreement.md", "near_site_nr_28000.md"):
-        path = run_dir / name
-        if path.exists():
-            parts.append(f"<h2>{html.escape(name)}</h2>" + markdown_to_html(_strip_label_line(
-                path.read_text(encoding="utf-8"))))
-    for title, md in (extra_markdown or {}).items():
-        parts.append(f"<h2>{html.escape(title)}</h2>" + markdown_to_html(_strip_label_line(md)))
-    if sorted(run_dir.glob("*.png")) and "classification" not in manifest:
-        parts.append("<p><i>Figures saved before 2026-11-27 keep the title written at run time; that run-time label corresponds to the class Preliminary Simulation.</i></p>")
-    for png in sorted(run_dir.glob("*.png")):
+    notes = [(name, (run_dir / name).read_text(encoding="utf-8"))
+             for name in ("summary.md", "sensitivity.md", "backend_agreement.md", "near_site_nr_28000.md")
+             if (run_dir / name).exists()] + list((extra_markdown or {}).items())
+    if notes and T("report.notes_english"):
+        parts.append(f"<p class='note'>{E(T('report.notes_english'))}</p>")
+    for title, md in notes:
+        parts.append(f"<div class='source' lang='en' dir='ltr'><h2>{E(title)}</h2>"
+                     + markdown_to_html(_strip_label_line(md)) + "</div>")
+    pngs = sorted(run_dir.glob("*.png"))
+    if pngs and "classification" not in manifest:
+        parts.append(f"<p><i>{E(T('report.old_figures'))}</i></p>")
+    if pngs and T("report.figures_english"):
+        parts.append(f"<p class='note'>{E(T('report.figures_english'))}</p>")
+    for png in pngs:
         data = base64.b64encode(png.read_bytes()).decode("ascii")
-        parts.append(f"<h3>{html.escape(png.name)}</h3><img alt='{html.escape(png.name)}' src='data:image/png;base64,{data}'>")
-    parts.append("<h2>Scientific limitations</h2><ul>" + "".join(f"<li>{html.escape(t)}</li>" for t in LIMITATIONS)
-                 + "</ul>")
-    parts.append(f"<div class='label'>{html.escape(label)}<span>{html.escape(detail)}</span></div></body></html>")
+        parts.append(f"<h3 class='ltr'>{E(png.name)}</h3><img alt='{E(png.name)}' src='data:image/png;base64,{data}'>")
+    parts.append(f"<h2>{E(T('report.limitations'))}</h2><ul>"
+                 + "".join(f"<li>{E(text)}</li>" for text in limitations(lang)) + "</ul>")
+    parts.append(f"<div class='label'>{E(label)}<span>{E(detail)}</span></div></body></html>")
     return "\n".join(parts)

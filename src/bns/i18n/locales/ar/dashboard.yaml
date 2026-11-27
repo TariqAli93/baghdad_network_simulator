@@ -1,0 +1,99 @@
+title: محاكي شبكات بغداد
+tagline: >-
+  يحاكي التغطية وجودة الإشارة ومعدل نقل البيانات لشبكات الجيل الرابع والخامس والسادس المرشّح في منطقة
+  مساحتها كيلومتر مربع واحد في وسط بغداد، باستخدام تتبع الأشعة على مخططات مبانٍ حقيقية.
+status_running: المحاكاة قيد التشغيل
+status_idle_latest: "آخر محاكاة: {date}"
+status_none: لا توجد محاكاة بعد
+card:
+  study_area: منطقة الدراسة
+  study_area_sub: "منطقة استقبال {size} · مخططات مبانٍ حقيقية"
+  scenarios: سيناريوهات الشبكات
+  scenarios_value: "5"
+  scenarios_sub: الجيل الرابع · الخامس (3.5 و28 GHz) · السادس المرشّح (8 و15 GHz)
+  dataset: ارتفاعات المباني
+  dataset_synthetic: "{pct:.1f} % تقديرية"
+  dataset_synthetic_sub: "{buildings} مبنى · {documented} ارتفاعًا موثّقًا · نموذج حضري اصطناعي"
+  dataset_plain: "{documented} موثّقة"
+  dataset_plain_sub: "{buildings} مبنى · البقية بارتفاعات افتراضية مؤقتة"
+  dataset_missing: غير مبنية
+  dataset_missing_sub: ابنِ مجموعة البيانات أولًا (scripts/build_dataset.py).
+  latest: آخر محاكاة
+  latest_none: لا يوجد بعد
+  latest_none_sub: ابدأ أول محاكاة.
+  latest_running: قيد التشغيل
+  latest_running_sub: "{progress}"
+  latest_sub: "{stations} · {duration}"
+start: بدء محاكاة جديدة
+view_latest: عرض آخر النتائج
+latest:
+  heading: آخر محاكاة
+  empty: لا توجد محاكاة مكتملة بعد. ابدأ واحدة لتظهر هنا التغطية وجودة الإشارة ومعدل نقل البيانات.
+  area: منطقة الدراسة
+  stations: المحطات
+  date: التاريخ
+  duration: المدة
+  coverage: التغطية
+  sinr: الوسيط لـ SINR
+  rate: الوسيط لمعدل نقل البيانات
+  rate_p5: معدل نقل البيانات عند المئين الخامس
+  across: عبر السيناريوهات الخمسة
+  view_full: عرض النتائج كاملة
+  seconds: "{value:.0f} ث"
+  minutes: "{value:.1f} د"
+comparison:
+  heading: مقارنة الشبكات
+  subtitle: نتائج آخر محاكاة؛ لا تختلف السيناريوهات إلا في التردد وعرض النطاق.
+  metric: المقارنة حسب
+  metrics:
+    coverage: التغطية [%]
+    rx_power_median_dbm: قدرة الإشارة المستقبلة [dBm]
+    sinr_median_db: الوسيط لـ SINR [dB]
+    rate_median_mbps: الوسيط لمعدل نقل البيانات [Mbit/s]
+  columns:
+    scenario: السيناريو
+    bandwidth: عرض النطاق [MHz]
+    coverage: التغطية [%]
+    rx_power: الوسيط لقدرة الإشارة المستقبلة [dBm]
+    sinr: الوسيط لـ SINR [dB]
+    rate: الوسيط لمعدل نقل البيانات [Mbit/s]
+    rate_p5: معدل البيانات عند المئين الخامس [Mbit/s]
+    status: الحالة
+  empty: تظهر المقارنة بعد اكتمال أول محاكاة.
+status:
+  heading: الحالة العلمية
+  note: للعلم فقط — لا شيء مما يلي يمنع تشغيل المحاكاة.
+  dataset: جودة البيانات
+  dataset_synthetic: >-
+    {pct:.1f} % من ارتفاعات المباني مأخوذة من النموذج الحضري الاصطناعي (تقديرية وليست مقيسة)،
+    و{documented} ارتفاعًا موثّق. المخططات والإحداثيات حقيقية.
+  dataset_plain: "{documented} من أصل {buildings} ارتفاعًا موثّقة؛ والبقية افتراضية مؤقتة."
+  dataset_missing: مجموعة بيانات الدراسة غير مبنية على هذا الحاسوب.
+  configuration: الإعدادات
+  configuration_baseline: ملفات الإعدادات تطابق الإعدادات البحثية الأساسية المعتمدة.
+  configuration_custom: ملفات الإعدادات تختلف عن الإعدادات البحثية الأساسية.
+  validation: التحقق العددي
+  validation_text: >-
+    أُنجزت الفحوص التحليلية والمقارنة مع TR 38.901؛ أما تقارب الأشعة على المشهد النهائي والمقارنة مع
+    MATLAB فقيد الانتظار. لا توجد قياسات ميدانية.
+  validation_done: اكتمل التقارب والمقارنة مع MATLAB ضمن النطاق الموثّق لكل منهما.
+  limitations: القيود المعروفة
+  details: الحالة التفصيلية ومصدر البيانات
+  detail_columns: {item: البند, state: الحالة, details: التفاصيل التقنية}
+next:
+  heading: الخطوة التالية
+  progress: هناك محاكاة قيد التشغيل — تابع تقدّمها.
+  first_run: ابدأ أول محاكاة.
+  explore_coverage: انتهت المحاكاة — استكشف خرائط التغطية.
+  compare: قارن سيناريوهات الشبكات الخمسة.
+  review_limitations: التحقق العلمي قيد الانتظار — راجع القيود العلمية.
+  report: أنشئ تقريرًا قابلًا للطباعة للنتائج.
+  new_experiment: جرّب تجربة مخصصة أو حالة لحساسية الارتفاعات.
+  button:
+    progress: عرض التقدّم
+    first_run: بدء المحاكاة
+    explore_coverage: فتح تحليل التغطية
+    compare: فتح مقارنة الشبكات
+    review_limitations: مراجعة القيود
+    report: فتح التقارير
+    new_experiment: تشغيل محاكاة جديدة

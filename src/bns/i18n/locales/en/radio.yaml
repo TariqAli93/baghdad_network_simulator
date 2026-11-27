@@ -1,0 +1,17 @@
+title: Radio Scenarios
+caption: The five scenarios, the research-baseline radio system and the data-rate models (read from configs/*.yaml).
+columns:
+  scenario: Scenario
+  frequency: "Frequency [GHz]"
+  bandwidth: "Bandwidth [MHz]"
+  status: Status
+  noise: "Noise floor [dBm]"
+  eirp: "Peak EIRP [dBm]"
+  basis: Basis
+  sources: Sources
+scenarios_note: Only frequency and bandwidth differ between scenarios (controlled experiment, docs/methodology.md). 6G bands are candidate research assumptions; 3.5 GHz for Iraq is assumed.
+parameters: Radio-system parameters (research baseline)
+parameters_note: "These are the research-baseline values (configs/radio_system.yaml). To try other values, change them for a single run on **Run Simulation**: the run is recorded as a custom experiment with the values it used. The traced TR 38.901 pattern already contains the 8 dBi peak gain, so no antenna gain is added on top."
+rates: Data-rate models
+rates_note: "The Shannon bound is reported for every band; the practical mapping is reported beside it, never instead. Candidate 6G uses the NR values as a research approximation: no 6G link-level mapping exists. Verification against TR 36.942 and TR 38.921: docs/rate-mapping-verification.md."
+english_fields: ""

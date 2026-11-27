@@ -1,0 +1,24 @@
+title: Validation
+caption: "What has been checked, and how. Four categories are kept apart: (1) analytical verification, (2) model-to-model comparison, (3) MATLAB cross-check, (4) field measurements."
+categories:
+  analytical: {name: "1. Analytical verification (engine vs closed form)", status: "**done**: Phase 0 E1-E3, pipeline tests, antenna pattern, near-site check"}
+  model: {name: "2. Model-to-model (ray tracing vs 3GPP TR 38.901)", status: "**done** for a controlled configuration (below)"}
+  matlab: {name: "3. MATLAB cross-check", status: "**prepared, not executed** (package in validation/matlab/)"}
+  field: {name: "4. Field measurements", status: "**none** in this project"}
+tr38901: "2. Ray tracing vs 3GPP TR 38.901 (UMa, UMi)"
+tr38901_none: "Not run yet: `uv run python scripts/validate_tr38901.py --area tahrir_bab_al_sharqi_v2`."
+engine: Engine checks (Phase 0)
+columns: {experiment: Experiment, passed: Passed, note: Note}
+judgement: reported for judgement (no pass/fail)
+notes_english: ""
+near_site: Near-site coverage gap (28 GHz) and the antenna-position experiment
+diagnosis: "Diagnosis on `{run}`"
+experiment: "Controlled experiment `{name}`"
+backends: CPU and GPU backends
+no_backends: No CPU/GPU comparison saved.
+matlab: 3. MATLAB cross-check package
+no_matlab: No package prepared (scripts/export_matlab_case.py).
+compared: compared
+prepared: prepared, not executed
+convergence: Convergence (profiles)
+no_convergence: No convergence run found.

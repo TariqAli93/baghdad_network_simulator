@@ -1,0 +1,35 @@
+# التقرير المطبوع للتشغيل (bns.reporting.report)
+title: "تقرير {run}"
+heading: محاكي شبكات بغداد — تقرير التشغيل
+created: "أُنشئ في {date}"
+invalid: "غير صالح للتفسير البحثي: {reason}"
+configuration: الإعدادات ومصدر البيانات
+rows:
+  classification: التصنيف
+  classification_value: "{result} (الإعدادات: {configuration}؛ البيانات: {dataset}؛ التحقق: {validation})"
+  kind: النوع
+  mode: الوضع
+  deviations: قيم تختلف عن الإعدادات البحثية الأساسية
+  area: منطقة الدراسة
+  osm: بصمة SHA-256 للقطة OSM
+  scene: بصمة المشهد
+  heights: ارتفاعات المباني
+  categories: أنواع مصادر الارتفاع (% من المباني)
+  profile: ملف الدقة
+  profile_value: "{name} — خلايا {cell} m، {rays} شعاع"
+  backend: المحرّك
+  versions: الإصدارات
+none: لا يوجد
+not_recorded: غير مسجّلة (تشغيل قبل 2026-11-27)
+value_sources: {custom: قيمة مخصصة, baseline: الإعدادات البحثية الأساسية}
+heights:
+  synthetic: "النموذج الحضري الاصطناعي '{name}' (البذرة {seed}): ارتفاعات تقديرية لـ {pct:.1f} % من المباني، وهي افتراضات نمذجة وليست قياسات؛ المخططات حقيقية من OSM و3D-GloBFP"
+  model: "نموذج ارتفاعات '{name}' (البذرة {seed}) للمباني التي لا ارتفاع لها"
+  default: ارتفاعات موثّقة حيث تتوفر، وقيم افتراضية مؤقتة في غيرها
+radio: معاملات الراديو المستخدمة
+radio_columns: {parameter: المعامل, value: القيمة, source: مصدر القيمة}
+notes_english: الملاحظات المحفوظة أدناه هي سجلات التشغيل الأصلية باللغة الإنجليزية.
+old_figures: تحتفظ الأشكال المحفوظة قبل 2026-11-27 بالعنوان المكتوب وقت التشغيل؛ ويقابل ذلك العنوان تصنيف «محاكاة أولية».
+figures_english: عناوين الأشكال ومحاورها مكتوبة بالإنجليزية كما رسمتها البرامج النصية.
+limitations: القيود العلمية
+validation_extra: أحدث مقارنة مع TR 38.901

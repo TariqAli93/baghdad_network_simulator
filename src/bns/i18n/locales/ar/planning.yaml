@@ -1,0 +1,39 @@
+title: تخطيط مواقع المحطات
+caption: اختيار جشع مبني على SINR بين مواقع تشغيل متعدد المواقع محفوظ. يشمل كل تقييم تداخل جميع القطاعات المختارة؛ ويُقرأ كسب المسار من الذاكرة المؤقتة دون أي تتبّع جديد.
+heuristic: نتيجة الخوارزمية الجشعة طريقة استدلالية على هذه المرشّحات فقط، وليست حدًا أدنى مثبتًا. قد تخفّض إضافة موقع التغطية، وتُدرج هذه الإضافات.
+new_plan: "أنشئ خطة جديدة بالأمر `uv run python scripts/plan_sites.py --area NAME [--backend gpu] [--threshold DB --load X]` (يتتبّع فقط ما ليس محفوظًا)."
+saved_plan: "**خطة محفوظة** `{run}` — {candidates} (سطح ≥ {height} m، وتباعد ≥ {spacing} m، وأنواع ارتفاع {categories}؛ صاري {mast} m، والهوائيات في {position} السطح)؛ الهدف: {objective}. القيم المعدّلة: {overrides}. التتبّع {trace} ثانية، والاختيار {selection} ثانية ({backend})."
+positions: {interior: داخل, roof_edge: حافة}
+columns:
+  scenario: السيناريو
+  selected: المختارة (بالترتيب)
+  coverage_after: التغطية بعد كل إضافة
+  stop: سبب التوقف
+  why: التفسير
+  uncovered: الخلايا غير المغطاة
+  all_on: كل المرشّحات مفعّلة
+  degrading: إضافات خفّضت التغطية
+english_reasons: أسباب التوقف وتفسيراتها مسجّلة في التشغيل باللغة الإنجليزية.
+history: سجل الاختيار (كل مرشّح قُيِّم في كل خطوة)
+final_map: الخريطة النهائية لـ
+layers: {covered: التغطية, uncovered: المناطق غير المغطاة, sinr_db: SINR, serving_site: الموقع المخدِّم}
+reevaluate: إعادة التقييم من الذاكرة المؤقتة
+config_changed: "تغيّرت معاملات الراديو هذه منذ التشغيل؛ تستخدم النتائج أدناه الملفات الحالية: {items}"
+saved_greedy: "**نتيجة الخوارزمية الجشعة المحفوظة** (الهدف {target}): المواقع {sites} ← {coverage}؛ توقفت لأن *{reason}*."
+try: جرّب اختيارًا
+try_note: تغيّر المنزلقات الافتراضات لفحص الحساسية فقط؛ ولا تتغير الإعدادات البحثية الأساسية.
+site_label: "{site} · {building} · السطح {roof} m ({category})"
+transmitting: المواقع المُرسِلة
+activity: نشاط التداخل (حِمل القطاعات غير المخدِّمة)
+activity_help: 1.0 = كل قطاع آخر يرسل دائمًا (المخزن الممتلئ وفق ITU-R M.2412).
+threshold_help: −10 dB هي أدنى قيمة SINR تعطي معدلًا غير صفري في تحويل 3GPP.
+target: هدف التغطية
+greedy: الاختيار الجشع بهذه الإعدادات
+greedy_result: "المختارة {sites} ← {coverage}؛ الهدف {reached} (*{reason}*)."
+reached: تحقق
+not_reached: لم يتحقق
+sites_selected: المواقع المختارة
+step: الخطوة
+coverage_before: التغطية قبلها
+degrading: "إضافات كانت ستخفّض التغطية: {items}"
+degrading_item: "الخطوة {step}: {site} ({change} نقطة)"

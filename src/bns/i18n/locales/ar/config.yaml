@@ -1,0 +1,52 @@
+items:
+  centre: المركز
+  receiver_area: منطقة الاستقبال
+  building_margin: هامش المباني
+  osm_snapshot: لقطة OSM
+  footprint_sources: مصادر المخططات
+  height_priority: أولوية مصادر الارتفاع
+  storey_height: ارتفاع الطابق
+  external_height_dataset: مجموعة ارتفاعات خارجية
+  height_sensitivity_analysis: تحليل حساسية الارتفاعات
+  required_observations: الأرصاد المطلوبة
+  accepted_observation_methods: طرق الرصد المقبولة
+  covered_by_sensitivity_instead: مشمولة بتحليل الحساسية بدلًا من الرصد
+  mast_height_above_the_roof: ارتفاع الصاري فوق السطح
+  sector_bearings: اتجاهات القطاعات
+  downtilt: زاوية الإمالة للأسفل
+  antenna_position: موضع الهوائي
+  inset_from_the_roof_edge: المسافة من حافة السطح
+  candidate_roofs_height_categories: "الأسطح المرشّحة: أنواع مصادر الارتفاع"
+  minimum_roof_height: الحد الأدنى لارتفاع السطح
+  minimum_roof_area: الحد الأدنى لمساحة السطح
+  minimum_spacing: الحد الأدنى للتباعد
+  candidate_count_target: العدد المستهدف للمرشّحات
+  threshold_refinements: تعديلات العتبات
+  never_candidates_kept_as_obstacles: لا تكون مرشّحة أبدًا (تبقى عوائق)
+  site_selection: اختيار المواقع
+values:
+  research_baseline: الإعدادات البحثية الأساسية
+  modified_custom: معدّلة (مخصصة)
+  development_and_preview: للتطوير والمعاينة
+  disabled: معطّل
+  all_five: السيناريوهات الخمسة
+  theoretical_upper_bound: حد نظري أعلى
+  3gpp_mapping: تحويل 3GPP
+  research_approximation: تقريب بحثي
+columns:
+  parameter: المعامل
+  value: القيمة
+  unit: الوحدة
+  definition: التعريف
+  configuration: الإعدادات
+  sources: المصادر
+  item: البند
+  file: الملف
+  use: الاستخدام
+  final_scene_convergence: التقارب على المشهد النهائي
+  scenario: السيناريو
+  practical_mapping_beside_shannon: التحويل العملي (بجانب شانون)
+  lower_bound_db: الحد الأدنى [dB]
+  cap: الحد الأعلى
+  label: التصنيف
+  α: α

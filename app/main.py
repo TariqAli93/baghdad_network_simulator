@@ -1,8 +1,8 @@
-"""Baghdad Network Simulator — research application.
+"""Baghdad Network Simulator — research application (Arabic / English).
 
-    uv run streamlit run app/main.py
+    uv run streamlit run app/main.py            # Arabic by default; ?lang=en for English
 
-Pages read saved runs and the configuration; the Simulation page starts the same
+Pages read saved runs and the configuration; the Run Simulation page starts the same
 experiment script as the command line, in its own process.
 """
 
@@ -14,34 +14,33 @@ import streamlit as st
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ui  # noqa: E402
 
-st.set_page_config(page_title="Baghdad Network Simulator", page_icon=":material/cell_tower:", layout="wide")
+st.set_page_config(page_title=ui.t("common.app_name"), page_icon=":material/cell_tower:", layout="wide")
 ui.inject_css()
 
 VIEWS = Path(__file__).resolve().parent / "views"
+t = ui.t
+# the workflow first; scientific background pages grouped under "Research Details"
 pages = {
-    "Project": [
-        st.Page(VIEWS / "overview.py", title="Overview", icon=":material/dashboard:", default=True),
-        st.Page(VIEWS / "study_area.py", title="Study area", icon=":material/map:"),
-        st.Page(VIEWS / "radio.py", title="Radio scenarios", icon=":material/settings_input_antenna:"),
+    "": [
+        st.Page(VIEWS / "overview.py", title=t("nav.dashboard"), icon=":material/dashboard:", default=True),
+        st.Page(VIEWS / "study_area.py", title=t("nav.study_area"), icon=":material/map:"),
+        st.Page(VIEWS / "simulation.py", title=t("nav.run_simulation"), icon=":material/play_circle:"),
+        st.Page(VIEWS / "coverage.py", title=t("nav.coverage"), icon=":material/layers:"),
+        st.Page(VIEWS / "comparison.py", title=t("nav.comparison"), icon=":material/compare_arrows:"),
+        st.Page(VIEWS / "planning.py", title=t("nav.planning"), icon=":material/add_location_alt:"),
+        st.Page(VIEWS / "reports.py", title=t("nav.reports"), icon=":material/description:"),
     ],
-    "Simulation": [
-        st.Page(VIEWS / "simulation.py", title="Run simulation", icon=":material/play_circle:"),
-        st.Page(VIEWS / "coverage.py", title="Coverage analysis", icon=":material/layers:"),
-        st.Page(VIEWS / "comparison.py", title="Comparison", icon=":material/compare_arrows:"),
-        st.Page(VIEWS / "planning.py", title="Site planning", icon=":material/add_location_alt:"),
-    ],
-    "Evidence": [
-        st.Page(VIEWS / "validation.py", title="Validation", icon=":material/verified:"),
-        st.Page(VIEWS / "reports.py", title="Reports and exports", icon=":material/description:"),
-        st.Page(VIEWS / "roadmap.py", title="6G roadmap", icon=":material/route:"),
+    t("nav.advanced"): [
+        st.Page(VIEWS / "radio.py", title=t("nav.radio"), icon=":material/settings_input_antenna:"),
+        st.Page(VIEWS / "validation.py", title=t("nav.validation"), icon=":material/verified:"),
+        st.Page(VIEWS / "roadmap.py", title=t("nav.roadmap"), icon=":material/route:"),
     ],
 }
 nav = st.navigation(pages)
 with st.sidebar:
-    st.markdown("**Baghdad Network Simulator**")
-    st.markdown('<div class="sidebar-note">4G · 5G · candidate 6G coverage by ray tracing (Sionna RT; CPU, optional GPU).<br>'
-                "Research baseline approved by the supervisor; any valid parameter can be changed for a custom "
-                "experiment or sensitivity analysis. Every result shows its configuration, dataset and validation "
-                "status.</div>",
-                unsafe_allow_html=True)
+    st.markdown(f"**{t('common.app_name')}**")
+    st.markdown(f'<div class="sidebar-note">{t("nav.sidebar_note")}</div>', unsafe_allow_html=True)
+_, switch = st.columns([5, 1])
+with switch:
+    ui.language_switch()
 nav.run()

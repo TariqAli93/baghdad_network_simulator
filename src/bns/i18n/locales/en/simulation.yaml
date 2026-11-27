@@ -1,0 +1,76 @@
+title: Run Simulation
+caption: Single- or multi-site coverage for all five scenarios. The run has its own process; finished traces are cached, so a cancelled run resumes where it stopped.
+area: Area
+area_help: Every area with a built dataset can be simulated; only the study district can give complete data. Other areas are for comparison and experimentation.
+variant: Dataset
+profile: Profile
+profile_help: Sets the baseline cell size and ray count of the parameters below.
+profile_option: "{name} — {cell} m, {rays} rays"
+reset: Reset to research baseline
+reset_help: Restore every parameter below to the research-baseline values.
+backend: Ray-tracing backend
+backends: {cpu: CPU, auto: "Auto (GPU if available)", gpu: GPU}
+backend_help: CPU is the research backend. GPU maps agree closely with CPU maps in most cells but differed by up to 26 dB in single cells on a harder case (docs/validation.md §7); they are cached separately.
+gpu_available: A GPU is available on this computer.
+gpu_unavailable: No usable GPU on this computer; the CPU backend is used.
+sites: Sites
+site_modes: {rule: "candidate rooftops (site rule)", chosen: chosen buildings}
+count: Number of sites (1 = single site)
+chosen: "Building IDs, in order (for “chosen buildings”)"
+parameters: Experiment parameters (research-baseline values unless you change them)
+groups: {radio: Radio, coverage: Coverage and load, resolution: Resolution and environment, candidates: Candidate sites}
+params:
+  tx_power_dbm: "Transmit power [dBm, conducted]"
+  mechanical_downtilt_deg: "Downtilt [deg]"
+  sectors_per_site: Sectors per site
+  antenna_height_above_roof_m: "Mast height above roof [m]"
+  rx_height_m: "Receiver height [m]"
+  noise_figure_db: "Noise figure [dB]"
+  coverage_threshold: "Coverage threshold, SINR [dB]"
+  coverage_target: "Coverage target [share of outdoor cells]"
+  interference_activity: Network load (interference activity)
+  cell_size_m: "Cell size [m]"
+  rays_per_site: Rays per sector
+  rain_rate_mm_h: "Rain rate [mm/h] (0 = clear sky)"
+  min_roof_height_m: "Minimum roof height [m]"
+  min_roof_area_m2: "Minimum roof area [m²]"
+  min_spacing_m: "Minimum spacing [m]"
+baseline_value: "Research baseline: {value}"
+baseline_short: baseline
+no_baseline: No baseline value
+check: Check sites and workload
+differs: "**{kind}** — differs from the research baseline in: {items}. The run records the values it used."
+baseline_values: "**Research Baseline** values."
+no_candidates: "No rooftop satisfies the candidate rule (roof ≥ {height} m, ≥ {area} m², ≥ {spacing} m apart, heights {categories}). Choose buildings, or change the candidate criteria."
+ready: "**Execution:** ready — the result will be classified as:"
+limitations: "**Scientific limitations of this run** (they do not prevent it):"
+backend_line: "**Backend:** {backend}"
+site_columns: {site: Site, building: Building, roof: "Roof [m]", category: Roof height, antenna: "Antenna [m]"}
+not_observed_site: At least one site stands on a building whose height is not observed.
+work:
+  jobs: Traces
+  jobs_help: Sectors × sites × bands.
+  cached: Already cached
+  to_trace: To trace
+  estimate: Estimated trace time
+  minutes: "{value} min"
+  estimate_help: "Median {median} s per trace over {count} measured traces with this profile and backend."
+  no_estimate: No trace with this profile and backend has been measured on this computer yet, so there is no time estimate.
+already_running: A run is already in progress; wait for it or cancel it below.
+start: Start run
+execution: {running: Running, completed: Completed, cancelled: Cancelled, failed: Failed}
+history:
+  title: Runs started here
+  custom: "custom: {values}"
+  baseline_values: research-baseline parameter values
+  started: "started {date}"
+  traced: "traced {done} of {total}"
+  all_cached: all traces cached; computing radio results
+  preparing: preparing
+  cancel: Cancel
+  cancelling: "Cancelling: the running worker stops; traces of finished batches stay cached."
+  finished: "Finished: `{name}`. Open it on **Coverage Analysis**."
+  cancelled: Cancelled. Starting the same run again resumes from the cache.
+  failed: The run stopped without a result.
+  no_result: the process stopped without a result
+  log: Log

@@ -1,0 +1,53 @@
+# labels of the configuration tables (bns.app.configuration), keyed by a slug of the English label
+items:
+  centre: Centre
+  receiver_area: Receiver area
+  building_margin: Building margin
+  osm_snapshot: OSM snapshot
+  footprint_sources: Footprint sources
+  height_priority: Height priority
+  storey_height: Storey height
+  external_height_dataset: External height dataset
+  height_sensitivity_analysis: Height sensitivity analysis
+  required_observations: Required observations
+  accepted_observation_methods: Accepted observation methods
+  covered_by_sensitivity_instead: Covered by sensitivity instead
+  mast_height_above_the_roof: Mast height above the roof
+  sector_bearings: Sector bearings
+  downtilt: Downtilt
+  antenna_position: Antenna position
+  inset_from_the_roof_edge: Inset from the roof edge
+  candidate_roofs_height_categories: "Candidate roofs: height categories"
+  minimum_roof_height: Minimum roof height
+  minimum_roof_area: Minimum roof area
+  minimum_spacing: Minimum spacing
+  candidate_count_target: Candidate count target
+  threshold_refinements: Threshold refinements
+  never_candidates_kept_as_obstacles: Never candidates (kept as obstacles)
+  site_selection: Site selection
+values:
+  research_baseline: research baseline
+  modified_custom: modified (custom)
+  development_and_preview: development and preview
+  disabled: disabled
+  all_five: all five
+  theoretical_upper_bound: theoretical upper bound
+  3gpp_mapping: 3GPP mapping
+  research_approximation: research approximation
+columns:
+  parameter: Parameter
+  value: Value
+  unit: Unit
+  definition: Definition
+  configuration: Configuration
+  sources: Sources
+  item: Item
+  file: File
+  use: Use
+  final_scene_convergence: Final-scene convergence
+  scenario: Scenario
+  practical_mapping_beside_shannon: Practical mapping (beside Shannon)
+  lower_bound_db: Lower bound [dB]
+  cap: Cap
+  label: Label
+  α: α

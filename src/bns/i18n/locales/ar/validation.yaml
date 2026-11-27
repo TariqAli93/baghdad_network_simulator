@@ -1,0 +1,24 @@
+title: التحقق العلمي
+caption: "ما الذي جرى التحقق منه وكيف. تبقى أربع فئات منفصلة: (1) التحقق التحليلي، (2) المقارنة نموذجًا بنموذج، (3) المقارنة مع MATLAB، (4) القياسات الميدانية."
+categories:
+  analytical: {name: "1. التحقق التحليلي (المحرّك مقابل الصيغ المغلقة)", status: "**مكتمل**: تجارب المرحلة 0 من E1 إلى E3، واختبارات خط المعالجة، ونمط الهوائي، وفحص المنطقة القريبة من الموقع"}
+  model: {name: "2. نموذج بنموذج (تتبّع الأشعة مقابل 3GPP TR 38.901)", status: "**مكتمل** لإعداد مضبوط (أدناه)"}
+  matlab: {name: "3. المقارنة مع MATLAB", status: "**مُعدّة ولم تُنفَّذ** (الحزمة في validation/matlab/)"}
+  field: {name: "4. القياسات الميدانية", status: "**لا توجد** في هذا المشروع"}
+tr38901: "2. تتبّع الأشعة مقابل 3GPP TR 38.901 (UMa وUMi)"
+tr38901_none: "لم تُنفَّذ بعد: `uv run python scripts/validate_tr38901.py --area tahrir_bab_al_sharqi_v2`."
+engine: فحوص المحرّك (المرحلة 0)
+columns: {experiment: التجربة, passed: ناجحة, note: ملاحظة}
+judgement: معروضة للتقييم (بلا معيار نجاح/فشل)
+notes_english: الملاحظات في الجدول وسجلات التحقق أدناه مكتوبة بالإنجليزية كما حُفظت.
+near_site: فجوة التغطية قرب الموقع (28 GHz) وتجربة موضع الهوائي
+diagnosis: "التشخيص على `{run}`"
+experiment: "تجربة مضبوطة `{name}`"
+backends: محرّكا CPU وGPU
+no_backends: لا توجد مقارنة محفوظة بين CPU وGPU.
+matlab: 3. حزمة المقارنة مع MATLAB
+no_matlab: لم تُعَدّ أي حزمة (scripts/export_matlab_case.py).
+compared: قورنت
+prepared: مُعدّة ولم تُنفَّذ
+convergence: التقارب (ملفات الدقة)
+no_convergence: لم يُعثر على تشغيل تقارب.

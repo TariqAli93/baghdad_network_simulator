@@ -50,3 +50,5 @@ dist/
 /outputs/runs/development/site_plan-tahrir_bab_al_sharqi_study-synthetic_urban_high-seed42+fp_3d_globfp-preview-33cand-gpu-20261127T012932Z/
 /outputs/runs/development/site_plan-tahrir_bab_al_sharqi_study-synthetic_urban_low-seed42+fp_3d_globfp-preview-29cand-gpu-20261127T011533Z/
 /outputs/runs/development/multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-preview-1sites-20261127T013103Z/
+# local screenshots of the interface (not research outputs)
+outputs/screenshots/

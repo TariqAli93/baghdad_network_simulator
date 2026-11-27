@@ -266,36 +266,49 @@ def load(root: Path, area_name: str, variant: str, profile_name: str, mode: str 
                       overrides=overrides, classification=classes)
 
 
-def limitations(exp: Experiment) -> list[str]:
-    """The scientific limitations of a run of this experiment (shown, never blocking)."""
+def limitation_items(exp: Experiment) -> list[tuple[str, dict]]:
+    """The scientific limitations of a run of this experiment as (translation key, values) pairs
+    (bns.i18n, section `limitations`); shown, never blocking."""
     c = exp.classification
     # dataset reasons; quality reports written before 2026-11-27 also listed the approval state, which
     # repeats the area's role and is no longer a limitation
     reasons = [r for r in (exp.quality.get("not_fit_reasons") or []) if "approved" not in r]
-    out = []
+    items: list[tuple[str, dict]] = []
     if not exp.area.is_research_dataset:
-        out.append(f"{exp.area.name} is a {exp.area.role}, not the study district: results do not describe the "
-                   "study district's research dataset")
+        items.append(("limitations.not_study_district", {"area": exp.area.name, "role": exp.area.role}))
         reasons = [r for r in reasons if "not the study district" not in r]
     model = exp.quality.get("height_model") or {}
     syn = model.get("synthetic")
+    worklist = exp.quality.get("observation_worklist") or {}
+    placeholder_pct = ((exp.quality.get("height_categories") or {}).get("by_count_percent") or {}).get("placeholder", 0.0)
+    for r in reasons:
+        if "placeholder heights" in r:
+            if not syn:     # on a synthetic dataset those buildings carry synthetic heights (stated below)
+                items.append(("limitations.placeholder_share", {"pct": placeholder_pct}))
+        elif r.startswith("observation worklist"):
+            if not syn:
+                items.append(("limitations.worklist_incomplete",
+                              {"observed": worklist.get("observed", 0), "listed": worklist.get("listed", 0),
+                               "unmatched": worklist.get("unmatched", 0)}))
+        else:
+            items.append(("limitations.dataset_note", {"text": r}))
     if syn:
-        # the placeholder and worklist reasons describe the empirical data; here those buildings carry
-        # synthetic heights, which is the limitation to state
-        reasons = [r for r in reasons if "placeholder heights" not in r and "observation worklist" not in r]
-        out += reasons
-        out.append(f"Synthetic Urban Model '{model.get('name')}' ({syn.get('algorithm')}, {syn.get('scenario')} "
-                   f"scenario, seed {model.get('seed')}): {syn.get('synthetic_percent', 0):.1f} % of buildings have "
-                   "estimated building heights (modelling assumptions, not measurements); no field observations")
-    else:
-        out += reasons
-        if c is not None and c.dataset == classification_module().ESTIMATED:
-            out.append("missing building heights are drawn from an assumed height model")
+        items.append(("limitations.synthetic", {"name": model.get("name"), "algorithm": syn.get("algorithm"),
+                                                "scenario": syn.get("scenario"), "seed": model.get("seed"),
+                                                "pct": syn.get("synthetic_percent", 0.0)}))
+    elif c is not None and c.dataset == classification_module().ESTIMATED:
+        items.append(("limitations.height_model", {}))
     if c is not None and c.deviations:
-        out.append("differs from the research baseline: " + "; ".join(c.deviations))
+        items.append(("limitations.deviations", {"items": "; ".join(c.deviations)}))
     if c is not None and c.validation != classification_module().VALIDATED:
-        out.append("validation pending (final-scene convergence, MATLAB comparison)")
-    return out
+        items.append(("limitations.validation_pending", {}))
+    return items
+
+
+def limitations(exp: Experiment, lang: str = "en") -> list[str]:
+    """The limitations as sentences (English by default, for run logs and manifests)."""
+    from bns.i18n import translate
+    return [translate(lang, key, **values) for key, values in limitation_items(exp)]
 
 
 def classification_module():

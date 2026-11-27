@@ -1,0 +1,41 @@
+title: Coverage Analysis
+caption: Maps of a saved run. Indoor cells (building footprints) are shown grey and never count; unreached outdoor cells count as not covered.
+run_line: "Backend {backend} · profile {profile} · {sites}"
+site_plan_maps: "site plan: maps show the final selection of each scenario"
+no_layers: This run has no map layers for display.
+buildings_unavailable: Buildings unavailable (the dataset of this run is not on this computer).
+no_site: No site was selected for this scenario.
+layers:
+  path_gain_db: Path gain
+  rx_power_dbm: Received Power
+  sinr_db: Signal Quality (SINR)
+  rate_bps: Data Rate (Shannon)
+  rate_3gpp_bps: Data Rate (3GPP mapping)
+  covered: Covered cells
+  serving_site: Serving site
+  interference_dbm: Interference power
+metrics:
+  coverage: Coverage
+  coverage_help: "Outdoor cells with {definition} ≥ {threshold}."
+  sinr_median: Median SINR
+  sinr_p5: 5th-percentile SINR
+  rate_p5: 5th-percentile data rate
+  rate_median: Median data rate
+  rate_3gpp_p5: 5th-percentile 3GPP rate
+  rate_3gpp_help: Truncated Shannon of TR 38.921 (decision B3), reported beside the Shannon bound.
+  noise: Noise power
+  interference_limited: Interference-limited cells
+  interference_limited_help: Served outdoor cells where interference exceeds noise.
+cells_note: "{cells} outdoor cells · unreached {unreached}. Rates are Shannon upper bounds, not user throughput."
+cdf_title: "Distribution over outdoor cells (CDF): {layer}"
+cdf_y: share at or below
+cdf_note: "Cells without any path ({cells}) are left out of this curve."
+sites: Sites
+sites_selected: Sites (selected for this scenario)
+map:
+  site: Site
+  covered: covered
+  not_covered: not covered
+  site_hover: "{site}<br>{building}<br>roof {roof} m ({category})<br>antenna {antenna} m"
+  x_axis: "x east [m]"
+  y_axis: "y north [m]"

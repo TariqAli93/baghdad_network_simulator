@@ -1,0 +1,29 @@
+# scientific classification of results (bns.analysis.classification)
+baseline: Research Baseline
+custom: Custom Experiment
+sensitivity: Sensitivity Analysis
+not_recorded: Configuration not recorded
+complete: Complete data
+estimated: Estimated Heights
+incomplete: Incomplete data
+validated: Validation completed
+pending: Validation Pending
+preliminary: Preliminary Simulation
+validated_results: Validated Research Results
+simulation_results: Simulation Results
+baseline_pending: Research Baseline · Validation Pending
+details: "Configuration: {configuration} · Dataset: {dataset} · Validation: {validation}"
+dev_profile: "{name} profile ({cell} m, {rays} rays)"
+dev_backend: "{backend} backend (numerical limits: {doc})"
+deviations: "Differs from the research baseline in: {items}"
+configuration: Configuration
+dataset: Dataset
+validation: Scientific validation
+validation_short: {pending: pending, completed: completed}
+explain:
+  preliminary: Placeholder building heights or an unrecorded configuration — useful to explore the method, not a finding.
+  simulation_results: Research-baseline settings on estimated building heights — a simulation under stated assumptions, not a validated finding.
+  custom: Some settings differ from the research baseline; the run records them.
+  sensitivity: Only the threshold, target, load or rain differ from the research baseline.
+  validated_results: Research baseline on complete measured data with completed validation.
+  baseline_pending: Research baseline on complete data; validation is still pending.
