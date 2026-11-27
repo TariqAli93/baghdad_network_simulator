@@ -35,7 +35,8 @@ outputs/validation/**/cells.csv
 # Distribution archives (scripts/make_distribution.py) and acceptance records of other machines
 dist/
 
-# Demonstration results shipped with the release (development runs, OSM-derived only; about 10 MB)
+# Demonstration results shipped with the release (development runs on OSM-derived datasets, and one
+# research-baseline run on the Synthetic Urban Model; about 13 MB; no GlobalBuildingAtlas data)
 !outputs/runs/development/**/*.npz
 !outputs/runs/development/**/*.png
 !outputs/validation/**/*.png

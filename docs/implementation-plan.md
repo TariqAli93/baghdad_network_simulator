@@ -1073,8 +1073,18 @@ untouched.
   steps; simulation results versus measurements). README, licensing attribution, laptop
   acceptance procedure and release notes updated.
 - Demonstration results: the tracked development runs (development area, OSM placeholder heights;
-  invalidated runs left out). The local synthetic-dataset runs stay out of the repository and the
-  package; the research guide's first steps create such runs.
+  invalidated runs left out), and one research-baseline run on the Synthetic Urban Model added for
+  the package (approved by the project owner, 2026-11-27):
+  `multi_site-tahrir_bab_al_sharqi_study-synthetic_urban-seed42+fp_3d_globfp-standard-1sites-20261127T121824Z`,
+  started from the application's run control: study district, Synthetic Urban Model baseline,
+  standard profile (10 m, 10⁹ rays), CPU, one candidate-rule site (site-001 on way/919688856, 55 m
+  observed roof), 15 traces in about 21 minutes on the development PC, no kernel-compilation retries.
+  Classification: Simulation Results · Research Baseline · Estimated Building Heights · Validation
+  Pending, no deviations. Coverage 95.9-100 %, median SINR 10.3-19.4 dB, median Shannon rate
+  129-2085 Mbit/s over the five bands (summary.md). A first attempt was cancelled from the Run
+  page after its first band batch had traced but not committed (worker exit retried); nothing of it
+  was kept. Per-cell CSVs stay local (`.gitignore`), as for the other demonstration runs. The
+  earlier GPU/preview synthetic-dataset runs stay out of the repository and the package.
 - `run.ps1` serves on localhost only (`--server.address localhost`): Streamlit otherwise listens on
   every network interface and looks up the public IP online at start-up (checkip.amazonaws.com).
   Its readiness checks use 127.0.0.1 ("localhost" first tries IPv6 and needs about 2 s to fall back).

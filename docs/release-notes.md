@@ -11,6 +11,9 @@
   project's environment, serves on localhost only (no public-IP look-up) and opens the browser
   when the application is ready.
 - Development-only files left out of the package (`not_delivered` in `configs/distribution.yaml`).
+- Demonstration result on the Synthetic Urban Model: one research-baseline run (study district,
+  standard profile, CPU, one site), classified Simulation Results · Validation Pending; it is the
+  latest result the dashboard shows after installation.
 - Bilingual interface review fixes (dashboard de-duplication, Arabic bidi, recorded status texts
   translated at display time, layout at 1366 × 768, language kept across restarts).
 - Not changed: simulation, formulas, research baseline, datasets, validation rules, results.

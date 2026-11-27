@@ -110,7 +110,10 @@ in this package is a measurement or a validated research result.**
 
 ## 9. Where your files are
 
-- Simulation results: `outputs\runs\development\<run>\` (manifest, statistics, maps, CSV).
+- Simulation results: `outputs\runs\development\<run>\` (manifest, statistics, maps, CSV). The
+  package comes with demonstration results: one research-baseline run on the Synthetic Urban Model
+  (study district, one site, CPU, standard profile; "Simulation Results") and older preliminary
+  runs on the development area. Their per-cell CSV files are not included.
 - Downloaded reports and exports: your browser's Downloads folder.
 - Your 6G roadmap recommendations: `outputs\roadmap\student_recommendations.json`.
 - Your language choice: `outputs\app_state\preferences.json`.
