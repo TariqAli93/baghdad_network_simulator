@@ -95,8 +95,8 @@ st.subheader(t("planning.try"))
 st.caption(t("planning.try_note"))
 labels = [t("planning.site_label", site=x["candidate_id"], building=x["building_id"], roof=f"{x['roof_height_m']:g}",
             category=category(x["height_category"])) for x in run.sites]
-chosen = st.multiselect(t("planning.transmitting"), list(range(len(labels))), default=default_sel,
-                        format_func=lambda i: labels[i])
+chosen = ui.multiselect(st, t("planning.transmitting"), list(range(len(labels))), f"plan_sites_{run.run_id}",
+                        default=default_sel, format_func=lambda i: labels[i])
 c1, c2, c3 = st.columns(3)
 activity = c1.slider(t("planning.activity"), 0.0, 1.0,
                      float(overrides.get("interference_activity", params.get("interference_activity", {}).get("value", 1.0))),

@@ -92,8 +92,10 @@ with tab_bands:
 with tab_runs:
     paths = ui.run_list()
     requested = [p for p in st.session_state.pop("cmp-runs", []) if p in paths]      # from the Experiment History
-    chosen = st.multiselect(t("comparison.runs.select"), paths,
-                            default=requested or (paths[:2] if len(paths) > 1 else paths),
+    if requested:
+        st.session_state["cmp_runs"] = requested
+    chosen = ui.multiselect(st, t("comparison.runs.select"), paths, "cmp_runs",
+                            default=paths[:2] if len(paths) > 1 else paths,
                             format_func=lambda p: ui.run_title(ui.run(p)))
     if len(chosen) >= 2:
         runs = [ui.run(p) for p in chosen]
@@ -104,8 +106,9 @@ with tab_runs:
                 st.warning(t("comparison.runs.differ", other=other.run_id, ref=ref.run_id, items=", ".join(diff)))
             else:
                 st.success(t("comparison.runs.same", other=other.run_id, ref=ref.run_id))
-        metric = st.selectbox(t("dashboard.comparison.metric"), ["coverage", "sinr_median_db", "rate_p5_mbps", "rate_median_mbps"],
-                              format_func=lambda k: t(f"comparison.runs.metrics.{k}"))
+        metric = ui.select(st, t("dashboard.comparison.metric"), ["coverage", "sinr_median_db", "rate_p5_mbps",
+                                                                   "rate_median_mbps"], "cmp_metric",
+                           format_func=lambda k: t(f"comparison.runs.metrics.{k}"))
         fig = go.Figure()
         for r in runs:
             rows = evidence.band_table(r)
@@ -148,14 +151,15 @@ with tab_runs:
                 finite = np.concatenate([z[np.isfinite(z) & (z > 0)] for z in (za, zb)])
                 rng, unit = (0.0, float(np.percentile(finite, 99)) if finite.size else 1.0), "Mbit/s"
             grid = a_run.grid
-            fig = make_subplots(rows=1, cols=2, shared_yaxes=True, horizontal_spacing=0.02,
+            # not shared_yaxes: a shared y axis ignores the second map's scaleanchor and stretches it
+            fig = make_subplots(rows=1, cols=2, horizontal_spacing=0.04,
                                 subplot_titles=[carrier_label(sa), carrier_label(sb)])
             for k, z in enumerate((za, zb), start=1):
                 fig.add_heatmap(x=grid.x_centers, y=grid.y_centers, z=np.where(np.isfinite(z), z, np.nan),
                                 colorscale=ui.SEQ, zmin=rng[0], zmax=rng[1], showscale=k == 2, colorbar=dict(title=unit),
                                 row=1, col=k, hovertemplate="x %{x:.0f} m, y %{y:.0f} m<br>%{z:.1f} " + unit
                                 + "<extra></extra>")
-                fig.update_yaxes(scaleanchor=f"x{k if k > 1 else ''}", row=1, col=k)
+                fig.update_yaxes(scaleanchor=f"x{k if k > 1 else ''}", scaleratio=1, showticklabels=k == 1, row=1, col=k)
             half = grid.cell_size_m / 2                 # the same extent in both maps
             fig.update_xaxes(range=[grid.x_centers[0] - half, grid.x_centers[-1] + half], constrain="domain")
             fig.update_yaxes(range=[grid.y_centers[0] - half, grid.y_centers[-1] + half], constrain="domain")

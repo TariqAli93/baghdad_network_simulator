@@ -55,6 +55,9 @@ table.ws-m td {padding: .18rem .3rem; border-bottom: 1px solid rgba(128,128,128,
 table.ws-m td.v {text-align: end; white-space: nowrap; font-weight: 600;}
 table.ws-m.stale td.v {opacity: .55; font-weight: 500;}
 .ws-note {font-size: .74rem; opacity: .75; line-height: 1.35; margin-top: .15rem;}
+/* Streamlit pulls the next element up by 1rem after markdown (meant for a paragraph's margin); these
+   blocks have none, so the next element would cover their last line */
+div[data-testid="stMarkdownContainer"]:has(> .ws-note, > .ws-state, > .ws-obj, > .ws-class) {margin-bottom: 0;}
 .ws-obj {font-size: .84rem; line-height: 1.4;}
 .ws-hyp {border-inline-start: 3px dashed #b7791f; padding-inline-start: .5rem; font-size: .8rem;}
 [data-testid="stWidgetLabel"] p {font-size: .8rem;}
@@ -95,12 +98,14 @@ def category_name(c: str | None) -> str:
 
 
 def carrier_name(c: dict) -> str:
-    """'5G — 3.5 GHz', or for a custom carrier '5G — 3.5 GHz → 8 GHz / 100 MHz'."""
+    """'5G — 3.5 GHz', or for a custom carrier '5G — 3.5 GHz → 8 GHz / 100 MHz' (the arrow follows the
+    reading direction; the new values stay one left-to-right run inside Arabic text)."""
     base = ui.scenario_name({"id": c["preset"], "label": c["label"],
                              "frequency_hz": c.get("preset_frequency_hz", c["frequency_hz"])})
     if not c.get("custom"):
         return base
-    return f"{base} → {c['frequency_hz'] / 1e9:g} GHz / {c['bandwidth_hz'] / 1e6:g} MHz"
+    new = f"{i18n.LRI}{c['frequency_hz'] / 1e9:g} GHz / {c['bandwidth_hz'] / 1e6:g} MHz{i18n.PDI}"
+    return f"{base} {'←' if ui.tr().rtl else '→'} {new}"
 
 
 # ---------------------------------------------------------------- cached data
@@ -1022,13 +1027,17 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
         state_kind, state_text = "running", t("workspace.state.running")
     elif shown is not None:
         state_kind, state_text = "current", t("workspace.state.current_band", band=carrier_name(car))
-        if shown.extra.get("from_run"):
-            state_text += "<br>" + t("workspace.state.from_run", run=ui.ltr(shown.extra["from_run"]))
+        if shown.extra.get("from_run"):           # the run's date: its folder name does not fit the column
+            run_dir = next((d for d in saved_run_dirs if d.name == shown.extra["from_run"]), None)
+            when = (ui.tr().date(results.load_run(run_dir).manifest.get("created_utc", "")) if run_dir
+                    else ui.ltr(shown.extra["from_run"]))
+            state_text += "<br>" + t("workspace.state.from_run", run=when)
     else:
         state_kind, state_text = "stale", t("workspace.state.stale" if stale else "workspace.state.not_simulated",
                                             n=n_missing)
     h("workspace.results.title")
-    st.markdown(f'<div class="ws-state {state_kind}">{state_text}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="ws-state {state_kind}"><span>{state_text}</span></div>',   # one flex item
+                unsafe_allow_html=True)
 
     if enabled and carriers:
         c = ws.classify(ctx, stations, rad, carriers)

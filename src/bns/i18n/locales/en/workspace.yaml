@@ -113,7 +113,7 @@ state:
   running: Tracing…
   stale: 'Stale: this band needs {n} traces'
   not_simulated: 'Not simulated yet: this band needs {n} traces'
-  from_run: 'Read from the saved run {run}: this computer''s propagation cache does not hold its traces, so a change that needs ray tracing will trace them.'
+  from_run: 'Read from the saved run of {run}: this computer''s propagation cache does not hold its traces, so a change that needs ray tracing will trace them.'
 results:
   title: Results
   class_details: Classification and limitations

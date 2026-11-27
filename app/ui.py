@@ -314,6 +314,23 @@ def select(container, label: str, options: list, key: str, *, format_func=str, o
                                        **kwargs)
 
 
+def multiselect(container, label: str, options: list, key: str, *, default=(), format_func=str, **kwargs):
+    """A multiselect that keeps its choice when the language changes (as `select`): the widget key carries
+    the language and the chosen values are kept under `key` (`default` until something is stored)."""
+    options = list(options)
+    wkey = f"{key}__{lang()}"
+    stored = st.session_state.get(key)
+    value = [v for v in (list(default) if stored is None else stored) if v in options]
+    st.session_state[key] = value
+    st.session_state[wkey] = value                  # set before the widget is drawn in this run
+
+    def changed():
+        st.session_state[key] = list(st.session_state[wkey])
+
+    return (container or st).multiselect(label, options, key=wkey, format_func=format_func, on_change=changed,
+                                         **kwargs)
+
+
 def pick_run(key: str, *, kinds: tuple[str, ...] = ("single_site", "multi_site")) -> results.Run | None:
     paths = [p for p in run_list() if run(p).kind in kinds]
     if not paths:
