@@ -1116,3 +1116,32 @@ rebuilt from the commit that adds this paragraph (documentation only).
 Not verified: installation on a computer without uv, LLVM or Python (the winget path was not
 exercised end to end), with a cold uv cache, or on the target laptop (`docs/laptop-acceptance.md`
 stays open); a real double-click in Explorer (emulated with `cmd /c` as Explorer calls it).
+
+## Simulation workspace prototype, for review (2026-11-27)
+
+Requested by the project owner: reorient the application around simulation (configure → place
+stations → simulate → visualise → compare on one screen). Per that request this is a prototype for
+review, outside the delivered application. `app/main.py` and its ten pages, every scientific module and
+every configuration file are unchanged, so the feature freeze holds for the production application.
+Audit, technology evaluation, design, verification and open decisions R1–R4: `docs/simulation-workspace.md`.
+
+- `uv run streamlit run app/workspace.py`: settings, network map and results on one screen, in Arabic
+  and English. The map is a Streamlit components v2 element (`app/components/network_map.js`; inline,
+  offline, no build step). It lets the user select, place, move and remove stations, inspect cells and
+  buildings, measure distances and switch layers, with pan and zoom in the browser.
+- `bns.app.workspace`: stations become exactly the experiment scripts' propagation jobs, so the cache
+  key decides what needs ray tracing; radio-only changes are recomputed from the cache with
+  `network.network`; results are refused (`MissingTraces`) rather than taken from another configuration;
+  designs are classified by `classification.classify`; saved runs reopen with their recorded job keys.
+- `scripts/trace_jobs.py` and `bns.app.workspace_runs`: the Run action traces only the missing jobs
+  through `propagation.compute`, reporting the band, station and sector being traced, cached and new
+  counts, retries and elapsed time, with Cancel.
+- Tests: `uv run pytest` 473 passed (40 new); `uv run pytest -m app` 56 passed (4 new). All 13 readable
+  multi-site runs and all 7 site plans rebuild with identical job keys; the research-baseline
+  demonstration run reproduces bit-identically in all five bands.
+- Browser check (Chrome): place, refuse, move, stale state and a real standard-profile CPU trace of 3 jobs
+  (1,111.8 s including one batch retry after an unclean worker exit; the shown estimate of 3.7 min
+  leaves retries out).
+
+Next: the review decides R1–R4. Restructuring the production navigation and "Save as experiment" come
+only after it.

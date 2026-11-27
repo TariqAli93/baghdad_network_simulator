@@ -30,6 +30,7 @@ uv run python scripts/run_multi_site.py --area NAME --mode development [--profil
 uv run python scripts/evaluate_gba.py --area NAME       # GlobalBuildingAtlas heights vs OSM and 3D-GloBFP
 uv run python scripts/diagnose_near_site.py RUN_DIR     # pattern vs own-roof shadow near a site
 uv run streamlit run app/main.py                       # the application (reads saved runs)
+uv run streamlit run app/workspace.py                  # simulation workspace prototype (for review; docs/simulation-workspace.md)
 uv run python scripts/plan_sites.py --area NAME --mode development [--backend gpu] [--threshold DB --load X]
 uv run python scripts/run_sensitivity.py RUN_DIR        # threshold x load sweep from cached maps
 uv run python scripts/validate_tr38901.py --area NAME   # ray tracing vs 3GPP UMa/UMi (CPU, standard)

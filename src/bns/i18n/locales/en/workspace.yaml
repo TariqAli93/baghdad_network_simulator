@@ -1,0 +1,203 @@
+title: Simulation workspace
+caption: "Configure, place stations, simulate, compare. Path gain is ray-traced with Sionna RT; received power, SINR and rates are recomputed from the cache. Prototype for review."
+back_to_cpu: Back to the CPU backend
+"yes": "yes"
+"no": "no"
+"off": "off"
+tag: {trace: needs ray tracing, instant: instant}
+settings:
+  dataset: Study area and dataset
+  synthetic_note: "Building heights: {pct} % synthetic (Synthetic Urban Model). Results on them are simulation results on estimated heights, not measurements."
+  scenario: Displayed scenario
+  carrier: "Carrier {f} · bandwidth {b}"
+  carrier_note: Frequency and bandwidth belong to the scenario (configs/scenarios.yaml). Switch scenarios above the map.
+  new_station: "New stations: antenna"
+  new_station_radio: "New stations: power"
+  apply_all: Apply to all stations
+  receivers: Receivers
+  radio: Load and coverage
+  resolution: Resolution and engine
+  profile_facts: "{cell} cells · {rays} rays per sector · {cells} outdoor cells. {status}"
+  per_trace: "Measured on this computer: about {s} s per trace."
+  no_timing: No trace with these settings has been timed on this computer yet.
+  advanced: Advanced propagation and radio
+  mechanisms: "Propagation: up to {depth} interactions; reflection {refl}; diffraction {diff}; buildings opaque; no diffuse scattering (configs/simulation.yaml)."
+  site_rule: "Site rule for candidate roofs: roof ≥ {height} m, ≥ {area} m², ≥ {spacing} m apart; antenna position: {position}."
+  stations: Stations
+  rule_roofs: "Site-rule roofs ({n})"
+  rule_roofs_help: Stations on the tallest roofs that satisfy the site rule, as many as the number on the left. This is the default placement of the experiment scripts.
+  saved_run: Saved run
+  open_run: Open in the workspace
+  clear: Remove all stations
+fields:
+  mast: "Mast above roof [m]"
+  sectors: Sectors
+  azimuth: "Sector 1 bearing [°]"
+  azimuth_help: Compass bearing of the first sector (0 = north, clockwise); the other sectors follow at equal spacing.
+  downtilt: "Downtilt [°]"
+  allow_hypothetical: Allow hypothetical stations on open ground
+  allow_help: "Off: a click on open ground is refused and only rooftop stations are placed. On: a click on open ground gives a hypothetical antenna at the height below. It is not an assessed installation site."
+  hyp_height: "Antenna height above ground [m]"
+  hyp_placeholder: required
+  power: "Transmit power [dBm, conducted]"
+  rx_height: "Receiver height [m]"
+  load: Network load (interference activity)
+  threshold: "Coverage threshold, SINR [dB]"
+  threshold_help: A cell is covered when its SINR reaches this value.
+  profile: Simulation profile
+  rain_help: 0 = clear sky (the baseline). Rain cases are sensitivity cases (configs/atmosphere.yaml).
+  rule_count: Number of roofs
+  buildings: Buildings
+  show_candidates: "Show site-rule candidate roofs ({n})"
+  enabled: Transmitting
+  pattern: Antenna pattern
+profiles: {preview: Preview, standard: Standard, custom: Custom}
+profile_status:
+  preview: "Fast exploratory profile: 95 % of outdoor cells within 2.9 dB of a 10⁹-ray map in the convergence check."
+  standard: "Research-baseline profile: two independent 10⁹-ray maps agree within 1.4–2.0 dB for 95 % of cells (borderline convergence, accepted)."
+  custom: "Custom resolution: not convergence-checked, so results are a custom experiment."
+layers:
+  none: No result layer
+  rx_power_dbm: Received power
+  sinr_db: SINR
+  covered: Coverage
+  rate_bps: Data rate (Shannon bound)
+  rate_3gpp_bps: Data rate (band mapping)
+  serving_station: Serving station
+  interference_dbm: Interference
+  path_gain_db: Path gain (best sector)
+building_fill: {plain: "Buildings: outline", height: "Buildings: height", category: "Buildings: height source"}
+map:
+  select: Select
+  place: Place station
+  move: Move
+  measure: Measure
+  fit: Fit
+  tip_select: Click a station, a building or a receiver cell to inspect it. Drag to pan, scroll to zoom.
+  tip_place: Click a roof to place a station on it.
+  tip_move: Drag a station, or select one and click its new position.
+  tip_measure: Click two points to measure the distance between them.
+  tip_fit: Show the whole receiver area.
+  hint_select: Click to inspect · drag to pan · scroll to zoom
+  hint_place: "Click a roof: the station stands at the site rule's rooftop point, with the mast on the roof. Open ground is refused (hypothetical stations are off)."
+  hint_place_hyp: Click a roof for a rooftop station, or open ground for a hypothetical station (not an assessed site).
+  hint_move: Drag a station to move it; it snaps to the roof it lands on.
+  hint_measure: Click two points. Esc clears the line.
+  stale: Results of the previous configuration. Trace to update them.
+  stale_short: stale
+  no_path: no path (not reached)
+  indoor: not an outdoor receiver cell (touches a building)
+hover_rooftop: "{station} · rooftop {building} · antenna {height} m · {power} dBm"
+hover_hypothetical: "{station} · hypothetical · antenna {height} m · {power} dBm"
+legend:
+  clamped: Values beyond the scale take the end colour. Every band uses the same scale.
+  height: Building height
+  category: Height source
+  wedges: "Wedges: sector bearing and the 65° half-power beamwidth of the TR 38.901 element. Dots: traced antenna positions."
+state:
+  current: current
+  current_band: "Current results · {band}"
+  no_stations: No transmitting station
+  running: Tracing…
+  stale: "Stale: this band needs {n} traces"
+  not_simulated: "Not simulated yet: this band needs {n} traces"
+results:
+  title: Results
+  class_details: Classification and limitations
+  deviations: "**Departures from the research baseline:**"
+  stale_note: These values belong to the previous configuration. They update once the missing traces exist.
+  origin: "Opened from run {run}: {identical} of {recorded} recorded traces reproduced."
+metrics:
+  coverage_note: "outdoor cells with SINR ≥ {thr} dB"
+  rx_median: Received power, median
+  rx_p5: Received power, 5th percentile
+  rate_median: Data rate, median
+  rate_p5: Data rate, 5th percentile
+  shannon: "Shannon bound: theoretical, one user with the whole carrier"
+  mapped_p5: Band rate mapping, 5th percentile
+  mapped_note: LTE or NR mapping of the band (configs/radio_system.yaml), shown beside Shannon
+  approximation: "Candidate 6G: an NR-based approximation."
+  interference_limited: Interference-limited cells
+  stations: Stations
+  sectors: sectors
+  duration: Simulation time
+  trace_time: "{s} s of ray tracing"
+  duration_note: Recorded trace time of the path gains used. Radio results are recomputed in under a second.
+  footnote: "Coverage: outdoor cells with SINR ≥ {thr} dB. Shannon rates are theoretical upper bounds for one user with the whole carrier; the band mapping (LTE, NR) is shown beside them. Simulation time is the recorded ray-tracing time of the path gains used; radio results are recomputed in under a second. Hover a row for details."
+run:
+  title: Simulation
+  place_first: Place a station to simulate.
+  all_cached: "Every trace of this configuration is in the cache: results are computed directly."
+  band: "Trace this band ({n})"
+  all: "Trace all bands ({n})"
+  estimate: "about {m} min"
+  estimate_note: "Estimated from traces timed on this computer: this band {band}, all bands {all}."
+  progress: "{done} of {total} traces"
+  current: "Tracing {band} · {station} sector {sector}{bearing}"
+  counts: "{cached} already cached · {new} new · {left} left"
+  elapsed: "Elapsed {s} s"
+  retried: "Retried {n}×: a worker did not exit cleanly, so its band was traced again (only a clean exit counts; docs/architecture.md)."
+  finished: "Tracing finished: {n} traces in {s} s. Results are computed from the cache."
+  cancelled: Tracing cancelled. Finished batches stay cached; run again to resume.
+  failed: "Tracing failed: {error}"
+plan:
+  title: Automatic site planning over these stations
+  needs: "This band needs {n} more traces first (every station, switched-off ones included)."
+  run: "Run the SINR greedy ({band})"
+  keep: Keep only the selected stations on
+inspect:
+  title: Selected
+  none: Nothing selected. Click a station, a building or a receiver cell on the map.
+  rooftop: "<b>{station}</b> · rooftop station on {building} (roof {roof} m, {category}) · {rule}"
+  rule_yes: the roof satisfies the site rule
+  rule_no: the roof is outside the site rule (recorded as a deviation)
+  hypothetical: "<b>{station}</b> · hypothetical location: an antenna on open ground, not an assessed installation site. Results with it are a custom experiment."
+  position: "x {x} m · y {y} m · {lat} N, {lon} E"
+  nearest: "Nearest transmitting station: {d} m (site-rule spacing {rule} m)"
+  bearings: "Sector bearings: {b}"
+  remove: Remove station
+  traced: "{have} of {n} sector traces of {band} are cached."
+  building: "<b>{building}</b> · {height} m ({category}) · roof {area} m² · {rule}"
+  provenance: "Height source {source}: {method}"
+  synthetic: "Synthetic height (Synthetic Urban Model): an estimate for simulation, not a measurement."
+  place_here: Place a station on this roof
+  no_cell: No computed values here.
+  indoor: "Not an outdoor receiver cell: it touches a building footprint, and receivers are outdoors only."
+  cell: "Receiver cell x {x} m, y {y} m · {band}"
+  serving: "{station} sector {sector}"
+  list: "Stations ({n})"
+columns: {mount: Mount, host: Building, height: "Antenna [m]", power: dBm, sectors: Sectors, "on": "On"}
+mounts: {rooftop: rooftop, hypothetical: hypothetical}
+patterns: {tr38901: 3GPP TR 38.901 sector, iso: isotropic (one sector)}
+place_errors:
+  outside: "({x}, {y}) m is outside the scene."
+  monument: "{building} is a monument, memorial or artwork: never a transmitter site."
+  rooftop_only: "Open ground: hypothetical stations are off. Click a roof, or allow hypothetical stations in the settings."
+  height_needed: "Open ground: first enter the antenna height above ground for hypothetical stations."
+messages:
+  placed_rooftop: "{station} placed on {building}; antenna at {height} m."
+  placed_hypothetical: "{station} placed at a hypothetical location; antenna {height} m above ground."
+  dropped: "Removed because their building is not in this dataset: {stations}"
+  run_loaded: "Opened run {run}: all {recorded} recorded traces reproduced from the cache."
+  run_partial: "Opened run {run}: {identical} of {recorded} recorded traces reproduced; the others need tracing."
+  run_unreadable: "Run {run} cannot be opened: {error}"
+compare:
+  title: Compare bands and configurations
+  bands: Five bands
+  configs: Configurations
+  none: No band has current results yet.
+  same_scale: "{layer} on the same colour scale in every band; outdoor cells only."
+  state: State
+  needs: "{n} traces needed"
+  rates_note: "Rates in Mbit/s. Shannon rates are theoretical upper bounds. The band mapping is LTE for 4G, NR for 5G and an NR-based approximation for the candidate 6G bands."
+  configs_note: Pin the current configuration, change stations or values, then compare. Cell-by-cell differences need the same receiver grid.
+  pin: Pin the current configuration as reference
+  reference_label: "Reference: {n} stations"
+  cov_ref: "Coverage, reference [%]"
+  cov_now: "Coverage, now [%]"
+  sinr_ref: "SINR median, reference [dB]"
+  sinr_now: "SINR median, now [dB]"
+  p5_ref: "5th-pct rate, reference [Mbit/s]"
+  p5_now: "5th-pct rate, now [Mbit/s]"
+  diff_title: "{layer}: now minus reference · {band}"
+  not_comparable: "Not comparable cell by cell: the receiver grid differs from the reference."

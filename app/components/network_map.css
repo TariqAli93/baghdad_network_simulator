@@ -1,0 +1,46 @@
+.bns-map {
+  position: relative; width: 100%; overflow: hidden; border: 1px solid rgba(80, 80, 70, 0.28); border-radius: 6px;
+  outline: none; user-select: none; font: 13px/1.35 "Noto Sans Arabic", "Segoe UI", system-ui, sans-serif; color: #1c1c1a;
+  background: #efeee9;
+}
+.bns-map:focus-visible { box-shadow: 0 0 0 2px #2a78d6; }
+.bns-map canvas { display: block; touch-action: none; cursor: grab; }
+.bns-map[data-mode="place"] canvas, .bns-map[data-mode="measure"] canvas { cursor: crosshair; }
+.bns-map[data-mode="move"] canvas { cursor: move; }
+.toolbar {
+  position: absolute; top: 8px; inset-inline-start: 8px; display: flex; gap: 2px; align-items: center; padding: 3px;
+  background: rgba(255, 255, 255, 0.94); border: 1px solid rgba(80, 80, 70, 0.25); border-radius: 6px;
+}
+.toolbar button {
+  display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 9px; border: 0; border-radius: 4px;
+  background: transparent; color: inherit; font: inherit; font-size: 12.5px; cursor: pointer;
+}
+.toolbar button:hover { background: rgba(0, 0, 0, 0.06); }
+.toolbar button.on { background: #1c1c1a; color: #fff; }
+.toolbar button:focus-visible { outline: 2px solid #2a78d6; outline-offset: 1px; }
+.toolbar .sep { width: 1px; height: 20px; background: rgba(0, 0, 0, 0.15); margin: 0 3px; }
+.hint {
+  position: absolute; top: 46px; inset-inline-start: 8px; max-width: 60%; padding: 3px 8px; font-size: 12px;
+  background: rgba(255, 255, 255, 0.88); border-radius: 4px; color: #3b3a35;
+}
+.hint:empty { display: none; }
+.badge {
+  position: absolute; top: 8px; inset-inline-end: 52px; padding: 4px 10px; border-radius: 4px;
+  background: #8a5a12; color: #fff; font-size: 12px; font-weight: 600; max-width: 34%; text-align: start;
+}
+.legend {
+  position: absolute; bottom: 34px; inset-inline-end: 8px; min-width: 190px; max-width: 260px; padding: 7px 9px;
+  background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(80, 80, 70, 0.25); border-radius: 6px; font-size: 12px;
+}
+.legend .title { font-weight: 600; margin-bottom: 4px; }
+.legend .bar { height: 10px; border-radius: 2px; border: 1px solid rgba(0, 0, 0, 0.12); }
+.legend .ticks { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; font-size: 11px;
+  margin-top: 1px; color: #3b3a35; }
+.legend .sw { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
+.legend .sw i { width: 14px; height: 10px; border-radius: 2px; border: 1px solid rgba(0, 0, 0, 0.15); flex: none; }
+.legend .note { margin-top: 4px; color: #5d5c55; font-size: 11px; }
+.status {
+  position: absolute; bottom: 0; left: 0; right: 0; min-height: 24px; padding: 3px 10px; font-size: 12px;
+  background: rgba(255, 255, 255, 0.92); border-top: 1px solid rgba(80, 80, 70, 0.2); font-variant-numeric: tabular-nums;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
