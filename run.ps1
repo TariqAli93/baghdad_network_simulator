@@ -5,7 +5,8 @@
 
 .DESCRIPTION
   Uses the project's own Python environment (.venv, created by setup.ps1), so it works offline
-  and needs no other tool. Opens the browser as soon as the application answers. If the
+  and needs no other tool. Serves on localhost only (not reachable from other computers).
+  Opens the browser as soon as the application answers. If the
   application is already running, it only opens the browser; if the port is taken by another
   program, the next free port is used. Closing this window stops the application.
 .EXAMPLE
@@ -21,8 +22,10 @@ if (-not (Test-Path $python)) {
     exit 1
 }
 
+# health checks use 127.0.0.1: "localhost" tries IPv6 first and takes about 2 s to fall back to the
+# IPv4-only server; the browser is still sent to http://localhost:<port>
 function Test-App([int]$p) {
-    try { (Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:$p/_stcore/health" -TimeoutSec 2).Content -eq "ok" }
+    try { (Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$p/_stcore/health" -TimeoutSec 3).Content -eq "ok" }
     catch { $false }
 }
 function Test-PortInUse([int]$p) {
@@ -47,12 +50,14 @@ Write-Host "Every result states its scientific classification (configuration, da
 if (-not $NoBrowser) {
     # open the browser as soon as the application answers (at most about a minute)
     Start-Job -ScriptBlock {
-        param($u)
+        param($u, $p)
         for ($i = 0; $i -lt 120; $i++) {
-            try { if ((Invoke-WebRequest -UseBasicParsing -Uri "$u/_stcore/health" -TimeoutSec 2).Content -eq "ok") { break } } catch {}
+            try { if ((Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$p/_stcore/health" -TimeoutSec 3).Content -eq "ok") { break } } catch {}
             Start-Sleep -Milliseconds 500
         }
         Start-Process $u
-    } -ArgumentList $url | Out-Null
+    } -ArgumentList $url, $Port | Out-Null
 }
-& $python -m streamlit run app/main.py --server.port $Port
+# localhost only: the application is not reachable from other computers on the network, and Streamlit
+# then skips its online look-up of the computer's public address (offline operation)
+& $python -m streamlit run app/main.py --server.port $Port --server.address localhost

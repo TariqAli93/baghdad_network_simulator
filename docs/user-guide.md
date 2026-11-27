@@ -43,6 +43,7 @@ Running `1 - Install.cmd` again is safe: finished steps are kept.
   your web browser at `http://localhost:8501`. No internet is needed.
 - **Keep the black window open** while you work. **Close it** to stop the application.
 - If the application is already running, the same file just opens it in the browser.
+- The application is reachable only from this computer, not from other computers on the network.
 
 ## 4. Language
 

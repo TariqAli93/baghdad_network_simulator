@@ -8,20 +8,21 @@ in `docs/benchmarks.md` and are not a substitute.
 ## Procedure
 
 1. On AC power, balanced or best-performance power mode, other heavy programs closed.
-2. Copy the clean archive (`scripts/make_distribution.py` on the development PC) or clone the
-   repository; open PowerShell in the folder.
-3. `powershell -ExecutionPolicy Bypass -File .\setup.ps1` — installation (internet the first
-   time; LLVM via winget may ask for administrator approval). Record: success, time, any
-   prompt.
-4. `.\doctor.ps1 -Save` — environment diagnostics; all PASS except optional items (no NVIDIA
-   GPU: the GPU line is INFO, which is expected).
-5. `powershell -ExecutionPolicy Bypass -File .\benchmark.ps1` — unit and engine tests, cold
+2. Copy the delivery archive (`scripts/make_distribution.py` on the development PC) and extract
+   it to a path without Arabic letters (for example `C:\BaghdadSimulator`).
+3. Double-click `1 - Install.cmd` (= `powershell -ExecutionPolicy Bypass -File .\setup.ps1`) —
+   installation (internet the first time; uv and LLVM via winget after a Y/N question; LLVM may
+   ask for administrator approval). Record: success, time, any prompt.
+4. Double-click `Diagnose problems.cmd` (= `.\doctor.ps1 -Save`) — environment diagnostics; all
+   PASS except optional items (no NVIDIA GPU: the GPU line is INFO, which is expected), and
+   "package files" PASS.
+5. Double-click `Laptop benchmark.cmd` (= `.\benchmark.ps1`) — unit and engine tests, cold
    kernel compilation and warm repeat, standard-profile trace time and peak memory, one
    five-band single-site run uncached then cached, JIT retry counts. Results in
    `outputs\acceptance\<time>\summary.json` and logs.
 6. Optional, for the sustained-workload and stability part of the gate (about an hour or
    more): `.\benchmark.ps1 -Full` (adds `scripts/poc_benchmark.py gate stability sustained`).
-7. In the application (`.\run.ps1`): start a preview run with one new site, cancel it during
+7. In the application (`2 - Start Baghdad Network Simulator.cmd`): start a preview run with one new site, cancel it during
    tracing, confirm the page shows "Cancelled" and that rerunning resumes from the cache;
    open every page; export a report.
 

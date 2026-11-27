@@ -1,5 +1,22 @@
 # Release notes
 
+## Delivery candidate (2026-11-27, after v1.0.0-rc.1; not v1.0.0)
+
+- Student package from `scripts/make_distribution.py`: double-click launchers (`1 - Install.cmd`,
+  `2 - Start Baghdad Network Simulator.cmd`, `Diagnose problems.cmd`, `Laptop benchmark.cmd`,
+  `Research console.cmd`), `START-HERE.txt` (Arabic and English), user guide and research
+  execution guide in both languages, `SHA256SUMS.txt` checked by the diagnostics.
+- Setup builds the study-district datasets (footprints; Synthetic Urban Model baseline, low,
+  high) and offers to install missing uv / LLVM with winget; the launcher runs offline from the
+  project's environment, serves on localhost only (no public-IP look-up) and opens the browser
+  when the application is ready.
+- Development-only files left out of the package (`not_delivered` in `configs/distribution.yaml`).
+- Bilingual interface review fixes (dashboard de-duplication, Arabic bidi, recorded status texts
+  translated at display time, layout at 1366 × 768, language kept across restarts).
+- Not changed: simulation, formulas, research baseline, datasets, validation rules, results.
+- Still open for v1.0.0: field observations, final-scene convergence, MATLAB comparison, laptop
+  acceptance on the target laptop.
+
 ## Unreleased (after v1.0.0-rc.1)
 
 - Supervisor approvals recorded as reported (`docs/approval-record.md`); configuration states updated.
