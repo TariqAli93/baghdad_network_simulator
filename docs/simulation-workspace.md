@@ -361,3 +361,49 @@ Configuration (research baseline / custom experiment / sensitivity analysis), **
 (completed / pending) are recorded separately; execution (ready / running / completed / cancelled /
 failed) is shown separately again. `run_multi_site.py` and `plan_sites.py` now record placement too.
 The dataset class keeps its existing names ("Complete data" is the documented class).
+
+## 9. Production verification (2026-11-27, development PC, branch `feature/simulation-workspace`)
+
+Tests: `uv run pytest` 509 passed; `uv run pytest -m app` 59 passed (every page in English and Arabic,
+the workspace as landing page, a radio change becoming a custom experiment and the reset restoring the
+baseline, staleness, the saved run's values shown exactly). App tests use a temporary experiments
+folder (`BNS_EXPERIMENTS_DIR`), never the user's.
+
+In Chrome against `app/main.py` (port 8765), English and Arabic, every item of the request's section 12:
+
+| Check | Result |
+|---|---|
+| Place a station manually | S1 by clicking the roof of way/919688856 (Place tool): rooftop point, mast on the 55 m roof |
+| Add a second station | S2 on 3d_globfp/rec/696321 (12 m synthetic roof) from the building inspector ("Place a station on this roof") |
+| Edit stations independently | S1 downtilt 6°, S2 43 dBm; saved experiment and run manifest record S1 46 dBm / 6°, S2 43 dBm / 10° |
+| Candidate 6G selected and configured | carriers 5G 3.5 GHz and candidate 6G 8 GHz, equal bandwidth 100 MHz (8 GHz custom, labelled; preset NR-based mapping kept) |
+| A real simulation completes | preview profile, CPU: 12 traces; batch 1 (6 traces) ended with exit code 0xC0000374 and was traced again, as the clean-exit rule requires (shown as a retry); 175.9 s in all; run written |
+| Real results on the map | SINR, received power, coverage and rates of the run's carriers; 8 GHz / 100 MHz: coverage 100.0 %, median SINR 14.6 dB, 5th-percentile Shannon rate 100.1 Mbit/s (mapped 60.1 Mbit/s), 97 % interference-limited cells |
+| Save and reopen | saved as "Verification: 5G and candidate 6G at 100 MHz"; a new experiment, then Open: name, carriers, both stations and current results back (from the cache) |
+| History and Reports | both runs in Experiment History (source workspace, classification "Custom Experiment · manual placement"); report exported from the workspace (HTML, interface language) and shown on the Reports page with all deviations |
+| Stale marking | receiver height 1.5 → 2 m: "Stale: this band needs 6 traces", faded and hatched map, greyed values, 12 traces offered; back to 1.5 m: current again from the cache |
+| Cached traces reused | "Duplicate as candidate 6G": the 8 GHz preset (400 MHz) is current at once from the 100 MHz run's traces (the bandwidth is not in the job key); a run of that band wrote 6 of 6 traces from the cache in 1 s |
+| Identical station locations | Scenario Comparison, two runs side by side: "identical station locations"; 6G 8 GHz / 400 MHz and 5G 3.5 GHz / 100 MHz on one SINR scale |
+| Arabic and English | workspace, history, comparison, reports in both; right-to-left layout, map not mirrored |
+
+Cancellation and resume (standard profile, CPU, candidate 6G 15 GHz, one station, 3 traces), through the
+run interface the workspace uses: one worker per trace (expected 91 s from this scene's recent traces);
+trace 1 committed after 85.7 s (2 s worker overhead), estimate for the rest 176 s; cancelled → "Cancelled",
+1 committed trace kept. Restarted: "3 jobs, 1 cached, 2 to trace"; both traced (98.7 s and 83.2 s per
+worker, clean exits); run written in 184.3 s.
+
+Findings fixed during the verification: widget values lost after visiting another page (Streamlit drops
+the state of widgets that are not drawn); a placement message above the map remounted the map (tool, zoom
+and pan lost); a first "Save as" recorded a copy of an unsaved experiment; reports did not list
+per-station deviations; side-by-side maps had different extents.
+
+Known: right after switching the language, two keyed selectors (layer, building fill) keep the previous
+language's option text until the next interaction or a reload.
+
+Concurrent use: during the verification a second instance of the application (port 8501, started from
+this folder at 17:53 local time) was in use. Its session created the experiment "شبكة العرض التوضيحي"
+and ran it (8 GHz, standard profile, 471 s, with retries after first-compile crashes, one trace per
+worker). It is kept as found. Verification data left in place (not committed): the experiments
+"Verification: …" in `outputs/experiments/` and the runs `…-ws-20261127T150723Z`, `…T150920Z`,
+`…T152310Z` in `outputs/runs/development/`.
+

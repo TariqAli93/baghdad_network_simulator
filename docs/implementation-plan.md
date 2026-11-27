@@ -1145,3 +1145,29 @@ Audit, technology evaluation, design, verification and open decisions R1–R4: `
 
 Next: the review decides R1–R4. Restructuring the production navigation and "Save as experiment" come
 only after it.
+
+## Simulation workspace: production implementation (branch, 2026-11-27)
+
+The project owner approved the prototype's direction and resolved R1-R4 (`docs/simulation-workspace.md`,
+"Decisions"). Implemented in incremental commits on `feature/simulation-workspace`; **not merged**:
+`master` and the delivery candidate stay the fallback.
+
+- Experiments (save, save as, rename, duplicate, duplicate as candidate 6G, open, delete to .deleted/,
+  run again, export report) kept apart from immutable runs; workspace runs written in the multi-site
+  format, so History, Comparison and Reports read them.
+- Custom carriers (frequency and bandwidth) within the scene materials' Sionna range and with gas loss
+  available; refused otherwise; recorded in `docs/assumptions.md` section 10.
+- Placement as a classification dimension; manual placement on a rule roof keeps the baseline class.
+- Reliability: slow traces observed in the prototype were the Windows Power saver plan
+  (`docs/benchmarks.md` section 12); every worker attempt logged with its exit code; one worker per trace
+  when traces take >= 30 s (cancellation and crashes lose at most one trace); progress with committed
+  traces, retries and an estimate; Power saver warnings.
+- Navigation: Simulation Workspace (landing), Scenario Comparison, Automatic Site Planning, Experiment
+  History, Reports, Settings and Research Details. The dashboard and Run Simulation pages are replaced.
+- Tests: 509 unit, 59 app (headless). Browser verification of the request's section 12, including a
+  real simulation, cancellation and resume: `docs/simulation-workspace.md` section 9.
+
+Before merging: rewrite the user guides (`docs/user-guide.md`, `docs/user-guide.ar.md`) for the new
+pages, run the laptop acceptance (`docs/laptop-acceptance.md`) on the branch, rebuild and re-verify the
+delivery package. ITU-Rpy for P.676 gas loss at any frequency needs approval as a new dependency.
+
