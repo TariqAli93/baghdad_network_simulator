@@ -47,15 +47,21 @@ def main() -> int:
         experiment = xp.Experiment.from_dict(request["experiment"])
         ctx = xp.context(ROOT, experiment)
         stations, radio = xp.stations(experiment), xp.radio(experiment)
-        carriers = [c for c in experiment.carriers if c["id"] in set(request["carriers"])]
+        # the network: every selected carrier transmits; results for the requested ones (that a station is on),
+        # tracing also the carriers that overlap them (their interference is part of the result)
+        network_carriers = [c for c in experiment.carriers if c.get("selected", True)
+                            or c["id"] in set(request["carriers"])]
+        carriers = [c for c in network_carriers if c["id"] in set(request["carriers"]) and ws.transmitting(stations, c["id"])]
         if not carriers or not any(s.enabled for s in stations):
             raise ValueError("nothing to simulate: no carrier or no transmitting station")
+        traced = [c for c in network_carriers
+                  if any(c["id"] == r["id"] or ws.overlap(r, c) > 0 for r in carriers)]
         target = float(request.get("coverage_target") or ctx.exp.system.require("coverage_target", mode="development"))
     except Exception as exc:                        # unreadable request, missing dataset, invalid values
         emit("ERROR", str(exc))
         return 1
     emit("POWER", runtime.power_plan() or {})
-    design = ws.jobs(ctx, stations, carriers)
+    design = ws.jobs(ctx, stations, traced)
     labels = ws.job_labels(design, stations)
     all_jobs = [sj.job for js in design.values() for sj in js]
     cache = PathGainCache(ROOT / "data" / "cache" / "pathgain")
@@ -99,11 +105,11 @@ def main() -> int:
         return memo[key]
 
     try:
-        evaluations = {c["id"]: ws.evaluate(ctx, stations, c, radio, load) for c in carriers}
-        more = {c["id"]: run_record.extras(ctx, stations, c, radio, load, target) for c in carriers}
+        evaluations = {c["id"]: ws.evaluate(ctx, stations, c, radio, load, network_carriers) for c in carriers}
+        more = {c["id"]: run_record.extras(ctx, stations, c, radio, load, target, network_carriers) for c in carriers}
         on = [s for s in stations if s.enabled]
         job_records = []
-        for c in carriers:
+        for c in traced:                            # every traced job, interfering carriers included
             for sj in design[c["id"]]:
                 meta = load(sj.job.key())[1]
                 job_records.append({"scenario": c["id"], "site": on[sj.station].station_id, "key": sj.job.key(),
@@ -116,6 +122,7 @@ def main() -> int:
                   "total_wall_seconds": round(time.perf_counter() - started, 1), "batch_size": size,
                   "script_peak_commit_gb": round(getattr(memory, "peak_pagefile", 0) / 2**30, 3)}
         out = run_record.write(ROOT, ctx, experiment.to_dict(), stations, carriers, radio, evaluations, more,
+                               network_carriers=network_carriers,
                                job_records=job_records, workload=workload, target=target, timing=timing,
                                versions=runtime.versions())
     except Exception as exc:                        # noqa: BLE001 - reported; the traces stay cached

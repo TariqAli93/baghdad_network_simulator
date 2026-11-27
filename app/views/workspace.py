@@ -142,13 +142,13 @@ class Presence:
 
 
 @st.cache_resource(show_spinner=False, max_entries=80)
-def evaluation(signature: str, _ctx, _stations, _carrier, _radio) -> ws.Evaluation:
-    return ws.evaluate(_ctx, _stations, _carrier, _radio, load)
+def evaluation(signature: str, _ctx, _stations, _carrier, _radio, _carriers) -> ws.Evaluation:
+    return ws.evaluate(_ctx, _stations, _carrier, _radio, load, _carriers)
 
 
 @st.cache_resource(show_spinner=False, max_entries=80)
-def run_evaluation(signature: str, _ctx, _stations, _carrier, _radio, run_dir: str):
-    return ws.evaluation_from_run(_ctx, _stations, _carrier, _radio, Path(run_dir))
+def run_evaluation(signature: str, _ctx, _stations, _carrier, _radio, run_dir: str, _carriers=None):
+    return ws.evaluation_from_run(_ctx, _stations, _carrier, _radio, Path(run_dir), _carriers)
 
 
 @st.cache_data(show_spinner=False, max_entries=6)
@@ -256,7 +256,7 @@ def apply_experiment(e: xp.Experiment, *, saved: bool) -> None:
     presets = {c["id"]: c for c in default_carriers()}
     rows = {c["preset"]: {**c, "selected": c.get("selected", True)} for c in e.carriers or []}
     SS.w_carriers = [rows.get(pid, {**presets[pid], "selected": not e.carriers}) for pid in presets]
-    SS.w_stations = [ws.Station(**s) for s in e.stations]
+    SS.w_stations = [ws.Station.from_dict(s) for s in e.stations]
     SS.w_sel, SS.w_last, SS.w_plan = {}, {}, None
     SS.w_carrier_rev = SS.get("w_carrier_rev", 0) + 1
     SS.w_saved_sig = signature(e) if saved else None
@@ -286,9 +286,7 @@ def from_run(path: str, name: str) -> tuple[xp.Experiment, dict]:
                           radio={}, carriers=[], stations=[], origin={"opened_from_run": run.run_id})
     ctx = xp.context(ROOT, e)
     stations, check = ws.stations_from_run(ctx, run.manifest, run.summary)
-    recorded = {c["id"]: c for c in ws.run_carriers(run.manifest)}
-    carriers = [{**recorded.get(p["id"], p), "selected": p["id"] in {c["preset"] for c in recorded.values()}}
-                for p in ca.presets(ROOT)]
+    carriers = ws.design_carriers(run.manifest, ca.presets(ROOT))
     return replace(e, radio=asdict(ws.run_radio(ctx, run.manifest)), carriers=carriers,
                    stations=[asdict(s) for s in stations]), check
 
@@ -414,6 +412,27 @@ def remove(station_id: str) -> None:
         SS.w_sel = {}
 
 
+def on_station_carriers(station_id: str, ids: list[str], table_key: str):
+    """The station's own carriers from its carrier table (each row: on, power, sectors, bearing, tilt, pattern)."""
+    def apply():
+        s = next((x for x in SS.w_stations if x.station_id == station_id), None)
+        if s is None:
+            return
+        edits = (SS.get(table_key) or {}).get("edited_rows") or {}
+        own = {e.carrier_id: e for e in s.carriers or ()}
+        selected = {c["id"] for c in SS.w_carriers if c.get("selected")}
+        out = []
+        for i, cid in enumerate(ids):
+            e = own.get(cid) or ws.StationCarrier.of(s, cid, enabled=s.carriers is None and cid in selected)
+            ch = edits.get(i) or edits.get(str(i)) or {}
+            e = replace(e, enabled=bool(ch.get("on", e.enabled)), tx_power_dbm=float(ch.get("p", e.tx_power_dbm)),
+                        sectors=int(ch.get("n", e.sectors)), azimuth_deg=float(ch.get("az", e.azimuth_deg)) % 360.0,
+                        downtilt_deg=float(ch.get("tilt", e.downtilt_deg)), pattern=str(ch.get("pat", e.pattern)))
+            out.append(replace(e, sectors=1) if e.pattern == "iso" else e)
+        update_station(station_id, carriers=tuple(out))
+    return apply
+
+
 def update_station(station_id: str, **changes) -> None:
     SS.w_stations = [replace(s, **changes) if s.station_id == station_id else s for s in SS.w_stations]
 
@@ -461,7 +480,22 @@ def on_reset_baseline() -> None:
 
 def patterns_in_use() -> tuple[str, ...]:
     """Antenna patterns of the stations and of new stations: they bound the supported carrier range."""
-    return tuple({s.pattern for s in SS.w_stations} | {ws.StationTemplate.baseline(current_context()).pattern})
+    return tuple({s.pattern for s in SS.w_stations} | {e.pattern for s in SS.w_stations for e in s.carriers or ()}
+                 | {ws.StationTemplate.baseline(current_context()).pattern})
+
+
+def follow_carriers(old: list[dict], new: list[dict]) -> bool:
+    """Stations follow carriers whose id changed (row by row); refused if two carriers would become the same."""
+    ids = [c["id"] for c in new]
+    if len(set(ids)) != len(ids):
+        message("warning", t("workspace.carrier_errors.duplicate", id=next(i for i in ids if ids.count(i) > 1)))
+        return False
+    stations_ = SS.w_stations
+    for a, b in zip(old, new, strict=True):
+        if a["id"] != b["id"]:
+            stations_ = ws.rename_carrier(stations_, a["id"], b["id"])
+    SS.w_stations = stations_
+    return True
 
 
 def on_carrier_edit() -> None:
@@ -487,7 +521,8 @@ def on_carrier_edit() -> None:
                                 "selected": row["selected"]}
             except ca.CarrierError as err:
                 message("warning", carrier_text(err))
-    SS.w_carriers = rows
+    if follow_carriers(SS.w_carriers, rows):
+        SS.w_carriers = rows
     SS.w_carrier_rev += 1
 
 
@@ -498,13 +533,49 @@ def on_equal_bandwidth() -> None:
     except ca.CarrierError as err:
         message("warning", carrier_text(err))
         return
-    SS.w_carriers = [{**c, "selected": old.get("selected", True)} for c, old in zip(same, SS.w_carriers, strict=True)]
+    same = [{**c, "selected": old.get("selected", True), **({"added": True} if old.get("added") else {})}
+            for c, old in zip(same, SS.w_carriers, strict=True)]
+    if follow_carriers(SS.w_carriers, same):
+        SS.w_carriers = same
     SS.w_carrier_rev += 1
 
 
 def on_reset_carriers() -> None:
-    selected = {c["preset"]: c.get("selected", True) for c in SS.w_carriers}
+    """The five presets again: added carriers leave the experiment and its stations, edited ones return."""
+    selected = {c["preset"]: c.get("selected", True) for c in SS.w_carriers if not c.get("added")}
+    stations_ = SS.w_stations
+    for c in SS.w_carriers:
+        stations_ = (ws.without_carrier(stations_, c["id"]) if c.get("added")
+                     else ws.rename_carrier(stations_, c["id"], c["preset"]))
+    SS.w_stations = stations_
     SS.w_carriers = [{**c, "selected": selected.get(c["id"], True)} for c in ca.presets(ROOT)]
+    SS.w_carrier_rev += 1
+
+
+def on_add_carrier() -> None:
+    pid = SS.get("w_add_preset") or ca.presets(ROOT)[0]["id"]
+    try:
+        scene = current_context().exp.scene_dir
+        SS.w_carriers = ca.add(SS.w_carriers, ca.preset(ROOT, pid), frequency_hz=float(SS[f"w_add_f_{pid}"]) * 1e9,
+                               bandwidth_hz=float(SS[f"w_add_b_{pid}"]) * 1e6, scene_dir=scene, patterns=patterns_in_use())
+    except ca.CarrierError as err:
+        message("warning", carrier_text(err))
+        return
+    except Exception as exc:                        # noqa: BLE001
+        message("error", str(exc))
+        return
+    SS.w_carrier_rev += 1
+    message("success", t("workspace.carriers.added", name=carrier_name(SS.w_carriers[-1])))
+
+
+def on_remove_carrier() -> None:
+    cid = SS.get("w_remove_carrier")
+    try:
+        SS.w_carriers = ca.remove(SS.w_carriers, cid)
+    except ca.CarrierError as err:
+        message("warning", carrier_text(err))
+        return
+    SS.w_stations = ws.without_carrier(SS.w_stations, cid)
     SS.w_carrier_rev += 1
 
 
@@ -558,7 +629,9 @@ def on_duplicate(as_6g: bool = False) -> None:
     copy = replace(to_experiment(), experiment_id=xp.new_id(name), name=name,
                    origin={"duplicated_from": SS.w_meta["experiment_id"]})
     if as_6g:                                       # same stations, the two candidate 6G presets only
-        copy = replace(copy, carriers=[{**c, "selected": c["id"].startswith("c6g")} for c in ca.presets(ROOT)])
+        six = [c["id"] for c in ca.presets(ROOT) if c["id"].startswith("c6g")]
+        copy = replace(copy, carriers=[{**c, "selected": c["id"] in six} for c in ca.presets(ROOT)],
+                       stations=[asdict(s if s.carriers is None else ws.with_carriers(s, six)) for s in SS.w_stations])
     saved = xp.save(ROOT, copy)
     apply_experiment(saved, saved=True)
     message("success", t("workspace.experiment.duplicated", name=saved.name))
@@ -621,7 +694,10 @@ exp = ctx.exp
 stations: list[ws.Station] = SS.w_stations
 carriers = selected_carriers()
 design_jobs = ws.jobs(ctx, stations, carriers) if carriers else {}
-status = ws.trace_status(design_jobs, Presence) if stations else {}
+# a carrier's results need its own traces and those of the carriers overlapping it (their interference)
+status = (ws.trace_status({c["id"]: ws.evaluation_jobs(design_jobs, carriers, c["id"]) for c in carriers}, Presence)
+          if stations else {})
+silent = {c["id"] for c in carriers if not ws.transmitting(stations, c["id"])}     # no station on the carrier
 rad = radio()
 active = wr.active(ROOT)
 enabled = [s for s in stations if s.enabled]
@@ -643,16 +719,16 @@ def current_eval(c: dict) -> ws.Evaluation | None:
     of this experiment (or the run it was opened from) that computed exactly this design
     (bns.app.workspace.evaluation_from_run); None if
     neither exists (the result needs ray tracing)."""
-    if not enabled or not status.get(c["id"]):
+    if not enabled or not status.get(c["id"]) or c["id"] in silent:
         return None
     sig = hashlib.sha256(json.dumps({"ctx": [SS.w_area, SS.w_variant, profile(), backend(), overrides()],
-                                     "stations": [asdict(s) for s in stations], "radio": asdict(rad), "carrier": c},
-                                    sort_keys=True, default=str).encode()).hexdigest()
+                                     "stations": [asdict(s) for s in stations], "radio": asdict(rad), "carrier": c,
+                                     "network": carriers}, sort_keys=True, default=str).encode()).hexdigest()
     if status[c["id"]].complete:
-        e = evaluation(sig, ctx, stations, c, rad)
+        e = evaluation(sig, ctx, stations, c, rad, carriers)
     else:
-        e = next((x for x in (run_evaluation(sig + d.name, ctx, stations, c, rad, str(d)) for d in saved_run_dirs)
-                  if x is not None), None)
+        e = next((x for x in (run_evaluation(sig + d.name, ctx, stations, c, rad, str(d), carriers)
+                              for d in saved_run_dirs) if x is not None), None)
         if e is None:
             return None
     SS.w_last[c["id"]] = {"eval": e, "grid": exp.grid, "outdoor": exp.outdoor}
@@ -666,7 +742,7 @@ if ids and SS.get("w_band") not in ids:
 sid = SS.get("w_band") if SS.get("w_band") in ids else None
 car = next((c for c in carriers if c["id"] == sid), None)
 shown = evals.get(sid) if sid else None
-previous = SS.w_last.get(sid) if (shown is None and sid) else None
+previous = SS.w_last.get(sid) if (shown is None and sid and sid not in silent) else None
 stale = shown is None and previous is not None
 
 # ---------------------------------------------------------------- experiment bar
@@ -760,6 +836,23 @@ with left, st.container(height=PANEL_HEIGHT, border=False):
     c1.number_input(t("workspace.carriers.equal_bw"), 0.1, 5000.0, value=100.0, step=10.0, key="w_eq_bw")
     c2.button(t("workspace.carriers.equal_button"), on_click=on_equal_bandwidth, width="stretch",
               help=t("workspace.carriers.equal_help"))
+    with st.popover(t("workspace.carriers.add"), width="stretch"):
+        st.caption(t("workspace.carriers.add_note"))
+        presets_ = {c["id"]: c for c in ca.presets(ROOT)}
+        ui.select(st, t("workspace.carriers.add_preset"), list(presets_), "w_add_preset",
+                  format_func=lambda i: ui.scenario_name(presets_[i]))
+        base_ = presets_[SS.get("w_add_preset") or next(iter(presets_))]
+        a1, a2 = st.columns(2)
+        a1.number_input(t("workspace.carriers.f"), 0.1, 400.0, value=float(base_["frequency_hz"] / 1e9), step=0.05,
+                        key=f"w_add_f_{base_['id']}", format="%.3f")
+        a2.number_input(t("workspace.carriers.b"), 0.1, 5000.0, value=float(base_["bandwidth_hz"] / 1e6), step=10.0,
+                        key=f"w_add_b_{base_['id']}", format="%.4g")
+        st.button(t("workspace.carriers.add_button"), on_click=on_add_carrier, width="stretch")
+        added_ = [c for c in SS.w_carriers if c.get("added")]
+        if added_:
+            ui.select(st, t("workspace.carriers.remove_select"), [c["id"] for c in added_], "w_remove_carrier",
+                      format_func=lambda i: carrier_name(next(c for c in added_ if c["id"] == i)))
+            st.button(t("workspace.carriers.remove_button"), on_click=on_remove_carrier, width="stretch")
     st.button(t("workspace.carriers.reset"), on_click=on_reset_carriers, width="stretch")
     if car is not None:
         note(t("workspace.settings.carrier", f=ui.ltr(f"{car['frequency_hz'] / 1e9:g} GHz"),
@@ -782,10 +875,13 @@ with left, st.container(height=PANEL_HEIGHT, border=False):
     st.number_input(t("workspace.fields.power"), 0.0, 60.0, step=1.0, key="w_t_power", format="%.1f")
     if st.button(t("workspace.settings.apply_all"), disabled=not stations, width="stretch"):
         tp = template(ctx)
-        SS.w_stations = [replace(s, tx_power_dbm=tp.tx_power_dbm, sectors=tp.sectors, azimuth_deg=tp.azimuth_deg,
-                                 downtilt_deg=tp.downtilt_deg,
-                                 antenna_height_m=(s.roof_height_m + tp.mast_height_m) if s.mount == ws.ROOFTOP
-                                 else s.antenna_height_m) for s in stations]
+        values = {"tx_power_dbm": tp.tx_power_dbm, "sectors": tp.sectors, "azimuth_deg": tp.azimuth_deg,
+                  "downtilt_deg": tp.downtilt_deg}
+        SS.w_stations = [replace(s, **values, antenna_height_m=(s.roof_height_m + tp.mast_height_m)
+                                 if s.mount == ws.ROOFTOP else s.antenna_height_m,
+                                 carriers=None if s.carriers is None else tuple(replace(e, **values)
+                                                                                for e in s.carriers))
+                         for s in stations]
         st.rerun()
 
     h("workspace.settings.receivers", "trace")
@@ -902,13 +998,23 @@ with centre:
 
     heights = [b.height.height_m for b in exp.buildings]
     sel = dict(SS.w_sel)
-    pos_cache = {s.station_id: ws.sector_positions(ctx, s, ws.antennas(s, exp.config.polarization)) for s in stations}
-    station_items = [{
-        "id": s.station_id, "label": s.station_id + ("" if s.enabled else f" ({t('workspace.off')})"),
-        "x": s.x, "y": s.y, "mount": s.mount, "enabled": s.enabled, "colour": colour(s.station_id),
-        "bearings": list(s.bearings_deg), "sectors_xy": [[p[0], p[1]] for p in pos_cache[s.station_id]][:len(s.bearings_deg)],
-        "hover": t(f"workspace.hover_{s.mount}", station=s.station_id, building=s.building_id or "",
-                   height=f"{s.antenna_height_m:g}", power=f"{s.tx_power_dbm:g}")} for s in stations]
+    def as_shown(s_: ws.Station) -> ws.Station | None:       # the station on the displayed carrier
+        return ws.on_carrier(s_, sid) if sid else (s_ if s_.enabled else None)
+
+    station_items = []
+    for s in stations:
+        v_ = as_shown(s)
+        base_ = v_ or s
+        pos_ = ws.sector_positions(ctx, base_, ws.antennas(base_, exp.config.polarization)) if v_ is not None else []
+        suffix = (f" ({t('workspace.off')})" if not s.enabled
+                  else "" if v_ is not None else f" ({t('workspace.not_on_band')})")
+        station_items.append({
+            "id": s.station_id, "label": s.station_id + suffix, "x": s.x, "y": s.y, "mount": s.mount,
+            "enabled": v_ is not None, "colour": colour(s.station_id),
+            "bearings": list(base_.bearings_deg) if v_ is not None else [],
+            "sectors_xy": [[p_[0], p_[1]] for p_ in pos_][:len(base_.bearings_deg)],
+            "hover": t(f"workspace.hover_{s.mount}", station=s.station_id, building=s.building_id or "",
+                       height=f"{s.antenna_height_m:g}", power=f"{base_.tx_power_dbm:g}")})
     texts = {k: t(f"workspace.map.{k}") for k in ("select", "place", "move", "measure", "fit", "tip_select", "tip_place",
                                                    "tip_move", "tip_measure", "tip_fit", "hint_select", "hint_move",
                                                    "hint_measure", "stale_short", "no_path", "indoor", "stale")}
@@ -1031,6 +1137,8 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
         state_kind, state_text = "empty", t("workspace.carriers.none_selected")
     elif active is not None:
         state_kind, state_text = "running", t("workspace.state.running")
+    elif sid in silent:
+        state_kind, state_text = "empty", t("workspace.state.no_transmitter", band=carrier_name(car))
     elif shown is not None:
         state_kind, state_text = "current", t("workspace.state.current_band", band=carrier_name(car))
         if shown.extra.get("from_run"):           # the run's date: its folder name does not fit the column
@@ -1080,7 +1188,9 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
                 ("workspace.metrics.mapped_p5", ui.fmt(mapped, ".1f", " Mbit/s", 1e-6) if mapped is not None else "—",
                  t("workspace.metrics.mapped_note")),
                 ("workspace.metrics.interference_limited", ui.fmt(s_.get("interference_limited_share"), ".0%"), ""),
-                ("workspace.metrics.stations", f"{len(ev.station_ids)} · {s_['sectors']} {t('workspace.metrics.sectors')}", ""),
+                ("workspace.metrics.stations",
+                 f"{len(s_.get('transmitting_stations') or ev.station_ids)} · {s_['sectors']} "
+                 f"{t('workspace.metrics.sectors')}", ", ".join(s_.get("transmitting_stations") or ev.station_ids)),
                 ("workspace.metrics.duration", t("workspace.metrics.trace_time", s=f"{ev.trace_seconds:.0f}"),
                  t("workspace.metrics.duration_note"))]
         body = "".join(f'<tr title="{_html.escape(n_, quote=True)}"><td>{t(k)}</td><td class="v">{ui.ltr(v)}</td></tr>'
@@ -1088,6 +1198,29 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
         st.markdown(f'<table class="ws-m {"stale" if stale else ""}">{body}</table>', unsafe_allow_html=True)
         note(t("workspace.metrics.footnote", thr=f"{ev.radio.coverage_threshold:g}")
              + (" " + t("workspace.metrics.approximation") if s_.get("rate_3gpp_caveat") else ""))
+        by_id_ = {c["id"]: c for c in SS.w_carriers}
+        for o in s_.get("other_carriers") or []:
+            note(t("workspace.metrics.other_carrier", band=carrier_name(by_id_[o["carrier"]]) if o["carrier"] in by_id_
+                   else ui.ltr(o["carrier"]), pct=f"{100 * o['overlap']:.0f}", stations=ui.ltr(", ".join(o["stations"]))))
+        current = {k: e for k, e in evals.items() if e is not None}
+        gens = ws.by_generation(ctx, current, [c for c in carriers if c["id"] in current]) if current else {}
+        if gens and (len(gens) > 1 or any(len(g.carriers) > 1 for g in gens.values())):
+            h("workspace.generations.title")
+            names_ = {c["id"]: carrier_name(c) for c in carriers}
+            ids_ = next(iter(current.values())).station_ids
+            rows_ = []
+            for g in gens.values():
+                served_ = g.layers["serving_station"][exp.outdoor]
+                share_ = {ids_[i]: float((served_ == i).mean()) for i in range(len(ids_)) if (served_ == i).any()}
+                rows_.append({t("workspace.generations.generation"): t(f"workspace.generations.{g.generation}"),
+                              t("workspace.generations.carriers"): " / ".join(names_.get(c, c) for c in g.carriers),
+                              t("coverage.metrics.coverage"): round(100 * g.summary["coverage_fraction"], 1),
+                              t("coverage.metrics.sinr_median"): ui.fmt(g.summary["sinr_db_median"], ".1f"),
+                              t("workspace.metrics.rate_p5"): ui.fmt(g.summary["rate_p5_bps"], ".1f", "", 1e-6),
+                              t("workspace.generations.serving"): ", ".join(f"{k} {100 * v:.0f} %"
+                                                                             for k, v in share_.items())})
+            st.dataframe(rows_, hide_index=True, width="stretch")
+            note(t("workspace.generations.note"))
         if stale:
             note(t("workspace.results.stale_note"))
 
@@ -1182,7 +1315,7 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
         st.fragment(run_every=1.5)(progress_view)(folder)
 
     # ------------------------------------------------------------ automatic planning over the shown stations
-    if len(stations) > 1 and car is not None:
+    if len(ws.transmitting([replace(s, enabled=True) for s in stations], sid or "")) > 1 and car is not None:
         with st.expander(t("workspace.plan.title")):
             st.caption(t("planning.heuristic"))
             st.number_input(t("planning.target"), 0.5, 1.0, value=float(baseline_values().get("coverage_target") or 0.95),
@@ -1192,7 +1325,7 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
             if not every_status[sid].complete:
                 st.caption(t("workspace.plan.needs", n=every_status[sid].missing))
             elif st.button(t("workspace.plan.run", band=carrier_name(car)), width="stretch"):
-                g = ws.greedy(ctx, stations, car, rad, load, target=float(SS.w_r_target))
+                g = ws.greedy(ctx, stations, car, rad, load, target=float(SS.w_r_target), carriers=carriers)
                 SS.w_plan = {"band": sid, "selected": [stations[i].station_id for i in g.selected],
                              "coverage": g.coverage_after, "reached": g.target_reached, "reason": g.stopped_because}
             plan = SS.get("w_plan")
@@ -1256,20 +1389,58 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
         else:
             c1.number_input(t("workspace.fields.hyp_height"), 1.0, 300.0, value=float(s.antenna_height_m), step=1.0,
                             key=key + "z", on_change=edit("antenna_height_m", key + "z"), format="%.1f")
-        c2.number_input(t("workspace.fields.power"), 0.0, 60.0, value=float(s.tx_power_dbm), step=1.0,
-                        key=key + "p", on_change=edit("tx_power_dbm", key + "p"), format="%.1f")
-        c1.number_input(t("workspace.fields.sectors"), 1, 6, value=int(s.sectors), step=1, key=key + "n",
-                        on_change=edit("sectors", key + "n", int), disabled=s.pattern == "iso")
-        c2.number_input(t("workspace.fields.azimuth"), 0.0, 359.9, value=float(s.azimuth_deg), step=5.0,
-                        key=key + "az", on_change=edit("azimuth_deg", key + "az"), format="%.1f",
-                        disabled=s.pattern == "iso")
-        c1.number_input(t("workspace.fields.downtilt"), -10.0, 30.0, value=float(s.downtilt_deg), step=1.0,
-                        key=key + "tilt", on_change=edit("downtilt_deg", key + "tilt"), format="%.1f",
-                        disabled=s.pattern == "iso")
-        c2.selectbox(t("workspace.fields.pattern"), ["tr38901", "iso"], index=["tr38901", "iso"].index(s.pattern)
-                     if s.pattern in ("tr38901", "iso") else 0, key=key + "pat", on_change=edit("pattern", key + "pat", str),
-                     format_func=lambda p_: t(f"workspace.patterns.{p_}"))
-        note(t("workspace.inspect.bearings", b=ui.ltr(" / ".join(f"{b:g}°" for b in s.bearings_deg) or "—")))
+        if s.carriers is None:                    # one set of values on every selected carrier
+            c2.number_input(t("workspace.fields.power"), 0.0, 60.0, value=float(s.tx_power_dbm), step=1.0,
+                            key=key + "p", on_change=edit("tx_power_dbm", key + "p"), format="%.1f")
+            c1.number_input(t("workspace.fields.sectors"), 1, 6, value=int(s.sectors), step=1, key=key + "n",
+                            on_change=edit("sectors", key + "n", int), disabled=s.pattern == "iso")
+            c2.number_input(t("workspace.fields.azimuth"), 0.0, 359.9, value=float(s.azimuth_deg), step=5.0,
+                            key=key + "az", on_change=edit("azimuth_deg", key + "az"), format="%.1f",
+                            disabled=s.pattern == "iso")
+            c1.number_input(t("workspace.fields.downtilt"), -10.0, 30.0, value=float(s.downtilt_deg), step=1.0,
+                            key=key + "tilt", on_change=edit("downtilt_deg", key + "tilt"), format="%.1f",
+                            disabled=s.pattern == "iso")
+            c2.selectbox(t("workspace.fields.pattern"), ["tr38901", "iso"], index=["tr38901", "iso"].index(s.pattern)
+                         if s.pattern in ("tr38901", "iso") else 0, key=key + "pat",
+                         on_change=edit("pattern", key + "pat", str), format_func=lambda p_: t(f"workspace.patterns.{p_}"))
+            note(t("workspace.inspect.bearings", b=ui.ltr(" / ".join(f"{b:g}°" for b in s.bearings_deg) or "—")))
+        else:                                     # each carrier with its own power and antenna (table below)
+            note(t("workspace.inspect.own_carriers"))
+            if st.button(t("workspace.inspect.one_set"), key=key + "one", width="stretch",
+                         help=t("workspace.inspect.one_set_help")):
+                first = next((e for e in s.carriers if e.enabled), None)
+                update_station(s.station_id, carriers=None, **({} if first is None else {
+                    "tx_power_dbm": first.tx_power_dbm, "pattern": first.pattern, "sectors": first.sectors,
+                    "azimuth_deg": first.azimuth_deg, "downtilt_deg": first.downtilt_deg}))
+                st.rerun()
+        # the carriers this station transmits on: the experiment's selected carriers and any of its own
+        st.markdown(f"**{t('workspace.inspect.carriers_title')}**")
+        by_id = {c["id"]: c for c in SS.w_carriers}
+        ids_ = list(dict.fromkeys([c["id"] for c in SS.w_carriers if c.get("selected")]
+                                  + [e.carrier_id for e in s.carriers or ()]))
+        own_ = {e.carrier_id: e for e in s.carriers or ()}
+        rows_ = []
+        for cid in ids_:
+            e_ = own_.get(cid) if s.carriers is not None else ws.StationCarrier.of(s, cid)
+            e_ = e_ or ws.StationCarrier.of(s, cid, enabled=False)
+            rows_.append({"on": e_.enabled, "carrier": carrier_name(by_id[cid]) if cid in by_id else cid,
+                          "p": e_.tx_power_dbm, "n": e_.sectors, "az": e_.azimuth_deg, "tilt": e_.downtilt_deg,
+                          "pat": e_.pattern})
+        st.data_editor(rows_, key=key + "cars", on_change=on_station_carriers(s.station_id, ids_, key + "cars"),
+                       hide_index=True, width="stretch", num_rows="fixed", column_config={
+                           "on": st.column_config.CheckboxColumn(t("workspace.inspect.col_on"), width="small"),
+                           "carrier": st.column_config.TextColumn(t("workspace.inspect.col_carrier"), disabled=True),
+                           "p": st.column_config.NumberColumn("dBm", min_value=0.0, max_value=60.0, step=1.0,
+                                                              format="%.1f"),
+                           "n": st.column_config.NumberColumn(t("workspace.inspect.col_sectors"), min_value=1,
+                                                              max_value=6, step=1),
+                           "az": st.column_config.NumberColumn(t("workspace.inspect.col_bearing"), min_value=0.0,
+                                                               max_value=359.9, step=5.0, format="%.0f°"),
+                           "tilt": st.column_config.NumberColumn(t("workspace.inspect.col_tilt"), min_value=-10.0,
+                                                                 max_value=30.0, step=1.0, format="%.1f°"),
+                           "pat": st.column_config.SelectboxColumn(t("workspace.inspect.col_pattern"),
+                                                                   options=["tr38901", "iso"])})
+        note(t("workspace.inspect.carriers_note"))
         e1, e2 = st.columns(2)
         e1.toggle(t("workspace.fields.enabled"), value=s.enabled, key=key + "on", on_change=edit("enabled", key + "on", bool))
         if e2.button(t("workspace.inspect.remove"), key=key + "rm", width="stretch"):
@@ -1277,8 +1448,11 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
             st.rerun()
         if car is not None:
             traced = [sj.job.key() for sj in ws.jobs(ctx, [replace(s, enabled=True)], [car])[sid]]
-            have = sum(Presence.has(k) for k in traced)
-            note(t("workspace.inspect.traced", have=have, n=len(traced), band=carrier_name(car)))
+            if not traced:
+                note(t("workspace.inspect.not_on_carrier", band=carrier_name(car)))
+            else:
+                have = sum(Presence.has(k) for k in traced)
+                note(t("workspace.inspect.traced", have=have, n=len(traced), band=carrier_name(car)))
     elif sel.get("kind") == "building":
         b = ctx.building(sel["id"])
         if b is not None:

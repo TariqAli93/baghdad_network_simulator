@@ -1,4 +1,3 @@
-# scientific classification of results (bns.analysis.classification)
 baseline: Research Baseline
 custom: Custom Experiment
 sensitivity: Sensitivity Analysis
@@ -12,18 +11,23 @@ preliminary: Preliminary Simulation
 validated_results: Validated Research Results
 simulation_results: Simulation Results
 baseline_pending: Research Baseline · Validation Pending
-details: "Configuration: {configuration} · Dataset: {dataset} · Validation: {validation}"
-details_placement: "Configuration: {configuration} · Placement: {placement} · Dataset: {dataset} · Validation: {validation}"
+details: 'Configuration: {configuration} · Dataset: {dataset} · Validation: {validation}'
+details_placement: 'Configuration: {configuration} · Placement: {placement} · Dataset: {dataset} · Validation: {validation}'
 placement: Placement
-placements: {automatic: automatic (site rule or automatic planning), manual: manual (placed by hand), hypothetical: "hypothetical (not a rooftop site)"}
-dev_profile: "{name} profile ({cell} m, {rays} rays)"
-dev_backend: "{backend} backend (numerical limits: {doc})"
-deviations: "Differs from the research baseline in: {items}"
-list_separator: "; "
+placements:
+  automatic: automatic (site rule or automatic planning)
+  manual: manual (placed by hand)
+  hypothetical: hypothetical (not a rooftop site)
+dev_profile: '{name} profile ({cell} m, {rays} rays)'
+dev_backend: '{backend} backend (numerical limits: {doc})'
+deviations: 'Differs from the research baseline in: {items}'
+list_separator: '; '
 configuration: Configuration
 dataset: Dataset
 validation: Scientific validation
-validation_short: {pending: pending, completed: completed}
+validation_short:
+  pending: pending
+  completed: completed
 explain:
   preliminary: Placeholder building heights or an unrecorded configuration — useful to explore the method, not a finding.
   simulation_results: Research-baseline settings on estimated building heights — a simulation under stated assumptions, not a validated finding.
@@ -31,3 +35,4 @@ explain:
   sensitivity: Only the threshold, target, load or rain differ from the research baseline.
   validated_results: Research baseline on complete measured data with completed validation.
   baseline_pending: Research baseline on complete data; validation is still pending.
+dev_station_carriers: '{station} transmits on: {carriers}'

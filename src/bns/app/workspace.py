@@ -32,17 +32,18 @@ import numpy as np
 from shapely.geometry import Point
 
 from bns.analysis import classification
+from bns.analysis import link_budget as lb
 from bns.analysis import metrics
 from bns.app import carriers as ca
 from bns.analysis import validation_scope as vs
-from bns.core.units import linear_to_db
+from bns.core.units import dbm_to_watt, linear_to_db
 from bns.geospatial import sites
 from bns.propagation import atmosphere as atm
 from bns.propagation.engine_settings import engine_fingerprint
 from bns.simulation import experiment as ex
 from bns.simulation.cache import scene_fingerprint
 from bns.simulation.jobs import Antenna, PropagationJob
-from bns.simulation.network import network
+from bns.simulation.network import network, spectral_overlap
 from bns.simulation.radio import RadioInputs
 from bns.simulation.setup import bearing_to_scene_azimuth_rad, scene_azimuth_to_bearing_deg
 
@@ -58,6 +59,10 @@ class PlacementError(ValueError):
     def __init__(self, code: str, message: str, **values):
         super().__init__(message)
         self.code, self.values = code, values
+
+
+class NoTransmitter(ValueError):
+    """No enabled station transmits on the carrier."""
 
 
 class MissingTraces(RuntimeError):
@@ -104,6 +109,26 @@ class StationTemplate:
 
 
 @dataclass(frozen=True)
+class StationCarrier:
+    """One carrier a station transmits on, with its own power and antenna (sector panel, bearing, tilt).
+    `carrier_id` names a carrier of the experiment (its frequency and bandwidth)."""
+
+    carrier_id: str
+    tx_power_dbm: float
+    pattern: str
+    sectors: int
+    azimuth_deg: float
+    downtilt_deg: float
+    enabled: bool = True
+
+    @classmethod
+    def of(cls, station: "Station", carrier_id: str, **changes) -> "StationCarrier":
+        """The carrier with the station's own values (then `changes`)."""
+        return replace(cls(carrier_id, station.tx_power_dbm, station.pattern, station.sectors, station.azimuth_deg,
+                           station.downtilt_deg), **changes)
+
+
+@dataclass(frozen=True)
 class Station:
     station_id: str
     x: float                           # site point, scene metres (x east, y north)
@@ -123,6 +148,18 @@ class Station:
     origin: str = MANUAL                   # manual | site rule | plan (kept by the automatic planning)
     antenna_position: str = RULE_POSITION  # rule (configs/site_rule.yaml) | site point (runs before decision A4)
     source_run: str | None = None          # the saved run the station was opened from
+    # None: the station transmits on every selected carrier of the experiment with the values above (as the
+    # experiment scripts, and every station before mixed networks); else exactly these carriers
+    carriers: tuple[StationCarrier, ...] | None = None
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Station":
+        """A station from its saved form (experiments, run manifests); older files have no carriers."""
+        d = dict(d)
+        cs = d.get("carriers")
+        d["carriers"] = None if cs is None else tuple(c if isinstance(c, StationCarrier) else StationCarrier(**c)
+                                                     for c in cs)
+        return cls(**d)
 
     @property
     def bearings_deg(self) -> tuple[float, ...]:
@@ -307,6 +344,55 @@ def sector_positions(ctx: Context, station: Station, ants: list[Antenna]) -> lis
     return [(x, y, station.antenna_height_m) for x, y in xy]
 
 
+def on_carrier(station: Station, carrier_id: str) -> Station | None:
+    """The station as it transmits on the carrier (that carrier's power and antenna), or None if it does not:
+    switched off, or with its own carriers and this one missing or disabled."""
+    if not station.enabled:
+        return None
+    if station.carriers is None:
+        return station
+    e = next((e for e in station.carriers if e.carrier_id == carrier_id and e.enabled), None)
+    if e is None:
+        return None
+    return replace(station, tx_power_dbm=e.tx_power_dbm, pattern=e.pattern, sectors=e.sectors,
+                   azimuth_deg=e.azimuth_deg, downtilt_deg=e.downtilt_deg)
+
+
+def transmitting(stations: list[Station], carrier_id: str) -> list[tuple[int, Station]]:
+    """(index among the enabled stations, station as configured on the carrier) of every station on it."""
+    enabled = [s for s in stations if s.enabled]
+    return [(i, v) for i, v in ((i, on_carrier(s, carrier_id)) for i, s in enumerate(enabled)) if v is not None]
+
+
+def with_carriers(station: Station, carrier_ids: list[str]) -> Station:
+    """The station transmitting on exactly these carriers, each with the station's values (or, if it already has
+    its own carriers, those of its first carrier that is on)."""
+    first = next((e for e in station.carriers or () if e.enabled), None)
+    return replace(station, carriers=tuple(replace(first, carrier_id=c, enabled=True) if first is not None
+                                           else StationCarrier.of(station, c) for c in carrier_ids))
+
+
+def rename_carrier(stations: list[Station], old: str, new: str) -> list[Station]:
+    """Stations whose carrier `old` is now called `new` (its frequency or bandwidth was edited)."""
+    return [s if s.carriers is None else replace(s, carriers=tuple(replace(e, carrier_id=new) if e.carrier_id == old
+                                                                   else e for e in s.carriers)) for s in stations]
+
+
+def without_carrier(stations: list[Station], carrier_id: str) -> list[Station]:
+    """Stations with a removed carrier taken out of their own carriers."""
+    return [s if s.carriers is None else replace(s, carriers=tuple(e for e in s.carriers if e.carrier_id != carrier_id))
+            for s in stations]
+
+
+def generation(carrier: dict) -> str:
+    """4g, 5g or 6g (candidate) from the carrier's preset (configs/scenarios.yaml ids)."""
+    preset = str(carrier.get("preset", carrier.get("id", "")))
+    for prefix, gen in (("lte", "4g"), ("nr", "5g"), ("c6g", "6g")):
+        if preset.startswith(prefix):
+            return gen
+    raise ValueError(f"No generation for carrier preset {preset!r}.")
+
+
 def preset_carriers(ctx: Context) -> list[dict]:
     """The five scenario presets of the experiment, as carriers (bns.app.carriers)."""
     return [{"id": sc["id"], "label": sc["label"], "frequency_hz": float(sc["frequency_hz"]),
@@ -315,22 +401,38 @@ def preset_carriers(ctx: Context) -> list[dict]:
 
 
 def jobs(ctx: Context, stations: list[Station], carriers: list[dict] | None = None) -> dict[str, list[SectorJob]]:
-    """Per carrier (default: the five presets): one job per sector of every enabled station, as
-    bns.simulation.setup.site_jobs describes it. Only the frequency of a carrier enters a job."""
+    """Per carrier (default: the five presets): one job per sector of every station transmitting on it, with
+    that carrier's antenna settings, as bns.simulation.setup.site_jobs describes it. SectorJob.station is the
+    index among the enabled stations. Only the frequency of a carrier enters a job."""
     exp = ctx.exp
-    enabled = [s for s in stations if s.enabled]
-    geometry = []
-    for s in enabled:
-        ants = antennas(s, exp.config.polarization)
-        geometry.append(list(zip(ants, sector_positions(ctx, s, ants), strict=True)))
+    geometry = {}
+
+    def placed(v: Station):
+        k = (v.station_id, v.pattern, v.sectors, v.azimuth_deg, v.downtilt_deg)
+        if k not in geometry:
+            ants = antennas(v, exp.config.polarization)
+            geometry[k] = list(zip(ants, sector_positions(ctx, v, ants), strict=True))
+        return geometry[k]
+
     out = {}
     for sc in carriers if carriers is not None else preset_carriers(ctx):
         out[sc["id"]] = [SectorJob(i, k, PropagationJob(ctx.scene_fingerprint, str(exp.scene_dir), sc["frequency_hz"],
-                                                        tuple(float(v) for v in pos), antenna, exp.grid,
+                                                        tuple(float(c) for c in pos), antenna, exp.grid,
                                                         exp.config.mechanisms, int(exp.profile.rays_per_site),
                                                         exp.config.seeds, ctx.engine))
-                         for i, g in enumerate(geometry) for k, (antenna, pos) in enumerate(g)]
+                         for i, v in transmitting(stations, sc["id"]) for k, (antenna, pos) in enumerate(placed(v))]
     return out
+
+
+def evaluation_jobs(design_jobs: dict[str, list[SectorJob]], carriers: list[dict], carrier_id: str) -> list[SectorJob]:
+    """The jobs a carrier's results need: its own and those of every carrier overlapping it in frequency."""
+    me = next(c for c in carriers if c["id"] == carrier_id)
+    return [sj for c in carriers if c["id"] == carrier_id or overlap(me, c) > 0 for sj in design_jobs.get(c["id"], [])]
+
+
+def overlap(victim: dict, other: dict) -> float:
+    return spectral_overlap(float(victim["frequency_hz"]), float(victim["bandwidth_hz"]),
+                            float(other["frequency_hz"]), float(other["bandwidth_hz"]))
 
 
 def job_labels(design_jobs: dict[str, list[SectorJob]], stations: list[Station]) -> dict[str, dict]:
@@ -339,7 +441,7 @@ def job_labels(design_jobs: dict[str, list[SectorJob]], stations: list[Station])
     out = {}
     for sid, js in design_jobs.items():
         for sj in js:
-            s = enabled[sj.station]
+            s = on_carrier(enabled[sj.station], sid) or enabled[sj.station]
             bearing = s.bearings_deg[sj.sector] if s.bearings_deg else None
             out[sj.job.key()] = {"scenario": sid, "station": s.station_id, "sector": sj.sector + 1,
                                  "bearing_deg": None if bearing is None else round(bearing, 1)}
@@ -393,35 +495,80 @@ def loss_db(ctx: Context, scenario: dict, station: Station, radio: RadioSettings
 
 
 def _network_inputs(ctx: Context, stations: list[Station], scenario: dict, radio: RadioSettings, load):
-    """Path-gain stack [sector, y, x] of the enabled stations, sector -> station, losses and radio inputs."""
+    """Path-gain stack [sector, y, x] of the stations transmitting on the carrier, sector -> network site
+    (0.. over those stations), losses, radio inputs and network site -> index among the enabled stations."""
     sid = scenario["id"]
-    enabled = [s for s in stations if s.enabled]
-    if not enabled:
-        raise ValueError("No enabled station.")
+    if not any(s.enabled for s in stations):
+        raise NoTransmitter("No enabled station.")
+    tx = transmitting(stations, sid)
+    if not tx:
+        raise NoTransmitter(f"No station transmits on {sid}.")
     js = jobs(ctx, stations, [scenario])[sid]
     entries = [load(sj.job.key()) for sj in js]
     missing = [sj.job.key() for sj, e in zip(js, entries, strict=True) if e is None]
     if missing:
         raise MissingTraces(f"{len(missing)} of {len(js)} path gains of {sid} are not in the cache.")
     stack = np.stack([e[0] for e in entries])
-    sector_site = np.array([sj.station for sj in js])
-    loss = np.stack([loss_db(ctx, scenario, enabled[sj.station], radio) for sj in js])
-    return js, entries, stack, sector_site, loss, radio_inputs(ctx, stations, scenario, radio)
+    site_of = {i: k for k, (i, _) in enumerate(tx)}
+    view = dict(tx)
+    sector_site = np.array([site_of[sj.station] for sj in js])
+    loss = np.stack([loss_db(ctx, scenario, view[sj.station], radio) for sj in js])
+    return (js, entries, stack, sector_site, loss, radio_inputs(ctx, [v for _, v in tx], scenario, radio),
+            [i for i, _ in tx])
 
 
-def evaluate(ctx: Context, stations: list[Station], scenario: dict, radio: RadioSettings, load) -> Evaluation:
-    """Network results of the enabled stations in one band, from cached path gain only.
+def received_power_w(ctx: Context, stations: list[Station], carrier: dict, radio: RadioSettings, load) -> np.ndarray:
+    """Total power [y, x] in watts received from every sector transmitting on the carrier (zero if none)."""
+    try:
+        _, _, stack, _, loss, inputs, _ = _network_inputs(ctx, stations, carrier, radio, load)
+    except NoTransmitter:
+        return np.zeros(ctx.exp.grid.shape)
+    dbm = lb.received_power_dbm(inputs.tx_power_dbm, stack, rx_gain_dbi=inputs.rx_gain_dbi, extra_loss_db=loss)
+    finite = np.isfinite(dbm)
+    return np.where(finite, dbm_to_watt(np.where(finite, dbm, 0.0)), 0.0).sum(axis=0)
+
+
+def other_carriers(ctx: Context, stations: list[Station], scenario: dict, carriers: list[dict] | None,
+                   radio: RadioSettings, load) -> tuple[list[dict], np.ndarray | None]:
+    """Interference [y, x] in watts from the other carriers that overlap this one (bns.simulation.network.
+    spectral_overlap), and which ones they are. None when no transmitting carrier overlaps."""
+    found, total = [], None
+    for c in carriers or []:
+        if c["id"] == scenario["id"] or (share := overlap(scenario, c)) <= 0:
+            continue
+        tx = transmitting(stations, c["id"])
+        if not tx:
+            continue
+        w = share * received_power_w(ctx, stations, c, radio, load)
+        total = w if total is None else total + w
+        found.append({"carrier": c["id"], "overlap": share, "stations": [v.station_id for _, v in tx]})
+    return found, total
+
+
+def evaluate(ctx: Context, stations: list[Station], scenario: dict, radio: RadioSettings, load,
+             carriers: list[dict] | None = None) -> Evaluation:
+    """Network results on one carrier, from cached path gain only: the stations transmitting on it serve and
+    interfere with each other; stations on other `carriers` (the experiment's selected carriers) interfere
+    with the share of their power inside this carrier's band. serving_station is the index among the
+    enabled stations.
 
     `load(key)` returns (path gain, cache manifest) or None (PathGainCache.get)."""
     exp, sid = ctx.exp, scenario["id"]
     enabled = [s for s in stations if s.enabled]
-    js, entries, stack, sector_site, loss, inputs = _network_inputs(ctx, stations, scenario, radio, load)
-    net = network(stack, sector_site, exp.outdoor, inputs, loss)
+    js, entries, stack, sector_site, loss, inputs, site_station = _network_inputs(ctx, stations, scenario, radio, load)
+    found, external = other_carriers(ctx, stations, scenario, carriers, radio, load)
+    net = network(stack, sector_site, exp.outdoor, inputs, loss, external)
+    station_of = np.asarray(site_station)
+    serving = np.where(net.serving_site >= 0, station_of[np.maximum(net.serving_site, 0)], -1)
     layers = {"path_gain_db": linear_to_db(stack.max(axis=0)), "rx_power_dbm": net.radio.rx_power_dbm,
               "sinr_db": net.radio.sinr_db, "rate_bps": net.radio.rate_bps, "covered": net.radio.covered,
-              "serving_station": net.serving_site, "serving_sector": net.serving_sector,
+              "serving_station": serving, "serving_sector": net.serving_sector,
               "interference_dbm": net.interference_dbm}
-    summary = {**net.summary, "noise_dbm": net.radio.noise_dbm}
+    shares = [0.0] * len(enabled)
+    for k, i in enumerate(site_station):
+        shares[i] = net.summary["served_share_per_site"][k]
+    summary = {**net.summary, "served_share_per_site": shares, "noise_dbm": net.radio.noise_dbm,
+               "transmitting_stations": [enabled[i].station_id for i in site_station], "other_carriers": found}
     mapped = ex.mapped_rate_bps(exp, radio_scenario(ctx, scenario), net.radio.sinr_db)
     if mapped is not None:
         model = ex.rate_mapping(exp, radio_scenario(ctx, scenario))
@@ -436,31 +583,117 @@ def evaluate(ctx: Context, stations: list[Station], scenario: dict, radio: Radio
 
 
 def greedy(ctx: Context, stations: list[Station], scenario: dict, radio: RadioSettings, load, *, target: float,
-           max_sites: int | None = None):
+           max_sites: int | None = None, carriers: list[dict] | None = None):
     """The project's interference-aware SINR greedy (bns.optimization.greedy) over the shown stations: which
     of them, added one at a time, give the highest network coverage. Indices refer to `stations` (all of
     them are candidates, switched-off ones included). A heuristic over these stations only."""
     from bns.optimization.greedy import greedy_sinr_site_selection
 
     every = [replace(s, enabled=True) for s in stations]
-    _, _, stack, sector_site, loss, inputs = _network_inputs(ctx, every, scenario, radio, load)
+    _, _, stack, sector_site, loss, inputs, site_station = _network_inputs(ctx, every, scenario, radio, load)
+    _, external = other_carriers(ctx, every, scenario, carriers, radio, load)
 
     def coverage_of(selection):
         keep = np.isin(sector_site, selection)
         remap = {site: k for k, site in enumerate(sorted(selection))}
         sub = replace(inputs, tx_power_dbm=inputs.tx_power_dbm[keep])
         return network(stack[keep], np.array([remap[i] for i in sector_site[keep]]), ctx.exp.outdoor, sub,
-                       loss[keep]).radio.summary["coverage_fraction"]
+                       loss[keep], external).radio.summary["coverage_fraction"]
 
-    return greedy_sinr_site_selection(coverage_of, len(every), target, max_sites)
+    g = greedy_sinr_site_selection(coverage_of, len(site_station), target, max_sites)
+    if site_station == list(range(len(every))):
+        return g                                    # every station transmits on the carrier: same numbering
+    return replace(g, selected=[site_station[k] for k in g.selected],
+                   degrading_additions=[{**d, "candidate": site_station[d["candidate"]]} for d in g.degrading_additions])
+
+
+@dataclass
+class GenerationResult:
+    """A generation's results over its carriers: in every cell the carrier with the highest SINR serves
+    (docs/assumptions.md section 11). serving_carrier indexes `carriers`."""
+
+    generation: str
+    carriers: list[str]
+    layers: dict
+    summary: dict
+
+
+def by_generation(ctx: Context, evaluations: dict, carriers: list[dict]) -> dict[str, GenerationResult]:
+    """4G, 5G and candidate 6G results from the carriers' evaluations (carriers without results are left out)."""
+    out = {}
+    outdoor = ctx.exp.outdoor
+    for gen in dict.fromkeys(generation(c) for c in carriers):
+        cs = [c["id"] for c in carriers if generation(c) == gen and evaluations.get(c["id"]) is not None]
+        if not cs:
+            continue
+        evs = [evaluations[c] for c in cs]
+        sinr = np.stack([e.layers["sinr_db"] for e in evs])
+        pick = np.argmax(np.where(np.isnan(sinr), -np.inf, sinr), axis=0)
+
+        def chosen(name):
+            if any(name not in e.layers for e in evs):
+                return None
+            return np.take_along_axis(np.stack([e.layers[name] for e in evs]), pick[None], axis=0)[0]
+
+        best = np.fmax.reduce(sinr, axis=0)
+        covered = np.logical_or.reduce([np.asarray(e.layers["covered"], dtype=bool) for e in evs])
+        station = chosen("serving_station")
+        served = outdoor & (station >= 0)
+        layers = {"sinr_db": best, "rx_power_dbm": chosen("rx_power_dbm"), "rate_bps": chosen("rate_bps"),
+                  "covered": covered, "serving_station": np.where(served, station, -1),
+                  "serving_carrier": np.where(served, pick, -1)}
+        if (mapped := chosen("rate_3gpp_bps")) is not None:
+            layers["rate_3gpp_bps"] = mapped
+        reached = outdoor & np.isfinite(best)
+        n_out = int(outdoor.sum())
+        summary = {"carriers": cs, "coverage_fraction": float((covered & outdoor).sum() / n_out),
+                   "sinr_db_median": float(np.median(best[reached])) if reached.any() else None,
+                   "sinr_db_p5": metrics.percentile(np.where(np.isfinite(best), best, -1e9), 5, outdoor),
+                   "rate_median_bps": metrics.percentile(layers["rate_bps"], 50, outdoor),
+                   "rate_p5_bps": metrics.percentile(layers["rate_bps"], 5, outdoor),
+                   "served_share_per_carrier": {c: float(((pick == k) & served).sum() / n_out) for k, c in enumerate(cs)},
+                   "selection": "highest SINR among the generation's carriers"}
+        out[gen] = GenerationResult(gen, cs, layers, summary)
+    return out
 
 
 # ---------------------------------------------------------------- classification
-def deviations(ctx: Context, stations: list[Station]) -> list[str]:
-    """How the stations depart from the site rule and the research-baseline values (English, recorded)."""
+def _carrier_deviations(base: StationTemplate, s: Station, carriers: list[dict] | None) -> list[str]:
+    """A station with its own carriers: which ones it transmits, and the values that differ from the baseline."""
+    on = [e for e in s.carriers if e.enabled]
+    out = []
+    if carriers is not None and [e.carrier_id for e in on] != [c["id"] for c in carriers]:
+        out.append(f"{s.station_id} carriers: {', '.join(e.carrier_id for e in on) or 'none'}")
+    for e in on:
+        for name, value, ref in (("tx_power_dbm", e.tx_power_dbm, base.tx_power_dbm),
+                                 ("downtilt_deg", e.downtilt_deg, base.downtilt_deg),
+                                 ("sectors", e.sectors, base.sectors)):
+            if not np.isclose(float(value), float(ref), rtol=0, atol=1e-9):
+                out.append(f"{s.station_id} {e.carrier_id}: {name} = {value:g}")
+        if e.pattern != base.pattern:
+            out.append(f"{s.station_id} {e.carrier_id}: pattern = {e.pattern}")
+        view = replace(s, pattern=e.pattern, sectors=e.sectors, azimuth_deg=e.azimuth_deg)
+        if not np.isclose(e.azimuth_deg % 360.0, 0.0, atol=1e-9) and e.pattern != "iso":
+            out.append(f"{s.station_id} {e.carrier_id}: sector bearings {'/'.join(f'{b:g}' for b in view.bearings_deg)}°")
+    return out
+
+
+def deviations(ctx: Context, stations: list[Station], carriers: list[dict] | None = None) -> list[str]:
+    """How the stations depart from the site rule and the research-baseline values (English, recorded).
+    `carriers`: the experiment's selected carriers (a station with its own carriers that leaves some out)."""
     base = StationTemplate.baseline(ctx)
     out = []
     for s in (s for s in stations if s.enabled):
+        if s.carriers is not None:                  # power and antenna belong to each carrier
+            if s.mount == HYPOTHETICAL:
+                out.append(f"{s.station_id} hypothetical location (not a rooftop site)")
+            elif not s.meets_site_rule:
+                out.append(f"{s.station_id} on {s.building_id}, a roof outside the candidate rule")
+            if not np.isclose(float(s.mast_height_m or 0.0), float(base.mast_height_m), rtol=0, atol=1e-9) \
+                    and s.mast_height_m is not None:
+                out.append(f"{s.station_id} antenna_height_above_roof_m = {s.mast_height_m:g}")
+            out += _carrier_deviations(base, s, carriers)
+            continue
         if s.mount == HYPOTHETICAL:
             out.append(f"{s.station_id} hypothetical location (not a rooftop site)")
         elif not s.meets_site_rule:
@@ -501,14 +734,21 @@ def radio_overrides(ctx: Context, radio: RadioSettings) -> dict:
 
 
 def classify(ctx: Context, stations: list[Station], radio: RadioSettings,
-             carriers: list[dict] | None = None) -> classification.Classification:
-    """The design's scientific classification, by the rules every run uses, with its placement."""
+             carriers: list[dict] | None = None, network: list[dict] | None = None) -> classification.Classification:
+    """The design's scientific classification, by the rules every run uses, with its placement. `carriers`: those
+    simulated; `network`: every carrier of the experiment that transmits (default: `carriers`)."""
     exp = ctx.exp
     overrides = {**{k: v for k, v in exp.overrides.items() if k in ("rx_height_m", "cell_size_m", "rays_per_site")},
                  **radio_overrides(ctx, radio)}
-    devs = (ex.baseline_deviations(exp.root, exp.profile, exp.backend) + deviations(ctx, stations)
+    devs = (ex.baseline_deviations(exp.root, exp.profile, exp.backend)
+            + deviations(ctx, stations, network if network is not None else carriers)
             + ca.deviations(carriers or []))
-    ants = [a for s in stations if s.enabled for a in antennas(s, exp.config.polarization)]
+    ants = []
+    for s in (s for s in stations if s.enabled):
+        views = [s] if s.carriers is None else [on_carrier(s, e.carrier_id) for e in s.carriers if e.enabled]
+        for a in (a for v in views for a in antennas(v, exp.config.polarization)):
+            if a not in ants:
+                ants.append(a)
     from dataclasses import asdict
 
     scope = vs.scope(scene_fingerprint=ctx.scene_fingerprint, grid=asdict(exp.grid),
@@ -543,6 +783,13 @@ def stations_from_run(ctx: Context, manifest: dict, summary: dict | None = None,
 
     A site plan's candidates are all loaded; those not selected for `scenario_id` (default: the first
     scenario) are switched off. The check compares the rebuilt job keys with the recorded ones."""
+    config = (manifest.get("experiment") or {}).get("config") or {}
+    if manifest.get("source") == "workspace" and config.get("stations"):
+        # a workspace run keeps the exact design: every station with its own carriers and values
+        stations = [replace(Station.from_dict(d), source_run=manifest.get("run_id", "")) for d in config["stations"]]
+        recorded = {j["key"] for j in manifest.get("jobs") or [] if isinstance(j, dict)}
+        rebuilt = {sj.job.key() for js in jobs(ctx, stations, run_carriers(manifest) or None).values() for sj in js}
+        return stations, {"recorded": len(recorded), "identical": len(rebuilt & recorded), "exact": rebuilt == recorded}
     sectors = manifest.get("sectors_per_site") or (manifest.get("site") or {}).get("sectors") or []
     if not sectors:
         raise ValueError("The run records no sector antennas.")
@@ -591,6 +838,18 @@ def stations_from_run(ctx: Context, manifest: dict, summary: dict | None = None,
     return stations, {"recorded": len(recorded), "identical": len(rebuilt & recorded), "exact": rebuilt == recorded}
 
 
+def design_carriers(manifest: dict, presets: list[dict]) -> list[dict]:
+    """The experiment carriers of a saved run, with run flags: a workspace run's own list (added carriers and
+    custom values included); for script runs the recorded carriers, then the presets they leave out (off)."""
+    config = (manifest.get("experiment") or {}).get("config") or {}
+    if manifest.get("source") == "workspace" and config.get("carriers"):
+        return [dict(c) for c in config["carriers"]]
+    recorded = run_carriers(manifest)
+    used = {c["preset"] for c in recorded}
+    return [{**c, "selected": True} for c in recorded] + [{**p, "selected": False} for p in presets
+                                                          if p["id"] not in used]
+
+
 def run_carriers(manifest: dict) -> list[dict]:
     """The carriers a saved run used (runs before custom carriers recorded the presets only)."""
     out = []
@@ -610,11 +869,17 @@ def run_carriers(manifest: dict) -> list[dict]:
 
 def _radio_values(stations: list[Station]) -> list[tuple]:
     """What the radio evaluation takes from each transmitting station besides its traced path gain."""
-    return [(s.station_id, float(s.tx_power_dbm), s.x, s.y, float(s.antenna_height_m)) for s in stations if s.enabled]
+    return [(s.station_id, float(s.tx_power_dbm), s.x, s.y, float(s.antenna_height_m),
+             None if s.carriers is None else tuple(asdict(e) for e in s.carriers)) for s in stations if s.enabled]
+
+
+def _overlapping(carrier: dict, carriers: list[dict]) -> list[tuple]:
+    return sorted((c["id"], float(c["frequency_hz"]), float(c["bandwidth_hz"])) for c in carriers
+                  if c["id"] != carrier["id"] and overlap(carrier, c) > 0)
 
 
 def evaluation_from_run(ctx: Context, stations: list[Station], carrier: dict, radio: RadioSettings,
-                        run_dir: Path) -> Evaluation | None:
+                        run_dir: Path, carriers: list[dict] | None = None) -> Evaluation | None:
     """A saved workspace run's results for this carrier, if the run computed exactly this design: the same
     job keys (propagation), the same radio values, station powers and positions, and the same carrier
     (frequency, bandwidth, gas treatment, value and model version). Then its arrays are what evaluate() would compute from the
@@ -635,11 +900,14 @@ def evaluation_from_run(ctx: Context, stations: list[Station], carrier: dict, ra
     recorded = [c for c in manifest.get("scenarios") or [] if c.get("id") == sid]
     keys = [sj.job.key() for sj in jobs(ctx, stations, [carrier])[sid]]
     run_keys = [j["key"] for j in manifest.get("jobs") or [] if j.get("scenario") == sid]
-    run_stations = [Station(**d) for d in config.get("stations") or []]
+    run_stations = [Station.from_dict(d) for d in config.get("stations") or []]
     same_carrier = bool(recorded) and all(recorded[0].get(k) == carrier.get(k)
                                           for k in ("frequency_hz", "bandwidth_hz", "preset", "gas",
                                                     "gas_db_per_km", "gas_model"))
-    if not (same_carrier and keys and keys == run_keys and config.get("radio") == asdict(radio)
+    network_of_run = [{"id": c["id"], "frequency_hz": c["frequency_hz"], "bandwidth_hz": c["bandwidth_hz"]}
+                      for c in manifest.get("network_carriers") or run_carriers(manifest)]
+    same_neighbours = _overlapping(carrier, network_of_run) == _overlapping(carrier, carriers or [carrier])
+    if not (same_carrier and same_neighbours and keys and keys == run_keys and config.get("radio") == asdict(radio)
             and _radio_values(run_stations) == _radio_values(stations)):
         return None
     with np.load(run_dir / "network.npz") as arrays:
@@ -651,7 +919,8 @@ def evaluation_from_run(ctx: Context, stations: list[Station], carrier: dict, ra
         layers["serving_station"] = layer("serving_site")
     layers = {k: v for k, v in layers.items() if v is not None}
     jobs_ = [j for j in manifest["jobs"] if j.get("scenario") == sid]
-    order = list(dict.fromkeys(j["site"] for j in jobs_))
+    order = [site["candidate_id"] for site in manifest.get("sites") or []] or list(dict.fromkeys(j["site"]
+                                                                                             for j in jobs_))
     sectors, count = [], {}
     for j in jobs_:
         count[j["site"]] = count.get(j["site"], 0) + 1

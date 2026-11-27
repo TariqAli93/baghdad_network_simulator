@@ -146,6 +146,24 @@ def customize(base: dict, *, frequency_hz: float, bandwidth_hz: float, scene_dir
             "gas": TABULATED if tabulated else P676, **gas, "preset_frequency_hz": pf, "preset_bandwidth_hz": pb}
 
 
+def add(carriers: list[dict], base: dict, *, frequency_hz: float, bandwidth_hz: float, scene_dir: Path,
+        patterns=("tr38901",)) -> list[dict]:
+    """The carriers with one more, derived from `base` (a preset) with its own frequency and bandwidth: a
+    second carrier of a generation, e.g. for stations on a neighbouring channel. Same rules as customize();
+    a carrier already in the list is refused."""
+    c = customize(base, frequency_hz=frequency_hz, bandwidth_hz=bandwidth_hz, scene_dir=scene_dir, patterns=patterns)
+    if any(x["id"] == c["id"] for x in carriers):
+        raise CarrierError("duplicate", f"{c['id']} is already a carrier of the experiment.", id=c["id"])
+    return [*carriers, {**c, "selected": True, "added": True}]
+
+
+def remove(carriers: list[dict], carrier_id: str) -> list[dict]:
+    """The carriers without an added one (the five presets always stay)."""
+    if not any(c["id"] == carrier_id and c.get("added") for c in carriers):
+        raise CarrierError("not_added", f"{carrier_id} is not an added carrier.", id=carrier_id)
+    return [c for c in carriers if c["id"] != carrier_id]
+
+
 def equal_bandwidth(carriers: list[dict], bandwidth_hz: float, scene_dir: Path, patterns=("tr38901",)) -> list[dict]:
     """Every carrier with the same bandwidth (a controlled equal-bandwidth comparison)."""
     return [customize(c, frequency_hz=c["frequency_hz"], bandwidth_hz=bandwidth_hz, scene_dir=scene_dir,

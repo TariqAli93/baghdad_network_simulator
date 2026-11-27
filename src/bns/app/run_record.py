@@ -35,34 +35,43 @@ def site_record(ctx: ws.Context, s: ws.Station) -> dict:
             "footprint_area_m2": float(b.polygon.area) if b is not None else None,
             "height_category": s.height_category or "hypothetical", "mount": s.mount,
             "tx_power_dbm": s.tx_power_dbm, "pattern": s.pattern, "sectors": s.sectors,
-            "azimuth_deg": s.azimuth_deg, "downtilt_deg": s.downtilt_deg, "origin": s.origin}
+            "azimuth_deg": s.azimuth_deg, "downtilt_deg": s.downtilt_deg, "origin": s.origin,
+            "carriers": None if s.carriers is None else [asdict(e) for e in s.carriers]}
 
 
 def extras(ctx: ws.Context, stations: list[ws.Station], carrier: dict, radio: ws.RadioSettings, load,
-           target: float) -> dict:
+           target: float, carriers: list[dict] | None = None) -> dict:
     """What run_multi_site.py reports beside the network: every station alone, the network grown in the
-    given order, the additions that lowered coverage and the interference-aware SINR greedy."""
+    given order, the additions that lowered coverage and the interference-aware SINR greedy. Only the
+    stations transmitting on the carrier take part; site numbers count all enabled stations (1 = first),
+    and "alone" is None for a station that is not on the carrier."""
     on = [s for s in stations if s.enabled]
+    tx = [i for i, _ in ws.transmitting(on, carrier["id"])]
 
     def summary_of(keep):
-        e = ws.evaluate(ctx, [replace(s, enabled=i in keep) for i, s in enumerate(on)], carrier, radio, load)
+        e = ws.evaluate(ctx, [replace(s, enabled=i in keep) for i, s in enumerate(on)], carrier, radio, load, carriers)
         return {k: e.summary[k] for k in SUMMARY_KEYS}, e
 
-    alone = [summary_of({i}) for i in range(len(on))]
-    grown = [summary_of(set(range(n)))[0]["coverage_fraction"] for n in range(1, len(on) + 1)]
-    g = ws.greedy(ctx, on, carrier, radio, load, target=target)
+    alone = [summary_of({i}) if i in tx else (None, None) for i in range(len(on))]
+    grown = [summary_of(set(tx[:n]))[0]["coverage_fraction"] for n in range(1, len(tx) + 1)]
+    g = ws.greedy(ctx, on, carrier, radio, load, target=target, carriers=carriers)
     return {
         "sites_alone": [a for a, _ in alone],
-        "alone_sinr": [e.layers["sinr_db"] for _, e in alone],
-        "grown_in_given_order": [{"sites": list(range(1, n + 1)), "coverage_fraction": v}
+        "alone_sinr": [None if e is None else e.layers["sinr_db"] for _, e in alone],
+        "grown_in_given_order": [{"sites": [i + 1 for i in tx[:n]], "coverage_fraction": v}
                                  for n, v in enumerate(grown, start=1)],
-        "additions_that_lowered_coverage": [{"added_site": n + 1, "change": grown[n] - grown[n - 1]}
+        "additions_that_lowered_coverage": [{"added_site": tx[n] + 1, "change": grown[n] - grown[n - 1]}
                                             for n in range(1, len(grown)) if grown[n] < grown[n - 1]],
         "greedy_sinr": {"selected_sites": [i + 1 for i in g.selected], "coverage_after": g.coverage_after,
                         "target": target, "target_reached": g.target_reached, "stopped_because": g.stopped_because,
                         "degrading_additions": [{**d, "candidate": d["candidate"] + 1} for d in g.degrading_additions],
                         "note": "greedy heuristic over these stations only; not a proven minimum"},
     }
+
+
+def _radio_text(s: ws.Station) -> str:
+    return (f"{s.tx_power_dbm:g} dBm, {len(s.bearings_deg) or 1} sector(s) "
+            f"{'/'.join(f'{b:g}' for b in s.bearings_deg) or 'iso'}°, tilt {s.downtilt_deg:g}°")
 
 
 def _figures(out: Path, ctx: ws.Context, on: list[ws.Station], carriers: list[dict], evaluations: dict,
@@ -78,8 +87,8 @@ def _figures(out: Path, ctx: ws.Context, on: list[ws.Station], carriers: list[di
     extent = [grid.x_centers[0] - half, grid.x_centers[-1] + half, grid.y_centers[0] - half, grid.y_centers[-1] + half]
     n = len(carriers)
 
-    def mark(ax):
-        for s in on:
+    def mark(ax, carrier_id=None):
+        for s in (s for s in on if carrier_id is None or ws.on_carrier(s, carrier_id) is not None):
             ax.plot(s.x, s.y, marker="^" if s.mount == ws.ROOFTOP else "D", color=style.INK, markersize=6,
                     linestyle="none", markerfacecolor=style.INK if s.mount == ws.ROOFTOP else "white")
             ax.annotate(s.station_id, (s.x, s.y), xytext=(4, 4), textcoords="offset points", fontsize=7)
@@ -97,7 +106,7 @@ def _figures(out: Path, ctx: ws.Context, on: list[ws.Station], carriers: list[di
             colours = style.SEQUENTIAL.with_extremes(under=style.SURFACE)
             im = ax.imshow(np.where(outdoor, evaluations[c["id"]].layers[key], np.nan), origin="lower", extent=extent,
                            cmap=colours, vmin=vmin, vmax=vmax)
-            mark(ax)
+            mark(ax, c["id"])
             ax.set_title(title(c), fontsize=9)
             ax.grid(False)
             ax.set_xlabel("x [m]")
@@ -115,7 +124,7 @@ def _figures(out: Path, ctx: ws.Context, on: list[ws.Station], carriers: list[di
         m = evaluations[c["id"]].layers["serving_station"].astype(float)
         ax.imshow(np.where(outdoor & (m >= 0), m, np.nan), origin="lower", extent=extent, cmap=colours,
                   vmin=-0.5, vmax=len(on) - 0.5, interpolation="nearest")
-        mark(ax)
+        mark(ax, c["id"])
         ax.set_title(title(c), fontsize=9)
         ax.grid(False)
     fig.suptitle(f"Serving station (strongest sector)  |  {label}", x=0.05, ha="left", fontsize=11, fontweight="bold")
@@ -127,8 +136,10 @@ def _figures(out: Path, ctx: ws.Context, on: list[ws.Station], carriers: list[di
 
 def write(root: Path, ctx: ws.Context, experiment: dict, stations: list[ws.Station], carriers: list[dict],
           radio: ws.RadioSettings, evaluations: dict, more: dict, *, job_records: list[dict], workload: dict,
-          timing: dict, versions: dict, target: float, mode: str = "development") -> Path:
-    """Write the run folder and return it. `evaluations` and `more` are keyed by carrier id."""
+          timing: dict, versions: dict, target: float, mode: str = "development",
+          network_carriers: list[dict] | None = None) -> Path:
+    """Write the run folder and return it. `evaluations` and `more` are keyed by carrier id; `network_carriers`:
+    every carrier that transmitted (default `carriers`), interfering where it overlaps an evaluated one."""
     from bns import runtime
     from bns.reporting import export
     from bns.simulation.cache import scene_fingerprint
@@ -136,7 +147,8 @@ def write(root: Path, ctx: ws.Context, experiment: dict, stations: list[ws.Stati
 
     exp = ctx.exp
     on = [s for s in stations if s.enabled]
-    c = ws.classify(ctx, stations, radio, carriers)
+    network_carriers = network_carriers or carriers
+    c = ws.classify(ctx, stations, radio, carriers, network_carriers)
     label = c.label
     run_id = (f"multi_site-{exp.area.name}-{exp.variant}-{exp.profile.name}-{len(on)}sites-ws-"
               f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}")
@@ -148,7 +160,10 @@ def write(root: Path, ctx: ws.Context, experiment: dict, stations: list[ws.Stati
         sid, e = car["id"], evaluations[car["id"]]
         layers = {**e.layers, "serving_site": e.layers["serving_station"]}
         arrays.update({f"{sid}_{k}": layers[k] for k in (*MAP_KEYS, "rate_3gpp_bps") if k in layers})
-        arrays.update({f"{sid}_alone{n}_sinr_db": a for n, a in enumerate(more[sid]["alone_sinr"])})
+        arrays.update({f"{sid}_alone{n}_sinr_db": a for n, a in enumerate(more[sid]["alone_sinr"]) if a is not None})
+    generations = ws.by_generation(ctx, evaluations, carriers)
+    for gen, g_ in generations.items():                 # best carrier of each generation (docs/assumptions.md s. 11)
+        arrays.update({f"generation_{gen}_{k}": v for k, v in g_.layers.items()})
     np.savez_compressed(out / "network.npz", **arrays)
 
     transformer = exp.area.transformer()
@@ -184,7 +199,14 @@ def write(root: Path, ctx: ws.Context, experiment: dict, stations: list[ws.Stati
         "site_rule": {"workspace": True, "placement": c.placement, **exp.candidate_rule},
         "sites": sites,
         "stations": [{**asdict(s), "antennas": [asdict(a) for a in ws.antennas(s, exp.config.polarization)],
-                      "sector_bearings_deg": list(s.bearings_deg)} for s in on],
+                      "sector_bearings_deg": list(s.bearings_deg),
+                      "carrier_antennas": {car["id"]: {"antennas": [asdict(a) for a in ws.antennas(v, exp.config.polarization)],
+                                                       "sector_bearings_deg": list(v.bearings_deg),
+                                                       "tx_power_dbm": v.tx_power_dbm}
+                                           for car in carriers if (v := ws.on_carrier(s, car["id"])) is not None}}
+                     for s in on],
+        "interference_between_carriers": "spectral overlap (bns.simulation.network.spectral_overlap); "
+                                         "docs/assumptions.md section 11",
         "sectors_per_site": [asdict(a) for a in first],
         "sector_bearings_deg": [scene_azimuth_to_bearing_deg(a.orientation_rad[0]) for a in first],
         "azimuth_convention": "orientation_rad[0]: yaw counter-clockwise from east (scene x east, y north); "
@@ -200,24 +222,31 @@ def write(root: Path, ctx: ws.Context, experiment: dict, stations: list[ws.Stati
                        "gas_db_per_km": {car["id"]: ca.gas_db_per_km({"gas": ca.TABULATED, **car})
                                          if exp.baseline.include_gas else 0.0 for car in carriers},
                        "gas_models": {car["id"]: car["gas_model"] for car in carriers if car.get("gas_model")}},
-        "scenarios": carriers, "workload_before_run": workload, "jobs": job_records, "timing": timing,
+        "scenarios": carriers,
+        "network_carriers": [{"id": n["id"], "frequency_hz": n["frequency_hz"], "bandwidth_hz": n["bandwidth_hz"]}
+                             for n in network_carriers],
+        "workload_before_run": workload, "jobs": job_records, "timing": timing,
         "versions": versions, "figures": figures,
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str, ensure_ascii=False),
                                        encoding="utf-8")
     results = {car["id"]: {"network": {**evaluations[car["id"]].summary},
                            **{k: v for k, v in more[car["id"]].items() if k != "alone_sinr"}} for car in carriers}
-    (out / "summary.json").write_text(json.dumps({"label": label, "results": results}, indent=2, default=str),
-                                      encoding="utf-8")
+    (out / "summary.json").write_text(json.dumps({"label": label, "results": results,
+                                                  "generations": {g: r.summary for g, r in generations.items()}},
+                                                 indent=2, default=str), encoding="utf-8")
     lines = [f"# {label}", "", f"## Workspace simulation {run_id}", "",
              f"Experiment: {experiment.get('name')} ({experiment.get('experiment_id')}). "
              f"Placement: {c.placement or 'not recorded'}." + (f" Deviations: {'; '.join(c.deviations)}." if c.deviations
                                                               else ""), "",
              "- Stations (" + str(len(on)) + "): " + "; ".join(
                  f"{s.station_id} {s.mount}" + (f" on {s.building_id} (roof {s.roof_height_m:g} m)" if s.building_id else "")
-                 + f", antenna {s.antenna_height_m:g} m at ({s.x:.0f}, {s.y:.0f}), {s.tx_power_dbm:g} dBm, "
-                 f"{len(s.bearings_deg) or 1} sector(s) {'/'.join(f'{b:g}' for b in s.bearings_deg) or 'iso'}°, "
-                 f"tilt {s.downtilt_deg:g}°" for s in on),
+                 + f", antenna {s.antenna_height_m:g} m at ({s.x:.0f}, {s.y:.0f}), "
+                 + (_radio_text(s) if s.carriers is None else
+                    "carriers " + (", ".join(f"{e.carrier_id} [{_radio_text(v)}]"
+                                             for e in s.carriers if e.enabled
+                                             for v in [ws.on_carrier(s, e.carrier_id)] if v is not None) or "none"))
+                 for s in on),
              f"- Profile {exp.profile.name}: {exp.profile.cell_size_m:g} m cells, {exp.profile.rays_per_site:.0e} rays "
              f"per sector; {int(exp.outdoor.sum())} outdoor cells; backend {exp.backend.upper()}.", "",
              "| Carrier | Coverage | Median SINR | 5th-pct rate | Median rate | Mapped 5th-pct rate | "
@@ -232,6 +261,16 @@ def write(root: Path, ctx: ws.Context, experiment: dict, stations: list[ws.Stati
                      f"{'—' if mapped is None else f'{mapped / 1e6:.1f} Mbit/s'} | "
                      f"{100 * s_['interference_limited_share']:.0f} % | stations {g['selected_sites']} -> "
                      f"{100 * g['coverage_after'][-1]:.1f} % ({g['stopped_because']}) |")
+    if len(generations) > 1 or any(len(g_.carriers) > 1 for g_ in generations.values()):
+        lines += ["", "By generation (in every cell the generation's carrier with the highest SINR serves):", "",
+                  "| Generation | Carriers | Coverage | Median SINR | 5th-pct rate | Served share per carrier |",
+                  "|---|---|---|---|---|---|"]
+        for gen, g_ in generations.items():
+            gs = g_.summary
+            sinr = "—" if gs["sinr_db_median"] is None else f"{gs['sinr_db_median']:.1f} dB"
+            shares = ", ".join(f"{k} {100 * v:.0f} %" for k, v in gs["served_share_per_carrier"].items())
+            lines.append(f"| {gen.upper()} | {', '.join(g_.carriers)} | {100 * gs['coverage_fraction']:.1f} % | "
+                         f"{sinr} | {gs['rate_p5_bps'] / 1e6:.1f} Mbit/s | {shares} |")
     lines += ["", f"Trace time {timing.get('trace_wall_seconds', 0):.0f} s for {workload.get('to_trace', 0)} new traces "
               f"({workload.get('cached', 0)} of {workload.get('jobs', 0)} were cached); total "
               f"{timing.get('total_wall_seconds', 0):.0f} s.", "",

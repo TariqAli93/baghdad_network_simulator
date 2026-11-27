@@ -83,3 +83,27 @@ def test_a_radio_change_recomputes_at_once_and_a_propagation_change_makes_the_re
     assert not at.exception, [e.message for e in at.exception]
     assert "ws-state stale" in state(at)
     assert "Run simulation (15 traces)" in [b.label for b in at.button]     # 1 station x 3 sectors x 5 carriers
+
+
+@pytest.mark.parametrize("lang", ["en", "ar"])
+def test_a_station_with_its_own_carriers_is_shown_per_carrier(lang):
+    """S1 transmitting only on 4G: the 3.5 GHz band says nobody transmits on it, the station's carrier table
+    and the 'carriers' deviation are shown, and the experiment becomes a custom experiment."""
+    from dataclasses import replace
+
+    from bns.app import workspace as ws
+
+    at = workspace(lang)
+    s1 = at.session_state["w_stations"][0]
+    at.session_state["w_stations"] = [replace(s1, carriers=(ws.StationCarrier.of(s1, "lte_1800"),))]
+    at.session_state["w_sel"] = {"kind": "station", "id": s1.station_id}
+    at.session_state["w_band"] = "nr_3500"
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    assert "empty" in state(at)
+    texts = " ".join(str(m.value) for m in at.markdown)
+    marker = "Carriers of this station" if lang == "en" else "حوامل هذه المحطة"
+    assert marker in texts
+    cls_line = next(m.value for m in at.markdown if 'class="ws-class' in m.value)
+    assert ("Custom Experiment" if lang == "en" else "تجربة مخصصة") in cls_line
+    assert any(b.label.startswith("Run simulation" if lang == "en" else "تشغيل المحاكاة") for b in at.button)

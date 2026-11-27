@@ -185,6 +185,7 @@ KEY_PATTERN = re.compile(r"""\bt\(\s*["']([a-z0-9_]+(?:\.[a-z0-9_]+)+)["']""")
 _DEVIATIONS = (
     (re.compile(r"^(?P<name>\S+) profile \((?P<cell>[\d.]+) m, (?P<rays>\S+) rays\)$"), "cls.dev_profile"),
     (re.compile(r"^(?P<backend>\w+) backend \(numerical limits: (?P<doc>.+)\)$"), "cls.dev_backend"),
+    (re.compile(r"^(?P<station>\S+) carriers: (?P<carriers>.+)$"), "cls.dev_station_carriers"),
 )
 
 

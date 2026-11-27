@@ -114,11 +114,17 @@ class Run:
         sectors = self.manifest.get("sectors_per_site") or self.manifest.get("site", {}).get("sectors", [])
         return [float(s["orientation_rad"][0]) for s in sectors if s.get("pattern") != "iso"]
 
-    def site_azimuths_rad(self) -> dict[str, list[float]]:
-        """Sector yaws of every site; workspace runs record each station's own antennas."""
+    def site_azimuths_rad(self, scenario_id: str | None = None) -> dict[str, list[float]]:
+        """Sector yaws of every site; workspace runs record each station's own antennas, and per carrier those of
+        mixed networks (a station not on the carrier has none)."""
         if self.manifest.get("stations"):
-            return {s["station_id"]: [float(a["orientation_rad"][0]) for a in s.get("antennas") or []
-                                      if a.get("pattern") != "iso"] for s in self.manifest["stations"]}
+            out = {}
+            for s in self.manifest["stations"]:
+                per = s.get("carrier_antennas")
+                ants = ((per.get(scenario_id) or {}).get("antennas") or [] if per is not None and scenario_id
+                        else s.get("antennas") or [])
+                out[s["station_id"]] = [float(a["orientation_rad"][0]) for a in ants if a.get("pattern") != "iso"]
+            return out
         return {s["candidate_id"]: self.sector_azimuths_rad for s in self.sites}
 
     @property

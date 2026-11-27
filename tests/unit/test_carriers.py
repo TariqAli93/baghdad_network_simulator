@@ -96,3 +96,27 @@ def test_deviations_name_the_custom_values_and_the_gas_model(scene):
     text = " ".join(ca.deviations([ca.preset(ROOT, "lte_1800"), c]))
     assert "nr_3500" in text and "6 GHz" in text and "100 MHz" in text and "P.676" in text and "ITU-Rpy" in text
     assert ca.deviations(ca.presets(ROOT)) == []
+
+
+def test_a_second_carrier_of_a_preset_can_be_added_with_its_own_frequency_and_bandwidth(scene):
+    carriers = [{**c, "selected": True} for c in ca.presets(ROOT)]
+    more = ca.add(carriers, ca.preset(ROOT, "nr_3500"), frequency_hz=3.6e9, bandwidth_hz=60e6, scene_dir=scene)
+    added = more[-1]
+    assert len(more) == 6 and added["id"] == "nr_3500.f3600b60" and added["added"] and added["selected"]
+    assert added["preset"] == "nr_3500" and added["gas"] == ca.P676
+    assert more[:5] == carriers                                     # the presets are unchanged
+
+
+def test_adding_a_carrier_that_is_already_there_is_refused(scene):
+    carriers = [{**c, "selected": True} for c in ca.presets(ROOT)]
+    with pytest.raises(ca.CarrierError) as err:
+        ca.add(carriers, ca.preset(ROOT, "nr_3500"), frequency_hz=3.5e9, bandwidth_hz=100e6, scene_dir=scene)
+    assert err.value.code == "duplicate"
+
+
+def test_only_added_carriers_can_be_removed(scene):
+    carriers = [{**c, "selected": True} for c in ca.presets(ROOT)]
+    more = ca.add(carriers, ca.preset(ROOT, "nr_3500"), frequency_hz=3.6e9, bandwidth_hz=60e6, scene_dir=scene)
+    assert ca.remove(more, "nr_3500.f3600b60") == carriers
+    with pytest.raises(ca.CarrierError):
+        ca.remove(more, "nr_3500")

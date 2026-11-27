@@ -114,6 +114,7 @@ state:
   stale: 'Stale: this band needs {n} traces'
   not_simulated: 'Not simulated yet: this band needs {n} traces'
   from_run: 'Read from the saved run of {run}: this computer''s propagation cache does not hold its traces, so a change that needs ray tracing will trace them.'
+  no_transmitter: 'No station transmits on {band}: tick it in a station''s carrier table.'
 results:
   title: Results
   class_details: Classification and limitations
@@ -137,6 +138,7 @@ metrics:
   trace_time: '{s} s of ray tracing'
   duration_note: Recorded trace time of the path gains used. Radio results are recomputed in under a second.
   footnote: 'Coverage: outdoor cells with SINR ≥ {thr} dB. Shannon rates are theoretical upper bounds for one user with the whole carrier; the band mapping (LTE, NR) is shown beside them. Simulation time is the recorded ray-tracing time of the path gains used; radio results are recomputed in under a second. Hover a row for details.'
+  other_carrier: 'Interference from {band}: {pct} % of its power falls in this band (stations {stations}).'
 run:
   title: Simulation
   place_first: Place a station to simulate.
@@ -193,6 +195,18 @@ inspect:
   origin_manual: Placed by hand (manual placement).
   origin_site_rule: Placed by the site rule (automatic placement).
   origin_plan: Kept by the automatic planning (automatic placement).
+  own_carriers: 'This station has its own carriers: each has its own power and antenna in the table below.'
+  one_set: One set of values on every selected carrier
+  one_set_help: The station then transmits on every selected carrier with the values of its first carrier that is on.
+  carriers_title: Carriers of this station
+  col_on: 'On'
+  col_carrier: Carrier
+  col_sectors: Sectors
+  col_bearing: Sector 1 bearing
+  col_tilt: Downtilt
+  col_pattern: Pattern
+  carriers_note: Untick a carrier to stop this station transmitting on it; its other carriers are unchanged. Frequency and bandwidth belong to the carrier (Network scenarios).
+  not_on_carrier: Not transmitting on {band}.
 columns:
   mount: Mount
   host: Building
@@ -256,10 +270,19 @@ carriers:
   reset: Reset carriers to the presets
   custom_note: 'Custom carrier: a custom experiment; the preset''s radio values and rate mapping are kept.'
   none_selected: 'No carrier is selected: switch on at least one scenario in the settings.'
+  add: Add a carrier
+  add_note: A further carrier of a generation with its own frequency and bandwidth, e.g. a second 5G channel. Stations transmit on it only where you tick it in their carrier table (stations without their own carriers use every selected carrier).
+  add_preset: Based on
+  add_button: Add carrier
+  remove_select: Added carrier
+  remove_button: Remove carrier (and from every station)
+  added: 'Carrier added: {name}.'
 carrier_errors:
   frequency_range: '{f} GHz is not supported: the scene''s materials (ITU-R P.2040 in Sionna RT), the gas model (ITU-R P.676) and the antenna model are all defined only in {ranges} GHz.'
   gas_unavailable: '{f} GHz: the gas attenuation cannot be computed (ITU-R P.676 through ITU-Rpy is not available).'
   bandwidth_range: '{b} MHz is not supported: the bandwidth must be between {lo} and {hi} MHz (a quarter of the carrier, evaluated at its centre frequency).'
+  duplicate: '{id} is already a carrier of the experiment.'
+  not_added: '{id} is one of the five presets and stays in the list.'
 experiment:
   first_name: Demonstration network
   new_name: New experiment
@@ -299,3 +322,13 @@ experiment:
   origin_saved_as_from: Saved as a copy of experiment {source}.
   origin_duplicated_from: Duplicated from experiment {source}.
   origin_opened_from_run: Made from run {source}.
+not_on_band: not on this carrier
+generations:
+  title: By generation
+  generation: Generation
+  carriers: Carriers
+  serving: Serving stations (share of outdoor cells)
+  note: In every cell the generation's carrier with the highest SINR serves; coverage counts a cell covered by any of its carriers.
+  4g: 4G
+  5g: 5G
+  6g: Candidate 6G

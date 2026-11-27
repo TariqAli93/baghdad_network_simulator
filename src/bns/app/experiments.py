@@ -173,7 +173,7 @@ def context(root: Path, experiment: Experiment):
 
 def stations(experiment: Experiment) -> list:
     from bns.app import workspace as ws
-    return [ws.Station(**s) for s in experiment.stations]
+    return [ws.Station.from_dict(s) for s in experiment.stations]
 
 
 def radio(experiment: Experiment):

@@ -74,7 +74,7 @@ with tab_bands:
             st.dataframe([{t(C + "scenario"): names[sc["id"]],
                            t("comparison.network.network"): round(100 * res[sc["id"]]["network"]["coverage_fraction"], 1),
                            **{t("comparison.network.alone", site=run.sites[i]["candidate_id"]): round(100 * a_["coverage_fraction"], 1)
-                              for i, a_ in enumerate(res[sc["id"]]["sites_alone"])},
+                              for i, a_ in enumerate(res[sc["id"]]["sites_alone"]) if a_ is not None},
                            t("comparison.network.lowered"): ", ".join(
                                t("comparison.network.lowered_item", site=d["added_site"], change=f"{100 * d['change']:+.1f}")
                                for d in res[sc["id"]]["additions_that_lowered_coverage"]) or t("common.none")} for sc in scen],

@@ -1,4 +1,3 @@
-# التصنيف العلمي للنتائج
 baseline: الإعدادات البحثية الأساسية
 custom: تجربة مخصصة
 sensitivity: تحليل الحساسية
@@ -12,18 +11,23 @@ preliminary: محاكاة أولية
 validated_results: نتائج بحثية مستوفية للتحقق
 simulation_results: نتائج محاكاة
 baseline_pending: الإعدادات البحثية الأساسية · التحقق العلمي قيد الانتظار
-details: "الإعدادات: {configuration} · البيانات: {dataset} · التحقق: {validation}"
-details_placement: "الإعدادات: {configuration} · التوزيع: {placement} · البيانات: {dataset} · التحقق: {validation}"
+details: 'الإعدادات: {configuration} · البيانات: {dataset} · التحقق: {validation}'
+details_placement: 'الإعدادات: {configuration} · التوزيع: {placement} · البيانات: {dataset} · التحقق: {validation}'
 placement: توزيع المحطات
-placements: {automatic: "آلي (قاعدة المواقع أو التخطيط الآلي)", manual: "يدوي (وُضع باليد)", hypothetical: "افتراضي (ليس موقعًا على سطح)"}
-dev_profile: "ملف الدقة {name} ({cell} m، {rays} شعاع)"
-dev_backend: "محرّك {backend} (الحدود العددية: {doc})"
-deviations: "تختلف عن الإعدادات البحثية الأساسية في: {items}"
-list_separator: "؛ "
+placements:
+  automatic: آلي (قاعدة المواقع أو التخطيط الآلي)
+  manual: يدوي (وُضع باليد)
+  hypothetical: افتراضي (ليس موقعًا على سطح)
+dev_profile: ملف الدقة {name} ({cell} m، {rays} شعاع)
+dev_backend: 'محرّك {backend} (الحدود العددية: {doc})'
+deviations: 'تختلف عن الإعدادات البحثية الأساسية في: {items}'
+list_separator: '؛ '
 configuration: الإعدادات
 dataset: البيانات
 validation: التحقق العلمي
-validation_short: {pending: قيد الانتظار, completed: مكتمل}
+validation_short:
+  pending: قيد الانتظار
+  completed: مكتمل
 explain:
   preliminary: ارتفاعات مبانٍ افتراضية مؤقتة أو إعدادات غير مسجّلة — مفيدة لاستكشاف المنهجية، وليست نتيجة بحثية.
   simulation_results: الإعدادات البحثية الأساسية على ارتفاعات مبانٍ تقديرية — محاكاة وفق افتراضات معلنة، وليست نتيجة متحقَّقًا منها.
@@ -31,3 +35,4 @@ explain:
   sensitivity: تختلف فقط عتبة التغطية أو الهدف أو الحمل أو المطر عن الإعدادات البحثية الأساسية.
   validated_results: الإعدادات البحثية الأساسية على بيانات قياس مكتملة مع اكتمال التحقق العلمي.
   baseline_pending: الإعدادات البحثية الأساسية على بيانات مكتملة، والتحقق العلمي ما يزال قيد الانتظار.
+dev_station_carriers: 'المحطة {station} تُرسل على: {carriers}'

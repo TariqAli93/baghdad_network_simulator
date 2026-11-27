@@ -76,3 +76,22 @@ def test_names_need_a_character_and_ids_are_safe_file_names(tmp_path):
     arabic = xp.save(tmp_path, config(name="تجربة الجيل السادس"))
     assert arabic.experiment_id.isascii() and "/" not in arabic.experiment_id
     assert xp.load(tmp_path, arabic.experiment_id).name == "تجربة الجيل السادس"
+
+
+def test_a_mixed_network_keeps_every_stations_carriers_through_save_and_open(tmp_path):
+    """Each station's own carriers (power, antenna, on/off) survive saving and reopening."""
+    from bns.app import workspace as ws
+
+    s1 = {"station_id": "S1", "x": 1.0, "y": 2.0, "antenna_height_m": 58.0, "mount": "rooftop", "tx_power_dbm": 46.0,
+          "pattern": "tr38901", "sectors": 3, "azimuth_deg": 0.0, "downtilt_deg": 10.0,
+          "carriers": [{"carrier_id": "lte_1800", "tx_power_dbm": 43.0, "pattern": "tr38901", "sectors": 3,
+                        "azimuth_deg": 20.0, "downtilt_deg": 6.0, "enabled": True},
+                       {"carrier_id": "c6g_8000", "tx_power_dbm": 40.0, "pattern": "iso", "sectors": 1,
+                        "azimuth_deg": 0.0, "downtilt_deg": 0.0, "enabled": False}]}
+    s2 = {**s1, "station_id": "S2", "x": 50.0, "carriers": None}
+    saved = xp.save(tmp_path, config(stations=[s1, s2]))
+    again = xp.load(tmp_path, saved.experiment_id)
+    a, b = xp.stations(again)
+    assert a.carriers == (ws.StationCarrier("lte_1800", 43.0, "tr38901", 3, 20.0, 6.0, True),
+                          ws.StationCarrier("c6g_8000", 40.0, "iso", 1, 0.0, 0.0, False))
+    assert b.carriers is None
