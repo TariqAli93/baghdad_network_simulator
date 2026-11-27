@@ -13,6 +13,9 @@ validated_results: نتائج بحثية مستوفية للتحقق
 simulation_results: نتائج محاكاة
 baseline_pending: الإعدادات البحثية الأساسية · التحقق العلمي قيد الانتظار
 details: "الإعدادات: {configuration} · البيانات: {dataset} · التحقق: {validation}"
+details_placement: "الإعدادات: {configuration} · التوزيع: {placement} · البيانات: {dataset} · التحقق: {validation}"
+placement: توزيع المحطات
+placements: {automatic: "آلي (قاعدة المواقع أو التخطيط الآلي)", manual: "يدوي (وُضع باليد)", hypothetical: "افتراضي (ليس موقعًا على سطح)"}
 dev_profile: "ملف الدقة {name} ({cell} m، {rays} شعاع)"
 dev_backend: "محرّك {backend} (الحدود العددية: {doc})"
 deviations: "تختلف عن الإعدادات البحثية الأساسية في: {items}"

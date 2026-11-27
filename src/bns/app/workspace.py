@@ -31,6 +31,7 @@ from shapely.geometry import Point
 
 from bns.analysis import classification
 from bns.analysis import metrics
+from bns.app import carriers as ca
 from bns.analysis import validation_scope as vs
 from bns.core.units import linear_to_db
 from bns.geospatial import sites
@@ -44,7 +45,7 @@ from bns.simulation.radio import RadioInputs
 from bns.simulation.setup import bearing_to_scene_azimuth_rad, scene_azimuth_to_bearing_deg
 
 ROOFTOP, HYPOTHETICAL = "rooftop", "hypothetical"
-MANUAL, SITE_RULE = "manual", "site rule"
+MANUAL, SITE_RULE, PLAN = "manual", "site rule", "plan"      # how a station was placed
 RULE_POSITION, SITE_POINT = "rule", "site point"     # where the sector antennas of a rooftop station stand
 
 
@@ -117,8 +118,9 @@ class Station:
     height_category: str | None = None     # of the host roof: observed / estimated / placeholder
     meets_site_rule: bool | None = None    # host roof satisfies the candidate rule (rooftops only)
     enabled: bool = True
-    origin: str = MANUAL                   # manual | site rule | run:<id>
+    origin: str = MANUAL                   # manual | site rule | plan (kept by the automatic planning)
     antenna_position: str = RULE_POSITION  # rule (configs/site_rule.yaml) | site point (runs before decision A4)
+    source_run: str | None = None          # the saved run the station was opened from
 
     @property
     def bearings_deg(self) -> tuple[float, ...]:
@@ -303,8 +305,16 @@ def sector_positions(ctx: Context, station: Station, ants: list[Antenna]) -> lis
     return [(x, y, station.antenna_height_m) for x, y in xy]
 
 
-def jobs(ctx: Context, stations: list[Station]) -> dict[str, list[SectorJob]]:
-    """Per scenario: one job per sector of every enabled station (bns.simulation.setup.site_jobs)."""
+def preset_carriers(ctx: Context) -> list[dict]:
+    """The five scenario presets of the experiment, as carriers (bns.app.carriers)."""
+    return [{"id": sc["id"], "label": sc["label"], "frequency_hz": float(sc["frequency_hz"]),
+             "bandwidth_hz": float(sc["bandwidth_hz"]), "status": sc.get("status", ""), "preset": sc["id"],
+             "custom": False, "gas": ca.TABULATED} for sc in ctx.exp.scenarios]
+
+
+def jobs(ctx: Context, stations: list[Station], carriers: list[dict] | None = None) -> dict[str, list[SectorJob]]:
+    """Per carrier (default: the five presets): one job per sector of every enabled station, as
+    bns.simulation.setup.site_jobs describes it. Only the frequency of a carrier enters a job."""
     exp = ctx.exp
     enabled = [s for s in stations if s.enabled]
     geometry = []
@@ -312,7 +322,7 @@ def jobs(ctx: Context, stations: list[Station]) -> dict[str, list[SectorJob]]:
         ants = antennas(s, exp.config.polarization)
         geometry.append(list(zip(ants, sector_positions(ctx, s, ants), strict=True)))
     out = {}
-    for sc in exp.scenarios:
+    for sc in carriers if carriers is not None else preset_carriers(ctx):
         out[sc["id"]] = [SectorJob(i, k, PropagationJob(ctx.scene_fingerprint, str(exp.scene_dir), sc["frequency_hz"],
                                                         tuple(float(v) for v in pos), antenna, exp.grid,
                                                         exp.config.mechanisms, int(exp.profile.rays_per_site),
@@ -344,11 +354,21 @@ def trace_status(design_jobs: dict[str, list[SectorJob]], cache) -> dict[str, Tr
 
 
 # ---------------------------------------------------------------- radio-system evaluation
+def radio_scenario(ctx: Context, carrier: dict) -> dict:
+    """The preset under which the carrier's radio values and rate mapping are looked up, with the
+    carrier's bandwidth (bns.app.carriers)."""
+    preset = next(sc for sc in ctx.exp.scenarios if sc["id"] == carrier.get("preset", carrier["id"]))
+    return {**preset, "bandwidth_hz": float(carrier["bandwidth_hz"])}
+
+
 def radio_inputs(ctx: Context, stations: list[Station], scenario: dict, radio: RadioSettings) -> RadioInputs:
     """The experiment's radio inputs with the design's radio values and one power per sector. The
     power added to the traced path gain follows RadioSystem.tx_power_for_path_gain_dbm: for a traced
-    pattern no antenna gain is added (its gain is inside the path gain)."""
-    exp, sid = ctx.exp, scenario["id"]
+    pattern no antenna gain is added (its gain is inside the path gain). `scenario` is a carrier;
+    its preset gives the radio values, its bandwidth the noise."""
+    exp = ctx.exp
+    scenario = radio_scenario(ctx, scenario)
+    sid = scenario["id"]
     base = ex.radio_inputs(exp, scenario)
     gain_term = exp.system.tx_power_for_path_gain_dbm(sid, mode=exp.mode) - exp.system.require("tx_power_dbm", sid,
                                                                                               mode=exp.mode)
@@ -360,10 +380,12 @@ def radio_inputs(ctx: Context, stations: list[Station], scenario: dict, radio: R
 
 
 def loss_db(ctx: Context, scenario: dict, station: Station, radio: RadioSettings) -> np.ndarray:
-    """Gas (and, in a rain case, rain) loss from the station point to every cell (as the run scripts)."""
+    """Gas (and, in a rain case, rain) loss from the station point to every cell (as the run scripts).
+    Gas loss is the tabulated value, or none where a custom carrier records it as omitted."""
     exp = ctx.exp
-    conditions = atm.Conditions(rain_rate_mm_h=float(radio.rain_rate_mm_h), include_gas=exp.baseline.include_gas)
-    gamma = conditions.specific_attenuation_db_per_km(scenario["frequency_hz"], exp.config.polarization)
+    f = float(scenario["frequency_hz"])
+    gas = ca.gas_db_per_km({"gas": ca.TABULATED, **scenario}) if exp.baseline.include_gas else 0.0
+    gamma = gas + atm.rain_specific_attenuation_db_per_km(f, float(radio.rain_rate_mm_h), exp.config.polarization)
     return atm.attenuation_map_db((station.x, station.y, station.antenna_height_m), exp.grid, gamma)
 
 
@@ -373,7 +395,7 @@ def _network_inputs(ctx: Context, stations: list[Station], scenario: dict, radio
     enabled = [s for s in stations if s.enabled]
     if not enabled:
         raise ValueError("No enabled station.")
-    js = jobs(ctx, stations)[sid]
+    js = jobs(ctx, stations, [scenario])[sid]
     entries = [load(sj.job.key()) for sj in js]
     missing = [sj.job.key() for sj, e in zip(js, entries, strict=True) if e is None]
     if missing:
@@ -397,9 +419,9 @@ def evaluate(ctx: Context, stations: list[Station], scenario: dict, radio: Radio
               "serving_station": net.serving_site, "serving_sector": net.serving_sector,
               "interference_dbm": net.interference_dbm}
     summary = {**net.summary, "noise_dbm": net.radio.noise_dbm}
-    mapped = ex.mapped_rate_bps(exp, scenario, net.radio.sinr_db)
+    mapped = ex.mapped_rate_bps(exp, radio_scenario(ctx, scenario), net.radio.sinr_db)
     if mapped is not None:
-        model = ex.rate_mapping(exp, scenario)
+        model = ex.rate_mapping(exp, radio_scenario(ctx, scenario))
         layers["rate_3gpp_bps"] = mapped
         summary.update(rate_3gpp_p5_bps=metrics.percentile(mapped, 5, exp.outdoor),
                        rate_3gpp_median_bps=metrics.percentile(mapped, 50, exp.outdoor),
@@ -456,6 +478,18 @@ def deviations(ctx: Context, stations: list[Station]) -> list[str]:
     return out
 
 
+def placement(stations: list[Station]) -> str:
+    """How the transmitting stations were placed (a classification dimension of its own): hypothetical
+    if any stands on open ground, manual if any was placed or moved by hand, else automatic (site rule
+    or automatic planning). Manual placement on a rule roof keeps the baseline parameter class."""
+    on = [s for s in stations if s.enabled]
+    if any(s.mount == HYPOTHETICAL for s in on):
+        return classification.HYPOTHETICAL_PLACEMENT
+    if any(s.origin == MANUAL for s in on):
+        return classification.MANUAL_PLACEMENT
+    return classification.AUTOMATIC_PLACEMENT
+
+
 def radio_overrides(ctx: Context, radio: RadioSettings) -> dict:
     base = RadioSettings.baseline(ctx)
     return {k: getattr(radio, k) for k in ("coverage_threshold", "interference_activity", "noise_figure_db",
@@ -463,12 +497,14 @@ def radio_overrides(ctx: Context, radio: RadioSettings) -> dict:
             if not np.isclose(float(getattr(radio, k)), float(getattr(base, k)), rtol=0, atol=1e-9)}
 
 
-def classify(ctx: Context, stations: list[Station], radio: RadioSettings) -> classification.Classification:
-    """The design's scientific classification, by the rules every run uses."""
+def classify(ctx: Context, stations: list[Station], radio: RadioSettings,
+             carriers: list[dict] | None = None) -> classification.Classification:
+    """The design's scientific classification, by the rules every run uses, with its placement."""
     exp = ctx.exp
     overrides = {**{k: v for k, v in exp.overrides.items() if k in ("rx_height_m", "cell_size_m", "rays_per_site")},
                  **radio_overrides(ctx, radio)}
-    devs = ex.baseline_deviations(exp.root, exp.profile, exp.backend) + deviations(ctx, stations)
+    devs = (ex.baseline_deviations(exp.root, exp.profile, exp.backend) + deviations(ctx, stations)
+            + ca.deviations(carriers or []))
     ants = [a for s in stations if s.enabled for a in antennas(s, exp.config.polarization)]
     from dataclasses import asdict
 
@@ -477,7 +513,8 @@ def classify(ctx: Context, stations: list[Station], radio: RadioSettings) -> cla
                      antennas=[asdict(a) for a in ants], mechanisms=asdict(exp.config.mechanisms),
                      seeds=exp.config.seeds)
     return classification.classify(exp.root, overrides, exp.quality, study_district=exp.area.is_research_dataset,
-                                   deviations=devs, scope=scope, profile=exp.profile.name)
+                                   deviations=devs, scope=scope, profile=exp.profile.name,
+                                   placement=placement(stations))
 
 
 # ---------------------------------------------------------------- saved runs
@@ -517,6 +554,10 @@ def stations_from_run(ctx: Context, manifest: dict, summary: dict | None = None,
     params = manifest.get("radio_parameters") or {}
     power = float((manifest.get("overrides") or {}).get("tx_power_dbm", (params.get("tx_power_dbm") or {}).get("value")))
     run_id = manifest.get("run_id", "")
+    rule = manifest.get("site_rule") or {}
+    recorded = (manifest.get("classification") or {}).get("placement")
+    by_hand = bool(rule.get("buildings")) or recorded in (classification.MANUAL_PLACEMENT,
+                                                          classification.HYPOTHETICAL_PLACEMENT)
     chosen = None
     if manifest.get("kind") == "site_plan":
         results = (summary or {}).get("results") or {}
@@ -538,11 +579,28 @@ def stations_from_run(ctx: Context, manifest: dict, summary: dict | None = None,
                                 pattern, n if pattern != "iso" else 1, azimuth, tilt, building_id=site["building_id"],
                                 roof_height_m=float(site["roof_height_m"]), height_category=site.get("height_category"),
                                 meets_site_rule=meets_rule(ctx, b) if b is not None else None,
-                                enabled=chosen is None or site["candidate_id"] in chosen, origin=f"run:{run_id}",
+                                enabled=chosen is None or site["candidate_id"] in chosen,
+                                origin=MANUAL if by_hand else SITE_RULE, source_run=run_id,
                                 antenna_position=SITE_POINT if at_point else RULE_POSITION))
     recorded = {j["key"] for j in manifest.get("jobs") or [] if isinstance(j, dict)}
-    rebuilt = {sj.job.key() for js in jobs(ctx, [replace(s, enabled=True) for s in stations]).values() for sj in js}
+    rebuilt = {sj.job.key() for js in jobs(ctx, [replace(s, enabled=True) for s in stations],
+                                           run_carriers(manifest) or None).values() for sj in js}
     return stations, {"recorded": len(recorded), "identical": len(rebuilt & recorded), "exact": rebuilt == recorded}
+
+
+def run_carriers(manifest: dict) -> list[dict]:
+    """The carriers a saved run used (runs before custom carriers recorded the presets only)."""
+    out = []
+    for sc in manifest.get("scenarios") or []:
+        c = {"id": sc["id"], "label": sc["label"], "frequency_hz": float(sc["frequency_hz"]),
+             "bandwidth_hz": float(sc["bandwidth_hz"]), "status": sc.get("status", ""),
+             "preset": sc.get("preset", sc["id"]), "custom": bool(sc.get("custom", False)),
+             "gas": sc.get("gas", ca.TABULATED)}
+        for k in ("preset_frequency_hz", "preset_bandwidth_hz"):
+            if k in sc:
+                c[k] = float(sc[k])
+        out.append(c)
+    return out
 
 
 def nearest_station_m(station: Station, stations: list[Station]) -> float | None:

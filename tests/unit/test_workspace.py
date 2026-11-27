@@ -293,6 +293,46 @@ def test_departures_from_the_site_rule_make_a_custom_experiment(ctx, station, ph
     assert c.configuration == cl.CUSTOM and any(phrase in d for d in c.deviations), c.deviations
 
 
+def test_placement_is_its_own_dimension(ctx):
+    rule = replace(ws.place(ctx, -40, -40, template(ctx), []), origin=ws.SITE_RULE)
+    hand = ws.place(ctx, 25, 25, template(ctx), [rule])
+    rule_roof_by_hand = ws.place(ctx, -40, -40, template(ctx), [])
+    ground = ws.place(ctx, 0, 60, template(ctx, hypothetical_height_m=25.0), [rule])
+    radio = ws.RadioSettings.baseline(ctx)
+    assert ws.classify(ctx, [rule], radio).placement == cl.AUTOMATIC_PLACEMENT
+    by_hand = ws.classify(ctx, [rule_roof_by_hand], radio)
+    assert by_hand.placement == cl.MANUAL_PLACEMENT and by_hand.configuration == cl.BASELINE   # decision 2
+    assert ws.classify(ctx, [rule, hand], radio).placement == cl.MANUAL_PLACEMENT
+    hypothetical = ws.classify(ctx, [rule, ground], radio)
+    assert hypothetical.placement == cl.HYPOTHETICAL_PLACEMENT and hypothetical.configuration == cl.CUSTOM
+    assert ws.classify(ctx, [rule, replace(ground, enabled=False)], radio).placement == cl.AUTOMATIC_PLACEMENT
+    assert hypothetical.as_dict()["placement"] == cl.HYPOTHETICAL_PLACEMENT
+    assert cl.from_manifest({"classification": hypothetical.as_dict()}) == hypothetical
+
+
+def test_a_custom_carrier_is_traced_at_its_frequency_and_evaluated_with_its_preset(ctx, exp, tmp_path):
+    from bns.app import carriers as ca
+
+    (tmp_path / "scene.xml").write_text(exp.scene_dir.joinpath("scene.xml").read_text(encoding="utf-8")
+                                        .replace("<scene version='2.1.0'/>", '<scene version="2.1.0"><bsdf type="itu-radio-material" id="m"><string name="type" value="concrete"/></bsdf></scene>'),
+                                        encoding="utf-8")
+    nr = next(c for c in ws.preset_carriers(ctx) if c["id"] == "nr_3500")
+    six = ca.customize(nr, frequency_hz=6e9, bandwidth_hz=40e6, scene_dir=tmp_path)
+    s = ws.place(ctx, -40, -40, template(ctx), [])
+    [job] = {sj.job.frequency_hz for sj in ws.jobs(ctx, [s], [six])[six["id"]]}, 
+    assert job == {6e9}
+    maps = {sj.job.key(): (np.full(ctx.exp.grid.shape, 1e-9), {"seconds": 1.0})
+            for sj in ws.jobs(ctx, [s], [six])[six["id"]]}
+    e = ws.evaluate(ctx, [s], six, ws.RadioSettings.baseline(ctx), maps.get)
+    reference = ex.radio_inputs(exp, {**next(sc for sc in exp.scenarios if sc["id"] == "nr_3500"), "bandwidth_hz": 40e6})
+    from bns.core.units import noise_power_dbm
+    assert e.summary["noise_dbm"] == pytest.approx(noise_power_dbm(40e6, reference.noise_figure_db,
+                                                                   reference.noise_temperature_k))
+    np.testing.assert_allclose(ws.loss_db(ctx, six, s, ws.RadioSettings.baseline(ctx)), 0.0)   # gas omitted at 6 GHz
+    c = ws.classify(ctx, [s], ws.RadioSettings.baseline(ctx), [six])
+    assert c.configuration == cl.CUSTOM and any("6 GHz" in d for d in c.deviations)
+
+
 # ---------------------------------------------------------------- saved runs
 def test_stations_rebuilt_from_a_run_manifest_reproduce_its_recorded_jobs(ctx, exp):
     placed = ex.place_sites(exp, ["way/1"])
@@ -304,7 +344,7 @@ def test_stations_rebuilt_from_a_run_manifest_reproduce_its_recorded_jobs(ctx, e
                 "jobs": [{"scenario": sid, "site": placed[i].candidate_id, "key": j.key()}
                          for sid, js in jobs.items() for i, j in js]}
     stations, check = ws.stations_from_run(ctx, manifest)
-    assert [s.origin for s in stations] == ["run:multi_site-test"]
+    assert [(s.origin, s.source_run) for s in stations] == [(ws.SITE_RULE, "multi_site-test")]   # rule sites
     assert check == {"recorded": 15, "identical": 15, "exact": True}
 
 

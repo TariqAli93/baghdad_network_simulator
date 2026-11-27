@@ -13,6 +13,9 @@ validated_results: Validated Research Results
 simulation_results: Simulation Results
 baseline_pending: Research Baseline · Validation Pending
 details: "Configuration: {configuration} · Dataset: {dataset} · Validation: {validation}"
+details_placement: "Configuration: {configuration} · Placement: {placement} · Dataset: {dataset} · Validation: {validation}"
+placement: Placement
+placements: {automatic: automatic (site rule or automatic planning), manual: manual (placed by hand), hypothetical: "hypothetical (not a rooftop site)"}
 dev_profile: "{name} profile ({cell} m, {rays} rays)"
 dev_backend: "{backend} backend (numerical limits: {doc})"
 deviations: "Differs from the research baseline in: {items}"

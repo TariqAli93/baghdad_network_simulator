@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import replace
 import sys
 import time
 from datetime import datetime, timezone
@@ -30,6 +31,7 @@ import psutil
 
 from bns import runtime
 from bns.analysis import metrics
+from bns.analysis.classification import AUTOMATIC_PLACEMENT, MANUAL_PLACEMENT
 from bns.core.units import linear_to_db
 from bns.optimization.greedy import greedy_sinr_site_selection
 from bns.reporting import export
@@ -257,7 +259,9 @@ def main() -> int:
     memory = psutil.Process().memory_info()
     manifest = {
         "label": exp.label, "run_id": run_id, "kind": "multi_site", "mode": args.mode,
-        "run_class": exp.run_class, "overrides": exp.overrides, "classification": exp.classification.as_dict(),
+        "run_class": exp.run_class, "overrides": exp.overrides,
+        "classification": replace(exp.classification, placement=MANUAL_PLACEMENT if args.buildings
+                                  else AUTOMATIC_PLACEMENT).as_dict(),
         "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,
                     "variant": all_jobs[0].engine["variant"],
                     "status": (exp.config.backends or {}).get(exp.backend, {}).get("status"),

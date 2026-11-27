@@ -42,6 +42,11 @@ _OLD_DATASET = {"Estimated heights": ESTIMATED}
 # rain: the approved sensitivity dimensions); changing anything else is a custom experiment
 SENSITIVITY_KEYS = frozenset({"coverage_threshold", "coverage_target", "interference_activity", "rain_rate_mm_h"})
 _OLD_VALIDATION = {"Validated": VALIDATED}           # spelling of the first records (2026-11-27)
+# how the transmitting sites were placed: a dimension of its own, never folded into the result class.
+# Manual placement on a roof that satisfies the site rule keeps the baseline parameter class; a
+# hypothetical location is always a recorded deviation (a custom experiment).
+AUTOMATIC_PLACEMENT, MANUAL_PLACEMENT = "Automatic placement", "Manual placement"
+HYPOTHETICAL_PLACEMENT = "Hypothetical placement"
 
 
 @dataclass(frozen=True)
@@ -51,6 +56,7 @@ class Classification:
     validation: str
     deviations: tuple[str, ...] = field(default=())     # how the configuration departs from the baseline
     validation_scope: str = ""                          # key of the run's propagation scope (validation_scope)
+    placement: str = ""                                 # automatic / manual / hypothetical; "" = not recorded
 
     @property
     def result(self) -> str:
@@ -83,7 +89,8 @@ class Classification:
 
     def as_dict(self) -> dict:
         return {"configuration": self.configuration, "dataset": self.dataset, "validation": self.validation,
-                "deviations": list(self.deviations), "validation_scope": self.validation_scope, "result": self.result}
+                "deviations": list(self.deviations), "validation_scope": self.validation_scope, "result": self.result,
+                **({"placement": self.placement} if self.placement else {})}
 
 
 def configuration_class(overrides: dict | None, deviations=()) -> str:
@@ -129,13 +136,14 @@ def validation_class(root: Path, scope: dict | None, *, profile: str | None) -> 
 
 
 def classify(root: Path, overrides: dict | None, quality: dict | None, *, study_district: bool,
-             deviations=(), scope: dict | None = None, profile: str | None = None) -> Classification:
+             deviations=(), scope: dict | None = None, profile: str | None = None,
+             placement: str = "") -> Classification:
     from bns.analysis import validation_scope as vs
 
     devs = tuple(deviations) + tuple(f"{k} = {v}" for k, v in (overrides or {}).items())
     return Classification(configuration_class(overrides, deviations),
                           dataset_class(quality, study_district=study_district),
-                          validation_class(root, scope, profile=profile), devs, vs.key(scope))
+                          validation_class(root, scope, profile=profile), devs, vs.key(scope), placement)
 
 
 # labels written into run files before 2026-11-27; the files keep them (provenance), displays and new
@@ -158,6 +166,7 @@ def from_manifest(manifest: dict) -> Classification:
     if rec:
         return Classification(rec["configuration"], _OLD_DATASET.get(rec["dataset"], rec["dataset"]),
                               _OLD_VALIDATION.get(rec["validation"], rec["validation"]),
-                              tuple(rec.get("deviations") or ()), rec.get("validation_scope", ""))
+                              tuple(rec.get("deviations") or ()), rec.get("validation_scope", ""),
+                              rec.get("placement", ""))
     area = manifest.get("area") or {}
     return Classification(NOT_RECORDED, COMPLETE if area.get("fit_for_research") else INCOMPLETE, PENDING)

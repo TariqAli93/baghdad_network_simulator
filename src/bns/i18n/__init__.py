@@ -261,9 +261,14 @@ def classification_texts(tr: Translator, c) -> tuple[str, str]:
     config = name(c.configuration)
     if c.deviations:
         config += f" ({list_separator(tr).join(deviation_text(tr, d) for d in c.deviations)})"
-    details = tr("cls.details", configuration=config, dataset=name(c.dataset),
-                 validation=tr("cls.validation_short.completed" if c.validation == cl.VALIDATED
-                               else "cls.validation_short.pending"))
+    validation = tr("cls.validation_short.completed" if c.validation == cl.VALIDATED else "cls.validation_short.pending")
+    placement = {cl.AUTOMATIC_PLACEMENT: "automatic", cl.MANUAL_PLACEMENT: "manual",
+                 cl.HYPOTHETICAL_PLACEMENT: "hypothetical"}.get(getattr(c, "placement", ""))
+    if placement:
+        details = tr("cls.details_placement", configuration=config, placement=tr(f"cls.placements.{placement}"),
+                     dataset=name(c.dataset), validation=validation)
+    else:
+        details = tr("cls.details", configuration=config, dataset=name(c.dataset), validation=validation)
     return name(c.result), details
 
 

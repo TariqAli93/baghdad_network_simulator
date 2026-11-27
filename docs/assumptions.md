@@ -201,3 +201,19 @@ what is still open. Reconciled record: `docs/approval-record.md`.
 These values are the research baseline (`configs/research_baseline.yaml`). A run with other values
 is a custom or sensitivity experiment and records the values it used; no approval is needed.
 
+
+## 10. Simulation workspace: custom carriers and placement (2026-11-27, custom experiments only)
+
+Decisions recorded by the project owner on 2026-11-27 (`docs/simulation-workspace.md`): the workspace
+is the landing page; manual placement on a roof that satisfies the site rule is not by itself a
+deviation from the research baseline, but is recorded as **manual placement** (never as an automatic
+selection); hypothetical placements are allowed and are custom experiments. Placement is a
+classification dimension of its own (`bns.analysis.classification`: automatic / manual / hypothetical).
+
+| Assumption | Value used | Status |
+|---|---|---|
+| Custom carrier frequency | inside the validity intervals of every scene material as the installed Sionna RT defines them (ITU-R P.2040; concrete 1-100 GHz and 110-330 GHz), read from the engine's table | technical limit, *provisional* |
+| Gas loss at a custom carrier | the tabulated value at the five preset carriers (`docs/atmospheric-losses.md`); between 1 and 30 GHz an untabulated carrier runs **without** gas loss, recorded as a deviation in the result (at most about 0.19 dB/km there, the 22.2 GHz water-vapour line, i.e. ≤ 0.2 dB over the study area); above 30 GHz an untabulated carrier is refused (about 15 dB/km near 60 GHz, and the project has no P.676 implementation: adding ITU-Rpy was not done) | *provisional* |
+| Custom bandwidth | 0.1 MHz up to a quarter of the carrier frequency: path gain, materials and gas loss are evaluated at the centre frequency only | technical limit, *provisional* |
+| Radio values and rate mapping of a custom carrier | those of its preset (e.g. NR for a variant of the 5G preset, the NR-based approximation for a candidate 6G preset), with the carrier's bandwidth for noise and rates; the mapping is per Hz and does not depend on the frequency | *provisional* |
+| Classification | any carrier that differs from its preset makes the run a Custom Experiment and names the values; selecting fewer than five presets is not a deviation | rule |

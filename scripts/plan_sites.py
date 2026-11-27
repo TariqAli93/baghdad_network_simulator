@@ -242,7 +242,7 @@ def main() -> int:
             exp.classification.dataset, exp.classification.validation,
             tuple(exp.classification.deviations) + tuple(f"{k} = {v}" for k, v in overrides.items())
             + ((f"height categories {args.heights}",) if args.heights else ()),
-            exp.classification.validation_scope).as_dict(),
+            exp.classification.validation_scope, classification.AUTOMATIC_PLACEMENT).as_dict(),
         "overrides": {**exp.overrides, **overrides, **({"heights": args.heights} if args.heights else {})},
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "backend": {"name": exp.backend, "requested": args.backend, "note": exp.backend_note,
