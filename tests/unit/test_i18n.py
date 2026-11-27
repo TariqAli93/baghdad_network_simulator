@@ -118,6 +118,52 @@ def test_classification_in_arabic_names_no_english_class():
     assert en_head == "Custom Experiment" and "preview profile (25 m, 1e+08 rays)" in en_details
 
 
+LRI, PDI = "⁦", "⁩"
+
+
+def test_arabic_numbers_with_latin_units_keep_their_order():
+    """'28 GHz' inside Arabic text would be shown as 'GHz 28' by the bidi algorithm: Arabic texts isolate
+    number-and-unit runs left-to-right; English texts and already isolated runs are unchanged."""
+    ar = i18n.translate("ar", "dashboard.card.scenarios_sub")
+    assert f"{LRI}28 GHz{PDI}" in ar and f"{LRI}15 GHz{PDI}" in ar
+    assert f"{LRI}{LRI}" not in i18n.translate("ar", "common.band.nr_3500")           # no double isolation
+    assert i18n.translate("ar", "common.band.nr_3500").count(LRI) == 1
+    assert f"{LRI}−40 dB{PDI}" in i18n.translate("ar", "comparison.cdf_note")          # the sign stays with it
+    assert f"{LRI}12 m{PDI}" in i18n.translate("ar", "planning.site_label", site="s", building="b", roof="12",
+                                                 category="c")
+    assert LRI not in i18n.translate("en", "dashboard.card.scenarios_sub")
+    assert "99.4 %" in i18n.translate("ar", "dashboard.card.dataset_synthetic", pct=99.4)  # percentages untouched
+    assert i18n.translate("ar", "planning.new_plan").count(LRI) == 0                   # code spans untouched
+
+
+def test_recorded_status_texts_are_translated_only_when_recognised():
+    ar, en = i18n.translator("ar"), i18n.translator("en")
+    for recorded in ("target reached", "candidates exhausted", "site limit reached", "no candidate raises coverage"):
+        assert ARABIC.search(i18n.recorded_text(ar, recorded)), recorded
+        assert i18n.recorded_text(en, recorded) == recorded
+    monument = ("Sites or candidates on monuments (Freedom Monument way/1154123513, Faeq Hassan mural "
+                "way/939812415) mapped as buildings; invalid for research interpretation (defect confirmed 2026-11-27).")
+    assert ARABIC.search(i18n.recorded_text(ar, monument)) and "way/1154123513" in i18n.recorded_text(ar, monument)
+    assert i18n.recorded_text(en, monument) == monument
+    unknown = "something the run wrote that no catalogue entry describes"
+    assert i18n.recorded_text(ar, unknown) == unknown                    # kept as recorded, never guessed
+    assert i18n.recorded_text(ar, None) is None
+
+
+def test_arabic_classification_details_use_arabic_punctuation_and_isolate_technical_values():
+    from bns.analysis import classification as cl
+
+    c = cl.Classification(cl.CUSTOM, cl.ESTIMATED, cl.PENDING,
+                          deviations=("preview profile (25 m, 1e+08 rays)",
+                                      "GPU backend (numerical limits: docs/validation.md §7)"))
+    _, details = i18n.classification_texts(i18n.translator("ar"), c)
+    assert "؛" in details and "; " not in details
+    assert f"{LRI}docs/validation.md §7{PDI}" in details and f"{LRI}25 m{PDI}" in details
+    assert f"{LRI}preview{PDI}" in details
+    _, en_details = i18n.classification_texts(i18n.translator("en"), c)
+    assert "preview profile (25 m, 1e+08 rays); GPU backend" in en_details and LRI not in en_details
+
+
 def test_arabic_report_is_right_to_left_with_translated_headings(tmp_path):
     from bns.analysis import classification as cl
     from bns.reporting.report import build_html, limitations

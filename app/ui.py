@@ -15,7 +15,7 @@ import streamlit as st
 import yaml
 
 from bns import i18n
-from bns.app import results
+from bns.app import preferences, results
 from bns.reporting import plotstyle as style
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,7 +40,8 @@ _LAST = {"lang": i18n.DEFAULT}
 
 
 def lang() -> str:
-    """The selected language: session state, else the ?lang= query parameter, else Arabic.
+    """The selected language: session state, else the ?lang= query parameter, else the language saved on
+    this computer (bns.app.preferences: it survives a restart), else Arabic.
 
     Outside a script run (e.g. the test harness formatting widget options) there is no session;
     the language of the latest run is used then."""
@@ -50,7 +51,9 @@ def lang() -> str:
         return _LAST["lang"]
     if "lang" not in st.session_state:
         requested = st.query_params.get("lang")
-        st.session_state["lang"] = requested if requested in i18n.LANGUAGES else i18n.DEFAULT
+        saved = preferences.load(preferences.location(ROOT)).get("lang")
+        st.session_state["lang"] = requested if requested in i18n.LANGUAGES else \
+            saved if saved in i18n.LANGUAGES else i18n.DEFAULT
     _LAST["lang"] = st.session_state["lang"]
     return _LAST["lang"]
 
@@ -64,11 +67,14 @@ def t(key: str, count=None, **values) -> str:
 
 
 def language_switch() -> None:
-    """Arabic / English switch; the choice persists across reruns, pages and (via ?lang=) reloads."""
+    """Arabic / English switch; the choice persists across reruns, pages, (via ?lang=) reloads and (via the
+    saved preference) application restarts."""
     current = lang()
 
     def changed():
-        st.session_state["lang"] = st.session_state["lang_switch"]
+        if st.session_state["lang_switch"] in i18n.LANGUAGES:
+            st.session_state["lang"] = st.session_state["lang_switch"]
+            preferences.save(preferences.location(ROOT), lang=st.session_state["lang"])
 
     st.segmented_control(t("common.language"), list(i18n.LANGUAGES), default=current, key="lang_switch",
                          format_func=lambda code: i18n.translate(code, f"common.language_names.{code}"),
@@ -83,10 +89,12 @@ def ltr(text) -> str:
 
 
 def inject_css() -> None:
+    """One style block in both languages (each block takes a row of page spacing, so the layout is the
+    same in Arabic and English); the top padding keeps the language switch below Streamlit's header."""
     rtl = tr().rtl
     st.markdown("""
 <style>
-div.block-container, [data-testid="stMainBlockContainer"] {padding-top: 2.2rem;}
+div.block-container, [data-testid="stMainBlockContainer"] {padding-top: 3.25rem;}
 html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
   font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, "Source Sans Pro", sans-serif;}
 .result-banner {border-inline-start: 4px solid #8a6d3b; background: rgba(201,106,18,.08); padding: .45rem .8rem;
@@ -99,29 +107,26 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
 .card .label {font-size: .8rem; opacity: .75;}
 .card .value {font-size: 1.35rem; font-weight: 600; margin: .15rem 0;}
 .card .sub {font-size: .8rem; opacity: .8;}
-.status-chip {display: inline-block; padding: .1rem .6rem; border-radius: 999px; font-size: .8rem;
-              border: 1px solid rgba(128,128,128,.4);}
 div[data-testid="stMetricValue"] {font-variant-numeric: tabular-nums;}
 section[data-testid="stSidebar"] .sidebar-note {font-size: .8rem; opacity: .75;}
 .ltr, code, pre {direction: ltr; unicode-bidi: isolate;}
+div.ltr {text-align: left;}
 table.kv {border-collapse: collapse; width: 100%; font-size: .9rem; margin-bottom: .6rem;}
 table.kv th, table.kv td {border: none; border-bottom: 1px solid rgba(128,128,128,.2); padding: .3rem .5rem;
                           text-align: start; vertical-align: top;}
 table.kv th {font-weight: 600; width: 45%;}
-</style>""", unsafe_allow_html=True)
-    if rtl:
-        # Arabic: text containers right-to-left; charts, tables, code, numbers and inputs stay left-to-right
-        # (Streamlit's native widgets and the sidebar position are not mirrored by the framework)
-        st.markdown("""
-<style>
+""" + ("""
+/* Arabic: text containers right-to-left; charts, tables, code, numbers and inputs stay left-to-right
+   (Streamlit's native widgets and the sidebar position are not mirrored by the framework). The language
+   switch keeps its own left-to-right drawing: its rounded outer corners are not mirrored either. */
 [data-testid="stMainBlockContainer"], [data-testid="stSidebarContent"] {direction: rtl;}
 [data-testid="stMarkdownContainer"], [data-testid="stCaptionContainer"], [data-testid="stHeading"],
 [data-testid="stMetricLabel"], [data-testid="stWidgetLabel"], [data-testid="stExpander"] summary,
 [data-testid="stAlertContentInfo"], [data-testid="stAlertContentWarning"], [data-testid="stAlertContentError"],
 [data-testid="stAlertContentSuccess"] {text-align: right;}
 [data-testid="stPlotlyChart"], [data-testid="stDataFrame"], [data-testid="stCode"], [data-testid="stMetricValue"],
-input[type="number"], [data-testid="stImage"] {direction: ltr; unicode-bidi: isolate;}
-</style>""", unsafe_allow_html=True)
+input[type="number"], [data-testid="stImage"], .st-key-lang_switch {direction: ltr; unicode-bidi: isolate;}
+""" if rtl else "") + "</style>", unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------- page elements
@@ -166,7 +171,8 @@ def limitation_texts(items: list[tuple[str, dict]]) -> list[str]:
         if "role" in values:
             values["role"] = t(f"common.area_role.{values['role']}")
         if key == "limitations.deviations":
-            values["items"] = "; ".join(i18n.deviation_text(tr(), d) for d in values["items"].split("; "))
+            values["items"] = i18n.list_separator(tr()).join(i18n.deviation_text(tr(), d)
+                                                             for d in values["items"].split("; "))
         out.append(t(key, **values))
     return out
 
@@ -231,7 +237,8 @@ def variant_name(variant: str) -> str:
     """A readable name for a dataset variant; the identifier stays visible as technical detail."""
     base = variant.split("+")[0]
     key = f"study_area.variants.{base.split('-seed')[0]}"
-    return f"{t(key)} ({variant})" if tr().has(key) else variant
+    ident = f"{i18n.LRI}{variant}{i18n.PDI}" if tr().rtl else variant    # identifier stays left-to-right
+    return f"{t(key)} ({ident})" if tr().has(key) else variant
 
 
 def height_display_category(b) -> str:
@@ -291,8 +298,14 @@ def pick_run(key: str, *, kinds: tuple[str, ...] = ("single_site", "multi_site")
         return None
     chosen = st.selectbox(t("common.saved_run"), paths, format_func=lambda p: run_title(run(p)), key=key)
     if run(chosen).invalid:
-        st.error(t("common.invalid_run", reason=run(chosen).invalid))
+        st.error(t("common.invalid_run", reason=recorded(run(chosen).invalid)))
     return run(chosen)
+
+
+def recorded(text):
+    """A status text recorded in English (stop reason, invalid-run reason) in the selected language when it
+    is recognised; otherwise exactly as recorded (bns.i18n.recorded_text)."""
+    return i18n.recorded_text(tr(), text)
 
 
 def layer_title(layer: str) -> str:

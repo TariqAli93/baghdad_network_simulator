@@ -2,9 +2,6 @@ title: محاكي شبكات بغداد
 tagline: >-
   يحاكي التغطية وجودة الإشارة ومعدل نقل البيانات لشبكات الجيل الرابع والخامس والسادس المرشّح في منطقة
   مساحتها كيلومتر مربع واحد في وسط بغداد، باستخدام تتبع الأشعة على مخططات مبانٍ حقيقية.
-status_running: المحاكاة قيد التشغيل
-status_idle_latest: "آخر محاكاة: {date}"
-status_none: لا توجد محاكاة بعد
 card:
   study_area: منطقة الدراسة
   study_area_sub: "منطقة استقبال {size} · مخططات مبانٍ حقيقية"
@@ -22,23 +19,19 @@ card:
   latest_none: لا يوجد بعد
   latest_none_sub: ابدأ أول محاكاة.
   latest_running: قيد التشغيل
-  latest_running_sub: "{progress}"
-  latest_sub: "{stations} · {duration}"
+  latest_done: مكتملة
+  latest_sub: "{stations} · مدة التشغيل {duration}"
 start: بدء محاكاة جديدة
 view_latest: عرض آخر النتائج
 latest:
-  heading: آخر محاكاة
+  heading: نتائج آخر محاكاة
   empty: لا توجد محاكاة مكتملة بعد. ابدأ واحدة لتظهر هنا التغطية وجودة الإشارة ومعدل نقل البيانات.
-  area: منطقة الدراسة
-  stations: المحطات
-  date: التاريخ
-  duration: المدة
+  other_area: "منطقة هذا التشغيل: {area} (ليست منطقة الدراسة)."
   coverage: التغطية
-  sinr: الوسيط لـ SINR
-  rate: الوسيط لمعدل نقل البيانات
+  sinr: وسيط SINR
+  rate: وسيط معدل نقل البيانات
   rate_p5: معدل نقل البيانات عند المئين الخامس
-  across: عبر السيناريوهات الخمسة
-  view_full: عرض النتائج كاملة
+  across: كل قيمة هي المدى عبر السيناريوهات الخمسة (الأدنى – الأعلى).
   seconds: "{value:.0f} ث"
   minutes: "{value:.1f} د"
 comparison:
@@ -47,17 +40,16 @@ comparison:
   metric: المقارنة حسب
   metrics:
     coverage: التغطية [%]
-    rx_power_median_dbm: قدرة الإشارة المستقبلة [dBm]
-    sinr_median_db: الوسيط لـ SINR [dB]
-    rate_median_mbps: الوسيط لمعدل نقل البيانات [Mbit/s]
+    rx_power_median_dbm: وسيط قدرة الإشارة المستقبلة [dBm]
+    sinr_median_db: وسيط SINR [dB]
+    rate_median_mbps: وسيط معدل نقل البيانات [Mbit/s]
   columns:
     scenario: السيناريو
-    bandwidth: عرض النطاق [MHz]
-    coverage: التغطية [%]
-    rx_power: الوسيط لقدرة الإشارة المستقبلة [dBm]
-    sinr: الوسيط لـ SINR [dB]
-    rate: الوسيط لمعدل نقل البيانات [Mbit/s]
-    rate_p5: معدل البيانات عند المئين الخامس [Mbit/s]
+    bandwidth: عرض النطاق
+    coverage: التغطية
+    sinr: وسيط SINR
+    rate: وسيط معدل نقل البيانات
+    rate_p5: معدل نقل البيانات عند المئين الخامس
     status: الحالة
   empty: تظهر المقارنة بعد اكتمال أول محاكاة.
 status:
@@ -65,8 +57,9 @@ status:
   note: للعلم فقط — لا شيء مما يلي يمنع تشغيل المحاكاة.
   dataset: جودة البيانات
   dataset_synthetic: >-
-    {pct:.1f} % من ارتفاعات المباني مأخوذة من النموذج الحضري الاصطناعي (تقديرية وليست مقيسة)،
-    و{documented} ارتفاعًا موثّق. المخططات والإحداثيات حقيقية.
+    المخططات والإحداثيات حقيقية، أما {pct:.1f} % من ارتفاعات المباني فتقديرية من النموذج الحضري
+    الاصطناعي وليست مقيسة (الموثّق منها {documented} فقط). لذلك النتائج نتائج محاكاة، وليست وصفًا
+    مقيسًا لبغداد.
   dataset_plain: "{documented} من أصل {buildings} ارتفاعًا موثّقة؛ والبقية افتراضية مؤقتة."
   dataset_missing: مجموعة بيانات الدراسة غير مبنية على هذا الحاسوب.
   configuration: الإعدادات
@@ -77,7 +70,6 @@ status:
     أُنجزت الفحوص التحليلية والمقارنة مع TR 38.901؛ أما تقارب الأشعة على المشهد النهائي والمقارنة مع
     MATLAB فقيد الانتظار. لا توجد قياسات ميدانية.
   validation_done: اكتمل التقارب والمقارنة مع MATLAB ضمن النطاق الموثّق لكل منهما.
-  limitations: القيود المعروفة
   details: الحالة التفصيلية ومصدر البيانات
   detail_columns: {item: البند, state: الحالة, details: التفاصيل التقنية}
 next:

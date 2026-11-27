@@ -70,6 +70,17 @@ def test_language_switch_changes_the_interface_and_persists():
     assert str(at.title[0].value) == "Coverage Analysis"
 
 
+def test_the_chosen_language_survives_an_application_restart(isolated_preferences):
+    at = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240).run()
+    at.segmented_control(key="lang_switch").set_value("en").run()
+    assert isolated_preferences.exists()
+    restarted = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240).run()   # new session, no ?lang=
+    assert restarted.session_state["lang"] == "en" and str(restarted.title[0].value) == "Baghdad Network Simulator"
+    restarted.segmented_control(key="lang_switch").set_value("ar").run()
+    again = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240).run()
+    assert again.session_state["lang"] == "ar"
+
+
 def test_language_from_the_query_parameter():
     at = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240)
     at.query_params["lang"] = "en"
@@ -87,3 +98,7 @@ def test_dashboard_shows_the_main_action_and_the_latest_run(app):
     text = visible_text(at)
     for removed in ("Phase", "commit", "approval record"):              # no development history on the dashboard
         assert removed not in text
+    assert len(buttons) == len(set(buttons)), buttons                   # no duplicated actions
+    headings = [str(h.value) for h in at.subheader]
+    assert len(headings) == len(set(headings)), headings
+    assert i18n.translate(lang, "dashboard.card.latest") not in headings   # the latest run is not announced twice

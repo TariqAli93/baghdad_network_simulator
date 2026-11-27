@@ -131,7 +131,11 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   through `ui.chart` (keeps Arabic chart texts in reading order).
 - User-facing text goes through `t("feature.key")` (`bns.i18n`, locales in `src/bns/i18n/locales/{ar,en}`);
   Arabic is the default and right-to-left. Add every key in both languages (`tests/unit/test_i18n.py`).
-  Identifiers, file names, data fields and machine-readable exports are never translated.
+  Identifiers, file names, data fields and machine-readable exports are never translated. Arabic
+  translations isolate number-and-unit runs automatically (`i18n.isolate_quantities`); English texts
+  recorded by runs (stop reasons, invalid reasons) are translated only at display time
+  (`i18n.recorded_text`), never rewritten. The language choice is saved locally
+  (`bns.app.preferences`, `outputs/app_state/`).
 - `data/raw/**` is binary for git (`.gitattributes`): never let git convert hashed raw files.
 - GlobalBuildingAtlas (CC BY-NC 4.0) per-building values stay local (git-ignored); only aggregate
   evaluation results are in the repository.

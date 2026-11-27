@@ -134,10 +134,11 @@ def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
     """The report in English (default) or Arabic (right-to-left). Saved notes and figures are the run's
     English records; in Arabic they stay left-to-right with a note saying so."""
     from bns.analysis.classification import from_manifest
-    from bns.i18n import LANGUAGES, RTL, translate, translator
+    from bns.i18n import LANGUAGES, RTL, recorded_text, translate, translator
 
     lang = lang if lang in LANGUAGES else "en"
     tr = translator(lang)
+    invalid_reason = recorded_text(tr, invalid_reason)      # recorded in English; translated when recognised
 
     def T(key: str, **values) -> str:
         return translate(lang, key, **values)

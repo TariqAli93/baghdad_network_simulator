@@ -16,6 +16,7 @@ details: "الإعدادات: {configuration} · البيانات: {dataset} · 
 dev_profile: "ملف الدقة {name} ({cell} m، {rays} شعاع)"
 dev_backend: "محرّك {backend} (الحدود العددية: {doc})"
 deviations: "تختلف عن الإعدادات البحثية الأساسية في: {items}"
+list_separator: "؛ "
 configuration: الإعدادات
 dataset: البيانات
 validation: التحقق العلمي

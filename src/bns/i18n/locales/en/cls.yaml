@@ -16,6 +16,7 @@ details: "Configuration: {configuration} · Dataset: {dataset} · Validation: {v
 dev_profile: "{name} profile ({cell} m, {rays} rays)"
 dev_backend: "{backend} backend (numerical limits: {doc})"
 deviations: "Differs from the research baseline in: {items}"
+list_separator: "; "
 configuration: Configuration
 dataset: Dataset
 validation: Scientific validation

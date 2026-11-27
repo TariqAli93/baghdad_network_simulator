@@ -78,6 +78,22 @@ def _pick(entry, lang: str, count):
     return entry
 
 
+LRI, PDI = "⁦", "⁩"          # left-to-right isolate and its end (Unicode bidi controls)
+_UNITS = r"(?:GHz|MHz|kHz|Hz|dBm|dBi|dB|Gbit/s|Mbit/s|kbit/s|bit/s|km²|m²|km|mm/h|mm|ms|m|s|W|K)"
+_NUM = r"[−+-]?\d+(?:[.,]\d+)*"
+_QUANTITY = re.compile(rf"(?<![A-Za-z0-9.+−-]){_NUM}(?:\s?[×x–]\s?{_NUM})*\s{_UNITS}(?![A-Za-z0-9²/])")
+_PROTECTED = re.compile(r"(⁦.*?⁩|`[^`]*`|<[^>]+>)", re.S)
+
+
+def isolate_quantities(text: str) -> str:
+    """Number-and-unit runs ('28 GHz', '−40 dB', '1 × 1 km') kept left-to-right inside right-to-left text.
+
+    Without the isolate the bidi algorithm shows '28 GHz' as 'GHz 28' in an Arabic sentence. Text that
+    is already isolated, code spans and HTML tags are left as they are; nothing else changes."""
+    parts = _PROTECTED.split(text)
+    return "".join(p if i % 2 else _QUANTITY.sub(lambda m: f"{LRI}{m.group(0)}{PDI}", p) for i, p in enumerate(parts))
+
+
 def translate(lang: str, key: str, count=None, **values) -> str:
     lang = lang if lang in LANGUAGES else FALLBACK
     entry = catalog(lang).get(key)
@@ -90,9 +106,10 @@ def translate(lang: str, key: str, count=None, **values) -> str:
     if count is not None:
         values.setdefault("count", count)
     try:
-        return text.format(**values) if values else text
+        text = text.format(**values) if values else text
     except (KeyError, IndexError, ValueError):
-        return text
+        pass
+    return isolate_quantities(text) if lang in RTL else text
 
 
 class Translator:
@@ -171,13 +188,49 @@ _DEVIATIONS = (
 )
 
 
+def _ltr(tr: Translator, text: str) -> str:
+    return f"{LRI}{text}{PDI}" if tr.rtl else text
+
+
 def deviation_text(tr: Translator, text: str) -> str:
     """A recorded deviation (bns.simulation.experiment.baseline_deviations; stored in English in the
-    manifest) in the translator's language; parameter overrides ('name = value') stay as recorded."""
+    manifest) in the translator's language; parameter overrides ('name = value') stay as recorded.
+    In right-to-left text the technical values (names, ray counts, paths) are kept left-to-right."""
     for pattern, key in _DEVIATIONS:
         m = pattern.match(text)
         if m:
-            return tr(key, **m.groupdict())
+            return tr(key, **{k: v if k == "cell" else _ltr(tr, v) for k, v in m.groupdict().items()})
+    return _ltr(tr, text)
+
+
+def list_separator(tr: Translator) -> str:
+    """'; ' in English, the Arabic semicolon '؛ ' in Arabic."""
+    return tr("cls.list_separator")
+
+
+# status texts that runs and configuration files record in English (they are never rewritten); shown
+# translated only when the whole text is recognised, otherwise exactly as recorded
+_RECORDED = (
+    (re.compile(r"^target reached$"), "common.recorded.target_reached"),
+    (re.compile(r"^candidates exhausted$"), "common.recorded.candidates_exhausted"),
+    (re.compile(r"^site limit reached$"), "common.recorded.site_limit_reached"),
+    (re.compile(r"^no candidate raises coverage$"), "common.recorded.no_candidate_raises_coverage"),
+    (re.compile(r"^Sites or candidates on monuments \(Freedom Monument (?P<monument>way/\d+), Faeq Hassan mural "
+                r"(?P<mural>way/\d+)\) mapped as buildings; invalid for research interpretation \(defect confirmed "
+                r"(?P<date>\d{4}-\d{2}-\d{2})\)\.?$"), "common.recorded.monument_sites"),
+)
+
+
+def recorded_text(tr: Translator, text: str | None) -> str | None:
+    """A status text recorded in English (greedy stop reasons, reasons a run is invalid) in the
+    translator's language when it is recognised; anything else is returned unchanged."""
+    if text is None or tr.lang == FALLBACK:
+        return text
+    plain = " ".join(str(text).split())
+    for pattern, key in _RECORDED:
+        m = pattern.match(plain)
+        if m:
+            return tr(key, **{k: _ltr(tr, v) for k, v in m.groupdict().items()})
     return text
 
 
@@ -207,7 +260,7 @@ def classification_texts(tr: Translator, c) -> tuple[str, str]:
 
     config = name(c.configuration)
     if c.deviations:
-        config += f" ({'; '.join(deviation_text(tr, d) for d in c.deviations)})"
+        config += f" ({list_separator(tr).join(deviation_text(tr, d) for d in c.deviations)})"
     details = tr("cls.details", configuration=config, dataset=name(c.dataset),
                  validation=tr("cls.validation_short.completed" if c.validation == cl.VALIDATED
                                else "cls.validation_short.pending"))

@@ -4,7 +4,6 @@ tabs: {bands: Scenarios in one run, runs: Across runs, sites: Site counts, model
 columns:
   scenario: Scenario
   coverage: "Coverage [%]"
-  rx_power: "Median received power [dBm]"
   sinr: "Median SINR [dB]"
   rate_p5: "5th-percentile data rate [Mbit/s]"
   rate_median: "Median data rate [Mbit/s]"

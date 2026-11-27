@@ -19,6 +19,23 @@ ui.result_banner(run.classification)
 m = run.manifest
 if "gba" in str(m["area"].get("variant", "")).lower():
     st.warning(t("reports.gba_licence"))
+validation = evidence.validation_summary(ui.ROOT)
+
+# the printable report first: it is what most visitors of this page come for
+st.subheader(t("reports.printable"))
+p1, p2, _ = st.columns([2, 2, 3], vertical_alignment="bottom")
+with p1:
+    report_lang = st.segmented_control(t("reports.report_language"), list(i18n.LANGUAGES), default=ui.lang(),
+                                       key="report-lang",
+                                       format_func=lambda code: i18n.translate(code, f"common.language_names.{code}"))
+report_lang = report_lang or ui.lang()
+extra = {i18n.translate(report_lang, "report.validation_extra"):
+         (validation["folder"] / "summary.md").read_text(encoding="utf-8")} if validation else {}
+html = build_html(run.path, extra_markdown=extra, invalid_reason=run.invalid, lang=report_lang)
+with p2:
+    st.download_button(t("reports.download_report"), html.encode("utf-8"), type="primary",
+                       file_name=f"report-{run.run_id}-{report_lang}.html", mime="text/html")
+st.caption(t("reports.report_note"))
 
 
 def table(rows: list[tuple[str, str]]) -> None:
@@ -64,7 +81,7 @@ st.dataframe([{t(C + "parameter"): k, t(C + "value"): str(v.get("value") if isin
 st.subheader(t("reports.statistics"))
 names = {s["id"]: ui.scenario_name(s) for s in run.scenarios}
 S = "reports.stats."
-st.dataframe([{t("comparison.columns.scenario"): names.get(r["scenario_id"], r["scenario"]), "GHz": r["frequency_ghz"],
+st.dataframe([{t("comparison.columns.scenario"): names.get(r["scenario_id"], r["scenario"]),   # name carries GHz
                t(S + "coverage"): ui.fmt(r["coverage"], ".1%"),
                t(S + "rx_power"): ui.fmt(r["rx_power_median_dbm"], ".1f", " dBm"),
                t(S + "sinr_median"): ui.fmt(r["sinr_median_db"], ".1f", " dB"),
@@ -80,11 +97,10 @@ if run.kind == "site_plan":
     st.dataframe([{t(P + "scenario"): names.get(sid, sid), t(P + "selected"): ", ".join(r["selected"]),
                    t("comparison.plans.columns.sites"): r["sites"],
                    t("comparison.plans.columns.coverage"): ui.fmt((r["coverage_after"] or [None])[-1], ".1%"),
-                   t(P + "stop"): r["stopped_because"], t(P + "uncovered"): r["uncovered_outdoor_cells"],
+                   t(P + "stop"): ui.recorded(r["stopped_because"]), t(P + "uncovered"): r["uncovered_outdoor_cells"],
                    t("comparison.plans.columns.density"): round(r["site_density_per_km2"], 1)}
                   for sid, r in run.summary["results"].items()], hide_index=True, use_container_width=True)
 
-validation = evidence.validation_summary(ui.ROOT)
 with st.expander(t("reports.validation")):
     if validation is None:
         st.caption(t("reports.none_saved"))
@@ -112,7 +128,7 @@ else:
 
 st.subheader(t("reports.exports"))
 csvs = sorted(run.path.glob("*.csv"))
-e1, e2, e3 = st.columns(3)
+e1, e2 = st.columns(2)
 with e1:
     st.markdown(f"**{t('reports.data')}**")
     if not csvs:
@@ -132,18 +148,6 @@ with e2:
                 z.write(p, p.name)
     st.download_button(t("reports.zip"), buf.getvalue(), file_name=f"{run.run_id}.zip", mime="application/zip")
     st.caption(t("reports.machine_readable"))
-with e3:
-    st.markdown(f"**{t('reports.printable')}**")
-    report_lang = st.segmented_control(t("reports.report_language"), list(i18n.LANGUAGES), default=ui.lang(),
-                                       key="report-lang",
-                                       format_func=lambda code: i18n.translate(code, f"common.language_names.{code}"))
-    report_lang = report_lang or ui.lang()
-    extra = {i18n.translate(report_lang, "report.validation_extra"):
-             (validation["folder"] / "summary.md").read_text(encoding="utf-8")} if validation else {}
-    html = build_html(run.path, extra_markdown=extra, invalid_reason=run.invalid, lang=report_lang)
-    st.download_button(t("reports.download_report"), html.encode("utf-8"),
-                       file_name=f"report-{run.run_id}-{report_lang}.html", mime="text/html")
-    st.caption(t("reports.report_note"))
 
 st.subheader(t("reports.limitations"))
 for line in limitations(ui.lang()):

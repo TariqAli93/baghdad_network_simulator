@@ -11,7 +11,7 @@ Set-Location -Path $PSScriptRoot
 if (-not (Get-Command uv -ErrorAction SilentlyContinue)) { Write-Host "uv not found: run setup.ps1 first." -ForegroundColor Red; exit 1 }
 $url = "http://localhost:$Port"
 Write-Host "Starting the Baghdad Network Simulator at $url (Ctrl+C stops it)."
-Write-Host "Every result is labelled DEVELOPMENT - NOT APPROVED FOR RESEARCH until the supervisor approves the inputs."
+Write-Host "Every result states its scientific classification (configuration, dataset, validation)."
 if (-not $NoBrowser) {
     Start-Job -ScriptBlock { param($u) Start-Sleep -Seconds 6; Start-Process $u } -ArgumentList $url | Out-Null
 }

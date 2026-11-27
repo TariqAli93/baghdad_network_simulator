@@ -29,9 +29,10 @@ with tab_bands:
         scen, outdoor = run.scenarios, run.outdoor
         names = {sc["id"]: ui.scenario_name(sc) for sc in scen}
         table = evidence.band_table(run)
-        st.dataframe([{t(C + "scenario"): names.get(r["scenario_id"], r["scenario"]), "GHz": r["frequency_ghz"],
+        # the scenario name carries the frequency and the bar chart below the received power
+        st.dataframe([{t(C + "scenario"): names.get(r["scenario_id"], r["scenario"]),
                        "MHz": r["bandwidth_mhz"], t(C + "coverage"): r1(r["coverage"], 100),
-                       t(C + "rx_power"): r1(r["rx_power_median_dbm"]), t(C + "sinr"): r1(r["sinr_median_db"]),
+                       t(C + "sinr"): r1(r["sinr_median_db"]),
                        t(C + "rate_p5"): r1(r["rate_p5_mbps"]), t(C + "rate_median"): r1(r["rate_median_mbps"], digits=0)}
                       for r in table], hide_index=True)
         if any(sc["id"].startswith("c6g") for sc in scen):
@@ -126,7 +127,8 @@ with tab_sites:
             fig.add_scatter(x=[p["frequency_ghz"] for p in sel], y=[p["sites"] for p in sel], mode="lines+markers",
                             name=t("comparison.plans.case", threshold=f"{thr:g}", load=f"{load:g}")
                             + (f" ({t('cls.sensitivity')})" if sel[0]["overrides"] else ""),
-                            hovertext=[f"{p['stopped_because']}, {100 * (p['coverage'] or 0):.1f} %" for p in sel])
+                            hovertext=[f"{ui.recorded(p['stopped_because'])}, {100 * (p['coverage'] or 0):.1f} %"
+                                       for p in sel])
         fig.update_layout(height=380, title=t("comparison.plans.chart"),
                           xaxis=dict(title=t("comparison.frequency_axis"), type="log"),
                           yaxis=dict(title=t("comparison.network.sites_axis"), dtick=1), **LAYOUT)
@@ -137,7 +139,7 @@ with tab_sites:
                                                   ui.band_name(p["scenario"], p["frequency_ghz"])),
                        t(P + "threshold"): p["threshold_db"], t(P + "load"): p["load"], t(P + "sites"): p["sites"],
                        t(P + "density"): round(p["site_density_per_km2"], 2), t(P + "coverage"): ui.fmt(p["coverage"], ".1%"),
-                       t(P + "target"): ui.fmt(p["target"], ".0%"), t(P + "stop"): p["stopped_because"],
+                       t(P + "target"): ui.fmt(p["target"], ".0%"), t(P + "stop"): ui.recorded(p["stopped_because"]),
                        t(P + "candidates"): p["candidates"], t(P + "profile"): p["profile"], t(P + "backend"): p["backend"]}
                       for p in plans], hide_index=True)
         st.caption(t("comparison.plans.note"))

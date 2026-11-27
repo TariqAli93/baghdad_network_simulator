@@ -1008,3 +1008,41 @@ Under the feature freeze, configuration and guards only; no simulation was run.
 - Tests: `tests/unit/test_i18n.py` (parity, used keys, plurals, fallback, terminology, roadmap sync,
   classification, Arabic report), `tests/unit/test_dashboard.py`, `tests/app/test_i18n_pages.py`
   (every page in both languages, RTL styles, switch, `?lang=`).
+
+### Addendum: final UX review of the bilingual interface (2026-11-27)
+
+Reviewed in the running application, Arabic and English, at 1366 × 768 and 1920 × 1080 (saved runs
+only; nothing traced). Defects confirmed and fixed (UI and text only; no simulation, formula,
+baseline, dataset, validation rule or saved result changed):
+
+- Dashboard redundancy: the latest run was announced three times (header chip, card, section) and the
+  coverage page had three buttons. Now: the fourth card is the execution status (completed / running
+  / none, with date, sites and run time), the section is "Latest results" (classification banner,
+  four range cards, one caption for "range across the five scenarios"), one "View latest results"
+  button. The "Known limitations" list repeated the chart caption (Shannon, candidate 6G) and the
+  dataset paragraph (heights); the dataset paragraph now states that results are simulation results,
+  not a measured description of Baghdad. Received power left the table (it is in the chart choice).
+- Bidi: Arabic texts showed "28 GHz" as "GHz 28" and garbled the deviation details ("preview
+  (25 m, ...)"). `i18n.isolate_quantities` wraps number-and-unit runs in Arabic translations in
+  Unicode left-to-right isolates; recorded deviations keep technical values isolated and use the
+  Arabic semicolon (`cls.list_separator`); dataset identifiers in selectors are isolated.
+- Recorded status texts: greedy stop reasons ("target reached", ...) and the monument invalid-run
+  reason are translated at display time by `i18n.recorded_text` when the whole text is recognised;
+  anything else is shown exactly as recorded. Run records are not modified.
+- Layout: the language switch sat partly under Streamlit's header in English and lost its outer
+  borders in Arabic (one style block for both languages, top padding 3.25rem, the switch drawn
+  left-to-right); "2507 (99.4 …" was truncated on Study Area (count as value, share as an arrowless
+  delta); the dashboard, comparison and report statistics tables scrolled horizontally at 1366 px
+  (units moved into cells, duplicated GHz / received-power columns removed); the CDF axis title was
+  cut in Arabic (shorter title); Markdown asterisks showed literally in the Validation table.
+- Reports: the printable report (language + download) is now the first section of the page.
+- Arabic terms: "وسيط X" everywhere (the dashboard used "الوسيط لـ X"), "معدل نقل البيانات" in
+  every rate label.
+- Language preference survives an application restart: `bns.app.preferences` keeps it in
+  `outputs/app_state/preferences.json` (git-ignored local state, offline); precedence `?lang=` >
+  saved choice > Arabic. App tests redirect the file (`BNS_PREFERENCES_FILE`).
+- `run.ps1` no longer prints the retired "DEVELOPMENT - NOT APPROVED FOR RESEARCH" line.
+- Remaining: wide configuration tables on Radio Scenarios (research details) still scroll
+  horizontally at 1366 px; the readiness details in the dashboard expander, saved Markdown notes and
+  figures stay English source records; Streamlit's sidebar position and native widgets are not
+  mirrored in Arabic (framework limitation, deliberately not forced with CSS).

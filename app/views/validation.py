@@ -1,4 +1,5 @@
 import json
+import re
 
 import streamlit as st
 import ui
@@ -9,8 +10,15 @@ from bns.app import evidence
 ui.page_header("validation.title", "validation.caption")
 ui.visit("limitations")
 V = "validation.categories."
+
+
+def bold(text: str) -> str:
+    """Markdown **bold** as HTML: inside an HTML table cell Markdown is not rendered."""
+    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+
+
 st.markdown("<table class='kv'>" + "".join(
-    f"<tr><th>{t(V + k + '.name')}</th><td>{t(V + k + '.status')}</td></tr>"
+    f"<tr><th>{t(V + k + '.name')}</th><td>{bold(t(V + k + '.status'))}</td></tr>"
     for k in ("analytical", "model", "matlab", "field")) + "</table>", unsafe_allow_html=True)
 
 st.subheader(t("validation.tr38901"))

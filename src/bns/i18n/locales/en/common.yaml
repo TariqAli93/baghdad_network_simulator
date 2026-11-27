@@ -52,3 +52,13 @@ acronyms:
   rsrp: "Received power: power of the serving sector at the receiver, before noise and interference."
   shannon: "Shannon rate: B·log2(1+SINR), the theoretical upper bound for one user with the whole carrier."
   gpu: "GPU: graphics processor; faster ray tracing, recorded as a deviation from the CPU research baseline."
+# status texts recorded in English by runs and configuration files (bns.i18n.recorded_text); the English
+# entries repeat the recorded wording, the records themselves are never changed
+recorded:
+  target_reached: target reached
+  candidates_exhausted: candidates exhausted
+  site_limit_reached: site limit reached
+  no_candidate_raises_coverage: no candidate raises coverage
+  monument_sites: >-
+    Sites or candidates on monuments (Freedom Monument {monument}, Faeq Hassan mural {mural}) mapped as
+    buildings; invalid for research interpretation (defect confirmed {date}).

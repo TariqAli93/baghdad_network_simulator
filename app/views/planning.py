@@ -35,7 +35,7 @@ if run.kind == "site_plan":
     P = "planning.columns."
     st.dataframe([{t(P + "scenario"): names.get(sid, sid), t(P + "selected"): ", ".join(r["selected"]),
                    t(P + "coverage_after"): ", ".join(f"{100 * v:.1f}%" for v in r["coverage_after"]),
-                   t(P + "stop"): r["stopped_because"], t(P + "why"): r["stop_explanation"],
+                   t(P + "stop"): ui.recorded(r["stopped_because"]), t(P + "why"): r["stop_explanation"],
                    t(P + "uncovered"): r["uncovered_outdoor_cells"],
                    t(P + "all_on"): ui.fmt(r["all_candidates_reference"]["coverage_fraction"], ".1%"),
                    t(P + "degrading"): len(r["degrading_additions"])}
@@ -88,7 +88,8 @@ else:
     saved = r["greedy_sinr"]
     default_sel = list(range(len(run.sites)))
 st.markdown(t("planning.saved_greedy", target=f"{saved['target']:.0%}", sites=ui.ltr(", ".join(map(str, saved["selected_sites"]))),
-              coverage=f"{saved['coverage_after'][-1]:.1%}", reason=saved["stopped_because"]), unsafe_allow_html=True)
+              coverage=f"{saved['coverage_after'][-1]:.1%}", reason=ui.recorded(saved["stopped_because"])),
+            unsafe_allow_html=True)
 
 st.subheader(t("planning.try"))
 st.caption(t("planning.try_note"))
@@ -119,7 +120,9 @@ st.subheader(t("planning.greedy"))
 g = planning.greedy(s, target, interference_activity=activity, coverage_threshold=threshold)
 st.markdown(t("planning.greedy_result", sites=ui.ltr(", ".join(run.sites[i]["candidate_id"] for i in g.selected)),
               coverage=f"{g.coverage_after[-1]:.1%}",
-              reached=t("planning.reached") if g.target_reached else t("planning.not_reached"), reason=g.stopped_because),
+              reached=t("planning.reached") if g.target_reached else t("planning.not_reached"),
+              # the stop reason only when it adds something ("target reached; target reached" otherwise)
+              reason="" if g.stopped_because == "target reached" else f" (*{ui.recorded(g.stopped_because)}*)"),
             unsafe_allow_html=True)
 fig = go.Figure(go.Scatter(x=list(range(1, len(g.coverage_after) + 1)), y=[100 * v for v in g.coverage_after],
                            mode="lines+markers", line=dict(color=ui.colour(sid), width=2.5)))

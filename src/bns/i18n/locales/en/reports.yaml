@@ -22,8 +22,8 @@ stats:
   rx_power: Median received power
   sinr_median: Median SINR
   sinr_p5: 5th-percentile SINR
-  rate_p5: 5th-percentile data rate (Shannon)
-  rate_median: Median data rate (Shannon)
+  rate_p5: 5th-percentile data rate
+  rate_median: Median data rate
 plan: Site-planning results
 validation: Validation results (latest TR 38.901 comparison)
 none_saved: None saved.

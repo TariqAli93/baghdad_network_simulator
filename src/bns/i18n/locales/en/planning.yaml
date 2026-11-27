@@ -13,7 +13,7 @@ columns:
   uncovered: Uncovered cells
   all_on: All candidates on
   degrading: Degrading additions seen
-english_reasons: Stop reasons and explanations are recorded in the run in English.
+english_reasons: The explanations are recorded in the run in English.
 history: Selection history (every candidate evaluated at every step)
 final_map: Final map for
 layers: {covered: Coverage, uncovered: Uncovered areas, sinr_db: SINR, serving_site: Serving site}
@@ -29,7 +29,7 @@ activity_help: 1.0 = every other sector always transmits (ITU-R M.2412 full buff
 threshold_help: −10 dB is the lowest SINR with a non-zero rate in the 3GPP mapping.
 target: Coverage target
 greedy: Greedy selection with these settings
-greedy_result: "Selected {sites} → {coverage}; target {reached} (*{reason}*)."
+greedy_result: "Selected {sites} → {coverage}; target {reached}{reason}."
 reached: reached
 not_reached: not reached
 sites_selected: sites selected

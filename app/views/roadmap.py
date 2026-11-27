@@ -55,7 +55,7 @@ def result_block(metric: str) -> None:
         st.dataframe([{t(C + "band"): band(p), t(C + "threshold"): f"{p['threshold_db']:g} dB",
                        t(C + "load"): p["load"], t(C + "sites"): p["sites"],
                        t(C + "density"): round(p["site_density_per_km2"], 1),
-                       t(C + "coverage"): ui.fmt(p["coverage"], ".1%"), t(C + "stop"): p["stopped_because"],
+                       t(C + "coverage"): ui.fmt(p["coverage"], ".1%"), t(C + "stop"): ui.recorded(p["stopped_because"]),
                        t(C + "sensitivity"): t("common.yes_word") if p["overrides"] else t("common.no_word")}
                       for p in plans], hide_index=True, use_container_width=True)
         st.caption(t("roadmap.plan_note"))

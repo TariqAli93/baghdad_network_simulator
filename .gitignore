@@ -21,8 +21,9 @@ data/cache/
 outputs/**/*.npz
 outputs/**/*.png
 
-# Application run state (logs of runs started from the app) and large CSV exports
+# Application run state (logs of runs started from the app), interface preferences and large CSV exports
 outputs/app_runs/
+outputs/app_state/
 outputs/**/cells_*.csv
 outputs/**/near_site_*.json
 

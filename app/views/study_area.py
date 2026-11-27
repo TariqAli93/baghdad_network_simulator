@@ -40,11 +40,12 @@ synthetic = (model.get("synthetic") or {}).get("synthetic_buildings", 0) if mode
 documented = cats.get("observed", 0) + cats.get("estimated", 0)
 total = quality["buildings"]
 m = st.columns(4)
-m[0].metric(t("study_area.metrics.buildings"), total)
-m[1].metric(t("study_area.metrics.documented"), f"{documented} ({100 * documented / total:.1f} %)")
-m[2].metric(t("study_area.metrics.synthetic"), f"{synthetic} ({100 * synthetic / total:.1f} %)")
 plain = cats.get("placeholder", 0) - synthetic
-m[3].metric(t("study_area.metrics.placeholder"), f"{plain} ({100 * plain / total:.1f} %)")
+m[0].metric(t("study_area.metrics.buildings"), total)
+for col, key, n in ((m[1], "documented", documented), (m[2], "synthetic", synthetic), (m[3], "placeholder", plain)):
+    # the count as the value and its share underneath: "2507 (99.4 %)" did not fit a quarter-width column
+    col.metric(t(f"study_area.metrics.{key}"), n, delta=f"{100 * n / total:.1f} %", delta_color="off",
+               delta_arrow="off")
 if synthetic:
     st.info(t("study_area.synthetic_note", seed=model.get("seed")))
 
