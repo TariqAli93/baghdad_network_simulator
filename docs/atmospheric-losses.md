@@ -37,8 +37,19 @@ Provenance: computed with the line-by-line method by the open-source library ITU
 Phase 1 research pass from the tables of P.676-13 Annex 1. The two are not fully independent
 (the research pass checked its code against ITU-Rpy). Plausibility: the same code gives
 14.8 dB/km at 60 GHz and 0.19 dB/km at 22.2 GHz, the well-known oxygen and water-vapour
-peaks. Only these five frequencies are stored; any other frequency is refused rather than
-interpolated.
+peaks. These five stored values are what the five preset carriers (and so the research baseline)
+use; they have not changed.
+
+**Other frequencies (custom carriers of the simulation workspace, since 2026-11-27).** Any other
+carrier between 1 and 1000 GHz gets its value from the same calculation: ITU-Rpy 0.4.0, P.676
+Annex 1 line by line (edition P.676-12, the edition the library implements), in the same reference
+atmosphere (`bns.propagation.atmosphere.gas_specific_attenuation_p676_db_per_km`). ITU-Rpy gives the
+five stored values to within 0.0001 dB/km (`tests/unit/test_atmosphere.py`), so the presets and the
+custom carriers use one method. The value, the edition and the library version are recorded with
+the carrier in the experiment and in every run manifest; a run is never recomputed with another
+version. Nothing is interpolated between the stored values. Runs written before this date recorded
+an untabulated carrier as "omitted" (no gas loss, allowed only between 1 and 30 GHz); they are read
+as recorded.
 
 Effect: at most 0.1 dB over 1 km at 28 GHz, less than 0.03 dB at the other bands.
 **Negligible for this study, kept for completeness.** Baghdad's real atmosphere is hotter and
@@ -98,10 +109,20 @@ Dust and sand storms, which Iraqi studies treat as a propagation factor at milli
 bands (`docs/related-studies.md`, Q4), and fog. Both are outside the project description;
 the thesis should name dust as a limitation.
 
-## Why ITU-Rpy is not a dependency
+## ITU-Rpy as a dependency (since 2026-11-27)
 
-It was used once, in a throw-away environment, to obtain the numbers above. Installed it
-takes 169 MB (mostly climate maps) and pulls in `astropy`. The project stores the handful of
-values it needs with their provenance instead. If the supervisor asks for conditions other
-than the reference atmosphere, or for many frequencies, adding it as an optional development
-tool is the simplest route.
+Until 2026-11-27 ITU-Rpy was used once, in a throw-away environment, to obtain the numbers above.
+The project owner then authorised adding it so that custom carriers get a computed gas loss instead
+of none. Checks made before adding it:
+
+| Check | Result |
+|---|---|
+| Version | `itur==0.4.0`, pinned in `pyproject.toml` and `uv.lock` |
+| Licence | see `docs/licensing.md` (ITU-Rpy and the packages it pulls in: `astropy`, `pyerfa`, `astropy-iers-data`) |
+| Environment | Python 3.13 virtual environment with the project's NumPy, SciPy and Sionna RT 2.2.0; the full unit, app and engine test suites pass with it installed (`docs/implementation-plan.md`) |
+| Recommendation edition | P.676-12 (`itur.models.itu676.get_version()`), recorded in every result that uses it |
+| Offline | the import and the calculation run in a process whose network calls are disabled (`tests/unit/test_atmosphere.py`); the climate maps it ships are not used for the gas loss |
+| Size | a 156 MB wheel, mostly climate maps for other ITU-R models; installation needs internet once |
+
+Only `gamma_exact` (P.676 Annex 1 specific attenuation) is used. No other ITU-Rpy model enters a
+result.

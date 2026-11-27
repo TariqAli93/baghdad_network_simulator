@@ -9,8 +9,10 @@ Sources (IDs in docs/references.md):
     ITU-P838   Rec. ITU-R P.838-3: gamma_R = k * R**alpha; k and alpha from
                eqs (2)-(3) with the coefficients of its Tables 1-4. The unit
                tests check the result against its Table 5.
-    ITU-P676   Rec. ITU-R P.676-13, Annex 1 (line-by-line). Only the values for
-               the five scenario bands are stored here; see GAS_DB_PER_KM.
+    ITU-P676   Rec. ITU-R P.676-13, Annex 1 (line-by-line). The values for the five
+               scenario bands are stored here (GAS_DB_PER_KM); any other carrier is
+               computed with the same method through ITURPY (ITU-Rpy 0.4.0, edition
+               P.676-12), which reproduces the stored values.
 
 The baseline of the project is clear sky: gases included, no rain. No rain
 rate for Baghdad is built in.
@@ -90,6 +92,40 @@ def gas_specific_attenuation_db_per_km(frequency_hz: float) -> float:
     raise ValueError(
         f"Gas attenuation is not tabulated for {frequency_hz / 1e9:g} GHz. Compute it with "
         "ITU-R P.676-13 Annex 1 and add it to GAS_DB_PER_KM with its provenance.")
+
+
+# Any other carrier (custom carriers of the simulation workspace): the same calculation, ITU-R P.676
+# Annex 1 line by line, through ITU-Rpy (the library the five tabulated values were computed with), in
+# the same reference atmosphere. The five preset carriers keep their tabulated values, so the research
+# baseline and every earlier result stay exactly as they were.
+P676_RANGE_HZ = (1e9, 1000e9)            # P.676 Annex 1 line-by-line method
+REFERENCE_ATMOSPHERE = {"pressure_hpa": 1013.25, "temperature_k": 288.15, "water_vapour_g_m3": 7.5}
+
+
+def gas_model() -> dict:
+    """The gas-attenuation model used for untabulated carriers, with versions (recorded in every result)."""
+    from importlib.metadata import version
+
+    import itur.models.itu676 as itu676
+
+    return {"recommendation": f"ITU-R P.676-{itu676.get_version()} Annex 1 (line by line)",
+            "implementation": f"ITU-Rpy {version('itur')}", **REFERENCE_ATMOSPHERE}
+
+
+def gas_specific_attenuation_p676_db_per_km(frequency_hz: float) -> float:
+    """Sea-level gas attenuation (oxygen + water vapour) at any carrier in P676_RANGE_HZ, in dB/km."""
+    lo, hi = P676_RANGE_HZ
+    if not lo <= frequency_hz <= hi:
+        raise ValueError(f"ITU-R P.676 Annex 1 is defined for {lo / 1e9:g}-{hi / 1e9:g} GHz.")
+    import warnings
+
+    import itur.models.itu676 as itu676
+
+    a = REFERENCE_ATMOSPHERE
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        value = itu676.gamma_exact(frequency_hz / 1e9, a["pressure_hpa"], a["water_vapour_g_m3"], a["temperature_k"])
+    return float(getattr(value, "value", value))
 
 
 # --- applying the losses ------------------------------------------------------------
