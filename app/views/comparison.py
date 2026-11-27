@@ -131,12 +131,11 @@ with tab_runs:
                                      "frequency_hz": sc.get("preset_frequency_hz", sc["frequency_hz"])}) + custom
 
         m1, m2, m3 = st.columns(3)
-        sa = m1.selectbox(t("comparison.runs.band_a"), a_run.scenarios, format_func=carrier_label, key="cmp-a")
-        sb = m2.selectbox(t("comparison.runs.band_b"), b_run.scenarios, format_func=carrier_label, key="cmp-b",
-                          index=min(1, len(b_run.scenarios) - 1) if a_run.path == b_run.path else 0)
+        sa = ui.select(m1, t("comparison.runs.band_a"), a_run.scenarios, "cmp-a", format_func=carrier_label)
+        sb = ui.select(m2, t("comparison.runs.band_b"), b_run.scenarios, "cmp-b", format_func=carrier_label)
         shared = [k for k in ("sinr_db", "rx_power_dbm", "rate_bps", "interference_dbm", "path_gain_db")
                   if k in a_run.layers() and k in b_run.layers()]
-        lay = m3.selectbox(t("common.layer"), shared, format_func=ui.layer_title, key="cmp-layer")
+        lay = ui.select(m3, t("common.layer"), shared, "cmp-layer", format_func=ui.layer_title)
         if a_run.manifest["grid"] != b_run.manifest["grid"]:
             st.warning(t("comparison.runs.grid_differs"))
         elif lay:

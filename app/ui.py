@@ -291,12 +291,35 @@ def run_title(r: results.Run) -> str:
     return (t("common.invalid_prefix") + " · " if r.invalid else "") + title
 
 
+def select(container, label: str, options: list, key: str, *, format_func=str, on_change=None, **kwargs):
+    """A selectbox whose option text follows the interface language at once.
+
+    Streamlit keeps a keyed selectbox's option text in the language it was first drawn in, so the
+    widget key carries the language (a switch draws a fresh widget) and the chosen value is kept
+    under `key`, a plain session value that also survives visits to other pages."""
+    options = list(options)
+    wkey = f"{key}__{lang()}"
+    value = st.session_state.get(key)
+    if value not in options:
+        value = options[0] if options else None
+    st.session_state[key] = value
+    st.session_state[wkey] = value                  # set before the widget is drawn in this run
+
+    def changed():
+        st.session_state[key] = st.session_state[wkey]
+        if on_change is not None:
+            on_change()
+
+    return (container or st).selectbox(label, options, key=wkey, format_func=format_func, on_change=changed,
+                                       **kwargs)
+
+
 def pick_run(key: str, *, kinds: tuple[str, ...] = ("single_site", "multi_site")) -> results.Run | None:
     paths = [p for p in run_list() if run(p).kind in kinds]
     if not paths:
         st.info(t("common.no_runs_kind"))
         return None
-    chosen = st.selectbox(t("common.saved_run"), paths, format_func=lambda p: run_title(run(p)), key=key)
+    chosen = select(st, t("common.saved_run"), paths, key, format_func=lambda p: run_title(run(p)))
     if run(chosen).invalid:
         st.error(t("common.invalid_run", reason=recorded(run(chosen).invalid)))
     return run(chosen)

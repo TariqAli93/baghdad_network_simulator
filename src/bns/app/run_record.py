@@ -17,6 +17,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
+from bns.app import carriers as ca
 from bns.app import workspace as ws
 from bns.simulation import experiment as ex
 
@@ -195,7 +196,10 @@ def write(root: Path, ctx: ws.Context, experiment: dict, stations: list[ws.Stati
         "seeds": list(exp.config.seeds),
         "radio_parameters": system.status_report(ex.USED + ["coverage_target", "frequency_reuse"]),
         "atmosphere": {"baseline": asdict(exp.baseline), "rain_rate_mm_h": radio.rain_rate_mm_h,
-                       "gas": {car["id"]: car.get("gas", "tabulated") for car in carriers}},
+                       "gas": {car["id"]: car.get("gas", "tabulated") for car in carriers},
+                       "gas_db_per_km": {car["id"]: ca.gas_db_per_km({"gas": ca.TABULATED, **car})
+                                         if exp.baseline.include_gas else 0.0 for car in carriers},
+                       "gas_models": {car["id"]: car["gas_model"] for car in carriers if car.get("gas_model")}},
         "scenarios": carriers, "workload_before_run": workload, "jobs": job_records, "timing": timing,
         "versions": versions, "figures": figures,
     }

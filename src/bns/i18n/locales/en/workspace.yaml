@@ -113,6 +113,7 @@ state:
   running: Tracing…
   stale: 'Stale: this band needs {n} traces'
   not_simulated: 'Not simulated yet: this band needs {n} traces'
+  from_run: 'Read from the saved run {run}: this computer''s propagation cache does not hold its traces, so a change that needs ray tracing will trace them.'
 results:
   title: Results
   class_details: Classification and limitations
@@ -156,11 +157,12 @@ run:
   save_results: Run simulation (all cached)
   save_results_help: 'Every trace is cached: the run evaluates and saves the results without ray tracing.'
   commit_note: Each completed trace is cached as soon as its worker exits cleanly; cancelling keeps them.
-  remaining: about {m} min left (estimate, retries not included)
+  remaining: about {m} min left (an estimate)
   evaluating: Evaluating the radio system and writing the run…
   cancel_help: Stops the trace in progress. The {committed} committed traces stay cached and a new run reuses them.
   cancelling: 'Cancelling: {committed} committed traces stay cached.'
   power_saver: 'Windows is in the {name} power plan: ray tracing runs about twice as slow (docs/benchmarks.md, section 12).'
+  retry_allowance: Estimates allow for the {pct} % of worker attempts that failed on this computer (each failed attempt is repeated).
 plan:
   title: Automatic site planning over these stations
   needs: This band needs {n} more traces first (every station, switched-off ones included).
@@ -241,6 +243,7 @@ carrier_state:
   preset: preset
   custom: custom
   no_gas: no gas loss
+  p676: gas {g} dB/km (P.676)
 carriers:
   'on': Run
   band: Scenario
@@ -254,8 +257,8 @@ carriers:
   custom_note: 'Custom carrier: a custom experiment; the preset''s radio values and rate mapping are kept.'
   none_selected: 'No carrier is selected: switch on at least one scenario in the settings.'
 carrier_errors:
-  frequency_range: '{f} GHz is not supported: the scene''s materials are defined in {ranges} GHz only (ITU-R P.2040 in Sionna RT).'
-  gas_unavailable: '{f} GHz is not supported: gas attenuation is tabulated only at the preset carriers and cannot be neglected above {max} GHz.'
+  frequency_range: '{f} GHz is not supported: the scene''s materials (ITU-R P.2040 in Sionna RT), the gas model (ITU-R P.676) and the antenna model are all defined only in {ranges} GHz.'
+  gas_unavailable: '{f} GHz: the gas attenuation cannot be computed (ITU-R P.676 through ITU-Rpy is not available).'
   bandwidth_range: '{b} MHz is not supported: the bandwidth must be between {lo} and {hi} MHz (a quarter of the carrier, evaluated at its centre frequency).'
 experiment:
   first_name: Demonstration network

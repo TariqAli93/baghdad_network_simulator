@@ -25,7 +25,9 @@ from the site rule or the baseline values is a recorded deviation (bns.analysis.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
+from pathlib import Path
+
 import numpy as np
 from shapely.geometry import Point
 
@@ -381,7 +383,8 @@ def radio_inputs(ctx: Context, stations: list[Station], scenario: dict, radio: R
 
 def loss_db(ctx: Context, scenario: dict, station: Station, radio: RadioSettings) -> np.ndarray:
     """Gas (and, in a rain case, rain) loss from the station point to every cell (as the run scripts).
-    Gas loss is the tabulated value, or none where a custom carrier records it as omitted."""
+    Gas loss is the tabulated value, the recorded ITU-R P.676 value of a custom carrier, or none where a
+    run before 2026-11-27 recorded it as omitted."""
     exp = ctx.exp
     f = float(scenario["frequency_hz"])
     gas = ca.gas_db_per_km({"gas": ca.TABULATED, **scenario}) if exp.baseline.include_gas else 0.0
@@ -596,11 +599,66 @@ def run_carriers(manifest: dict) -> list[dict]:
              "bandwidth_hz": float(sc["bandwidth_hz"]), "status": sc.get("status", ""),
              "preset": sc.get("preset", sc["id"]), "custom": bool(sc.get("custom", False)),
              "gas": sc.get("gas", ca.TABULATED)}
-        for k in ("preset_frequency_hz", "preset_bandwidth_hz"):
+        for k in ("preset_frequency_hz", "preset_bandwidth_hz", "gas_db_per_km"):
             if k in sc:
                 c[k] = float(sc[k])
+        if sc.get("gas_model"):
+            c["gas_model"] = dict(sc["gas_model"])
         out.append(c)
     return out
+
+
+def _radio_values(stations: list[Station]) -> list[tuple]:
+    """What the radio evaluation takes from each transmitting station besides its traced path gain."""
+    return [(s.station_id, float(s.tx_power_dbm), s.x, s.y, float(s.antenna_height_m)) for s in stations if s.enabled]
+
+
+def evaluation_from_run(ctx: Context, stations: list[Station], carrier: dict, radio: RadioSettings,
+                        run_dir: Path) -> Evaluation | None:
+    """A saved workspace run's results for this carrier, if the run computed exactly this design: the same
+    job keys (propagation), the same radio values, station powers and positions, and the same carrier
+    (frequency, bandwidth, gas treatment, value and model version). Then its arrays are what evaluate() would compute from the
+    cache, so they can be shown where the cache does not hold the traces (e.g. a new installation).
+    Otherwise None: results of another configuration are never shown as this one's."""
+    import json as _json
+
+    run_dir = Path(run_dir)
+    try:
+        manifest = _json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+        summary = _json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    config = (manifest.get("experiment") or {}).get("config") or {}
+    if manifest.get("source") != "workspace" or not config:
+        return None
+    sid = carrier["id"]
+    recorded = [c for c in manifest.get("scenarios") or [] if c.get("id") == sid]
+    keys = [sj.job.key() for sj in jobs(ctx, stations, [carrier])[sid]]
+    run_keys = [j["key"] for j in manifest.get("jobs") or [] if j.get("scenario") == sid]
+    run_stations = [Station(**d) for d in config.get("stations") or []]
+    same_carrier = bool(recorded) and all(recorded[0].get(k) == carrier.get(k)
+                                          for k in ("frequency_hz", "bandwidth_hz", "preset", "gas",
+                                                    "gas_db_per_km", "gas_model"))
+    if not (same_carrier and keys and keys == run_keys and config.get("radio") == asdict(radio)
+            and _radio_values(run_stations) == _radio_values(stations)):
+        return None
+    with np.load(run_dir / "network.npz") as arrays:
+        def layer(name):
+            key = f"{sid}_{name}"
+            return arrays[key] if key in arrays.files else None
+        layers = {name: layer(name) for name in ("path_gain_db", "rx_power_dbm", "sinr_db", "rate_bps", "covered",
+                                                 "serving_sector", "interference_dbm", "rate_3gpp_bps")}
+        layers["serving_station"] = layer("serving_site")
+    layers = {k: v for k, v in layers.items() if v is not None}
+    jobs_ = [j for j in manifest["jobs"] if j.get("scenario") == sid]
+    order = list(dict.fromkeys(j["site"] for j in jobs_))
+    sectors, count = [], {}
+    for j in jobs_:
+        count[j["site"]] = count.get(j["site"], 0) + 1
+        sectors.append((j["site"], count[j["site"]]))
+    return Evaluation(sid, layers, dict(summary["results"][sid]["network"]), order, sectors,
+                      float(sum(j.get("trace_seconds") or 0.0 for j in jobs_)), tuple(keys), radio,
+                      extra={"from_run": run_dir.name})
 
 
 def nearest_station_m(station: Station, stations: list[Station]) -> float | None:

@@ -6,14 +6,17 @@ that preset, and how gas loss is treated. Radio-system values and the band's rat
 looked up under the preset (a custom 8 GHz variant of the 5G preset keeps the NR mapping and is
 labelled as such); only the frequency enters the ray tracer and the bandwidth the noise and rates.
 
-What a custom carrier may be (docs/assumptions.md, A-custom-carriers; custom experiments only):
+What a custom carrier may be (docs/assumptions.md section 10; custom experiments only):
 
-    frequency  inside the validity range of every material in the scene, as the installed Sionna RT
-               defines it (ITU-R P.2040; concrete: 1-100 GHz), and gas loss must be available:
-               tabulated (the five preset carriers, docs/atmospheric-losses.md) or, between 1 and
-               30 GHz, omitted and recorded (at most about 0.19 dB/km there, the 22.2 GHz water-vapour
-               line). Above 30 GHz an untabulated carrier is refused: near 60 GHz oxygen absorbs about
-               15 dB/km and the project has no model to compute it.
+    frequency  inside every model the simulation applies at that frequency (supported_ranges_hz):
+               the scene materials as the installed Sionna RT defines them (ITU-R P.2040; concrete
+               1-100 GHz and 110-330 GHz), gas attenuation (ITU-R P.676 Annex 1: 1-1000 GHz) and the
+               antenna element (3GPP TR 38.901: 0.5-100 GHz; the isotropic antenna has no limit).
+               Nothing is extrapolated outside them.
+    gas loss   the tabulated value at the five preset carriers (unchanged, docs/atmospheric-losses.md);
+               at any other carrier ITU-R P.676 Annex 1 through ITU-Rpy, recorded in the carrier with
+               the model and its versions. Runs before 2026-11-27 recorded "omitted" (no gas loss
+               between 1 and 30 GHz); they are read as recorded.
     bandwidth  above 0.1 MHz and at most a quarter of the carrier frequency: path gain, materials
                and gas loss are evaluated at the centre frequency only.
 """
@@ -25,10 +28,11 @@ import re
 from importlib.util import find_spec
 from pathlib import Path
 
+from bns.propagation import atmosphere as atm
 from bns.propagation.atmosphere import GAS_DB_PER_KM
 
-TABULATED, OMITTED = "tabulated", "omitted"
-GAS_OMISSION_MAX_HZ = 30e9
+TABULATED, P676, OMITTED = "tabulated", "p676", "omitted"   # omitted: runs before 2026-11-27 only
+ANTENNA_RANGES_HZ = {"tr38901": (0.5e9, 100e9)}            # 3GPP TR 38.901 scope; "iso" has no limit
 MIN_BANDWIDTH_HZ = 0.1e6
 MAX_BANDWIDTH_FRACTION = 0.25
 
@@ -92,23 +96,44 @@ def material_ranges_hz(scene_dir: Path) -> list[tuple[float, float]]:
     return sorted(common)
 
 
-def customize(base: dict, *, frequency_hz: float, bandwidth_hz: float, scene_dir: Path) -> dict:
+def _intersect(a: list[tuple[float, float]], b: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    return sorted((max(x, u), min(y, v)) for x, y in a for u, v in b if max(x, u) <= min(y, v))
+
+
+def supported_ranges_hz(scene_dir: Path, patterns=("tr38901",)) -> list[tuple[float, float]]:
+    """Frequency intervals where every model applied at the carrier is defined: the scene's materials
+    (Sionna RT), gas attenuation (ITU-R P.676 Annex 1) and the antenna patterns in use."""
+    ranges = _intersect(material_ranges_hz(scene_dir), [atm.P676_RANGE_HZ])
+    for pattern in set(patterns):
+        if pattern in ANTENNA_RANGES_HZ:
+            ranges = _intersect(ranges, [ANTENNA_RANGES_HZ[pattern]])
+    return ranges
+
+
+def customize(base: dict, *, frequency_hz: float, bandwidth_hz: float, scene_dir: Path,
+              patterns=("tr38901",)) -> dict:
     """The carrier `base` with another frequency and/or bandwidth, or the preset itself if both are its
-    values. Unsupported values are refused (CarrierError), never adjusted."""
+    values. Unsupported values are refused (CarrierError), never adjusted. `patterns`: the antenna
+    patterns of the stations that will transmit on it."""
     f, b = float(frequency_hz), float(bandwidth_hz)
     root_preset = {**base, "frequency_hz": base.get("preset_frequency_hz", base["frequency_hz"]),
                    "bandwidth_hz": base.get("preset_bandwidth_hz", base["bandwidth_hz"])}
     pf, pb = float(root_preset["frequency_hz"]), float(root_preset["bandwidth_hz"])
-    ranges = material_ranges_hz(scene_dir)
+    ranges = supported_ranges_hz(scene_dir, patterns)
     if not any(lo <= f <= hi for lo, hi in ranges):
         valid = ", ".join(f"{lo / 1e9:g}-{hi / 1e9:g}" for lo, hi in ranges)
         raise CarrierError("frequency_range", f"{f / 1e9:g} GHz is outside {valid} GHz, where the scene's materials "
-                           "are defined (ITU-R P.2040 in Sionna RT).", f=f"{f / 1e9:g}", ranges=valid)
+                           "(ITU-R P.2040 in Sionna RT), gas attenuation (ITU-R P.676) and the antenna model are "
+                           "defined.", f=f"{f / 1e9:g}", ranges=valid)
     tabulated = _tabulated(f)
-    if not tabulated and f > GAS_OMISSION_MAX_HZ:
-        raise CarrierError("gas_unavailable", f"Gas attenuation is not tabulated for {f / 1e9:g} GHz and cannot be "
-                           f"neglected above {GAS_OMISSION_MAX_HZ / 1e9:g} GHz.", f=f"{f / 1e9:g}",
-                           max=f"{GAS_OMISSION_MAX_HZ / 1e9:g}")
+    gas = {}
+    if not tabulated:
+        try:
+            gas = {"gas_db_per_km": round(atm.gas_specific_attenuation_p676_db_per_km(f), 6),
+                   "gas_model": atm.gas_model()}
+        except Exception as exc:                    # ITU-Rpy missing or failing: refuse, never guess
+            raise CarrierError("gas_unavailable", f"Gas attenuation at {f / 1e9:g} GHz cannot be computed: {exc}",
+                               f=f"{f / 1e9:g}") from exc
     if not MIN_BANDWIDTH_HZ <= b <= MAX_BANDWIDTH_FRACTION * f:
         raise CarrierError("bandwidth_range", f"{b / 1e6:g} MHz is outside {MIN_BANDWIDTH_HZ / 1e6:g} MHz to "
                            f"{MAX_BANDWIDTH_FRACTION * f / 1e6:g} MHz (a quarter of the carrier).",
@@ -118,13 +143,13 @@ def customize(base: dict, *, frequency_hz: float, bandwidth_hz: float, scene_dir
         return _from_scenario({**root_preset, "id": root_preset["preset"]})
     return {"id": f"{root_preset['preset']}.f{_mhz(f)}b{_mhz(b)}", "label": root_preset["label"], "frequency_hz": f,
             "bandwidth_hz": b, "status": root_preset["status"], "preset": root_preset["preset"], "custom": True,
-            "gas": TABULATED if tabulated else OMITTED, "preset_frequency_hz": pf, "preset_bandwidth_hz": pb}
+            "gas": TABULATED if tabulated else P676, **gas, "preset_frequency_hz": pf, "preset_bandwidth_hz": pb}
 
 
-def equal_bandwidth(carriers: list[dict], bandwidth_hz: float, scene_dir: Path) -> list[dict]:
+def equal_bandwidth(carriers: list[dict], bandwidth_hz: float, scene_dir: Path, patterns=("tr38901",)) -> list[dict]:
     """Every carrier with the same bandwidth (a controlled equal-bandwidth comparison)."""
-    return [customize(c, frequency_hz=c["frequency_hz"], bandwidth_hz=bandwidth_hz, scene_dir=scene_dir)
-            for c in carriers]
+    return [customize(c, frequency_hz=c["frequency_hz"], bandwidth_hz=bandwidth_hz, scene_dir=scene_dir,
+                      patterns=patterns) for c in carriers]
 
 
 def radio_scenario(root: Path, carrier: dict) -> dict:
@@ -134,9 +159,12 @@ def radio_scenario(root: Path, carrier: dict) -> dict:
 
 
 def gas_db_per_km(carrier: dict) -> float:
-    """Sea-level gas attenuation of the carrier: tabulated, or 0 where it is omitted (recorded)."""
+    """Sea-level gas attenuation of the carrier: tabulated, computed with ITU-R P.676 (the recorded value),
+    or 0 where a run before 2026-11-27 recorded it as omitted."""
     if carrier.get("gas") == OMITTED:
         return 0.0
+    if carrier.get("gas") == P676:
+        return float(carrier["gas_db_per_km"])
     for f, value in GAS_DB_PER_KM.items():
         if abs(carrier["frequency_hz"] - f) <= 1e-6 * f:
             return value
@@ -152,4 +180,8 @@ def deviations(carriers: list[dict]) -> list[str]:
                        f"(preset {c['preset_frequency_hz'] / 1e9:g} GHz / {c['preset_bandwidth_hz'] / 1e6:g} MHz)")
         if c.get("gas") == OMITTED:
             out.append(f"gas attenuation not included at {c['frequency_hz'] / 1e9:g} GHz (not tabulated)")
+        elif c.get("gas") == P676:
+            model = c.get("gas_model") or {}
+            out.append(f"gas attenuation at {c['frequency_hz'] / 1e9:g} GHz: {c['gas_db_per_km']:g} dB/km, "
+                       f"{model.get('recommendation', 'ITU-R P.676')} ({model.get('implementation', 'ITU-Rpy')})")
     return out

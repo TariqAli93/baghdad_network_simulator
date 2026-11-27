@@ -300,11 +300,9 @@ scientific function was removed: the run scripts are unchanged and their runs ap
   Touch input and screen-reader use of the canvas are untested. The toolbar is keyboard-operable, and the
   station list and editor give a non-map path to every station property.
 - The 3D view is not built (section 2).
-- Gas loss for custom carriers: tabulated at the five presets, omitted (and recorded) for other carriers
-  between 1 and 30 GHz, refused above (section 8.3). Adding the ITU-Rpy library to compute P.676 at any
-  frequency was not done (the dependency change was not approved in this session).
-- The user guides (`docs/user-guide.md`, `docs/user-guide.ar.md`) still describe the previous pages and
-  must be rewritten before the branch is merged and a delivery package is built.
+- Gas loss for custom carriers: resolved in the final integration (section 10.1): ITU-R P.676 through
+  ITU-Rpy at any carrier other than the five presets.
+- The user guides: rewritten around the workspace in the final integration (section 10.4).
 
 ## 8. Production implementation (branch `feature/simulation-workspace`)
 
@@ -325,16 +323,18 @@ deleting an experiment never touches a result, and a run started in the backgrou
 `summary.json` (network, every station alone, the network grown in order, additions that lowered
 coverage, the SINR greedy), `network.npz`, `summary.md`, `cells_<carrier>.csv`, `sites.geojson` and the
 figures. Additions: `"source": "workspace"`, the experiment with a copy of the executed configuration,
-every station with its own antennas and bearings, the carriers, gas treatment per carrier and the
-placement in the classification. History, Comparison and Reports read it like any run; the Planning
+every station with its own antennas and bearings, the carriers, gas treatment, value (dB/km) and model
+version per carrier, and the placement in the classification. History, Comparison and Reports read it like any run; the Planning
 page refuses to re-evaluate it (per-station values belong to the workspace).
 
 ### 8.3 Carriers (custom frequency and bandwidth)
 
-`bns.app.carriers`, `docs/assumptions.md` section 10. A custom frequency must lie where every scene
-material is defined in the installed Sionna RT (read from its ITU-R P.2040 table without importing the
-engine: concrete 1-100 and 110-330 GHz) and have gas loss available (tabulated, or omitted and recorded
-between 1 and 30 GHz); the bandwidth must lie between 0.1 MHz and a quarter of the carrier. Unsupported
+`bns.app.carriers`, `docs/assumptions.md` section 10. A custom frequency must lie where every model
+applied at it is defined (`supported_ranges_hz`): the scene materials in the installed Sionna RT (read
+from its ITU-R P.2040 table without importing the engine: concrete 1-100 and 110-330 GHz), ITU-R P.676
+Annex 1 (1-1000 GHz) and the antenna element of the stations (TR 38.901: 0.5-100 GHz), so 1-100 GHz with
+sector antennas. Gas loss is the stored value at the five presets and ITU-R P.676 through ITU-Rpy at any
+other carrier (section 10.1); the bandwidth must lie between 0.1 MHz and a quarter of the carrier. Unsupported
 values are refused with the reason, never adjusted. Radio values and the rate mapping come from the
 preset. Any change from a preset makes a Custom Experiment and is named in the deviations;
 "Equal bandwidth" gives every carrier one bandwidth for controlled comparisons. Candidate 6G presets

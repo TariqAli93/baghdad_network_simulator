@@ -124,3 +124,30 @@ def test_two_runs_sharing_a_work_folder_do_not_collide(fake, monkeypatch):
         t.join()
     assert errors == [] and set(maps) == {"a", "b"}
     assert list(fake["work"].iterdir()) == []            # each run cleans up its own folder
+
+
+def test_one_worker_per_trace_commits_each_trace_and_a_cancel_keeps_the_committed_ones(fake, monkeypatch):
+    monkeypatch.setenv("FAKE_SLEEP", "1")
+    jobs = [make_job(3.5e9, x=float(x)) for x in range(3)]          # one band: one batch unless batch_size=1
+    attempts = []
+
+    def cancel_after_two_commits():
+        return sum(a["exit_code"] == 0 for a in attempts) >= 2
+
+    with pytest.raises(runtime.Cancelled):
+        run(fake, jobs, batch_size=1, should_cancel=cancel_after_two_commits, on_attempt=attempts.append)
+    assert [fake["cache"].has(j.key()) for j in jobs] == [True, True, False]
+    assert [(a["batch"], a["jobs"], a["exit_code"]) for a in attempts] == [(1, 1, 0), (2, 1, 0)]
+    before = len(fake["log"].read_text().splitlines())
+    run(fake, jobs, batch_size=1)                                   # resume: only the missing trace
+    assert fake["log"].read_text().splitlines()[before:] == ["batch 1"]
+    assert all(fake["cache"].has(j.key()) for j in jobs)
+
+
+def test_a_failed_attempt_is_reported_and_its_output_never_cached(fake):
+    jobs = [make_job(8e9), make_job(8e9, x=10.0)]
+    (fake["log"].parent / "log.txt.crash").write_text("1")          # the first attempt dies after one trace
+    attempts = []
+    run(fake, jobs, on_attempt=attempts.append)
+    assert [a["exit_code"] for a in attempts] == [3, 0]
+    assert all(fake["cache"].has(j.key()) for j in jobs)            # from the clean retry only

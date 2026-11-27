@@ -125,3 +125,23 @@ def test_runs_are_listed_newest_first_and_kept_apart_from_the_run_simulation_pag
         (base / name).mkdir(parents=True)
         (base / name / "request.json").write_text("{}", encoding="utf-8")
     assert [p.name for p in wr.history(tmp_path)] == ["20261127T110000000000Z", "20261127T100000000000Z"]
+
+
+def test_the_retry_rate_is_measured_from_the_attempts_of_recent_runs(tmp_path):
+    base = wr.folder_root(tmp_path)
+    logs = {"20261127T100000000000Z": ['ATTEMPT {"exit_code": 3221226356, "jobs": 6}', 'ATTEMPT {"exit_code": 0, "jobs": 6}'],
+            "20261127T110000000000Z": ['ATTEMPT {"exit_code": 0, "jobs": 1}'] * 3}
+    for name, lines in logs.items():
+        (base / name).mkdir(parents=True)
+        (base / name / "request.json").write_text("{}", encoding="utf-8")
+        (base / name / "log.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    assert wr.retry_rate(tmp_path, minimum=5) == pytest.approx(1 / 5)
+    assert wr.retry_rate(tmp_path, minimum=6) is None              # too few attempts to say
+
+
+def test_the_estimate_allows_for_the_observed_retries(tmp_path, monkeypatch):
+    monkeypatch.setattr(wr, "_alive", lambda pid, started: True)
+    f = folder_with(tmp_path, ['WORKLOAD {"jobs": 2, "cached": 0, "to_trace": 2}',
+                               'PLAN {"batch_size": null, "expected_seconds": 8.0, "basis": "scene"}'])
+    assert wr.state(f, retry_rate=0.2).remaining_seconds == pytest.approx(2 * 8.0 / (1 - 0.2))
+    assert wr.state(f, retry_rate=0.9).remaining_seconds == pytest.approx(2 * 8.0 / (1 - wr.MAX_RETRY_RATE))
