@@ -65,6 +65,7 @@ non-commercial data.
 
 ## 5. Attribution text for reports and the thesis
 
-"Building footprints © OpenStreetMap contributors (ODbL). Building heights evaluated from
-3D-GloBFP (Che et al., 2024, CC BY 4.0). Ray tracing with Sionna RT (NVIDIA, Apache-2.0)."
+"Building footprints © OpenStreetMap contributors (ODbL). Missing footprints added from, and
+building heights evaluated with, 3D-GloBFP (Che et al., 2024, CC BY 4.0). Ray tracing with Sionna
+RT (NVIDIA, Apache-2.0)."
 Add GlobalBuildingAtlas (Zhu et al., CC BY-NC 4.0) only if it is used.

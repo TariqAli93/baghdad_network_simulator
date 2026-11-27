@@ -3,8 +3,9 @@
     uv run python scripts/doctor.py [--quick] [--save]
 
 Checks Python and package versions, LLVM, memory, CPU, disk, the CPU ray-tracing variant (in
-a separate process), the optional GPU, the development dataset and its raw-data checksums,
-the kernel and path-gain caches, the radio-configuration approval state and the app port.
+a separate process), the optional GPU, the datasets setup builds and the raw-data checksums,
+the package files against SHA256SUMS.txt (delivery packages only), the kernel and path-gain
+caches, the radio-configuration approval state and the app port.
 Each line is PASS, WARN or FAIL. --quick skips the engine smoke test. --save writes the
 result to outputs/acceptance/doctor-<UTC time>.json (local only).
 """
@@ -26,6 +27,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PINS = {"sionna-rt": "2.2.0", "mitsuba": "3.9.1", "drjit": "1.5.0"}
+# the datasets setup.ps1 builds: development area, and the study district with the Synthetic Urban Model
+DATASETS = (("tahrir_bab_al_sharqi_v2", "osm"),
+            ("tahrir_bab_al_sharqi_study", "osm+fp_3d_globfp"),
+            ("tahrir_bab_al_sharqi_study", "synthetic_urban-seed42+fp_3d_globfp"),
+            ("tahrir_bab_al_sharqi_study", "synthetic_urban_low-seed42+fp_3d_globfp"),
+            ("tahrir_bab_al_sharqi_study", "synthetic_urban_high-seed42+fp_3d_globfp"))
 SMOKE = ("import json, time\nfrom bns import runtime\ninfo = runtime.init()\nimport drjit as dr\n"
          "t = time.perf_counter()\nx = dr.llvm.Float(list(range(1000)))\ny = dr.sum(x * 2)\ndr.eval(y)\n"
          "print(json.dumps({'variant': info['variant'], 'threads': info['threads'], "
@@ -89,9 +96,18 @@ def main() -> int:
         check(f"OSM snapshot {name}", "PASS" if same else "FAIL",
               "SHA-256 matches" if same else "SHA-256 mismatch: git may have converted line endings; "
                                              "check out data/raw again (see README)")
-    scene = ROOT / "data" / "scenes" / "tahrir_bab_al_sharqi_v2" / "osm" / "scene.xml"
-    check("development dataset", "PASS" if scene.exists() else "WARN",
-          "built" if scene.exists() else "not built: setup.ps1 builds it (scripts/build_dataset.py)")
+    for area, variant in DATASETS:
+        scene = ROOT / "data" / "scenes" / area / variant / "scene.xml"
+        check(f"dataset {area}/{variant}", "PASS" if scene.exists() else "WARN",
+              "built" if scene.exists() else "not built: setup.ps1 builds it (scripts/build_dataset.py)")
+    from bns import integrity
+    files = integrity.verify(ROOT)
+    if files is not None:                           # a delivery package (make_distribution.py) lists its files
+        broken = files["missing"] + files["changed"]
+        check("package files", "FAIL" if files["missing"] else "WARN" if files["changed"] else "PASS",
+              f"{files['checked']} files match SHA256SUMS.txt" if not broken else
+              f"{len(files['missing'])} missing, {len(files['changed'])} changed since delivery: "
+              + ", ".join(broken[:5]) + (" ..." if len(broken) > 5 else ""))
     kernels = runtime.KERNEL_CACHE_DIR
     n_kernels = len(list(kernels.glob("*"))) if kernels.exists() else 0
     check("kernel cache", "PASS", f"{kernels} ({n_kernels} files; empty means first traces compile, slower)")

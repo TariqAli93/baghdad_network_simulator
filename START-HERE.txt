@@ -1,0 +1,91 @@
+BAGHDAD NETWORK SIMULATOR - START HERE
+(Arabic version below / النسخة العربية في الأسفل)
+=====================================================================
+
+What it is
+  A research tool for the graduation project: ray-traced coverage, signal quality (SINR) and
+  data rate of 4G (1.8 GHz), 5G (3.5 and 28 GHz) and candidate 6G (8 and 15 GHz) over a
+  1 km2 district of central Baghdad. Results are SIMULATIONS on modelled building heights,
+  not measurements. Every result shows its scientific classification.
+
+What you need
+  - Windows 10 or 11 (64-bit), 16 GB RAM recommended, about 5 GB free disk space.
+  - Internet ONLY for the first installation. Afterwards everything works offline.
+
+1. Install (once)
+  a. If Windows marks the ZIP as downloaded: right-click the ZIP > Properties > tick
+     "Unblock" > OK.
+  b. Extract the ZIP to a short folder WITHOUT Arabic letters, for example C:\BaghdadSimulator
+  c. Open the folder "baghdad-network-simulator" and double-click   1 - Install.cmd
+  d. If it asks to install "uv" or "LLVM", type Y and press Enter. For LLVM, Windows may ask
+     for administrator permission: choose Yes.
+  e. Wait until the window says "Setup complete" (several minutes the first time). Press a key
+     to close the window.
+
+2. Start (every time)
+  Double-click   2 - Start Baghdad Network Simulator.cmd
+  The application opens in your web browser (http://localhost:8501).
+  Keep the black window open while you work. Close it to stop the application.
+
+3. Language
+  Use the switch at the top of every page (العربية / English). Your choice is remembered.
+
+4. Guides (in the docs folder; they open in Notepad)
+  docs\user-guide.md        using the application, troubleshooting
+  docs\user-guide.ar.md     the same in Arabic
+  docs\research-guide.md    step by step: from the study area to the MATLAB comparison
+  docs\research-guide.ar.md the same in Arabic
+  docs\licensing.md         data licences and the attribution text for your thesis
+
+5. If something goes wrong
+  - "Windows protected your PC" / security warning: More info > Run anyway (or Run).
+  - The browser did not open: open http://localhost:8501 yourself.
+  - "This site can't be reached": the black window was closed; start the application again.
+  - Anything else: double-click   Diagnose problems.cmd   and read the FAIL / WARN lines.
+    It saves a report in outputs\acceptance\ that you can send to your supervisor.
+
+Data: Building footprints (c) OpenStreetMap contributors (ODbL). Building footprints added
+from 3D-GloBFP (Che et al., 2024, CC BY 4.0). Ray tracing with Sionna RT (NVIDIA, Apache-2.0).
+
+=====================================================================
+محاكي شبكات بغداد - ابدأ هنا
+=====================================================================
+
+ما هو
+  أداة بحثية لمشروع التخرج: تحسب بتتبع الأشعة التغطية وجودة الإشارة (SINR) ومعدل نقل البيانات
+  لشبكات الجيل الرابع (1.8 GHz) والخامس (3.5 و28 GHz) والسادس المرشّح (8 و15 GHz) في منطقة
+  مساحتها كيلومتر مربع واحد في وسط بغداد. النتائج محاكاة على ارتفاعات مبانٍ مُنمذَجة، وليست
+  قياسات. تُظهر كل نتيجة تصنيفها العلمي.
+
+ما تحتاجه
+  - ويندوز 10 أو 11 (64 بت)، ويُنصح بذاكرة 16 GB، ونحو 5 GB مساحة فارغة.
+  - اتصال بالإنترنت عند التثبيت الأول فقط، وبعده يعمل كل شيء دون إنترنت.
+
+1. التثبيت (مرة واحدة)
+  أ. إن وسم ويندوز ملف ZIP بأنه مُنزَّل: انقر عليه بالزر الأيمن > خصائص (Properties) > فعّل
+     "Unblock" > موافق.
+  ب. فكّ ضغط الملف إلى مجلد قصير لا يحتوي حروفًا عربية، مثل C:\BaghdadSimulator
+  ج. افتح المجلد "baghdad-network-simulator" وانقر نقرًا مزدوجًا على   1 - Install.cmd
+  د. إن سُئلت عن تثبيت "uv" أو "LLVM" فاكتب Y واضغط Enter. قد يطلب ويندوز صلاحية المسؤول
+     لتثبيت LLVM: اختر نعم (Yes).
+  هـ. انتظر حتى تظهر عبارة "Setup complete" (عدة دقائق في المرة الأولى)، ثم اضغط أي مفتاح.
+
+2. التشغيل (في كل مرة)
+  انقر نقرًا مزدوجًا على   2 - Start Baghdad Network Simulator.cmd
+  يفتح التطبيق في متصفح الإنترنت (http://localhost:8501).
+  أبقِ النافذة السوداء مفتوحة أثناء العمل، وأغلقها لإيقاف التطبيق.
+
+3. اللغة
+  استخدم مفتاح اللغة أعلى كل صفحة (العربية / English)، ويحفظ التطبيق اختيارك.
+
+4. الأدلة (في مجلد docs، وتُفتح بالمفكرة Notepad)
+  docs\user-guide.ar.md      دليل استخدام التطبيق وحل المشكلات
+  docs\research-guide.ar.md  خطوات البحث من منطقة الدراسة حتى المقارنة مع MATLAB
+  docs\licensing.md          تراخيص البيانات ونص الإسناد لأطروحتك (بالإنجليزية)
+
+5. عند حدوث مشكلة
+  - رسالة "Windows protected your PC" أو تحذير أمني: More info > Run anyway (أو Run).
+  - لم يفتح المتصفح: افتح العنوان http://localhost:8501 بنفسك.
+  - رسالة "This site can't be reached": أُغلقت النافذة السوداء؛ شغّل التطبيق مرة أخرى.
+  - أي مشكلة أخرى: انقر نقرًا مزدوجًا على   Diagnose problems.cmd   واقرأ أسطر FAIL وWARN.
+    يحفظ تقريرًا في outputs\acceptance\ يمكنك إرساله إلى مشرفك.

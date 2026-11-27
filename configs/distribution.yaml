@@ -13,3 +13,49 @@ restricted:
     reason: per-building GlobalBuildingAtlas values (safeguard)
   - pattern: ".claude/*"
     reason: development-tool configuration, not part of the application
+
+# Repository files the student package does not need (development tools and records). Left out
+# of the archive like the restricted paths, but for delivery reasons rather than licences.
+not_delivered:
+  - pattern: "CLAUDE.md"
+    reason: instructions for the development assistant
+  - pattern: ".gitignore"
+    reason: git metadata
+  - pattern: ".gitattributes"
+    reason: git metadata
+  - pattern: "outputs/app_screenshots/*"
+    reason: development screenshots
+  - pattern: "outputs/roadmap/student_recommendations.json"
+    reason: a developer's empty test entry; the 6G Roadmap page creates the file when the student saves
+
+# Every pattern must match at least one file of the archive, or the build fails: what a student
+# needs to install, start, diagnose, read the guides and reproduce the demonstration.
+required:
+  - "START-HERE.txt"
+  - "1 - Install.cmd"
+  - "2 - Start Baghdad Network Simulator.cmd"
+  - "Diagnose problems.cmd"
+  - "Research console.cmd"
+  - "Laptop benchmark.cmd"
+  - "setup.ps1"
+  - "run.ps1"
+  - "doctor.ps1"
+  - "benchmark.ps1"
+  - "pyproject.toml"
+  - "uv.lock"
+  - ".python-version"
+  - ".streamlit/config.toml"
+  - "app/main.py"
+  - "src/bns/i18n/locales/ar/*.yaml"
+  - "src/bns/i18n/locales/en/*.yaml"
+  - "configs/research_baseline.yaml"
+  - "configs/height_models.yaml"
+  - "data/raw/osm/tahrir_bab_al_sharqi_v2.json"
+  - "data/raw/heights/3d_globfp/*.geojson"
+  - "outputs/runs/development/*/manifest.json"
+  - "validation/matlab/*/run_case.m"
+  - "docs/user-guide.md"
+  - "docs/user-guide.ar.md"
+  - "docs/research-guide.md"
+  - "docs/research-guide.ar.md"
+  - "docs/licensing.md"
