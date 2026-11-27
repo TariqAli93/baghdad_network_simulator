@@ -1106,6 +1106,13 @@ extracted into a new folder, installed through `1 - Install.cmd` exactly as a do
 | Bilingual report | Arabic (`dir='rtl'`, Arabic text) and English (left-to-right, no Arabic) from a saved run, both with the classification banner |
 | File integrity | ZIP matches its `.sha256`; 348 of 348 listed files match after extraction |
 
+Re-verified after adding the demonstration run (package from `bc9e5f2`, 10.4 MB, new folder,
+`1 - Install.cmd`): installation 0 FAIL, 357 of 357 files match `SHA256SUMS.txt`; 52 page tests
+passed in the package; launcher ready in 10 s on 127.0.0.1 only, no connection to other hosts; the
+dashboard opens on the new run (banner "نتائج محاكاة" / "Simulation Results", no other-area note)
+and its printable report is produced in Arabic (`dir='rtl'`) and English. The final archive is
+rebuilt from the commit that adds this paragraph (documentation only).
+
 Not verified: installation on a computer without uv, LLVM or Python (the winget path was not
 exercised end to end), with a cold uv cache, or on the target laptop (`docs/laptop-acceptance.md`
 stays open); a real double-click in Explorer (emulated with `cmd /c` as Explorer calls it).
