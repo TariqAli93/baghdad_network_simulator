@@ -270,6 +270,31 @@ def test_greedy_over_the_shown_stations_is_the_projects_interference_aware_greed
     assert result.selected == expected.selected and result.coverage_after == pytest.approx(expected.coverage_after)
 
 
+def test_a_workspace_run_is_written_in_the_multi_site_format(ctx, exp, tmp_path):
+    from bns.app import results, run_record
+
+    a = ws.place(ctx, -40, -40, template(ctx), [])
+    b = replace(ws.place(ctx, 0, 60, template(ctx, hypothetical_height_m=25.0), [a]), tx_power_dbm=40.0)
+    maps = fake_cache(ctx, [a, b])
+    carriers = ws.preset_carriers(ctx)[:2]
+    radio = ws.RadioSettings.baseline(ctx)
+    ev = {c["id"]: ws.evaluate(ctx, [a, b], c, radio, maps.get) for c in carriers}
+    more = {c["id"]: run_record.extras(ctx, [a, b], c, radio, maps.get, 0.9) for c in carriers}
+    out = run_record.write(tmp_path, ctx, {"experiment_id": "exp-1", "name": "E"}, [a, b], carriers, radio, ev, more,
+                           job_records=[], workload={"jobs": 12, "cached": 12, "to_trace": 0},
+                           timing={"trace_wall_seconds": 0.0, "total_wall_seconds": 1.0}, versions={}, target=0.9)
+    r = results.load_run(out)
+    assert r.kind == "multi_site" and r.is_workspace and r.manifest["experiment"]["id"] == "exp-1"
+    assert [s["id"] for s in r.scenarios] == [c["id"] for c in carriers]
+    assert [s["candidate_id"] for s in r.sites] == ["S1", "S2"] and r.sites[1]["mount"] == ws.HYPOTHETICAL
+    np.testing.assert_array_equal(r.layer(carriers[0]["id"], "sinr_db"), ev[carriers[0]["id"]].layers["sinr_db"])
+    assert r.scenario_summary(carriers[1]["id"])["coverage_fraction"] == ev[carriers[1]["id"]].summary["coverage_fraction"]
+    assert len(r.summary["results"][carriers[0]["id"]]["sites_alone"]) == 2
+    assert r.classification.placement == cl.HYPOTHETICAL_PLACEMENT and r.classification.configuration == cl.CUSTOM
+    assert set(r.site_azimuths_rad()) == {"S1", "S2"}
+    assert (out / "summary.md").exists() and (out / "network_sinr_db.png").exists()
+
+
 # ---------------------------------------------------------------- classification
 def test_rule_roofs_with_baseline_values_stay_the_research_baseline(ctx):
     s = ws.place(ctx, -40, -40, template(ctx), [])

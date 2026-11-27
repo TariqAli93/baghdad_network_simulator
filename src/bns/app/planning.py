@@ -36,6 +36,9 @@ class Stacks:
 def load_stacks(root, run, scenario_id: str) -> Stacks:
     if run.kind not in ("multi_site", "site_plan"):
         raise PlanningError("Re-evaluation needs a multi-site run or a site plan.")
+    if run.manifest.get("source") == "workspace":
+        # per-station values and custom carriers are evaluated by the workspace (bns.app.workspace)
+        raise PlanningError("This run was made in the simulation workspace; open it there to re-evaluate it.")
     m = run.manifest
     exp = ex.load(root, m["area"]["name"], m["area"]["variant"], m["profile"]["name"], m["mode"],
                   backend="cpu")                    # nothing is traced here; cached maps carry their backend

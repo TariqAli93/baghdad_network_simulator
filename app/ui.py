@@ -353,7 +353,8 @@ def map_figure(grid, z, outdoor, *, layer: str, sites: list[dict], azimuths: lis
                         name=t("common.show_buildings"))
     for i, s in enumerate(sites):
         c = SITE_COLOURS[i % len(SITE_COLOURS)]
-        for az in azimuths or []:
+        own = azimuths.get(s["candidate_id"], []) if isinstance(azimuths, dict) else azimuths
+        for az in own or []:
             fig.add_scatter(x=[s["x"], s["x"] + 70 * np.cos(az)], y=[s["y"], s["y"] + 70 * np.sin(az)], mode="lines",
                             line=dict(color="#111", width=1.5), hoverinfo="skip", showlegend=False)
         fig.add_scatter(x=[s["x"]], y=[s["y"]], mode="markers+text", text=[s["candidate_id"].replace("site-", "S")],

@@ -56,7 +56,7 @@ if run.kind == "site_plan":
         if layer == "uncovered":
             z, layer = (~z.astype(bool)).astype(float), "covered"
         ui.chart(ui.map_figure(run.grid, z, run.outdoor, layer=layer, sites=run.sites_for(sid0),
-                                      azimuths=run.sector_azimuths_rad, height=560))
+                                      azimuths=run.site_azimuths_rad(), height=560))
     st.divider()
     st.subheader(t("planning.reevaluate"))
 sid = st.radio(t("common.scenario"), [s["id"] for s in scen], horizontal=True, format_func=lambda i: names[i])
@@ -114,7 +114,7 @@ if chosen:
     m[3].metric(t("coverage.metrics.interference_limited"), f"{net.summary['interference_limited_share']:.0%}")
     sites = [run.sites[i] for i in sorted(chosen)]
     ui.chart(ui.map_figure(run.grid, net.radio.sinr_db, run.outdoor, layer="sinr_db", sites=sites,
-                                  azimuths=run.sector_azimuths_rad, height=520))
+                                  azimuths=run.site_azimuths_rad(), height=520))
 
 st.subheader(t("planning.greedy"))
 g = planning.greedy(s, target, interference_activity=activity, coverage_threshold=threshold)

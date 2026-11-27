@@ -41,7 +41,7 @@ if show_buildings:
 
 left, right = st.columns([3, 1])
 with left:
-    ui.chart(ui.map_figure(grid, z, outdoor, layer=layer, sites=run.sites_for(sid), azimuths=run.sector_azimuths_rad,
+    ui.chart(ui.map_figure(grid, z, outdoor, layer=layer, sites=run.sites_for(sid), azimuths=run.site_azimuths_rad(),
                                   footprints=footprints))
 with right:
     s = run.scenario_summary(sid)

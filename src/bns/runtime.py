@@ -263,6 +263,7 @@ def init(threads: int | None = None, mem_cap_gb: float | None = None,
         "backend": backend,
         "variant": mi.variant(),
         "power_throttling_disabled": throttling_disabled,
+        "power_plan": power_plan(),
         "gpu": gpu_description() if backend == "gpu" else None,
         "llvm_library": None if llvm is None else str(llvm),
         "kernel_cache_dir": os.environ[CACHE_ENV],
@@ -368,7 +369,7 @@ def _run_once(argv, env, on_line, should_cancel) -> int:
 
 def run_isolated(argv: list[str], staging_dir: Path, final_dir: Path,
                  max_attempts: int = 8, env: dict | None = None,
-                 on_line=None, should_cancel=None) -> list[dict]:
+                 on_line=None, should_cancel=None, on_attempt=None) -> list[dict]:
     """Run a worker in a fresh process and keep its output only if it exits cleanly.
 
     Why: with Dr.Jit 1.5.0 and LLVM 16+ on Windows, compiling a kernel for the
@@ -382,7 +383,8 @@ def run_isolated(argv: list[str], staging_dir: Path, final_dir: Path,
     The worker's standard output is passed line by line to `on_line` (progress
     reports), or printed. `should_cancel` is polled; when it returns True the
     worker is killed, its output discarded and Cancelled raised. An existing
-    `final_dir` is replaced only by the output of a clean run.
+    `final_dir` is replaced only by the output of a clean run. `on_attempt(record)` is called after
+    every attempt with its number, exit code and duration (so a retry is never silent).
 
     Returns one record per attempt. Raises if no attempt exits cleanly.
     """
@@ -403,6 +405,8 @@ def run_isolated(argv: list[str], staging_dir: Path, final_dir: Path,
             raise
         attempts.append({"attempt": attempt, "exit_code": code,
                          "seconds": round(time.perf_counter() - start, 2)})
+        if on_attempt is not None:
+            on_attempt(dict(attempts[-1]))
         if code == 0:
             _publish(staging_dir, final_dir)
             return attempts
@@ -412,6 +416,34 @@ def run_isolated(argv: list[str], staging_dir: Path, final_dir: Path,
             raise RuntimeError(f"Worker failed with a Python error (see traceback above): {argv}")
     shutil.rmtree(staging_dir, ignore_errors=True)
     raise RuntimeError(f"Worker never exited cleanly in {max_attempts} attempts: {attempts}")
+
+
+POWER_SAVER_GUID = "a1841308-3541-4fab-bc81-f71556f20b4a"     # the Windows "Power saver" scheme
+
+
+def parse_power_plan(text: str) -> dict | None:
+    """{guid, name, power_saver} from `powercfg /getactivescheme` output (any Windows language)."""
+    import re
+
+    m = re.search(r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*\(([^)]*)\)", text or "", re.I)
+    if not m:
+        return None
+    guid = m.group(1).lower()
+    return {"guid": guid, "name": m.group(2).strip(), "power_saver": guid == POWER_SAVER_GUID}
+
+
+def power_plan() -> dict | None:
+    """The active Windows power plan, or None elsewhere or if it cannot be read. Under "Power saver"
+    the processor stays below its base clock and traces take about twice as long (docs/benchmarks.md)."""
+    if os.name != "nt":
+        return None
+    import subprocess
+
+    try:
+        out = subprocess.run(["powercfg", "/getactivescheme"], capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return parse_power_plan(out.stdout)
 
 
 def versions() -> dict:

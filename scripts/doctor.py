@@ -80,6 +80,11 @@ def main() -> int:
     if power is not None:
         check("power", "PASS" if power.power_plugged else "WARN",
               "on AC power" if power.power_plugged else "on battery: benchmarks will be slower and unrepresentative")
+    plan = runtime.power_plan()
+    if plan is not None:
+        check("power plan", "WARN" if plan["power_saver"] else "PASS",
+              plan["name"] + (": ray tracing runs about 2x slower (docs/benchmarks.md, section 12)"
+                              if plan["power_saver"] else ""))
     if not args.quick:
         proc = subprocess.run([sys.executable, "-c", SMOKE], capture_output=True, text=True, cwd=ROOT, timeout=600)
         line = proc.stdout.strip().splitlines()[-1:] if proc.returncode == 0 else []

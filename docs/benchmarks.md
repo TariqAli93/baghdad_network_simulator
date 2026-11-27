@@ -374,3 +374,41 @@ cores, 16 threads):
 - Operational guidance: keep the laptop on AC power in a balanced or performance power mode;
   the laptop's i7-13620H is also hybrid (6 performance + 4 efficiency cores), so the fix
   matters there. Re-measure with `benchmark.ps1`.
+
+## 12. Slow workspace traces: the Windows "Power saver" plan; per-trace commits (2026-11-27)
+
+Observed in the workspace prototype run: three standard-profile CPU traces at 3.5 GHz took 191, 202
+and 166 s, then the worker did not exit cleanly and the batch was traced again (177, 193, 173 s);
+1,111.8 s in all, against an estimate of 3.7 min from the whole-history median (75 s). Investigated
+from the cache records, the System event log and small preview-profile diagnostics in a fresh
+worker (nothing written to the project cache):
+
+| Evidence | Result |
+|---|---|
+| Power plan (System event log, event 12) | Ultimate Performance until 2026-11-27 16:01:31, then **Power saver** (set by explorer.exe), still active |
+| Standard traces, same scene, before / after the switch | 76-91 s (demonstration run, 58 m site) / 166-202 s (15 m site) |
+| Same job, S1 at 58 m vs S2 at 15 m, preview rays, under Power saver | 17.9-19.2 s vs 18.6-19.4 s: geometry and antenna height are **not** the cause |
+| Processor during a trace | 89 % of the 2.5 GHz base clock, no turbo, 100 % busy on 13-15 cores; other processes < 1 core |
+| Power throttling, threads, memory | opt-out recorded on, 16 threads, no affinity; peak commit 0.84-0.87 GB |
+| Cache keys | all 6 entries under their own keys, stored jobs match, checksums verify, maps in [0, 1] |
+| Worker start-up | 2.2 s per worker (demonstration run, 5 workers) to 5.1 s (workspace run, 2 workers) |
+
+Cause: the Power saver plan caps the processor clock (about 2×); this scene is also about 1.2× slower
+than the development area, so the whole-history median underestimates it. Contention from the
+application or the browser, geometry and compilation were excluded. Not determined: the exit code
+of the worker that did not exit cleanly (`propagation.compute` dropped the attempt records) and how
+often such exits happen.
+
+Changes (no safety rule relaxed):
+
+- Every worker records the active power plan (`runtime.power_plan`, in the cache entry's runtime
+  information); runs log it (`POWER`) and the workspace and `doctor` warn under Power saver.
+- `runtime.run_isolated(on_attempt=...)` and `propagation.compute(on_attempt=...)` report every
+  worker attempt with its exit code; workspace runs log them (`ATTEMPT`) and count retries.
+- Commit granularity: traces expected to take ≥ 30 s get one worker each (`batch_size=1`, already
+  supported): a crash at exit or a cancellation then loses at most one trace, for 2-5 s of start-up
+  (1-7 % of a 75-200 s trace). Faster traces keep one worker per band (start-up would be 11-70 %).
+  A worker that does not exit cleanly still publishes nothing.
+- Estimate: this run's own mean trace time once one trace finished, before that the median of the
+  12 most recent traces with the same scene, ray count, cell size and backend (else any scene),
+  plus 5 s per worker still to start. Retries are not included and are shown separately.

@@ -39,11 +39,14 @@ def _batches(jobs: list[PropagationJob], batch_size: int | None) -> list[list[Pr
 def compute(jobs: list[PropagationJob], cache: PathGainCache, *, work_dir: Path,
             on_progress=None, should_cancel=None, max_attempts: int = 8,
             batch_size: int | None = None, threads: int | None = None,
-            worker_module: str = "bns.simulation.worker") -> dict[str, np.ndarray]:
+            worker_module: str = "bns.simulation.worker", on_attempt=None) -> dict[str, np.ndarray]:
     """Path-gain maps for all jobs, keyed by job key.
 
     on_progress(done, total, info) is called after each traced job; total counts
-    only the jobs that were not cached.
+    only the jobs that were not cached. on_attempt(record) is called after every
+    worker attempt (batch number, job count, attempt, exit code, seconds); a batch
+    is committed to the cache only by an attempt with exit code 0. batch_size=1
+    gives every job its own worker, so each trace is committed on its own.
     """
     # A private folder per call: runs started at the same time never share batch files.
     import uuid
@@ -52,13 +55,13 @@ def compute(jobs: list[PropagationJob], cache: PathGainCache, *, work_dir: Path,
     work_dir.mkdir(parents=True, exist_ok=False)
     try:
         return _compute(jobs, cache, work_dir, on_progress, should_cancel, max_attempts, batch_size, threads,
-                        worker_module)
+                        worker_module, on_attempt)
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
 def _compute(jobs, cache, work_dir, on_progress, should_cancel, max_attempts, batch_size, threads,
-             worker_module) -> dict[str, np.ndarray]:
+             worker_module, on_attempt=None) -> dict[str, np.ndarray]:
     unique = {job.key(): job for job in jobs}
     missing = [job for key, job in unique.items() if not cache.has(key)]
     done = 0
@@ -82,7 +85,9 @@ def _compute(jobs, cache, work_dir, on_progress, should_cancel, max_attempts, ba
 
         try:
             runtime.run_isolated(argv, staging, finished, max_attempts=max_attempts,
-                                 env=dict(os.environ), on_line=on_line, should_cancel=should_cancel)
+                                 env=dict(os.environ), on_line=on_line, should_cancel=should_cancel,
+                                 on_attempt=None if on_attempt is None else
+                                 (lambda r, n=number, b=batch: on_attempt({**r, "batch": n, "jobs": len(b)})))
         finally:
             spec.unlink(missing_ok=True)
         cache.publish(finished, [job.key() for job in batch])

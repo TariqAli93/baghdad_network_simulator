@@ -26,7 +26,8 @@ COMPARABLE = {
     "receiver grid": lambda m: json.dumps(m["grid"], sort_keys=True),
     "profile": lambda m: (m["profile"]["name"], m["profile"]["cell_size_m"], m["profile"]["rays_per_site"]),
     "propagation mechanisms": lambda m: json.dumps(m.get("mechanisms"), sort_keys=True),
-    "antennas": lambda m: json.dumps(m.get("sectors_per_site") or m.get("site", {}).get("sectors"), sort_keys=True),
+    "antennas": lambda m: json.dumps([s.get("antennas") for s in m["stations"]] if m.get("stations")
+                                     else m.get("sectors_per_site") or m.get("site", {}).get("sectors"), sort_keys=True),
     "radio parameters": lambda m: json.dumps(m.get("radio_parameters"), sort_keys=True),
     "sensitivity overrides": lambda m: json.dumps(m.get("overrides_for_sensitivity") or {}, sort_keys=True),
     "backend": lambda m: (m.get("backend") or {}).get("name", "cpu"),
@@ -112,6 +113,17 @@ class Run:
     def sector_azimuths_rad(self) -> list[float]:
         sectors = self.manifest.get("sectors_per_site") or self.manifest.get("site", {}).get("sectors", [])
         return [float(s["orientation_rad"][0]) for s in sectors if s.get("pattern") != "iso"]
+
+    def site_azimuths_rad(self) -> dict[str, list[float]]:
+        """Sector yaws of every site; workspace runs record each station's own antennas."""
+        if self.manifest.get("stations"):
+            return {s["station_id"]: [float(a["orientation_rad"][0]) for a in s.get("antennas") or []
+                                      if a.get("pattern") != "iso"] for s in self.manifest["stations"]}
+        return {s["candidate_id"]: self.sector_azimuths_rad for s in self.sites}
+
+    @property
+    def is_workspace(self) -> bool:
+        return self.manifest.get("source") == "workspace"
 
     @property
     def sector_bearings_deg(self) -> list[float]:

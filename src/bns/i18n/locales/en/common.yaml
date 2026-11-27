@@ -45,7 +45,7 @@ band:
   c6g_8000: Candidate 6G — 8 GHz
   c6g_15000: Candidate 6G — 15 GHz
 generation: {lte_1800: 4G, nr_3500: 5G, nr_28000: 5G, c6g_8000: Candidate 6G, c6g_15000: Candidate 6G}
-height_category: {observed: observed, estimated: estimated, synthetic: synthetic, placeholder: placeholder}
+height_category: {observed: observed, estimated: estimated, synthetic: synthetic, placeholder: placeholder, hypothetical: "none (hypothetical, open ground)"}
 area_role: {study district: study district, provisional study area: provisional study area, development fixture: development fixture}
 acronyms:
   sinr: "SINR: signal-to-interference-plus-noise ratio — signal quality including interference from other sectors."

@@ -45,7 +45,7 @@ band:
   c6g_8000: "الجيل السادس المرشّح — ⁦8 GHz⁩"
   c6g_15000: "الجيل السادس المرشّح — ⁦15 GHz⁩"
 generation: {lte_1800: 4G, nr_3500: 5G, nr_28000: 5G, c6g_8000: 6G مرشّح, c6g_15000: 6G مرشّح}
-height_category: {observed: مرصود, estimated: تقديري, synthetic: اصطناعي, placeholder: افتراضي مؤقت}
+height_category: {observed: مرصود, estimated: تقديري, synthetic: اصطناعي, placeholder: افتراضي مؤقت, hypothetical: "لا يوجد (افتراضي، أرض مكشوفة)"}
 area_role: {study district: منطقة الدراسة, provisional study area: منطقة دراسة مؤقتة, development fixture: بيانات اختبار}
 acronyms:
   sinr: "SINR: نسبة الإشارة إلى التداخل والضوضاء — مقياس جودة الإشارة مع احتساب تداخل القطاعات الأخرى."

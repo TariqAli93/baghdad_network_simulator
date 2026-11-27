@@ -76,3 +76,22 @@ def test_workers_opt_out_of_windows_power_throttling_unless_asked_not_to(monkeyp
     assert runtime.disable_power_throttling() is True
     monkeypatch.setenv("BNS_ALLOW_POWER_THROTTLING", "1")
     assert runtime.disable_power_throttling() is False
+
+
+def test_every_attempt_is_reported_with_its_exit_code(tmp_path):
+    argv, staging, final = setup(tmp_path, "crash-once")
+    seen = []
+    runtime.run_isolated(argv, staging, final, on_line=lambda line: None, on_attempt=seen.append)
+    assert [(a["attempt"], a["exit_code"]) for a in seen] == [(1, 3), (2, 0)]
+
+
+@pytest.mark.parametrize(("text", "expected"), [
+    ("Power Scheme GUID: a1841308-3541-4fab-bc81-f71556f20b4a  (Power saver)",
+     {"guid": "a1841308-3541-4fab-bc81-f71556f20b4a", "name": "Power saver", "power_saver": True}),
+    ("Power Scheme GUID: e9a42b02-d5df-448d-aa00-03f14749eb61  (Ultimate Performance)",
+     {"guid": "e9a42b02-d5df-448d-aa00-03f14749eb61", "name": "Ultimate Performance", "power_saver": False}),
+    ("GUID de modo de energía: a1841308-3541-4fab-bc81-f71556f20b4a  (Economizador)",     # localised Windows
+     {"guid": "a1841308-3541-4fab-bc81-f71556f20b4a", "name": "Economizador", "power_saver": True}),
+    ("nothing useful", None)])
+def test_the_active_power_plan_is_read_from_powercfg(text, expected):
+    assert runtime.parse_power_plan(text) == expected
