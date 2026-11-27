@@ -176,7 +176,7 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   discovery, run control and re-evaluation from the cache). The app never re-traces to show a run.
 - Multi-site: sectors are traced transmitters, sites group them; every non-serving sector
   interferes (reuse 1, activity from the radio configuration); never assume an added site helps.
-- Simulation workspace (`docs/simulation-workspace.md`; branch `feature/simulation-workspace`, not merged):
+- Simulation workspace (`docs/simulation-workspace.md`; merged into `master` on 2026-11-27):
   stations become exactly the experiment scripts' propagation jobs (`bns.app.workspace`), so the cache
   key decides what needs tracing; results come only from the cache entries of the shown stations and
   carriers (`MissingTraces` otherwise, shown as stale). Experiments are editable configurations

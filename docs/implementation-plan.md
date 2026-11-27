@@ -1192,10 +1192,15 @@ Request "Simulation Workspace — Final Production Integration". Details and evi
 - **Demonstration content**: experiment `demo-research-baseline-network` and its run from cached traces.
 - **User guides** rewritten around the workspace with screenshots of the installed candidate in both
   languages; research guides and README updated.
-- **Verification on the development PC** (not the target laptop): unit, app and engine suites (counts in
-  the commit history and below); clean installation of a candidate archive (0 FAIL, itur installed from
-  the lock file); browser checks in Arabic and English including a custom-carrier run through the real
-  engine (preview profile).
+- **Verification on the development PC** (not the target laptop): repository suites 530 unit and 60 app
+  tests passed, 7 engine tests passed; the candidate from `bfd7b35`, clean-installed (0 FAIL, itur
+  installed from the lock file, 433 files match): 529 unit passed / 1 skipped, 59 app passed / 1 skipped,
+  engine 7 passed after two runs in which one test's worker crashed 8 times in a row (intermittent
+  Windows first-compilation crash, `docs/simulation-workspace.md` section 10.6); opens into the
+  workspace with the demonstration results; every page loads in both languages; browser checks in
+  Arabic and English including a custom-carrier run through the real engine (preview profile).
+- **Merge**: `feature/simulation-workspace` into `master` without fast-forward (`159cdd1`), then the
+  fresh-installation fix `bfd7b35`; not pushed. Previous candidate `8e5b5b7` kept as the fallback.
 
 Not done: target-laptop acceptance (`docs/laptop-acceptance.md`); scientific validation (final-scene
 convergence and MATLAB comparison). Feature freeze from here: only defect fixes and approved research

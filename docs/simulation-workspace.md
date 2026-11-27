@@ -511,3 +511,30 @@ stations, reports, classification labels), with screenshots of the installed can
 - Power plans are diagnostic only: the workspace warns about Power saver, the doctor reports PASS for
   any other plan (Balanced included, unit test) and nothing changes the plan. During this verification
   the development PC ran Ultimate Performance; a Balanced plan was not exercised on it.
+
+### 10.6 Merge and delivery candidate
+
+`feature/simulation-workspace` was merged into `master` without fast-forward (merge commit `159cdd1`;
+history and the 8 tags unchanged; nothing pushed). The merge commit was written with `git commit-tree`
+because a running instance of the application held one file of the demonstration run open; its tree is
+exactly the feature branch's tree. One defect found in the first candidate's clean installation was
+fixed on `master` (`bfd7b35`): without a path-gain cache, an experiment opened from a workspace run
+showed "not simulated" instead of that run's results.
+
+Candidate built from `bfd7b35` (`scripts/make_distribution.py`, 16.8 MB, 464 files, SHA-256 in its
+`.sha256` file), extracted into a new folder and installed with `1 - Install.cmd` on the development PC
+(not the target laptop):
+
+| Check | Result |
+|---|---|
+| Clean installation | 222 s (warm uv cache), 0 FAIL; `package itur: 0.4.0` PASS; 433 of 433 files match `SHA256SUMS.txt`; one WARN: port 8501 used by another instance |
+| Unit tests in the package (`UV_OFFLINE=1`) | 529 passed, 1 skipped (git checkout test outside a checkout) |
+| App tests in the package | 59 passed, 1 skipped (instant radio recomputation needs the demonstration traces in the path-gain cache; a fresh installation has none) |
+| Engine tests in the package | first two runs 6 passed, 1 failed: the worker of `test_ground_reflection_matches_fresnel_and_shows_brewster_dip` crashed 8 times in a row (exit code 0xC0000005, about 1.4 s each), so the test gave up; the same test then passed in 5 of 6 separate runs (3 of them from an empty kernel cache) and the full suite passed (7 passed). This is the intermittent Windows first-compilation crash of `docs/architecture.md`; no engine code changed in this integration |
+| Opens into the workspace | yes, Arabic by default, on the demonstration experiment with the saved run's results (coverage 100.0 % at 3.5 GHz); English switch complete |
+| Every page, both languages | 9 pages × 2 languages load without an error |
+| Report export | the workspace's Export report produces the download |
+
+The previous candidate (`dist/baghdad-network-simulator-delivery-candidate-8e5b5b7.zip`) and the
+v1.0.0-rc.1 archives stay in `dist/` as the fallback. Not claimed: target-laptop acceptance
+(`docs/laptop-acceptance.md`), scientific validation (final-scene convergence and MATLAB comparison).
