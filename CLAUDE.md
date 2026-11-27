@@ -108,7 +108,8 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
 - Rays start on a deterministic lattice: accuracy is set by the ray count, and averaging
   seeds does not improve line-of-sight or reflected power. Only diffraction is random.
 - Refraction is off (buildings are opaque). Radio-map diffraction is first-order and is
-  never combined with a reflection. Gas and rain loss are not built in.
+  never combined with a reflection. Gas and rain loss are not built in (added after tracing,
+  `bns.propagation.atmosphere`; they are not part of the path-gain job key).
 - Do not revert the enlarged wedge table in `sionna_engine.py`: with Sionna's default of
   10,000 slots a city scene loses more than 1 dB of diffracted power (benchmarks, E4).
 - Workers opt out of Windows power throttling (EcoQoS) in `runtime.init`; without it a worker
@@ -183,10 +184,15 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   `scripts/run_workspace.py` (`bns.app.run_record`) and found from their own manifests.
 - Placement is a classification dimension (automatic / manual / hypothetical): manual placement on a
   rule roof keeps the baseline parameter class; hypothetical placements are custom experiments.
-- Custom carriers (`bns.app.carriers`, `docs/assumptions.md` section 10): frequency inside the scene
-  materials' Sionna range and with gas loss available (tabulated, or omitted and recorded at 1-30 GHz),
-  bandwidth 0.1 MHz to a quarter of the carrier; radio values and rate mapping from the preset; refuse,
-  never adjust. Any change from a preset is a custom experiment.
+- Custom carriers (`bns.app.carriers`, `docs/assumptions.md` section 10): frequency inside the
+  intersection of the scene materials' Sionna range, ITU-R P.676 (1-1000 GHz) and the antenna model
+  (TR 38.901: 0.5-100 GHz), so 1-100 GHz with sector antennas; bandwidth 0.1 MHz to a quarter of the
+  carrier; radio values and rate mapping from the preset; refuse, never adjust or extrapolate. Any
+  change from a preset is a custom experiment.
+- Gas loss: the five presets keep the stored P.676 values (`GAS_DB_PER_KM`, the research baseline);
+  any other carrier is computed with ITU-Rpy 0.4.0 (`itur`, edition P.676-12) and the value, edition and
+  library version are stored in the carrier. "omitted" exists only in runs before 2026-11-27; read it as
+  recorded, never recompute an old run.
 - Commit granularity: traces expected to take >= 30 s get one worker each (`workspace_runs.batch_size`);
   never accept results from a worker that did not exit cleanly. Every attempt is logged with its exit code.
 

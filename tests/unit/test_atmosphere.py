@@ -96,3 +96,32 @@ def test_clear_sky_conditions_include_gas_but_no_rain():
     assert rainy.specific_attenuation_db_per_km(28e9, "V") == pytest.approx(
         atm.gas_specific_attenuation_db_per_km(28e9)
         + atm.rain_specific_attenuation_db_per_km(28e9, 20.0, "V"))
+
+
+@pytest.mark.parametrize("frequency_hz", [1.8e9, 3.5e9, 8e9, 15e9, 28e9])
+def test_itu_rpy_reproduces_the_five_tabulated_carriers(frequency_hz):
+    """The tabulated values were computed with ITU-Rpy (docs/atmospheric-losses.md); the installed library
+    gives the same figures, so custom carriers use the same calculation as the presets."""
+    assert atm.gas_specific_attenuation_p676_db_per_km(frequency_hz) == pytest.approx(
+        atm.GAS_DB_PER_KM[frequency_hz], abs=1e-4)
+
+
+def test_the_p676_range_is_enforced():
+    with pytest.raises(ValueError):
+        atm.gas_specific_attenuation_p676_db_per_km(0.5e9)
+
+
+def test_the_gas_model_works_offline_after_installation():
+    """Import and calculation in a fresh process that cannot open any network connection."""
+    import subprocess
+    import sys
+
+    code = ("import socket\n"
+            "def refuse(*a, **k):\n    raise OSError('network disabled for this test')\n"
+            "socket.socket.connect = refuse\nsocket.create_connection = refuse\n"
+            "from bns.propagation import atmosphere as atm\n"
+            "print(round(atm.gas_specific_attenuation_p676_db_per_km(6e9), 6), atm.gas_model()['implementation'])\n")
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=300)
+    assert out.returncode == 0, out.stderr[-2000:]
+    assert "ITU-Rpy" in out.stdout
+

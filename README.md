@@ -65,16 +65,12 @@ the computer. Pages:
 
 | Page | What it does |
 |---|---|
-| Dashboard | what the tool does, latest results, five-scenario comparison, scientific status, next step |
-| Study Area | buildings, height provenance, data quality |
-| Run Simulation | choose area, dataset, profile, backend and sites; see cached/new traces and a measured time estimate; start, follow, cancel |
-| Coverage Analysis | maps (path gain, received power, SINR, rate, coverage, serving site, interference) with statistics |
-| Network Comparison | scenarios, runs (with comparability warnings), site counts, 3GPP check, sensitivity, limitations |
-| Site Planning | saved site plans; re-evaluate any selection and rerun the SINR greedy from the cache |
+| Simulation Workspace (start page) | place and edit stations on the map, choose 4G/5G/candidate 6G or custom carriers, run (cancel/resume, progress), result layers, saved experiments (`docs/simulation-workspace.md`) |
+| Scenario Comparison | scenarios, runs (with comparability warnings, two runs side by side), site counts, 3GPP check, sensitivity, limitations |
+| Automatic Site Planning | saved site plans; re-evaluate any selection and rerun the SINR greedy from the cache |
+| Experiment History | experiments and runs: open, rerun, rename, duplicate, delete, compare, background simulations |
 | Reports | printable report (Arabic or English), configuration, provenance, statistics, figures, CSV/JSON/ZIP downloads |
-| Research Details: Radio Scenarios | the five scenarios; radio parameters with their sources |
-| Research Details: Validation | analytical checks, TR 38.901 comparison, CPU/GPU agreement, MATLAB package status |
-| Research Details: 6G Roadmap | verified evidence, saved results, open questions, and your own recommendations |
+| Settings and Research Details | research status, study area (height provenance), radio scenarios and parameters, validation, 6G roadmap |
 
 Only one simulation runs at a time from the app. Showing saved results never re-traces.
 

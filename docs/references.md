@@ -342,6 +342,7 @@ is the 2023 IEEE Globecom Workshops paper above.
 |---|---|---|---|
 | `OSM` | OpenStreetMap, via the Overpass API; snapshot hashes in `data/raw/osm/` | ODbL 1.0 | Building footprints |
 | `SIONNA-RT` | Sionna RT 2.2.0, https://nvlabs.github.io/sionna/rt/ | Apache 2.0 | Ray tracing |
+| `ITURPY` | ITU-Rpy 0.4.0 (I. del Portillo), https://github.com/inigodelportillo/ITU-Rpy; installed package metadata and `itur.models.itu676.get_version()` read 2026-11-27 (implements ITU-R P.676-12 Annex 1) | MIT | Gas attenuation at custom carriers (`docs/atmospheric-losses.md`) |
 | `GLOBFP3D` | 3D-GloBFP building heights, https://zenodo.org/records/15487006 | CC BY 4.0 | Candidate source of building heights (Phase 2) |
 | `GBA` | GlobalBuildingAtlas, https://github.com/zhu-xlab/GlobalBuildingAtlas | CC BY-NC 4.0 | Candidate source of building heights (Phase 2) |
 

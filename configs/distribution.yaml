@@ -53,6 +53,8 @@ required:
   - "data/raw/osm/tahrir_bab_al_sharqi_v2.json"
   - "data/raw/heights/3d_globfp/*.geojson"
   - "outputs/runs/development/*/manifest.json"
+  - "outputs/experiments/demo-*.json"
+  - "app/components/network_map.js"
   - "validation/matlab/*/run_case.m"
   - "docs/user-guide.md"
   - "docs/user-guide.ar.md"

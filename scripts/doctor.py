@@ -26,7 +26,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PINS = {"sionna-rt": "2.2.0", "mitsuba": "3.9.1", "drjit": "1.5.0"}
+PINS = {"sionna-rt": "2.2.0", "mitsuba": "3.9.1", "drjit": "1.5.0", "itur": "0.4.0"}   # itur: P.676 gas loss
 # the datasets setup.ps1 builds: development area, and the study district with the Synthetic Urban Model
 DATASETS = (("tahrir_bab_al_sharqi_v2", "osm"),
             ("tahrir_bab_al_sharqi_study", "osm+fp_3d_globfp"),

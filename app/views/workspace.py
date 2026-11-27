@@ -55,6 +55,9 @@ table.ws-m td {padding: .18rem .3rem; border-bottom: 1px solid rgba(128,128,128,
 table.ws-m td.v {text-align: end; white-space: nowrap; font-weight: 600;}
 table.ws-m.stale td.v {opacity: .55; font-weight: 500;}
 .ws-note {font-size: .74rem; opacity: .75; line-height: 1.35; margin-top: .15rem;}
+/* Streamlit pulls the next element up by 1rem after markdown (meant for a paragraph's margin); these
+   blocks have none, so the next element would cover their last line */
+div[data-testid="stMarkdownContainer"]:has(> .ws-note, > .ws-state, > .ws-obj, > .ws-class) {margin-bottom: 0;}
 .ws-obj {font-size: .84rem; line-height: 1.4;}
 .ws-hyp {border-inline-start: 3px dashed #b7791f; padding-inline-start: .5rem; font-size: .8rem;}
 [data-testid="stWidgetLabel"] p {font-size: .8rem;}
@@ -95,12 +98,14 @@ def category_name(c: str | None) -> str:
 
 
 def carrier_name(c: dict) -> str:
-    """'5G — 3.5 GHz', or for a custom carrier '5G — 3.5 GHz → 8 GHz / 100 MHz'."""
+    """'5G — 3.5 GHz', or for a custom carrier '5G — 3.5 GHz → 8 GHz / 100 MHz' (the arrow follows the
+    reading direction; the new values stay one left-to-right run inside Arabic text)."""
     base = ui.scenario_name({"id": c["preset"], "label": c["label"],
                              "frequency_hz": c.get("preset_frequency_hz", c["frequency_hz"])})
     if not c.get("custom"):
         return base
-    return f"{base} → {c['frequency_hz'] / 1e9:g} GHz / {c['bandwidth_hz'] / 1e6:g} MHz"
+    new = f"{i18n.LRI}{c['frequency_hz'] / 1e9:g} GHz / {c['bandwidth_hz'] / 1e6:g} MHz{i18n.PDI}"
+    return f"{base} {'←' if ui.tr().rtl else '→'} {new}"
 
 
 # ---------------------------------------------------------------- cached data
@@ -141,6 +146,11 @@ def evaluation(signature: str, _ctx, _stations, _carrier, _radio) -> ws.Evaluati
     return ws.evaluate(_ctx, _stations, _carrier, _radio, load)
 
 
+@st.cache_resource(show_spinner=False, max_entries=80)
+def run_evaluation(signature: str, _ctx, _stations, _carrier, _radio, run_dir: str):
+    return ws.evaluation_from_run(_ctx, _stations, _carrier, _radio, Path(run_dir))
+
+
 @st.cache_data(show_spinner=False, max_entries=6)
 def building_payload(area: str, variant: str) -> dict:
     _, blds = ui.buildings(area, variant)
@@ -157,6 +167,11 @@ def building_payload(area: str, variant: str) -> dict:
 @st.cache_data(show_spinner=False, ttl=60)
 def saved_runs() -> list[str]:
     return [str(r.path) for r in results.list_runs(ROOT) if r.kind in ("multi_site", "site_plan") and not r.invalid]
+
+
+@st.cache_data(show_spinner=False, ttl=60)
+def observed_retry_rate():
+    return wr.retry_rate(ROOT)
 
 
 @st.cache_data(show_spinner=False, ttl=60)
@@ -444,6 +459,11 @@ def on_reset_baseline() -> None:
     message("info", t("workspace.messages.reset_baseline"))
 
 
+def patterns_in_use() -> tuple[str, ...]:
+    """Antenna patterns of the stations and of new stations: they bound the supported carrier range."""
+    return tuple({s.pattern for s in SS.w_stations} | {ws.StationTemplate.baseline(current_context()).pattern})
+
+
 def on_carrier_edit() -> None:
     edits = (SS.get(f"w_carrier_table_{SS.w_carrier_rev}") or {}).get("edited_rows") or {}
     if not edits:
@@ -462,7 +482,8 @@ def on_carrier_edit() -> None:
             f = float(change.get("f_ghz", row["frequency_hz"] / 1e9)) * 1e9
             b = float(change.get("b_mhz", row["bandwidth_hz"] / 1e6)) * 1e6
             try:
-                rows[int(i)] = {**ca.customize(row, frequency_hz=f, bandwidth_hz=b, scene_dir=scene),
+                rows[int(i)] = {**ca.customize(row, frequency_hz=f, bandwidth_hz=b, scene_dir=scene,
+                                               patterns=patterns_in_use()),
                                 "selected": row["selected"]}
             except ca.CarrierError as err:
                 message("warning", carrier_text(err))
@@ -473,7 +494,7 @@ def on_carrier_edit() -> None:
 def on_equal_bandwidth() -> None:
     try:
         scene = current_context().exp.scene_dir
-        same = ca.equal_bandwidth(SS.w_carriers, float(SS.w_eq_bw) * 1e6, scene)
+        same = ca.equal_bandwidth(SS.w_carriers, float(SS.w_eq_bw) * 1e6, scene, patterns_in_use())
     except ca.CarrierError as err:
         message("warning", carrier_text(err))
         return
@@ -608,14 +629,26 @@ experiment = to_experiment()
 dirty = SS.w_saved_sig != signature(experiment)
 
 
+saved_run_dirs = [d for r in (xp.runs_of(ROOT, SS.w_meta["experiment_id"]) if SS.w_saved_sig is not None else [])
+                  for d in (ROOT / "outputs" / "runs").glob(f"*/{r}")]
+
+
 def current_eval(c: dict) -> ws.Evaluation | None:
-    """The evaluation of the shown stations on this carrier, or None if a trace is missing."""
-    if not enabled or not status.get(c["id"]) or not status[c["id"]].complete:
+    """The evaluation of the shown stations on this carrier: from the path-gain cache, else from a saved run
+    of this experiment that computed exactly this design (bns.app.workspace.evaluation_from_run); None if
+    neither exists (the result needs ray tracing)."""
+    if not enabled or not status.get(c["id"]):
         return None
-    sig = json.dumps({"ctx": [SS.w_area, SS.w_variant, profile(), backend(), overrides()],
-                      "stations": [asdict(s) for s in stations], "radio": asdict(rad), "carrier": c}, sort_keys=True,
-                     default=str)
-    e = evaluation(hashlib.sha256(sig.encode()).hexdigest(), ctx, stations, c, rad)
+    sig = hashlib.sha256(json.dumps({"ctx": [SS.w_area, SS.w_variant, profile(), backend(), overrides()],
+                                     "stations": [asdict(s) for s in stations], "radio": asdict(rad), "carrier": c},
+                                    sort_keys=True, default=str).encode()).hexdigest()
+    if status[c["id"]].complete:
+        e = evaluation(sig, ctx, stations, c, rad)
+    else:
+        e = next((x for x in (run_evaluation(sig + d.name, ctx, stations, c, rad, str(d)) for d in saved_run_dirs)
+                  if x is not None), None)
+        if e is None:
+            return None
     SS.w_last[c["id"]] = {"eval": e, "grid": exp.grid, "outdoor": exp.outdoor}
     return e
 
@@ -644,8 +677,8 @@ with bar[2].popover(t("workspace.experiment.menu"), width="stretch"):
     st.button(t("workspace.experiment.new"), on_click=on_new, width="stretch")
     others = xp.list_all(ROOT)
     if others:
-        st.selectbox(t("workspace.experiment.open"), [e.experiment_id for e in others], key="w_open_pick",
-                     format_func=lambda i: next(e.name for e in others if e.experiment_id == i))
+        ui.select(st, t("workspace.experiment.open"), [e.experiment_id for e in others], "w_open_pick",
+                  format_func=lambda i: next(e.name for e in others if e.experiment_id == i))
         st.button(t("workspace.experiment.open_button"), on_click=on_open, width="stretch")
     st.text_input(t("workspace.experiment.save_as"), key="w_new_name", placeholder=t("workspace.experiment.name"))
     st.button(t("workspace.experiment.save_as_button"), on_click=on_save_as, width="stretch")
@@ -688,10 +721,10 @@ left, centre, right = st.columns([1.1, 3.0, 1.35], gap="small")
 with left, st.container(height=PANEL_HEIGHT, border=False):
     areas = ui.study_areas()
     h("workspace.settings.dataset", "trace")
-    st.selectbox(t("simulation.area"), list(areas), key="w_area", on_change=on_dataset_change,
-                 format_func=lambda a: t(f"study_area.names.{a}") if tr.has(f"study_area.names.{a}") else a)
-    st.selectbox(t("simulation.variant"), ui.variants(SS.w_area) or ["osm"], key="w_variant",
-                 on_change=on_dataset_change, format_func=ui.variant_name)
+    ui.select(st, t("simulation.area"), list(areas), "w_area", on_change=on_dataset_change,
+              format_func=lambda a: t(f"study_area.names.{a}") if tr.has(f"study_area.names.{a}") else a)
+    ui.select(st, t("simulation.variant"), ui.variants(SS.w_area) or ["osm"], "w_variant",
+              on_change=on_dataset_change, format_func=ui.variant_name)
     q = exp.quality or {}
     syn = ((q.get("height_model") or {}).get("synthetic") or {}).get("synthetic_percent")
     if syn is not None:
@@ -703,7 +736,10 @@ with left, st.container(height=PANEL_HEIGHT, border=False):
                                        "frequency_hz": c.get("preset_frequency_hz", c["frequency_hz"])}),
              "f_ghz": c["frequency_hz"] / 1e9, "b_mhz": c["bandwidth_hz"] / 1e6,
              "state": t("workspace.carrier_state.custom") + (" · " + t("workspace.carrier_state.no_gas")
-                                                             if c.get("gas") == ca.OMITTED else "")
+                                                             if c.get("gas") == ca.OMITTED else
+                                                             " · " + t("workspace.carrier_state.p676",
+                                                                       g=f"{c.get('gas_db_per_km', 0):.3g}")
+                                                             if c.get("gas") == ca.P676 else "")
              if c.get("custom") else t("workspace.carrier_state.preset")} for c in SS.w_carriers]
     st.data_editor(rows, key=f"w_carrier_table_{SS.w_carrier_rev}", on_change=on_carrier_edit, hide_index=True,
                    width="stretch", num_rows="fixed", column_config={
@@ -797,7 +833,7 @@ with left, st.container(height=PANEL_HEIGHT, border=False):
         st.rerun()
     runs = [p for p in saved_runs() if ui.run(p).manifest["area"]["name"] == SS.w_area]
     if runs:
-        st.selectbox(t("workspace.settings.saved_run"), runs, key="w_run_pick", format_func=lambda p: ui.run_title(ui.run(p)))
+        ui.select(st, t("workspace.settings.saved_run"), runs, "w_run_pick", format_func=lambda p: ui.run_title(ui.run(p)))
         st.button(t("workspace.settings.open_run"), width="stretch", on_click=on_open_run,
                   help=t("workspace.settings.open_run_help"))
     if st.button(t("workspace.settings.clear"), disabled=not stations, width="stretch"):
@@ -813,10 +849,10 @@ with centre:
     else:
         st.warning(t("workspace.carriers.none_selected"))
     r2, r3, r4 = st.columns([1.4, 1.2, 1.6], vertical_alignment="center")
-    r2.selectbox(t("common.layer"), MAP_LAYERS, key="w_layer", label_visibility="collapsed",
-                 format_func=lambda k: t(f"workspace.layers.{k}"))
-    r3.selectbox(t("workspace.fields.buildings"), ["plain", "height", "category"], key="w_fill",
-                 label_visibility="collapsed", format_func=lambda k: t(f"workspace.building_fill.{k}"))
+    ui.select(r2, t("common.layer"), MAP_LAYERS, "w_layer", label_visibility="collapsed",
+              format_func=lambda k: t(f"workspace.layers.{k}"))
+    ui.select(r3, t("workspace.fields.buildings"), ["plain", "height", "category"], "w_fill",
+              label_visibility="collapsed", format_func=lambda k: t(f"workspace.building_fill.{k}"))
     r4.toggle(t("workspace.fields.show_candidates", n=len(candidates)), key="w_cands")
     layer = SS.w_layer
     source = shown if shown is not None else (previous or {}).get("eval")
@@ -991,11 +1027,17 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
         state_kind, state_text = "running", t("workspace.state.running")
     elif shown is not None:
         state_kind, state_text = "current", t("workspace.state.current_band", band=carrier_name(car))
+        if shown.extra.get("from_run"):           # the run's date: its folder name does not fit the column
+            run_dir = next((d for d in saved_run_dirs if d.name == shown.extra["from_run"]), None)
+            when = (ui.tr().date(results.load_run(run_dir).manifest.get("created_utc", "")) if run_dir
+                    else ui.ltr(shown.extra["from_run"]))
+            state_text += "<br>" + t("workspace.state.from_run", run=when)
     else:
         state_kind, state_text = "stale", t("workspace.state.stale" if stale else "workspace.state.not_simulated",
                                             n=n_missing)
     h("workspace.results.title")
-    st.markdown(f'<div class="ws-state {state_kind}">{state_text}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="ws-state {state_kind}"><span>{state_text}</span></div>',   # one flex item
+                unsafe_allow_html=True)
 
     if enabled and carriers:
         c = ws.classify(ctx, stations, rad, carriers)
@@ -1058,7 +1100,8 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
             return ""
         size = wr.batch_size(per_)
         workers = n if size == 1 else max(1, len(carriers))
-        return t("workspace.run.estimate", m=f"{(per_ * n + workers * wr.WORKER_START_SECONDS) / 60:.1f}")
+        p = min(observed_retry_rate() or 0.0, wr.MAX_RETRY_RATE)
+        return t("workspace.run.estimate", m=f"{(per_ * n + workers * wr.WORKER_START_SECONDS) / (1 - p) / 60:.1f}")
 
     def start(carrier_ids: list[str]) -> None:
         if SS.w_saved_sig is None or dirty:                # a run records a saved configuration
@@ -1082,11 +1125,13 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
                 start([sid])
                 st.rerun()
             if all_missing and minutes(len(all_missing)):
-                note(t("workspace.run.estimate_note", band=minutes(len(band_missing)) or "—", all=minutes(len(all_missing))))
+                rate = observed_retry_rate()
+                note(t("workspace.run.estimate_note", band=minutes(len(band_missing)) or "—", all=minutes(len(all_missing)))
+                     + (" " + t("workspace.run.retry_allowance", pct=f"{100 * rate:.0f}") if rate else ""))
             note(t("workspace.run.commit_note"))
 
     def progress_view(folder: Path) -> None:
-        s_ = wr.state(folder)
+        s_ = wr.state(folder, retry_rate=observed_retry_rate())
         if s_.running:
             total = max(s_.total, 1)
             cur = s_.current or {}
@@ -1160,7 +1205,8 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
     h("workspace.inspect.title")
     if sel.get("kind") == "station" and any(s.station_id == sel["id"] for s in stations):
         s = next(x for x in stations if x.station_id == sel["id"])
-        key = f"w_st_{s.station_id}_{hashlib.sha256(json.dumps(asdict(s), sort_keys=True).encode()).hexdigest()[:8]}_"
+        key = (f"w_st_{s.station_id}_{hashlib.sha256(json.dumps(asdict(s), sort_keys=True).encode()).hexdigest()[:8]}_"
+               f"{ui.lang()}_")
         if s.mount == ws.ROOFTOP:
             b_ = ctx.building(s.building_id)
             st.markdown('<div class="ws-obj">' + t(

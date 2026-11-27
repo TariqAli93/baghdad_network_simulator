@@ -5,7 +5,7 @@ so that a change needs ray tracing only when it changes a job key, and results c
 cache are the network model's results for exactly the stations shown.
 """
 
-from dataclasses import replace
+from dataclasses import asdict, replace
 from pathlib import Path
 
 import numpy as np
@@ -295,6 +295,84 @@ def test_a_workspace_run_is_written_in_the_multi_site_format(ctx, exp, tmp_path)
     assert (out / "summary.md").exists() and (out / "network_sinr_db.png").exists()
 
 
+def written_run(ctx, tmp_path, stations, carriers, radio, maps):
+    from bns.app import run_record
+
+    ev = {c["id"]: ws.evaluate(ctx, stations, c, radio, maps.get) for c in carriers}
+    more = {c["id"]: run_record.extras(ctx, stations, c, radio, maps.get, 0.9) for c in carriers}
+    jobs = ws.jobs(ctx, stations, carriers)
+    on = [s for s in stations if s.enabled]
+    records = [{"scenario": c["id"], "site": on[sj.station].station_id, "key": sj.job.key(),
+                "trace_seconds": 2.0} for c in carriers for sj in jobs[c["id"]]]
+    config = {"experiment_id": "exp-1", "name": "E", "radio": asdict(radio),
+              "stations": [asdict(s) for s in stations], "carriers": carriers}
+    out = run_record.write(tmp_path, ctx, config, stations, carriers, radio, ev, more, job_records=records,
+                           workload={"jobs": 6, "cached": 6, "to_trace": 0}, timing={}, versions={}, target=0.9)
+    return out, ev
+
+
+def test_a_saved_run_gives_exactly_its_results_when_the_design_matches(ctx, tmp_path):
+    a = ws.place(ctx, -40, -40, template(ctx), [])
+    b = replace(ws.place(ctx, 0, 60, template(ctx, hypothetical_height_m=25.0), [a]), tx_power_dbm=40.0)
+    carriers, radio = ws.preset_carriers(ctx)[:1], ws.RadioSettings.baseline(ctx)
+    out, ev = written_run(ctx, tmp_path, [a, b], carriers, radio, fake_cache(ctx, [a, b]))
+    shown = ws.evaluation_from_run(ctx, [a, b], carriers[0], radio, out)
+    for name in ("sinr_db", "rx_power_dbm", "rate_bps", "covered", "serving_station", "serving_sector"):
+        np.testing.assert_array_equal(shown.layers[name], ev[carriers[0]["id"]].layers[name])
+    assert shown.summary["coverage_fraction"] == ev[carriers[0]["id"]].summary["coverage_fraction"]
+    assert shown.station_ids == ["S1", "S2"] and shown.sectors == ev[carriers[0]["id"]].sectors
+    assert shown.extra["from_run"] == out.name
+
+
+@pytest.mark.parametrize("change", [lambda s, r: ([replace(s[0], tx_power_dbm=43.0), s[1]], r),
+                                    lambda s, r: ([replace(s[0], downtilt_deg=4.0), s[1]], r),
+                                    lambda s, r: ([s[0], replace(s[1], enabled=False)], r),
+                                    lambda s, r: (s, replace(r, interference_activity=0.5))])
+def test_a_saved_run_is_not_shown_for_another_design(ctx, tmp_path, change):
+    a = ws.place(ctx, -40, -40, template(ctx), [])
+    b = ws.place(ctx, 0, 60, template(ctx, hypothetical_height_m=25.0), [a])
+    carriers, radio = ws.preset_carriers(ctx)[:1], ws.RadioSettings.baseline(ctx)
+    out, _ = written_run(ctx, tmp_path, [a, b], carriers, radio, fake_cache(ctx, [a, b]))
+    stations, radio2 = change([a, b], radio)
+    assert ws.evaluation_from_run(ctx, stations, carriers[0], radio2, out) is None
+
+
+def p676_carrier(ctx, gas_db_per_km=0.0123):
+    base = ws.preset_carriers(ctx)[1]
+    return {**base, "id": f"{base['preset']}.f6000b100", "frequency_hz": 6e9, "bandwidth_hz": 100e6, "custom": True,
+            "gas": "p676", "gas_db_per_km": gas_db_per_km,
+            "gas_model": {"recommendation": "ITU-R P.676-12 Annex 1 (line by line)", "implementation": "ITU-Rpy 0.4.0"},
+            "preset_frequency_hz": base["frequency_hz"], "preset_bandwidth_hz": base["bandwidth_hz"]}
+
+
+def test_a_custom_carrier_records_its_p676_gas_value_and_model_in_the_run(ctx, tmp_path):
+    from bns.app import results
+
+    a = ws.place(ctx, -40, -40, template(ctx), [])
+    carrier, radio = p676_carrier(ctx), ws.RadioSettings.baseline(ctx)
+    maps = {sj.job.key(): (np.full(ctx.exp.grid.shape, 1e-10), {"seconds": 2.0})
+            for sj in ws.jobs(ctx, [a], [carrier])[carrier["id"]]}
+    out, ev = written_run(ctx, tmp_path, [a], [carrier], radio, maps)
+    manifest = results.load_run(out).manifest
+    assert manifest["atmosphere"]["gas"][carrier["id"]] == "p676"
+    assert manifest["atmosphere"]["gas_db_per_km"][carrier["id"]] == 0.0123
+    assert manifest["atmosphere"]["gas_models"][carrier["id"]]["implementation"] == "ITU-Rpy 0.4.0"
+    rebuilt = ws.run_carriers(manifest)[0]
+    assert rebuilt["gas_db_per_km"] == 0.0123 and rebuilt["gas_model"] == carrier["gas_model"]
+    assert ws.evaluation_from_run(ctx, [a], rebuilt, radio, out) is not None
+    assert ws.evaluation_from_run(ctx, [a], p676_carrier(ctx, 0.05), radio, out) is None   # another gas value
+
+
+def test_the_p676_gas_value_of_a_custom_carrier_enters_its_loss(ctx):
+    a = ws.place(ctx, -40, -40, template(ctx), [])
+    radio = ws.RadioSettings.baseline(ctx)
+    low, high = (ws.loss_db(ctx, p676_carrier(ctx, g), a, radio) for g in (0.0, 1.0))
+    d_km = np.hypot(*np.meshgrid(ctx.exp.grid.x_centers - a.x, ctx.exp.grid.y_centers - a.y)) / 1e3
+    np.testing.assert_allclose(high - low, atm.attenuation_map_db((a.x, a.y, a.antenna_height_m), ctx.exp.grid, 1.0)
+                               - atm.attenuation_map_db((a.x, a.y, a.antenna_height_m), ctx.exp.grid, 0.0))
+    assert float(np.max(high - low)) > 0.5 * float(np.max(d_km))
+
+
 # ---------------------------------------------------------------- classification
 def test_rule_roofs_with_baseline_values_stay_the_research_baseline(ctx):
     s = ws.place(ctx, -40, -40, template(ctx), [])
@@ -353,7 +431,9 @@ def test_a_custom_carrier_is_traced_at_its_frequency_and_evaluated_with_its_pres
     from bns.core.units import noise_power_dbm
     assert e.summary["noise_dbm"] == pytest.approx(noise_power_dbm(40e6, reference.noise_figure_db,
                                                                    reference.noise_temperature_k))
-    np.testing.assert_allclose(ws.loss_db(ctx, six, s, ws.RadioSettings.baseline(ctx)), 0.0)   # gas omitted at 6 GHz
+    assert six["gas_db_per_km"] == pytest.approx(atm.gas_specific_attenuation_p676_db_per_km(6e9), abs=1e-6)
+    expected = atm.attenuation_map_db((s.x, s.y, s.antenna_height_m), ctx.exp.grid, six["gas_db_per_km"])
+    np.testing.assert_allclose(ws.loss_db(ctx, six, s, ws.RadioSettings.baseline(ctx)), expected)   # recorded P.676
     c = ws.classify(ctx, [s], ws.RadioSettings.baseline(ctx), [six])
     assert c.configuration == cl.CUSTOM and any("6 GHz" in d for d in c.deviations)
 

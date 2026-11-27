@@ -21,6 +21,22 @@ KEY_MARKER = re.compile(r"\b(?:common|nav|dashboard|cls|limitations|readiness|st
                         r"\.[a-z0-9_]+\.[a-z0-9_.]+\b")
 
 
+def user_names() -> list[str]:
+    """Experiment names as their authors typed them (recorded in run manifests and saved experiments)."""
+    import json
+
+    names = set()
+    for f in [*ROOT.glob("outputs/runs/*/*/manifest.json"), *ROOT.glob("outputs/experiments/*.json")]:
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        name = (data.get("experiment") or {}).get("name") if "experiment" in data else data.get("name")
+        if isinstance(name, str) and name:
+            names.add(name)
+    return sorted(names, key=len, reverse=True)
+
+
 def visible_text(at) -> str:
     texts = [str(e.value) for kind in ("markdown", "caption", "info", "warning", "error", "success", "title",
                                        "subheader") for e in getattr(at, kind)]
@@ -47,8 +63,11 @@ def test_every_page_renders_in_the_language_without_untranslated_keys(app, page)
     heading = str(at.title[0].value) if at.title else " ".join(b.label for b in at.button[:3])
     assert bool(ARABIC.search(heading)) == (lang == "ar"), heading
     assert KEY_MARKER.findall(visible_text(at)) == []
-    if lang == "en" and page != "history":          # the history shows experiment names exactly as typed
-        assert not ARABIC.search(visible_text(at)), "no Arabic on English pages"
+    if lang == "en":                                # experiment names are shown exactly as typed
+        text = visible_text(at)
+        for name in user_names():
+            text = text.replace(name, "")
+        assert not ARABIC.search(text), "no Arabic on English pages"
     assert at.session_state["lang"] == lang                     # the choice survives page navigation
 
 
@@ -100,3 +119,21 @@ def test_the_workspace_offers_each_action_once(app):
     text = visible_text(at)
     for removed in ("Phase", "commit", "approval record", "Prototype"):    # no development history or prototype labels
         assert removed not in text
+
+
+
+def test_the_runs_chosen_for_comparison_survive_a_language_switch():
+    """Two runs sent from the Experiment History stay chosen under Across runs when the language changes
+    (the widget does not fall back to the two newest runs)."""
+    from bns.app import results
+
+    paths = [str(r.path) for r in results.list_runs(ROOT)]
+    if len(paths) < 4:
+        pytest.skip("fewer than four saved runs")
+    picked = [paths[-1], paths[-2]]                              # not the default (the two newest)
+    at = AppTest.from_file(str(ROOT / "app" / "main.py"), default_timeout=240).run()
+    at.session_state["cmp-runs"] = picked
+    at.switch_page("views/comparison.py").run()
+    assert list(at.multiselect[0].value) == picked
+    at.segmented_control(key="lang_switch").set_value("en" if at.session_state["lang"] == "ar" else "ar").run()
+    assert list(at.multiselect[0].value) == picked

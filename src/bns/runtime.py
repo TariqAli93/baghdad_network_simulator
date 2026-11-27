@@ -451,7 +451,7 @@ def versions() -> dict:
     from importlib.metadata import version
     import platform
 
-    names = ("sionna-rt", "mitsuba", "drjit", "numpy", "shapely", "pyproj")
+    names = ("sionna-rt", "mitsuba", "drjit", "numpy", "shapely", "pyproj", "itur")
     out = {name: version(name) for name in names}
     out["python"] = platform.python_version()
     out["platform"] = platform.platform()

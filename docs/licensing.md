@@ -30,6 +30,8 @@ instead (§3). Rewriting history needs explicit approval and was not done.
 | LLVM 18.1.8 (system install) | Apache-2.0 with LLVM exceptions |
 | Streamlit, NumPy, SciPy, Matplotlib, Shapely, pyproj, PyYAML, psutil, pyshp, mapbox-earcut | Apache-2.0 / BSD / MIT family |
 | Plotly | MIT |
+| ITU-Rpy 0.4.0 (`itur`, gas attenuation at custom carriers) | MIT |
+| astropy 8.0.3, pyerfa 2.0.1.5, astropy-iers-data (pulled in by ITU-Rpy) | BSD-3-Clause |
 
 The project's own code carries no licence file yet: *to confirm* with the student and
 supervisor before publication.

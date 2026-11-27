@@ -42,6 +42,7 @@ SCRIPT = "scripts/run_workspace.py"
 SLOW_TRACE_SECONDS = 30.0         # at or above: one worker per trace
 WORKER_START_SECONDS = 5.0        # measured 2.2-5.1 s per worker (docs/benchmarks.md, §12)
 RECENT = 12
+MAX_RETRY_RATE = 0.5              # the estimate never assumes more than every second attempt fails
 
 
 def folder_root(root: Path) -> Path:
@@ -102,6 +103,7 @@ class RunState:
     error: str | None
     finished: bool
     log_tail: list[str] = field(default_factory=list)
+    retry_rate: float | None = None   # share of worker attempts that fail on this computer (retry_rate())
 
     @property
     def execution(self) -> str:
@@ -130,7 +132,8 @@ class RunState:
     @property
     def remaining_seconds(self) -> float | None:
         """Estimate, not a promise: traces still to compute at this run's own mean trace time (else the
-        plan's expected time), plus start-up of the workers still to launch. Retries are not included."""
+        plan's expected time), plus start-up of the workers still to launch, divided by (1 - p) where p is
+        the share of worker attempts that failed on this computer (each failed attempt is repeated)."""
         per = statistics.fmean(self.trace_times) if self.trace_times else (self.plan or {}).get("expected_seconds")
         if per is None or not self.running:
             return None if per is None else 0.0
@@ -138,7 +141,7 @@ class RunState:
         size = (self.plan or {}).get("batch_size")
         open_batches = math.ceil(max(self.total - self.committed, 0) / size) if size else 0
         to_start = max(open_batches - (1 if self.done > self.committed or self.trace_times else 0), 0) if size else 0
-        return left * per + to_start * WORKER_START_SECONDS
+        return (left * per + to_start * WORKER_START_SECONDS) / (1.0 - min(self.retry_rate or 0.0, MAX_RETRY_RATE))
 
 
 def start(root: Path, experiment: dict, carrier_ids: list[str], *, target: float | None = None) -> Path:
@@ -165,7 +168,26 @@ def cancel(folder: Path) -> None:
     (Path(folder) / "cancel").write_text(datetime.now(timezone.utc).isoformat(), encoding="utf-8")
 
 
-def state(folder: Path) -> RunState:
+def retry_rate(root: Path, *, recent: int = 20, minimum: int = 10) -> float | None:
+    """Share of worker attempts that did not exit cleanly in the recent workspace runs on this computer, or
+    None when fewer than `minimum` attempts were recorded. Includes first-compile crashes (bns.runtime)."""
+    failed = total = 0
+    for folder in history(root)[:recent]:
+        log = folder / "log.txt"
+        if not log.exists():
+            continue
+        for line in log.read_text(encoding="utf-8", errors="replace").splitlines():
+            if line.startswith("ATTEMPT "):
+                try:
+                    code = json.loads(line[len("ATTEMPT "):]).get("exit_code")
+                except ValueError:
+                    continue
+                total += 1
+                failed += code != 0
+    return failed / total if total >= minimum else None
+
+
+def state(folder: Path, retry_rate: float | None = None) -> RunState:
     folder = Path(folder)
     request = json.loads((folder / "request.json").read_text(encoding="utf-8"))
     lines = (folder / "log.txt").read_text(encoding="utf-8", errors="replace").splitlines() \
@@ -214,7 +236,7 @@ def state(folder: Path) -> RunState:
         and _alive(int(request["pid"]), request["started_utc"])
     return RunState(folder, request, running, workload, plan, power, done, total, current if running else None,
                     times, attempts, evaluating and running, output, trace_s, wall_s, cancelled, error, finished,
-                    lines[-30:])
+                    lines[-30:], retry_rate)
 
 
 def history(root: Path) -> list[Path]:

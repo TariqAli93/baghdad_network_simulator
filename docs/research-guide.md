@@ -1,7 +1,7 @@
 # Research execution guide
 
 Step by step, from the study area to the MATLAB comparison. Arabic version:
-`docs/research-guide.ar.md`. Installation and the pages: `docs/user-guide.md`. The full
+`docs/research-guide.ar.md`. Installation and the Simulation Workspace: `docs/user-guide.md`. The full
 technical plan for the final study is `docs/research-execution-plan.md`.
 
 ## Before you start: simulation results are not measurements
@@ -31,7 +31,7 @@ from; the cards count observed/documented, synthetic and placeholder heights.
 
 ## 2. Select the Synthetic Urban Model
 
-On **Study Area** and **Run Simulation**, **Dataset**:
+On **Study Area**, and in the **Simulation Workspace** under *Study area and dataset*, **Dataset**:
 
 | Dataset | Use |
 |---|---|
@@ -44,31 +44,36 @@ The synthetic heights are modelling assumptions (seed 42), not measurements
 
 ## 3. Configure a simulation
 
-**Run Simulation** page:
+**Simulation Workspace** (the page the application opens on; `docs/user-guide.md` sections 5-11):
 
-1. **Area** and **Dataset** as in steps 1-2.
-2. **Profile**: `standard` (10 m cells, 10⁹ rays) is the research baseline; `preview` (25 m,
-   10⁸ rays) is quicker for exploring and is recorded as a deviation (Custom Experiment).
-3. **Ray-tracing backend**: `CPU` is the research baseline. `GPU`/`Auto` are faster when an NVIDIA
-   card exists and are recorded as a deviation.
-4. **Sites**: *candidate rooftops (site rule)* with a **Number of sites** (1 = single site), or
-   *chosen buildings* with their IDs (`way/…`, shown in the sites table after **Check sites and
-   workload** and next to every site on the Site Planning page).
-5. **Experiment parameters** (optional): every value starts at the research baseline. Changing
-   one makes the run a Custom Experiment (or a Sensitivity Analysis for threshold, target, load or
-   rain); **Reset to research baseline** restores all values.
-6. **Check sites and workload**: the sites, how many traces are already saved and how many are
-   new, and a time estimate when one was measured on this computer.
+1. **Experiment → New experiment**: every value starts at the research baseline.
+2. **Area** and **Dataset** under *Study area and dataset*, as in steps 1-2.
+3. **Resolution and engine → Simulation profile**: `standard` (10 m cells, 10⁹ rays) is the research
+   baseline; `preview` (25 m, 10⁸ rays) is quicker for exploring and is recorded as a deviation
+   (Custom Experiment). **Backend**: `CPU` is the research baseline; `GPU` is faster when an NVIDIA
+   card exists and is recorded as a deviation.
+4. **Stations**: **Site-rule roofs (n)** with the **Number of roofs** (1 = single site) places the
+   stations on the tallest roofs that satisfy the site rule (automatic placement, as in the research
+   baseline). **Place station** places one by hand on a chosen roof (manual placement, recorded
+   separately); the building ID (`way/…`) is shown when you click a building and next to every site
+   on the Site Planning page.
+5. Other values (optional): power, antenna, receivers, load, coverage threshold, frequency and
+   bandwidth. Changing one makes the run a Custom Experiment (or a Sensitivity Analysis for the
+   threshold or load); **Reset to the research baseline** restores all values.
+6. The run buttons say how many traces are needed; the Simulation panel shows how many are
+   already saved and a time estimate when one was measured on this computer.
 
 ## 4. Run the five frequency scenarios
 
 Every run computes **all five scenarios** at once: 4G 1.8 GHz, 5G 3.5 GHz, 5G 28 GHz, candidate 6G
 8 GHz and 15 GHz (same sites and radio system; only frequency and bandwidth differ).
 
-1. Press **Start run**. The progress bar shows traced / to trace. One run at a time.
-2. **Cancel** stops after the current step; starting the same run again continues from the saved
-   traces.
-3. When it shows **Completed**, open it on **Coverage Analysis**.
+1. Tick all five scenarios in **Network scenarios (carriers)** and press **Run simulation (n
+   traces)**. The panel shows traced / to trace. One simulation at a time.
+2. **Cancel** stops the trace in progress; every committed trace stays saved and running again
+   continues from there.
+3. When it has finished, the results are on the map and the run is listed in **Experiment
+   History**.
 
 Time on the development PC (CPU, standard profile): about 1 minute per trace, 15 traces per site
 (3 sectors × 5 bands), so about 20-25 minutes for one site. Your laptop's times are unknown until
@@ -76,8 +81,8 @@ you run `Laptop benchmark.cmd`.
 
 ## 5. Interpret coverage, SINR and data rates
 
-**Coverage Analysis** → saved run → scenario → layer. Grey cells are buildings (indoor cells are
-never counted).
+In the workspace: the band and the layer above the map (or **Experiment History** → the run →
+**View**). Grey cells are buildings (indoor cells are never counted).
 
 | Quantity | Meaning |
 |---|---|
@@ -94,10 +99,11 @@ even where their SINR is lower.
 
 ## 6. Compare the scenarios
 
-- **Dashboard → Network comparison**: table and bar chart of the latest run.
-- **Network Comparison** page: *Scenarios in one run* (table, bar charts, CDFs); *Across runs*
-  (a yellow warning lists every difference: such runs are not the same experiment); *Site counts*;
-  *3GPP model check*; *Sensitivity Analysis*; *Limitations*.
+- In the workspace: **Compare bands and configurations** below the map (one layer in every band on
+  one scale).
+- **Scenario Comparison** page: *Scenarios in one run* (table, bar charts, CDFs); *Across runs*
+  (a yellow warning lists every difference: such runs are not the same experiment), with *Two runs
+  side by side*; *Site counts*; *3GPP model check*; *Sensitivity Analysis*; *Limitations*.
 - Height sensitivity: run the same sites on the low-rise, baseline and high-rise datasets and
   compare them *Across runs*.
 
@@ -110,11 +116,11 @@ even where their SINR is lower.
    python scripts/plan_sites.py --area tahrir_bab_al_sharqi_study --variant "synthetic_urban-seed42+fp_3d_globfp" --profile preview --max-candidates 30
    ```
 
-2. **Site Planning** page → the saved plan: sites chosen in order, coverage after each, why the
+2. **Automatic Site Planning** page → the saved plan: sites chosen in order, coverage after each, why the
    search stopped, final map. Below, try other selections, threshold, load or target: these
    sliders are sensitivity checks (nothing is traced).
-3. Run the selected sites at the research baseline: **Run Simulation** → *chosen buildings* →
-   the building IDs (`way/…`) of the selected sites → `standard`, `CPU`.
+3. Run the selected sites at the research baseline: in the workspace place a station on each
+   selected building (`way/…`) with **Place station**, profile `standard`, backend `CPU`.
 
 The greedy result is a heuristic over these candidates, **not** a proven minimum number of sites.
 
