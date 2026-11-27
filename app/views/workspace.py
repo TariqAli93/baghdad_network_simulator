@@ -629,13 +629,19 @@ experiment = to_experiment()
 dirty = SS.w_saved_sig != signature(experiment)
 
 
-saved_run_dirs = [d for r in (xp.runs_of(ROOT, SS.w_meta["experiment_id"]) if SS.w_saved_sig is not None else [])
+# runs whose results may be shown without the path-gain cache: the experiment's own runs and the run it was
+# opened from (evaluation_from_run still requires the exact design)
+source_run = (SS.w_meta.get("origin") or {}).get("opened_from_run")
+saved_run_dirs = [d for r in dict.fromkeys([*(xp.runs_of(ROOT, SS.w_meta["experiment_id"])
+                                              if SS.w_saved_sig is not None else []),
+                                            *([source_run] if source_run else [])])
                   for d in (ROOT / "outputs" / "runs").glob(f"*/{r}")]
 
 
 def current_eval(c: dict) -> ws.Evaluation | None:
     """The evaluation of the shown stations on this carrier: from the path-gain cache, else from a saved run
-    of this experiment that computed exactly this design (bns.app.workspace.evaluation_from_run); None if
+    of this experiment (or the run it was opened from) that computed exactly this design
+    (bns.app.workspace.evaluation_from_run); None if
     neither exists (the result needs ray tracing)."""
     if not enabled or not status.get(c["id"]):
         return None

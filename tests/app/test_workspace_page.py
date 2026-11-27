@@ -55,7 +55,24 @@ def test_shown_values_are_the_saved_runs_values():
     assert metric(at, "Coverage") == f"{saved['coverage_fraction']:.1%}"
 
 
+def demonstration_traces_cached() -> bool:
+    """Whether this computer's path-gain cache holds the demonstration run's traces. A fresh installation
+    has none: it shows the saved results, and any change re-traces (no instant radio recomputation)."""
+    import json
+
+    from bns.simulation.cache import PathGainCache
+
+    runs = sorted(ROOT.glob("outputs/runs/development/*-standard-1sites-ws-20261127T162816Z/manifest.json"))
+    if not runs:
+        return False
+    keys = [j["key"] for j in json.loads(runs[0].read_text(encoding="utf-8"))["jobs"]]
+    cache = PathGainCache(ROOT / "data" / "cache" / "pathgain")
+    return bool(keys) and all(cache.has(k) for k in keys)
+
+
 def test_a_radio_change_recomputes_at_once_and_a_propagation_change_makes_the_results_stale():
+    if not demonstration_traces_cached():
+        pytest.skip("needs the demonstration run's traces in the path-gain cache (a fresh installation has none)")
     at = workspace()
     at.session_state["w_r_load"] = 0.5                  # network load: radio only
     at.run()
