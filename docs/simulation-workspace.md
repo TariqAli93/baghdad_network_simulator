@@ -1,16 +1,27 @@
-# Simulation workspace: audit, design and prototype (for review)
+# Simulation workspace: audit, design and implementation
 
-Status: **prototype for review, 2026-11-27.** The production application (`app/main.py`, ten pages) is
-unchanged. The prototype is a separate entry point:
+Status (2026-11-27): **implemented on the branch `feature/simulation-workspace`, not merged.** The
+Simulation Workspace is the landing page of the application:
 
 ```
-uv run streamlit run app/workspace.py            # Arabic by default; ?lang=en for English
+uv run streamlit run app/main.py            # Arabic by default; ?lang=en for English
 ```
 
-The repository is in feature freeze since v1.0.0-rc.1. This prototype follows the project owner's
-request to reorient the application around simulation. It adds no scientific model and changes no
-configuration value, and nothing in the delivered application depends on it. Restructuring the
-production navigation waits for the review (section 6).
+`master` and the delivery candidate (`dist/…-8e5b5b7.zip`) are unchanged and stay the fallback until
+the workspace is verified and merged. The repository is in feature freeze since v1.0.0-rc.1; this work
+follows the project owner's request of 2026-11-27 to make the application an interactive simulator.
+
+Decisions of the project owner (2026-11-27, after the prototype review):
+
+1. The workspace replaces the dashboard as the landing page.
+2. Manual placement on a roof that satisfies the site rule is not by itself a deviation from the
+   research baseline; it is recorded as **manual placement**, separately from automatic selection.
+3. Hypothetical transmitter placements are allowed in technically valid locations and are custom
+   experiments.
+4. Experiments are saved, loaded and run into persistent results before the navigation is changed.
+
+Sections 1-3 describe the audit and the design as reviewed; section 8 describes what was added for
+production (experiments, custom carriers, placement, reliability, navigation).
 
 ## 1. Audit: the application today
 
@@ -171,14 +182,13 @@ that satisfies the candidate rule is *not* a deviation, which matches `run_multi
 The settings panel states the measured median time per trace on this computer
 (`experiment.measured_trace_seconds`). It does not promise real-time ray tracing.
 
-Run: "Trace this band (n)" or "Trace all bands (n)" starts `scripts/trace_jobs.py` in its own process
-(`bns.app.workspace_runs`). It only traces, through `propagation.compute` (isolated workers, retries,
-cache), and reports `WORKLOAD`, `CURRENT` (band, station, sector, bearing), `PROGRESS` and `DONE`. The
-results panel shows progress, the current band and sector, cached / new / remaining traces, elapsed time
-and Cancel. The page stays usable while it runs. When the run ends, the workspace evaluates whatever the
-design is *now*: if it changed during the run, it stays stale. Cancelling keeps every finished batch.
-One batch is one band and dataset, so the band in progress is lost (unchanged behaviour of
-`propagation.compute`).
+Run: "Run simulation (n traces)" or "This band only (n)" saves the experiment and starts
+`scripts/run_workspace.py` in its own process (`bns.app.workspace_runs`). It traces the missing jobs through
+`propagation.compute` (isolated workers, retries, cache), evaluates every requested carrier and writes an
+immutable run in the multi-site format (section 8.2). The results panel shows the band, station and sector
+being traced, cached / to trace / committed / remaining traces, retries, elapsed time, an estimate and
+Cancel; the page stays usable. When the run ends, the workspace evaluates whatever the design is *now*:
+if it changed during the run, it stays stale. Commit granularity and cancellation: section 8.4.
 
 ### 3.6 Comparison
 
@@ -202,15 +212,16 @@ where it is.
 | File | Content |
 |---|---|
 | `src/bns/app/workspace.py` | stations, placement, jobs, trace status, evaluation, greedy, classification, opening saved runs (no UI code) |
-| `src/bns/app/workspace_runs.py` | start, follow and cancel a trace run; log protocol |
-| `scripts/trace_jobs.py` | traces a job file into the path-gain cache |
-| `app/workspace.py` | the prototype page |
+| `src/bns/app/workspace_runs.py` | start, follow and cancel a run; log protocol, commit policy, estimate |
+| `scripts/run_workspace.py` | traces what is missing, evaluates every carrier, writes the run |
+| `src/bns/app/experiments.py`, `carriers.py`, `run_record.py` | experiments, carriers, run writer (section 8) |
+| `app/views/workspace.py`, `history.py`, `research_status.py` | the pages (section 8.5) |
 | `app/components/network_map.js`, `.css` | the map component (components v2, inline, offline) |
 | `src/bns/i18n/locales/{en,ar}/workspace.yaml` | every text, both languages |
-| `tests/unit/test_workspace.py`, `test_workspace_runs.py` | 39 tests (identical job keys, staleness, placement, evaluation, per-station power, greedy, classification, saved runs, log parsing) |
-| `tests/app/test_workspace.py` | opt-in headless page tests (`-m app`) |
+| `tests/unit/test_workspace.py`, `test_workspace_runs.py`, `test_carriers.py`, `test_experiments.py` | identical job keys, staleness, placement, evaluation, per-station power, greedy, classification, saved runs, carriers, experiments, run records, log parsing |
+| `tests/app/test_workspace_page.py`, `test_pages.py`, `test_i18n_pages.py` | opt-in headless page tests (`-m app`) |
 
-No scientific module, configuration file or production page was changed. Per-station power enters the
+No configuration value was changed. Per-station power enters the
 existing radio model as one power per sector. `link_budget.received_power_dbm` broadcasts it; the
 value added to the path gain follows `RadioSystem.tx_power_for_path_gain_dbm`, so no antenna gain is ever
 added on top of a traced pattern.
@@ -267,42 +278,86 @@ In Chrome (agent-browser, 1600 × 1000, English and Arabic), against the running
 - Arabic: settings on the right, results on the left, toolbar and legend mirrored, map not mirrored;
   numbers and identifiers kept left-to-right.
 
-## 6. Proposed navigation after review
+## 6. Navigation (implemented)
 
-| New section | Built from |
+| Section | Built from |
 |---|---|
-| 1. Simulation Workspace (default) | this prototype; replaces Dashboard, Run Simulation and Coverage as the working pages |
-| 2. Scenario Comparison | Comparison page (bands, runs, site plans, model-to-model, sensitivity) + the workspace comparison |
-| 3. Automatic Site Planning | Planning page and `plan_sites.py` runs, with "open in workspace" |
-| 4. Experiment History | saved runs and app runs (today split between Run Simulation and every run picker), with "open in workspace" |
-| 5. Reports | Reports page |
-| 6. Settings and Research Details | Study Area, Radio parameters, Validation, Roadmap, assumptions, provenance, the dashboard's readiness indicators |
+| 1. Simulation Workspace (default) | `app/views/workspace.py`; replaces the Dashboard and Run Simulation pages |
+| 2. Scenario Comparison | Comparison page (bands, runs, site plans, model-to-model, sensitivity) and two runs side by side on one scale |
+| 3. Automatic Site Planning | Planning page (`plan_sites.py` runs); the workspace runs the same greedy over its own stations |
+| 4. Experiment History | new: experiments, completed runs, background simulations; the Coverage page is its run viewer |
+| 5. Reports | Reports page (workspace runs included) |
+| 6. Settings and Research Details | Research status (the dashboard's readiness section), Study Area, Radio, Validation, 6G Roadmap |
 
-No scientific function is removed: every current page keeps its content in one of the six sections.
+The navigation is a top bar (`st.navigation(position="top")`), so the map keeps the full width. No
+scientific function was removed: the run scripts are unchanged and their runs appear in the history.
 
-## 7. Limitations and open decisions
+## 7. Limitations
 
-Limitations of the prototype:
-
-- A workspace configuration is not yet saved as a run. Proposed next step: "Save as experiment" writes
-  the same manifest, summary and arrays as `run_multi_site.py`, through a shared function, so Reports and
-  History read it like any run.
-- Frequency and bandwidth are shown per scenario, not edited. A custom carrier would be a new scenario
-  with its own rate mapping and sources (`configs/scenarios.yaml`, `docs/references.md`).
-- Hypothetical stations stand on the scene's ground plane (z = 0, no terrain model). They are always a
-  custom experiment and always drawn as hypothetical.
-- One trace run at a time; Cancel loses the band in progress (section 3.5).
-- Map interactions cannot be driven by Streamlit's AppTest; they were checked in Chrome (section 5).
+- Hypothetical stations stand on the scene's ground plane (z = 0, no terrain model).
+- One simulation at a time (runs share the CPU); the workspace shows a run started elsewhere.
+- Map interactions cannot be driven by Streamlit's AppTest; they were checked in Chrome (sections 5, 9).
   Touch input and screen-reader use of the canvas are untested. The toolbar is keyboard-operable, and the
   station list and editor give a non-map path to every station property.
 - The 3D view is not built (section 2).
+- Gas loss for custom carriers: tabulated at the five presets, omitted (and recorded) for other carriers
+  between 1 and 30 GHz, refused above (section 8.3). Adding the ITU-Rpy library to compute P.676 at any
+  frequency was not done (the dependency change was not approved in this session).
+- The user guides (`docs/user-guide.md`, `docs/user-guide.ar.md`) still describe the previous pages and
+  must be rewritten before the branch is merged and a delivery package is built.
 
-Decisions for the review:
+## 8. Production implementation (branch `feature/simulation-workspace`)
 
-- **R1** Replace the dashboard landing page with the workspace and adopt the six-section navigation
-  (section 6)?
-- **R2** Should a station placed by hand on a roof that *satisfies* the candidate rule count as a
-  deviation (manual placement), or stay research baseline, as `run_multi_site.py --buildings` does today?
-- **R3** Allow hypothetical stations in research-facing material at all, or only in custom experiments
-  (current prototype: allowed, off by default, always a deviation)?
-- **R4** Add "Save as experiment" (section 7, first limitation) before the restructuring?
+### 8.1 Experiments and runs
+
+An **experiment** is an editable configuration (`bns.app.experiments`, `outputs/experiments/<id>.json`,
+git-ignored): dataset and variant, profile, cell size, rays, backend, receiver height, radio values,
+carriers (the five presets with a run flag, custom frequency/bandwidth), stations with every property,
+and the values for new stations. Actions: new, save (atomic replace), save as, rename, duplicate,
+duplicate as candidate 6G (same stations, the two 6G presets), open, delete with confirmation (moved to
+`outputs/experiments/.deleted/`), run again, export report. A **run** is an immutable result folder; an
+experiment's runs are found from the runs' own manifests (`experiment.id`), so saving, renaming or
+deleting an experiment never touches a result, and a run started in the background never races a save.
+
+### 8.2 Run format
+
+`scripts/run_workspace.py` writes the existing multi-site format (`bns.app.run_record`): `manifest.json`,
+`summary.json` (network, every station alone, the network grown in order, additions that lowered
+coverage, the SINR greedy), `network.npz`, `summary.md`, `cells_<carrier>.csv`, `sites.geojson` and the
+figures. Additions: `"source": "workspace"`, the experiment with a copy of the executed configuration,
+every station with its own antennas and bearings, the carriers, gas treatment per carrier and the
+placement in the classification. History, Comparison and Reports read it like any run; the Planning
+page refuses to re-evaluate it (per-station values belong to the workspace).
+
+### 8.3 Carriers (custom frequency and bandwidth)
+
+`bns.app.carriers`, `docs/assumptions.md` section 10. A custom frequency must lie where every scene
+material is defined in the installed Sionna RT (read from its ITU-R P.2040 table without importing the
+engine: concrete 1-100 and 110-330 GHz) and have gas loss available (tabulated, or omitted and recorded
+between 1 and 30 GHz); the bandwidth must lie between 0.1 MHz and a quarter of the carrier. Unsupported
+values are refused with the reason, never adjusted. Radio values and the rate mapping come from the
+preset. Any change from a preset makes a Custom Experiment and is named in the deviations;
+"Equal bandwidth" gives every carrier one bandwidth for controlled comparisons. Candidate 6G presets
+have exactly the same tools as 4G and 5G and are always labelled as candidate research scenarios.
+
+### 8.4 Reliability, cancellation and progress
+
+Investigation of the slow prototype run: `docs/benchmarks.md` section 12 (cause: the Windows Power saver
+plan, about 2×; a retry after an unclean worker exit doubled the run). Changes:
+
+- every worker attempt is reported with its exit code (`run_isolated(on_attempt=...)`), so a retry is
+  never silent; workers record the power plan, and the workspace and `doctor` warn under Power saver;
+- commit granularity: traces expected to take 30 s or more get one worker each, so a crash at exit or a
+  cancellation loses at most one trace; a worker that does not exit cleanly still publishes nothing, and
+  the cache verifies every entry's checksum before reuse;
+- progress: the band, station and sector being traced, traces cached before, to trace, committed and
+  left, retries, elapsed time and an estimate (this run's own trace times, else recent traces of the same
+  scene and profile, plus worker start-up; retries not included, stated as an estimate).
+
+### 8.5 Classification
+
+Configuration (research baseline / custom experiment / sensitivity analysis), **placement**
+(automatic / manual / hypothetical), dataset (complete / estimated heights / incomplete) and validation
+(completed / pending) are recorded separately; execution (ready / running / completed / cancelled /
+failed) is shown separately again. `run_multi_site.py` and `plan_sites.py` now record placement too.
+The dataset class keeps its existing names ("Complete data" is the documented class).

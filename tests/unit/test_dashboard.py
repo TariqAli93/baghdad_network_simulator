@@ -50,6 +50,6 @@ def test_the_repository_dashboard_uses_saved_runs_and_the_synthetic_dataset():
     d = dashboard.build(ROOT)
     assert d.dataset["available"] and d.dataset["synthetic"] == 2507 and d.dataset["buildings"] == 2521
     if d.latest is not None:
-        assert len(d.bands) == 5 and not d.latest.invalid
+        assert len(d.bands) == len(d.latest.scenarios) and not d.latest.invalid   # 1 to 5 carriers
         low, high = dashboard.ranges(d.bands, "coverage")
         assert 0.0 <= low <= high <= 1.0

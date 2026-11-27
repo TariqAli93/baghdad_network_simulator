@@ -60,7 +60,8 @@ with c1:
            (t(R + "backend"), f"{run.backend} ({(m.get('backend') or {}).get('status', 'production')})"),
            (t(R + "sites"), t("common.candidates", count=len(run.sites)) if run.kind == "site_plan"
             else t("common.sites", count=len(run.sites))),
-           (t(R + "deviations"), ", ".join(f"{k} = {v}" for k, v in overrides.items())
+           (t(R + "deviations"), "; ".join((m.get("classification") or {}).get("deviations") or [])
+            if run.is_workspace else ", ".join(f"{k} = {v}" for k, v in overrides.items())
             or (t("report.none") if "overrides" in m else t("report.not_recorded")))])
 with c2:
     st.subheader(t("reports.provenance"))

@@ -157,6 +157,9 @@ with tab_runs:
                                 row=1, col=k, hovertemplate="x %{x:.0f} m, y %{y:.0f} m<br>%{z:.1f} " + unit
                                 + "<extra></extra>")
                 fig.update_yaxes(scaleanchor=f"x{k if k > 1 else ''}", row=1, col=k)
+            half = grid.cell_size_m / 2                 # the same extent in both maps
+            fig.update_xaxes(range=[grid.x_centers[0] - half, grid.x_centers[-1] + half], constrain="domain")
+            fig.update_yaxes(range=[grid.y_centers[0] - half, grid.y_centers[-1] + half], constrain="domain")
             fig.update_layout(height=430, margin=dict(l=10, r=10, t=40, b=10), plot_bgcolor="#e9e8e3")
             fig.update_annotations(font_size=12)
             ui.chart(fig)

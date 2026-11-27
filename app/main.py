@@ -24,8 +24,7 @@ VIEWS = Path(__file__).resolve().parent / "views"
 t = ui.t
 pages = {
     "": [
-        st.Page(VIEWS / "workspace.py", title=t("nav.workspace"), icon=":material/cell_tower:", default=True,
-                url_path="workspace"),
+        st.Page(VIEWS / "workspace.py", title=t("nav.workspace"), icon=":material/cell_tower:", default=True),
         st.Page(VIEWS / "comparison.py", title=t("nav.scenario_comparison"), icon=":material/compare_arrows:"),
         st.Page(VIEWS / "planning.py", title=t("nav.site_planning"), icon=":material/add_location_alt:"),
         st.Page(VIEWS / "history.py", title=t("nav.history"), icon=":material/history:"),

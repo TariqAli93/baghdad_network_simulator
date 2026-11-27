@@ -29,8 +29,8 @@ uv run python scripts/run_convergence.py --area NAME # ray-count check behind th
 uv run python scripts/run_multi_site.py --area NAME --mode development [--profile preview] [--sites N | --buildings ID...]
 uv run python scripts/evaluate_gba.py --area NAME       # GlobalBuildingAtlas heights vs OSM and 3D-GloBFP
 uv run python scripts/diagnose_near_site.py RUN_DIR     # pattern vs own-roof shadow near a site
-uv run streamlit run app/main.py                       # the application (reads saved runs)
-uv run streamlit run app/workspace.py                  # simulation workspace prototype (for review; docs/simulation-workspace.md)
+uv run streamlit run app/main.py                       # the application; the Simulation Workspace is the landing page
+uv run python scripts/run_workspace.py --request RUN.json   # a workspace run (started by the app; docs/simulation-workspace.md)
 uv run python scripts/plan_sites.py --area NAME --mode development [--backend gpu] [--threshold DB --load X]
 uv run python scripts/run_sensitivity.py RUN_DIR        # threshold x load sweep from cached maps
 uv run python scripts/validate_tr38901.py --area NAME   # ray tracing vs 3GPP UMa/UMi (CPU, standard)
@@ -175,6 +175,20 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   discovery, run control and re-evaluation from the cache). The app never re-traces to show a run.
 - Multi-site: sectors are traced transmitters, sites group them; every non-serving sector
   interferes (reuse 1, activity from the radio configuration); never assume an added site helps.
+- Simulation workspace (`docs/simulation-workspace.md`; branch `feature/simulation-workspace`, not merged):
+  stations become exactly the experiment scripts' propagation jobs (`bns.app.workspace`), so the cache
+  key decides what needs tracing; results come only from the cache entries of the shown stations and
+  carriers (`MissingTraces` otherwise, shown as stale). Experiments are editable configurations
+  (`bns.app.experiments`, `outputs/experiments/`); runs are immutable multi-site folders written by
+  `scripts/run_workspace.py` (`bns.app.run_record`) and found from their own manifests.
+- Placement is a classification dimension (automatic / manual / hypothetical): manual placement on a
+  rule roof keeps the baseline parameter class; hypothetical placements are custom experiments.
+- Custom carriers (`bns.app.carriers`, `docs/assumptions.md` section 10): frequency inside the scene
+  materials' Sionna range and with gas loss available (tabulated, or omitted and recorded at 1-30 GHz),
+  bandwidth 0.1 MHz to a quarter of the carrier; radio values and rate mapping from the preset; refuse,
+  never adjust. Any change from a preset is a custom experiment.
+- Commit granularity: traces expected to take >= 30 s get one worker each (`workspace_runs.batch_size`);
+  never accept results from a worker that did not exit cleanly. Every attempt is logged with its exit code.
 
 ## Layout
 
@@ -196,7 +210,9 @@ src/bns/simulation/network.py   multi-site network: serving sector/site, interfe
 src/bns/simulation/experiment.py  shared experiment set-up (scripts and app)
 src/bns/app/                    saved runs, run control, re-evaluation, dashboard data (no UI code)
 src/bns/i18n/                   Arabic/English catalogues, plurals, dates, validation
-app/                            Streamlit application (main.py, ui.py, views/: 10 pages)
+app/                            Streamlit application (main.py: top navigation; views/: workspace (landing),
+                                comparison, planning, history, reports, coverage (run viewer), research_status,
+                                study_area, radio, validation, roadmap; components/: the network map)
 src/bns/validation/tr38901.py   3GPP UMa/UMi path loss, LOS probability, applicability
 src/bns/validation/matlab_case.py  STL export and receiver sampling for the MATLAB package
 src/bns/reporting/report.py     printable HTML report of a run

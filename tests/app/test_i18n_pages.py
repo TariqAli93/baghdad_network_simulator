@@ -47,7 +47,7 @@ def test_every_page_renders_in_the_language_without_untranslated_keys(app, page)
     heading = str(at.title[0].value) if at.title else " ".join(b.label for b in at.button[:3])
     assert bool(ARABIC.search(heading)) == (lang == "ar"), heading
     assert KEY_MARKER.findall(visible_text(at)) == []
-    if lang == "en":
+    if lang == "en" and page != "history":          # the history shows experiment names exactly as typed
         assert not ARABIC.search(visible_text(at)), "no Arabic on English pages"
     assert at.session_state["lang"] == lang                     # the choice survives page navigation
 

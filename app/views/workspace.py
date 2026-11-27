@@ -504,6 +504,10 @@ def on_save_as() -> None:
     if not name:
         message("warning", t("workspace.experiment.name_needed"))
         return
+    if SS.w_saved_sig is None:                      # never saved: this is its first save, not a copy
+        SS.w_meta["name"] = name
+        on_save()
+        return
     saved = xp.save_as(ROOT, to_experiment(), name)
     apply_experiment(saved, saved=True)
     message("success", t("workspace.experiment.saved", name=saved.name))
@@ -670,9 +674,12 @@ with bar[4]:
     elif runs_of_this:
         st.caption(t("workspace.experiment.runs", n=len(runs_of_this)))
 
+# one slot that always exists: a message must not shift the map below it (the map would be remounted and
+# lose its tool, zoom and pan)
+message_slot = st.empty()
 if SS.w_msg:
     level, text = SS.w_msg
-    getattr(st, {"success": "success", "warning": "warning", "error": "error"}.get(level, "info"))(text)
+    getattr(message_slot, {"success": "success", "warning": "warning", "error": "error"}.get(level, "info"))(text)
     SS.w_msg = None
 
 left, centre, right = st.columns([1.1, 3.0, 1.35], gap="small")
@@ -909,6 +916,9 @@ with centre:
                                     hovertemplate="x %{x:.0f} m, y %{y:.0f} m<br>%{z:.1f} " + unit + "<extra></extra>")
                     fig.update_xaxes(showticklabels=False, row=1, col=k)
                     fig.update_yaxes(showticklabels=False, scaleanchor=f"x{k if k > 1 else ''}", row=1, col=k)
+                half = exp.grid.cell_size_m / 2        # the same extent in every map
+                fig.update_xaxes(range=[exp.grid.x_centers[0] - half, exp.grid.x_centers[-1] + half], constrain="domain")
+                fig.update_yaxes(range=[exp.grid.y_centers[0] - half, exp.grid.y_centers[-1] + half], constrain="domain")
                 fig.update_layout(height=260, margin=dict(l=4, r=4, t=30, b=4), plot_bgcolor="#e9e8e3")
                 fig.update_annotations(font_size=12)
                 ui.chart(fig)

@@ -166,7 +166,10 @@ def build_html(run_dir: Path, *, extra_markdown: dict[str, str] | None = None,
         """A recorded category name in the report language; unknown values stay as recorded."""
         return T(f"common.{group}.{value}") if tr.has(f"common.{group}.{value}") else value
 
-    if manifest.get("overrides"):
+    workspace_devs = (manifest.get("classification") or {}).get("deviations")         if manifest.get("source") == "workspace" else None
+    if workspace_devs:                  # per-station and carrier values as well as the run-wide overrides
+        deviations = "; ".join(workspace_devs)
+    elif manifest.get("overrides"):
         deviations = ", ".join(f"{k} = {v}" for k, v in manifest["overrides"].items())
     else:
         deviations = T("report.none") if "overrides" in manifest else T("report.not_recorded")
