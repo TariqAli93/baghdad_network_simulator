@@ -216,6 +216,8 @@ def signature(e: xp.Experiment) -> str:
     d = e.to_dict()
     for k in ("modified_utc", "created_utc"):
         d.pop(k, None)
+    # a station without its own carriers is the same whether saved before mixed networks (no key) or after (None)
+    d["stations"] = [{k: v for k, v in s.items() if not (k == "carriers" and v is None)} for s in d["stations"]]
     return hashlib.sha256(json.dumps(d, sort_keys=True, default=str).encode()).hexdigest()
 
 
@@ -254,8 +256,13 @@ def apply_experiment(e: xp.Experiment, *, saved: bool) -> None:
     apply_radio(e.radio or {}, base)
     apply_template(e.template or {}, base)
     presets = {c["id"]: c for c in default_carriers()}
-    rows = {c["preset"]: {**c, "selected": c.get("selected", True)} for c in e.carriers or []}
-    SS.w_carriers = [rows.get(pid, {**presets[pid], "selected": not e.carriers}) for pid in presets]
+    saved_rows = [{**c, "selected": c.get("selected", True)} for c in e.carriers or []]
+    rows = {}                                       # one row per preset (edited or not), then the added carriers
+    for c in saved_rows:
+        if not c.get("added"):
+            rows.setdefault(c["preset"], c)
+    SS.w_carriers = ([rows.get(pid, {**presets[pid], "selected": not e.carriers}) for pid in presets]
+                     + [c for c in saved_rows if c.get("added")])
     SS.w_stations = [ws.Station.from_dict(s) for s in e.stations]
     SS.w_sel, SS.w_last, SS.w_plan = {}, {}, None
     SS.w_carrier_rev = SS.get("w_carrier_rev", 0) + 1
@@ -412,23 +419,27 @@ def remove(station_id: str) -> None:
         SS.w_sel = {}
 
 
-def on_station_carriers(station_id: str, ids: list[str], table_key: str):
-    """The station's own carriers from its carrier table (each row: on, power, sectors, bearing, tilt, pattern)."""
+def edit_carrier(station_id: str, ids: list[str], carrier_id: str, field: str, widget_key: str, convert=float):
+    """One value of one of the station's carriers (its own carriers start from what the inspector shows: every
+    listed carrier, on where the station transmits on it)."""
     def apply():
         s = next((x for x in SS.w_stations if x.station_id == station_id), None)
         if s is None:
             return
-        edits = (SS.get(table_key) or {}).get("edited_rows") or {}
-        own = {e.carrier_id: e for e in s.carriers or ()}
         selected = {c["id"] for c in SS.w_carriers if c.get("selected")}
+        if s.carriers is None:                      # its carriers become its own: every listed one, as it was
+            entries = [ws.new_carrier(s, c, enabled=c in selected) for c in ids]
+        else:                                       # its own, in their order; a new one only when edited
+            entries = list(s.carriers) + ([] if any(e.carrier_id == carrier_id for e in s.carriers)
+                                          else [ws.new_carrier(s, carrier_id, enabled=False)])
+        value = convert(SS[widget_key])
         out = []
-        for i, cid in enumerate(ids):
-            e = own.get(cid) or ws.StationCarrier.of(s, cid, enabled=s.carriers is None and cid in selected)
-            ch = edits.get(i) or edits.get(str(i)) or {}
-            e = replace(e, enabled=bool(ch.get("on", e.enabled)), tx_power_dbm=float(ch.get("p", e.tx_power_dbm)),
-                        sectors=int(ch.get("n", e.sectors)), azimuth_deg=float(ch.get("az", e.azimuth_deg)) % 360.0,
-                        downtilt_deg=float(ch.get("tilt", e.downtilt_deg)), pattern=str(ch.get("pat", e.pattern)))
-            out.append(replace(e, sectors=1) if e.pattern == "iso" else e)
+        for e in entries:
+            if e.carrier_id == carrier_id:
+                e = replace(e, **{field: value % 360.0 if field == "azimuth_deg" else value})
+                if e.pattern == "iso":
+                    e = replace(e, sectors=1)
+            out.append(e)
         update_station(station_id, carriers=tuple(out))
     return apply
 
@@ -1413,33 +1424,37 @@ with right, st.container(height=PANEL_HEIGHT, border=False):
                     "tx_power_dbm": first.tx_power_dbm, "pattern": first.pattern, "sectors": first.sectors,
                     "azimuth_deg": first.azimuth_deg, "downtilt_deg": first.downtilt_deg}))
                 st.rerun()
-        # the carriers this station transmits on: the experiment's selected carriers and any of its own
+        # the carriers this station transmits on: the experiment's selected carriers and any of its own; each
+        # on/off and value is its own widget (keys follow the station's state, like the fields above)
         st.markdown(f"**{t('workspace.inspect.carriers_title')}**")
         by_id = {c["id"]: c for c in SS.w_carriers}
         ids_ = list(dict.fromkeys([c["id"] for c in SS.w_carriers if c.get("selected")]
                                   + [e.carrier_id for e in s.carriers or ()]))
         own_ = {e.carrier_id: e for e in s.carriers or ()}
-        rows_ = []
         for cid in ids_:
             e_ = own_.get(cid) if s.carriers is not None else ws.StationCarrier.of(s, cid)
-            e_ = e_ or ws.StationCarrier.of(s, cid, enabled=False)
-            rows_.append({"on": e_.enabled, "carrier": carrier_name(by_id[cid]) if cid in by_id else cid,
-                          "p": e_.tx_power_dbm, "n": e_.sectors, "az": e_.azimuth_deg, "tilt": e_.downtilt_deg,
-                          "pat": e_.pattern})
-        st.data_editor(rows_, key=key + "cars", on_change=on_station_carriers(s.station_id, ids_, key + "cars"),
-                       hide_index=True, width="stretch", num_rows="fixed", column_config={
-                           "on": st.column_config.CheckboxColumn(t("workspace.inspect.col_on"), width="small"),
-                           "carrier": st.column_config.TextColumn(t("workspace.inspect.col_carrier"), disabled=True),
-                           "p": st.column_config.NumberColumn("dBm", min_value=0.0, max_value=60.0, step=1.0,
-                                                              format="%.1f"),
-                           "n": st.column_config.NumberColumn(t("workspace.inspect.col_sectors"), min_value=1,
-                                                              max_value=6, step=1),
-                           "az": st.column_config.NumberColumn(t("workspace.inspect.col_bearing"), min_value=0.0,
-                                                               max_value=359.9, step=5.0, format="%.0f°"),
-                           "tilt": st.column_config.NumberColumn(t("workspace.inspect.col_tilt"), min_value=-10.0,
-                                                                 max_value=30.0, step=1.0, format="%.1f°"),
-                           "pat": st.column_config.SelectboxColumn(t("workspace.inspect.col_pattern"),
-                                                                   options=["tr38901", "iso"])})
+            e_ = e_ or ws.new_carrier(s, cid, enabled=False)
+            k_ = f"{key}c_{cid}_"
+            st.toggle(carrier_name(by_id[cid]) if cid in by_id else cid, value=e_.enabled, key=k_ + "on",
+                      on_change=edit_carrier(s.station_id, ids_, cid, "enabled", k_ + "on", bool))
+            if e_.enabled:
+                a_, b_ = st.columns(2)
+                a_.number_input(t("workspace.fields.power"), 0.0, 60.0, value=float(e_.tx_power_dbm), step=1.0,
+                                key=k_ + "p", format="%.1f",
+                                on_change=edit_carrier(s.station_id, ids_, cid, "tx_power_dbm", k_ + "p"))
+                b_.selectbox(t("workspace.fields.pattern"), ["tr38901", "iso"],
+                             index=["tr38901", "iso"].index(e_.pattern) if e_.pattern in ("tr38901", "iso") else 0,
+                             key=k_ + "pat", format_func=lambda p_: t(f"workspace.patterns.{p_}"),
+                             on_change=edit_carrier(s.station_id, ids_, cid, "pattern", k_ + "pat", str))
+                a_.number_input(t("workspace.fields.sectors"), 1, 6, value=int(e_.sectors), step=1, key=k_ + "n",
+                                disabled=e_.pattern == "iso",
+                                on_change=edit_carrier(s.station_id, ids_, cid, "sectors", k_ + "n", int))
+                b_.number_input(t("workspace.fields.azimuth"), 0.0, 359.9, value=float(e_.azimuth_deg), step=5.0,
+                                key=k_ + "az", format="%.1f", disabled=e_.pattern == "iso",
+                                on_change=edit_carrier(s.station_id, ids_, cid, "azimuth_deg", k_ + "az"))
+                a_.number_input(t("workspace.fields.downtilt"), -10.0, 30.0, value=float(e_.downtilt_deg), step=1.0,
+                                key=k_ + "tilt", format="%.1f", disabled=e_.pattern == "iso",
+                                on_change=edit_carrier(s.station_id, ids_, cid, "downtilt_deg", k_ + "tilt"))
         note(t("workspace.inspect.carriers_note"))
         e1, e2 = st.columns(2)
         e1.toggle(t("workspace.fields.enabled"), value=s.enabled, key=key + "on", on_change=edit("enabled", key + "on", bool))

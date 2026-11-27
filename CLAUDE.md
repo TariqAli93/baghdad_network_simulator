@@ -189,6 +189,12 @@ uv run python scripts/poc_benchmark.py          # time and memory -> outputs/run
   (TR 38.901: 0.5-100 GHz), so 1-100 GHz with sector antennas; bandwidth 0.1 MHz to a quarter of the
   carrier; radio values and rate mapping from the preset; refuse, never adjust or extrapolate. Any
   change from a preset is a custom experiment.
+- Mixed networks (`docs/assumptions.md` section 11): a station may have its own carriers (`StationCarrier`:
+  power, pattern, sectors, bearing, tilt, on/off); `carriers=None` means every selected carrier with the
+  station's values (research baseline, older experiments). Only stations on a carrier serve on it; other
+  carriers interfere with their spectral-overlap share (`bns.simulation.network.spectral_overlap`; no
+  adjacent-channel leakage); results by generation take the best-SINR carrier per cell. Never give a station
+  with its own carriers every selected carrier.
 - Gas loss: the five presets keep the stored P.676 values (`GAS_DB_PER_KM`, the research baseline);
   any other carrier is computed with ITU-Rpy 0.4.0 (`itur`, edition P.676-12) and the value, edition and
   library version are stored in the carrier. "omitted" exists only in runs before 2026-11-27; read it as

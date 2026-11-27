@@ -281,3 +281,12 @@ def test_a_mixed_run_reopens_with_every_station_and_carrier_and_shows_its_result
     np.testing.assert_array_equal(shown.layers["serving_station"], ev["nr_3500"].layers["serving_station"])
     other = [st[0], replace(st[1], carriers=(replace(st[1].carriers[0], tx_power_dbm=43.0),)), *st[2:]]
     assert ws.evaluation_from_run(ctx, other, carriers[1], ws.RadioSettings.baseline(ctx), out, carriers) is None
+
+
+def test_a_carrier_added_to_a_station_starts_from_its_own_carrier_values(ctx):
+    st = network_of(ctx)
+    c = st[2]                                                       # its 6G carrier: bearing 30 degrees
+    added = ws.new_carrier(c, "nr_3500.f3550b100")
+    assert added == replace(c.carriers[0], carrier_id="nr_3500.f3550b100")
+    legacy = ws.place(ctx, -40, -40, template(ctx), [])
+    assert ws.new_carrier(legacy, "lte_1800", enabled=False) == ws.StationCarrier.of(legacy, "lte_1800", enabled=False)

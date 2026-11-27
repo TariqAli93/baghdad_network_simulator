@@ -107,3 +107,77 @@ def test_a_station_with_its_own_carriers_is_shown_per_carrier(lang):
     cls_line = next(m.value for m in at.markdown if 'class="ws-class' in m.value)
     assert ("Custom Experiment" if lang == "en" else "تجربة مخصصة") in cls_line
     assert any(b.label.startswith("Run simulation" if lang == "en" else "تشغيل المحاكاة") for b in at.button)
+
+
+def test_an_experiment_with_an_added_carrier_reopens_with_every_carrier(isolated_experiments):
+    """A second carrier of a preset (here 5G at 3.55 GHz beside 3.5 GHz) survives saving and reopening."""
+    import json
+
+    from bns.app import experiments as xp
+
+    d = json.loads((ROOT / "outputs" / "experiments" / "demo-research-baseline-network.json").read_text(encoding="utf-8"))
+    nr = next(c for c in d["carriers"] if c["id"] == "nr_3500")
+    added = {**nr, "id": "nr_3500.f3550b100", "frequency_hz": 3.55e9, "custom": True, "added": True, "gas": "p676",
+             "gas_db_per_km": 0.0078, "preset_frequency_hz": 3.5e9, "preset_bandwidth_hz": 1e8}
+    e = xp.save(ROOT, xp.Experiment.from_dict({**d, "experiment_id": "exp-added-carrier", "name": "Added carrier",
+                                               "carriers": [*d["carriers"], added]}))
+    at = workspace()
+    assert not at.exception, [x.message for x in at.exception]
+    assert [c["id"] for c in at.session_state["w_carriers"]] == [c["id"] for c in e.carriers]
+    assert at.session_state["w_saved_sig"] is not None
+    assert any('class="ws-tag' in m.value and "saved" in m.value and "unsaved" not in m.value for m in at.markdown) or \
+        not any("unsaved changes" in str(m.value) for m in at.markdown)
+
+
+def _carrier_toggle(at, name: str):
+    return next(w for w in at.toggle if w.label == name)
+
+
+def test_switching_one_carrier_of_a_station_off_leaves_its_other_carriers_and_other_stations():
+    """A station's carrier toggles: switching 5G 3.5 GHz off for S1 makes its carriers explicit, keeps every
+    other carrier on with its values, and changes no other station."""
+    from bns.app import workspace as ws
+
+    at = workspace()
+    s1 = at.session_state["w_stations"][0]
+    at.session_state["w_sel"] = {"kind": "station", "id": s1.station_id}
+    at.run()
+    _carrier_toggle(at, "5G — 3.5 GHz").set_value(False).run()
+    assert not at.exception, [e.message for e in at.exception]
+    after = at.session_state["w_stations"][0]
+    assert after.carriers is not None
+    on = [e.carrier_id for e in after.carriers if e.enabled]
+    assert "nr_3500" not in on and {"lte_1800", "c6g_8000", "c6g_15000", "nr_28000"} <= set(on)
+    assert all(e.tx_power_dbm == s1.tx_power_dbm and e.downtilt_deg == s1.downtilt_deg for e in after.carriers)
+    assert ws.on_carrier(after, "nr_3500") is None and ws.on_carrier(after, "lte_1800") is not None
+
+
+def test_a_carriers_own_downtilt_changes_only_that_carrier():
+    at = workspace()
+    s1 = at.session_state["w_stations"][0]
+    at.session_state["w_sel"] = {"kind": "station", "id": s1.station_id}
+    at.run()
+    tilt = next(w for w in at.number_input if w.key and w.key.endswith("c_c6g_8000_tilt"))
+    tilt.set_value(4.0).run()
+    assert not at.exception, [e.message for e in at.exception]
+    after = at.session_state["w_stations"][0]
+    by = {e.carrier_id: e for e in after.carriers}
+    assert by["c6g_8000"].downtilt_deg == 4.0
+    assert all(e.downtilt_deg == s1.downtilt_deg for cid, e in by.items() if cid != "c6g_8000")
+
+
+def test_switching_a_carrier_off_and_on_again_restores_the_station_exactly():
+    from dataclasses import replace
+
+    from bns.app import workspace as ws
+
+    at = workspace()
+    s1 = at.session_state["w_stations"][0]
+    own = replace(s1, carriers=(ws.StationCarrier.of(s1, "nr_28000"), ws.StationCarrier.of(s1, "lte_1800")))
+    at.session_state["w_stations"] = [own]
+    at.session_state["w_sel"] = {"kind": "station", "id": s1.station_id}
+    at.run()
+    _carrier_toggle(at, "4G — 1.8 GHz").set_value(False).run()
+    assert [e.carrier_id for e in at.session_state["w_stations"][0].carriers] == ["nr_28000", "lte_1800"]
+    _carrier_toggle(at, "4G — 1.8 GHz").set_value(True).run()
+    assert at.session_state["w_stations"][0] == own

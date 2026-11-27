@@ -119,6 +119,12 @@ and never count as measurements. Click a building on the map to see its height a
 - **Select** a station (click it, or a row of the station list) to edit it on the right: position,
   mast height, transmit power, sectors, the bearing of sector 1, downtilt, antenna pattern, and
   **Transmitting** on or off. **Remove station** (or the Delete key) removes it.
+- **Carriers of this station** (in the station's panel): one switch per carrier. A new station transmits
+  on every ticked scenario with one set of values. Switch carriers off to have, for example, a 4G-only
+  station beside a 5G-only one, or keep 4G, 5G and candidate 6G on one station; each carrier that is on has
+  its own power, pattern, sectors, bearing and downtilt. Switching one carrier off changes nothing else.
+  Stations on the same carrier interfere with each other; stations on carriers that do not overlap in
+  frequency do not (a partly overlapping carrier interferes with the overlapping share of its power).
 - **Move** (toolbar): drag a station to another roof.
 - **Measure** (toolbar): click two points to see their distance.
 - Drag the map to pan, scroll to zoom, **Fit** to see the whole area.
@@ -139,6 +145,9 @@ exactly the same tools as 4G and 5G.
   ray tracer), the atmospheric gas model (ITU-R P.676) and the antenna model. With the standard sector
   antenna that is **1 to 100 GHz**. The bandwidth must be at most a quarter of the frequency. Other
   values are refused with the reason.
+- **Add a carrier** adds a further carrier of a generation with its own frequency and bandwidth (for example
+  a second 5G channel at 3.6 GHz); give it to stations in their carrier switches. Added carriers can be
+  removed again from the same menu.
 - **Equal bandwidth** gives every scenario the same bandwidth, for a fair comparison between
   frequencies. **Reset carriers to the presets** undoes custom values; **Reset to the research
   baseline** restores all baseline values (stations keep their positions).
@@ -172,6 +181,9 @@ exactly the same tools as 4G and 5G.
   bearing or downtilt, the receiver height, the resolution), the map is faded and marked *Results of
   the previous configuration*. Run the simulation again to update. Power, noise figure, load and the
   coverage threshold update at once.
+- Under the results, a note names any other carrier that interferes with the shown one and how much of its
+  power falls in this band, and **By generation** gives 4G, 5G and candidate 6G over all their carriers (in
+  each cell the generation's carrier with the best SINR) with the stations that serve.
 - **Compare bands and configurations** (below the map) shows the same layer in every band on one scale,
   and compares the current configuration with one you pinned.
 

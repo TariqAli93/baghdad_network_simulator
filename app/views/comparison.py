@@ -6,6 +6,7 @@ import streamlit as st
 import ui
 from ui import t
 
+from bns import i18n
 from bns.app import evidence, results
 from bns.app.results import cdf
 
@@ -129,7 +130,8 @@ with tab_runs:
         st.markdown(t("comparison.runs.sites_same" if where(a_run) == where(b_run) else "comparison.runs.sites_differ"))
 
         def carrier_label(sc):
-            custom = f" → {sc['frequency_hz'] / 1e9:g} GHz / {sc['bandwidth_hz'] / 1e6:g} MHz" if sc.get("custom") else ""
+            custom = (f" {'←' if ui.tr().rtl else '→'} {i18n.LRI}{sc['frequency_hz'] / 1e9:g} GHz / "
+                      f"{sc['bandwidth_hz'] / 1e6:g} MHz{i18n.PDI}" if sc.get("custom") else "")
             return ui.scenario_name({"id": sc.get("preset", sc["id"]), "label": sc["label"],
                                      "frequency_hz": sc.get("preset_frequency_hz", sc["frequency_hz"])}) + custom
 

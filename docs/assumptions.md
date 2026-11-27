@@ -217,3 +217,26 @@ classification dimension of its own (`bns.analysis.classification`: automatic / 
 | Custom bandwidth | 0.1 MHz up to a quarter of the carrier frequency: path gain, materials and gas loss are evaluated at the centre frequency only | technical limit, *provisional* |
 | Radio values and rate mapping of a custom carrier | those of its preset (e.g. NR for a variant of the 5G preset, the NR-based approximation for a candidate 6G preset), with the carrier's bandwidth for noise and rates; the mapping is per Hz and does not depend on the frequency | *provisional* |
 | Classification | any carrier that differs from its preset makes the run a Custom Experiment and names the values; selecting fewer than five presets is not a deviation | rule |
+
+## 11. Mixed-generation networks (2026-11-27, custom experiments)
+
+A station may transmit on its own set of carriers (4G, 5G and candidate 6G at once, or one generation
+only), each with its own transmit power, antenna pattern, number of sectors, sector bearing, downtilt and
+on/off state; its position and antenna height are the station's. A station without its own carriers
+transmits on every selected carrier with one set of values: the research baseline, the experiment scripts
+and every experiment and run before this change. Code: `bns.app.workspace` (StationCarrier, on_carrier,
+evaluate), `bns.simulation.network.spectral_overlap`; tests `tests/unit/test_mixed_network.py`.
+
+| Assumption | Value used | Status |
+|---|---|---|
+| Who serves on a carrier | only the stations transmitting on that carrier; every other sector on the same carrier interferes (reuse 1, as section 8) | rule |
+| Interference from other carriers | a transmitter on another carrier interferes with the share of its received power that falls inside the victim carrier's channel: overlap of the two channels / the interferer's bandwidth (its power spread evenly over its channel). Identical channels: share 1 (co-channel); channels that do not overlap: 0 | *provisional* |
+| Adjacent-channel leakage and receiver selectivity | not modelled: carriers whose channels do not overlap never interfere, and the share inside an overlapping channel is not reduced by filtering. Optimistic for adjacent and neighbouring channels | *provisional*, limitation |
+| Path gain of an interferer | traced at the interferer's own carrier frequency (with its own antenna); used for the overlapping part of its channel | *provisional* |
+| Activity of other carriers | the same interference activity (load) as the carrier's own interferers | *provisional* |
+| Results by generation | in every cell the generation's carrier with the highest SINR serves (rate, received power and serving station are that carrier's); a cell is covered if any of the generation's carriers covers it. A presentation of the per-carrier results, not a cell-selection or load-balancing model | *provisional* |
+| Classification | a station with its own carriers is a Custom Experiment when they differ from the selected carriers or from the baseline values; the deviations name each station's carriers and each value that differs | rule |
+
+The five presets do not overlap (1.8/20, 3.5/100, 8/400, 15/400 and 28/400 GHz/MHz), so experiments made of
+presets only give exactly the results they gave before: the extra term is zero (tests:
+`test_without_other_carriers_the_results_are_bit_identical`, the demonstration run's values).

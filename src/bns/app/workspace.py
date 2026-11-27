@@ -364,12 +364,18 @@ def transmitting(stations: list[Station], carrier_id: str) -> list[tuple[int, St
     return [(i, v) for i, v in ((i, on_carrier(s, carrier_id)) for i, s in enumerate(enabled)) if v is not None]
 
 
+def new_carrier(station: Station, carrier_id: str, enabled: bool = True) -> StationCarrier:
+    """A carrier given to a station: the values of its first own carrier that is on (same panel, bearing and
+    tilt), else the station's values."""
+    first = next((e for e in station.carriers or () if e.enabled), None)
+    return (replace(first, carrier_id=carrier_id, enabled=enabled) if first is not None
+            else StationCarrier.of(station, carrier_id, enabled=enabled))
+
+
 def with_carriers(station: Station, carrier_ids: list[str]) -> Station:
     """The station transmitting on exactly these carriers, each with the station's values (or, if it already has
     its own carriers, those of its first carrier that is on)."""
-    first = next((e for e in station.carriers or () if e.enabled), None)
-    return replace(station, carriers=tuple(replace(first, carrier_id=c, enabled=True) if first is not None
-                                           else StationCarrier.of(station, c) for c in carrier_ids))
+    return replace(station, carriers=tuple(new_carrier(station, c) for c in carrier_ids))
 
 
 def rename_carrier(stations: list[Station], old: str, new: str) -> list[Station]:

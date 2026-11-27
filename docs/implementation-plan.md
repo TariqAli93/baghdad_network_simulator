@@ -1205,3 +1205,28 @@ Request "Simulation Workspace — Final Production Integration". Details and evi
 Not done: target-laptop acceptance (`docs/laptop-acceptance.md`); scientific validation (final-scene
 convergence and MATLAB comparison). Feature freeze from here: only defect fixes and approved research
 execution.
+
+## Mixed-generation networks (branch `feature/mixed-generation-network`, 2026-11-27)
+
+Request "Final Mixed-Generation Network Verification". The first workspace request asked for a frequency
+configuration per station; it had been implemented per experiment only (every station on every selected
+carrier, each carrier evaluated alone). Implemented on a dedicated branch (details and evidence:
+`docs/simulation-workspace.md` section 11; assumptions: `docs/assumptions.md` section 11):
+
+- stations with their own carriers (power, pattern, sectors, bearing, tilt, on/off per carrier); stations
+  without them behave exactly as before, so the presets, the research baseline and every earlier result
+  are unchanged;
+- interference between carriers by spectral overlap (co-channel when identical, none when disjoint,
+  proportional when partly overlapping; no adjacent-channel leakage), results by generation;
+- added carriers with their own frequency and bandwidth; saving, reopening (runs included), History,
+  Comparison and Reports for mixed networks; Arabic and English.
+- Acceptance scenario run through the real engine (preview profile, CPU): 21 traces; a partial-overlap
+  variant with 3 further traces; the checks of section 11.1 hold (disjoint carriers identical, co-channel
+  interference, disabling one carrier changes only that carrier, overlap share exact to 3e-15).
+- Defects found and fixed during the verification: section 11.2.
+- Tests on the branch (development PC): `uv run pytest` 563 passed, `-m app` 66 passed, `-m engine` 7 passed.
+
+The missing experiment files (three verification experiments and "شبكة العرض التوضيحي") are in the Windows
+Recycle Bin, deleted from `outputs\experiments` at 18:48 local time on 2026-11-27 (not by the application or
+git); nothing was restored. Their configurations are also recorded in their runs' manifests.
+

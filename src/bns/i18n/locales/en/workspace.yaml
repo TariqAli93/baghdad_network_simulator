@@ -199,13 +199,7 @@ inspect:
   one_set: One set of values on every selected carrier
   one_set_help: The station then transmits on every selected carrier with the values of its first carrier that is on.
   carriers_title: Carriers of this station
-  col_on: 'On'
-  col_carrier: Carrier
-  col_sectors: Sectors
-  col_bearing: Sector 1 bearing
-  col_tilt: Downtilt
-  col_pattern: Pattern
-  carriers_note: Untick a carrier to stop this station transmitting on it; its other carriers are unchanged. Frequency and bandwidth belong to the carrier (Network scenarios).
+  carriers_note: Switch a carrier off to stop this station transmitting on it; its other carriers are unchanged. Frequency and bandwidth belong to the carrier (Network scenarios).
   not_on_carrier: Not transmitting on {band}.
 columns:
   mount: Mount

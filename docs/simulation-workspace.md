@@ -538,3 +538,91 @@ Candidate built from `bfd7b35` (`scripts/make_distribution.py`, 16.8 MB, 464 fil
 The previous candidate (`dist/baghdad-network-simulator-delivery-candidate-8e5b5b7.zip`) and the
 v1.0.0-rc.1 archives stay in `dist/` as the fallback. Not claimed: target-laptop acceptance
 (`docs/laptop-acceptance.md`), scientific validation (final-scene convergence and MATLAB comparison).
+
+## 11. Mixed-generation networks (branch `feature/mixed-generation-network`, 2026-11-27)
+
+The first request asked for a "frequency configuration" per station; until this branch every station
+transmitted on every selected carrier and each carrier was evaluated alone. Now:
+
+- **Stations and carriers.** A station may have its own carriers (`bns.app.workspace.StationCarrier`), each
+  with its own power, pattern, sectors, bearing, downtilt and on/off state; position and antenna height
+  are the station's. A station without its own carriers transmits on every selected carrier, as before.
+  In the inspector each carrier is a switch with its own fields; switching one off leaves the station's
+  other carriers and every other station unchanged.
+- **Carriers of the experiment.** "Add a carrier" adds a further carrier of a preset with its own
+  frequency and bandwidth (e.g. a second 5G channel); added carriers can be removed. Editing a carrier's
+  frequency or bandwidth, equal bandwidth and resetting to the presets carry the stations' references
+  along.
+- **Propagation.** One job per sector of every station on a carrier, with that carrier's antenna; the cache
+  key is unchanged in form, so existing traces are reused.
+- **Interference** (`docs/assumptions.md` section 11): co-channel within a carrier; between carriers in
+  proportion to the spectral overlap (`bns.simulation.network.spectral_overlap`); carriers that do not
+  overlap never interfere. A carrier's results need the traces of the carriers overlapping it, and the
+  workspace and `scripts/run_workspace.py` trace them.
+- **Results.** Per carrier (stations not on the carrier are marked on the map and carry no sectors), and
+  by generation (best carrier per cell) in the workspace, the run's `summary.json` (`generations`),
+  `network.npz` (`generation_*`) and `summary.md`. Runs record each station's carriers and antennas
+  (`stations[].carrier_antennas`) and the network's carriers (`network_carriers`).
+- **Saving and reopening.** Experiments keep every station's carriers and the added carriers; a workspace
+  run reopens with its exact design (until now "Open in the workspace" replaced custom carriers by the
+  presets and gave every station the first site's antenna values).
+
+### 11.1 Acceptance scenario (development PC, CPU, preview profile, Synthetic Urban Model)
+
+Experiment "Acceptance: mixed-generation network (BS-01 to BS-04)", four stations on four site-rule roofs
+with their own antenna heights (58, 23, 22 and 21 m) and carriers:
+
+| Station | Carriers (power, sector-1 bearing, downtilt) |
+|---|---|
+| BS-01 | 4G 1.8 GHz / 20 MHz (43 dBm, 0°, 6°) |
+| BS-02 | 5G 3.5 GHz / 100 MHz (46 dBm, 30°, 8°) |
+| BS-03 | candidate 6G 8 GHz / 400 MHz (46 dBm, 60°, 10°) |
+| BS-04 | 4G 1.8 GHz (40 dBm, 15°, 4°), 5G 3.5 GHz (46 dBm, 0°, 10°), 5G 28 GHz / 400 MHz (40 dBm, 0°, 10°), candidate 6G 8 GHz (44 dBm, 90°, 12°) |
+
+Run `…-preview-4sites-ws-20261127T201025Z`, started from the workspace: 21 traces (BS-01 3, BS-02 3,
+BS-03 3, BS-04 12) at 1.8, 3.5, 8 and 28 GHz in 237 s; six worker attempts, two of which crashed
+(0xC0000374, 0xC0000409) and were traced again.
+
+| Carrier | Transmitting | Coverage | Median SINR | Other carriers |
+|---|---|---|---|---|
+| 4G 1.8 GHz | BS-01, BS-04 | 100.0 % | 9.9 dB | none |
+| 5G 3.5 GHz | BS-02, BS-04 | 100.0 % | 4.1 dB | none |
+| Candidate 6G 8 GHz | BS-03, BS-04 | 96.3 % | 3.9 dB | none |
+| 5G 28 GHz | BS-04 | 57.5 % | −4.2 dB | none |
+
+By generation, 5G (3.5 and 28 GHz) covers 100 % of the outdoor cells, the 3.5 GHz carrier serving 68.1 %
+and 28 GHz 31.9 %. Checks (from the run and the path-gain cache, no further tracing):
+
+- the cache reproduces the saved SINR of every carrier exactly;
+- the 1.8 GHz results are identical with and without the stations of the other generations (no
+  interference between carriers that do not overlap);
+- 3.5 GHz is co-channel: where BS-02 serves (237 cells), BS-04 raises the median interference by 4.6 dB
+  (median SINR 7.6 dB instead of 14.2 dB with BS-02 alone);
+- switching BS-04's 8 GHz carrier off changes only the 8 GHz results (coverage 96.3 % → 90.9 %, BS-03
+  alone); the 1.8, 3.5 and 28 GHz results stay bit-identical. The same switch in the workspace showed the
+  same values at once (no tracing).
+
+Partial overlap, experiment "Acceptance variant: BS-02 on 3.55 GHz (partial overlap)" (duplicated in the
+workspace; carrier 5G 3.55 GHz / 100 MHz added with "Add a carrier"; BS-02 moved onto it with its former
+antenna, 30° and 8°): run `…-ws-20261127T202922Z`, 3 new traces. The 3.5 and 3.55 GHz carriers each report
+the other with overlap 0.5. The 3.5 GHz interference equals the activity factor times (BS-04's other sectors
++ 0.5 × BS-02's power at 3.55 GHz) to within 3 × 10⁻¹⁵ (relative). Where BS-04 serves in both runs (168
+cells), the median interference falls from −51.4 dBm (BS-02 co-channel) to −53.1 dBm (half overlap) and the
+median SINR rises from 0.7 to 3.1 dB; the 3.5 GHz coverage falls from 100 % to 67.7 % because BS-02 no longer
+serves on it, and BS-02's 3.55 GHz carrier covers 92.6 %.
+
+History lists the mixed experiments and runs, Scenario Comparison compares them (identical station
+locations, both 3.5 GHz maps on one scale), and the printable report lists each station's carriers and
+the generation table, in Arabic and English. Two further runs of the variant are not evidence:
+`…T201600Z` (BS-02's new carrier then took the station's default antenna, fixed below) and `…T202256Z`
+(made from a design corrupted by the first carrier editor, see below); they stay as recorded.
+
+### 11.2 Defects found and fixed during this verification
+
+- Reopening an experiment with an added carrier lost a carrier (the list was rebuilt one row per preset).
+- Experiments saved before this branch opened as "unsaved changes" (their stations have no carriers key).
+- The first per-station carrier editor (a data table applying row edits) applied edits to other stations
+  and rows after re-renders; it was replaced by one switch and set of fields per carrier, which AppTest
+  drives (`tests/app/test_workspace_page.py`).
+- A carrier given to a station now starts from that station's own carrier values, not the defaults.
+- Arabic: custom carrier labels on the comparison page are isolated left-to-right (as in the workspace).
